@@ -17,4 +17,5 @@ class ArticleTranslation extends Model implements HasMedia
     {
         return $this->belongsTo(Article::class);
     }
+
 }

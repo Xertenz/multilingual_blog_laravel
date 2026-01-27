@@ -29,7 +29,7 @@
             @enderror
         </div>
         <div>
-            <button>edit article</button>
+            <button>update article</button>
         </div>
     </form>
     <br />

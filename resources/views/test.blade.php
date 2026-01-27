@@ -7,7 +7,7 @@
     <title>Document</title>
 </head>
 <body>
-    <form action="{{route('upload.image')}}" method="POST" enctype="multipart/form-data">
+    <form action="{{route('test.upload')}}" method="POST" enctype="multipart/form-data">
         @csrf
         <input type="text" name="title" /> <br />
         <input type="file" name="image" /> <br />

@@ -249,6 +249,7 @@ return [
     ],
 
     'responsive_images' => [
+        'enabled' => true,
         /*
          * This class is responsible for calculating the target widths of the responsive
          * images. By default we optimize for filesize and create variations that each are 30%

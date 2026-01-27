@@ -6,6 +6,7 @@ use App\Models\Article;
 use App\Models\ArticleTranslation;
 use App\Models\CategoryTranslation;
 use Illuminate\Http\Request;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class ArticleTranslationController extends Controller
 {
@@ -16,7 +17,9 @@ class ArticleTranslationController extends Controller
 
     public function create(int $article_id ) {
         $cats = CategoryTranslation::all()->where('language_code', 'ar');
-        return view('admin.add-article-trans', compact('cats', 'article_id'));
+        $article = Article::find($article_id);
+        $article_content_imgs = $article->getMedia('content_imgs');
+        return view('admin.add-article-trans', compact('cats', 'article_id', 'article_content_imgs'));
     }
 
 
@@ -52,10 +55,17 @@ class ArticleTranslationController extends Controller
 
     }
 
+    public function show(string $article_trans_slug) {
+        $article_trans = ArticleTranslation::where('slug', $article_trans_slug)->first();
+        return view('article.index', compact('article_trans'));
+    }
+
     public function edit(Request $request, int $article_trans_id) {
         $cats = CategoryTranslation::all()->where('language_code', 'ar');
-        $article = ArticleTranslation::findOrFail($article_trans_id);
-        return view('admin.edit-article-trans', compact('cats', 'article'));
+        $article_trans = ArticleTranslation::find($article_trans_id);
+        $article = $article_trans->article;
+        $article_content_imgs = $article->getMedia('content_imgs');
+        return view('admin.edit-article-trans', compact('cats', 'article_trans', 'article_content_imgs'));
     }
 
     public function update(Request $request, int $article_trans_id) {
@@ -94,4 +104,5 @@ class ArticleTranslationController extends Controller
 
         return to_route('articles.index');
     }
+
 }

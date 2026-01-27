@@ -18,7 +18,13 @@ class TestController extends Controller
 
         $test
             ->addMediaFromRequest('image')
+            ->withResponsiveImages()
             ->usingFileName(Str::random(32).'.'.$file_ext)
             ->toMediaCollection("content_imgs");
+    }
+
+    public function showimgs() {
+        $img = Test::findOrFail(2)->getMedia("content_imgs");
+        return view('showimgs', compact('img'));
     }
 }
