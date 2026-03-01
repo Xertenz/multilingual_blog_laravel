@@ -1,0 +1,56 @@
+{{-- resources/views/layouts/admin/master.blade.php --}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    
+    <title>@yield('title', 'Admin Panel') - {{ config('app.name') }}</title>
+    
+    {{-- Tailwind CSS via Vite --}}
+    @vite(['resources/css/app.css'])
+    
+    {{-- Additional Styles --}}
+    @stack('styles')
+</head>
+<body class="bg-slate-100 font-sans antialiased">
+    
+    <div class="flex min-h-screen">
+        
+        {{-- ================= LEFT SIDEBAR ================= --}}
+        @include('admin.partials.sidebar')
+        
+        {{-- ================= RIGHT CONTENT AREA ================= --}}
+        <div class="flex-1 ml-72" style="width: calc(0.2rem * 75)"> {{-- ml-72 يترك مسافة للـ sidebar --}}
+            
+            {{-- Top Header --}}
+            @include('admin.partials.header')
+            
+            {{-- Main Content (Your pages go here) --}}
+            <main class="p-8">
+                <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-200 min-h-[600px]">
+                    
+                    {{-- Page Title --}}
+                    @hasSection('page-title')
+                        <h1 class="text-2xl font-bold text-slate-800 mb-6">
+                            @yield('page-title')
+                        </h1>
+                    @endif
+                    
+                    {{-- Content Area --}}
+                    @yield('content')
+                    
+                </div>
+            </main>
+            
+            {{-- Footer --}}
+            @include('admin.partials.footer')
+        </div>
+    </div>
+    
+    {{-- Scripts --}}
+    @vite(['resources/js/app.js'])
+    @stack('scripts')
+</body>
+</html>

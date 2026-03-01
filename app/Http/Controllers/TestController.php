@@ -18,13 +18,21 @@ class TestController extends Controller
 
         $test
             ->addMediaFromRequest('image')
-            ->withResponsiveImages()
+            //->withResponsiveImages()
             ->usingFileName(Str::random(32).'.'.$file_ext)
             ->toMediaCollection("content_imgs");
     }
 
     public function showimgs() {
-        $img = Test::findOrFail(2)->getMedia("content_imgs");
+        $img = Test::findOrFail(29)->getFirstMedia("content_imgs");
+        //dd($img->getUrl('content_480w'));
+        dd($img->getUrl());
+       
+        /*
+        $img = Test::findOrFail(24)->getFirstMediaUrl("content_imgs", "content_desktop_medium");
+        dd($img);
+        */
+        
         return view('showimgs', compact('img'));
     }
 }

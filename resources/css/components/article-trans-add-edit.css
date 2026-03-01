@@ -1,0 +1,20 @@
+.tox .tox-dialog-wrap__backdrop {
+    background-color: rgba(54, 54, 54, 0.75) !important;
+}
+.content_imgs-container {
+    padding: 32px !important;
+    padding-top: 0 !important;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.content_img-wrapper {
+    cursor: pointer !important;
+}
+
+.content_img-wrapper .content_img {
+    width: 100%;
+    box-shadow: 0 0 3px grey;
+    padding: 7px;
+}

@@ -1,13 +1,11 @@
 let showGalleryBtns = document.querySelectorAll(".show-gallery");
 
-function closing(article_id) {
-    console.log(article_id);
-
+window.closing = function (article_id) {
     document.getElementById("article-gallery-wrapper").remove();
-}
+};
 
 const upload_url = window.upload_url;
-async function choosingFile(fileInput) {
+window.choosingFile = async function (fileInput) {
     const content_img = fileInput.files[0];
     const article_id = fileInput.dataset.articleId;
 
@@ -28,26 +26,12 @@ async function choosingFile(fileInput) {
         body: formData,
     });
     let data = await response.json();
-    console.log(data);
 
-    //rerendering the gallery
-    let template = document.createElement("template");
-    template.innerHTML = await createGalleryHTML(article_id);
-    let fragment = template.content;
-    let showGalleryBtn = document.querySelector(
-        `.show-gallery[data-article-id="${article_id}"]`
-    );
-    showGalleryBtn.after(fragment);
-    document.getElementsByClassName("article-gallery-wrapper")[1].remove();
-
-    //updating 'showGelleryBtn' count of content_imgs
-    let article_content_img = await getArticleContentImgs(article_id);
-    showGalleryBtn.querySelector(".artilce-content_imgs-count").textContent =
-        article_content_img.length.toString();
-}
+    rerendering_the_gallery(article_id);
+};
 
 const article_content_imgs_url = window.article_content_imgs_url;
-async function getArticleContentImgs(article_id) {
+window.getArticleContentImgs = async function (article_id) {
     const formData = new FormData();
     formData.append("article_id", article_id);
 
@@ -63,10 +47,10 @@ async function getArticleContentImgs(article_id) {
     });
     let json = await request.json();
     return json;
-}
+};
 
 const delete_content_img_url = window.delete_content_img_url;
-async function removeImage(element, article_id) {
+window.removeImage = async function (element, article_id) {
     //removing the selected image (not yet)
     if (!confirm("Are you sure you want to delete this image?")) {
         return;
@@ -83,8 +67,11 @@ async function removeImage(element, article_id) {
         body: JSON.stringify({ content_img_id: contentImageId }),
     });
     const data = await request.json();
-    console.log(data);
+    //console.log(data);
+    rerendering_the_gallery(article_id);
+};
 
+window.rerendering_the_gallery = async function (article_id) {
     //rerendering the gallery
     let template = document.createElement("template");
     template.innerHTML = await createGalleryHTML(article_id);
@@ -94,17 +81,23 @@ async function removeImage(element, article_id) {
     );
     showGalleryBtn.after(fragment);
     document.getElementsByClassName("article-gallery-wrapper")[1].remove();
-    console.log(document.getElementsByClassName("article-gallery-wrapper")[0]);
-}
+    //console.log(document.getElementsByClassName("article-gallery-wrapper")[0]);
 
-async function createGalleryHTML(article_id) {
+    //updating 'showGelleryBtn' count of content_imgs
+    let article_content_img = await getArticleContentImgs(article_id);
+    showGalleryBtn.querySelector(".artilce-content_imgs-count").textContent =
+        article_content_img.length.toString();
+};
+
+window.createGalleryHTML = async function (article_id) {
     let article_content_imgs = await getArticleContentImgs(article_id);
 
     let html = `
 <div class="article-gallery-wrapper" id="article-gallery-wrapper">
     <div class="popup">
         <div class="top-bar">
-            <input type="file" name="content-img" id="content-img" data-article-id="${article_id}" onchange="choosingFile(this)">
+            <label for="content-img" class="cursor-pointer px-3 py-1 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">Upload +</label>
+            <input type="file" name="content-img" id="content-img" class="hidden" data-article-id="${article_id}" onchange="choosingFile(this)">
             <button class="close-icon" id="close-icon" onclick="closing(this)">
                 <span>X</span>
             </button>
@@ -128,7 +121,7 @@ async function createGalleryHTML(article_id) {
     </div>
 </div>`;
     return html;
-}
+};
 showGalleryBtns.forEach(function (showGalleryBtn) {
     showGalleryBtn.addEventListener("click", async function () {
         let template = document.createElement("template");

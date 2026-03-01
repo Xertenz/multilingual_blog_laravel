@@ -1,5 +1,5 @@
 tinymce.init({
-    selector: "#meta_description",
+    selector: "#description",
     license_key: "gpl",
     plugins: [
         "advlist",
@@ -29,9 +29,10 @@ tinymce.init({
             icon: "image",
             tooltip: "add an image",
             onAction() {
-                let html = "<h1>available images: </h1><div>";
+                let html = "<h1>available images: </h1>";
+                html += "<div class='content_imgs-container'>";
                 for (let article_content_img_info of article_content_imgs_info) {
-                    html += `<div onclick="addImage('${article_content_img_info["src"]}', '${article_content_img_info["id"]}')"><img src="${article_content_img_info["src"]}" style="width: 100%;" /></div>`;
+                    html += `<div class="content_img-wrapper" onclick="addImage('${article_content_img_info["src"]}', '${article_content_img_info["id"]}')"><img src="${article_content_img_info["src"]}" class="content_img"  /></div>`;
                 }
                 html += "</div>";
 
@@ -58,7 +59,7 @@ tinymce.init({
     },
 });
 
-function addImage(src, content_img_id) {
+window.addImage = function (src, content_img_id) {
     tinymce.activeEditor.insertContent(`
             <div class="content_img-wrapper">
                 <img src=${src}
@@ -69,4 +70,4 @@ function addImage(src, content_img_id) {
                 />
             </div>`);
     tinymce.activeEditor.windowManager.close();
-}
+};

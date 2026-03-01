@@ -13,13 +13,15 @@ return new class extends Migration
     {
         Schema::create('category_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('category_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
-            $table->enum('language_code', ['ar', 'en']);
+            $table->foreignId('category_id')->nullable()->constrained('categories')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->enum('language_code', ['en', 'ar', 'gr', 'sp', 'fr', 'ru', 'pt']);
+            $table->unique(['category_id', 'language_code']);
+            $table->string("slug")->unique();
             $table->string('name');
             $table->text('description');
             $table->string('meta_title');
             $table->text('meta_description');
-
+            $table->timestamps();
         });
     }
 

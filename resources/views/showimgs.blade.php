@@ -7,6 +7,8 @@
 </head>
 <body>
 
+    {{$img->path}}
+
     
 </body>
 </html>

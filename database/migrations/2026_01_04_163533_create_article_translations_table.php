@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('article_translations', function (Blueprint $table) {
             $table->id();
-            //$table->unsignedBigInteger('article_id');
-            $table->foreignId('article_id')->constrained()->onUpdate('cascade')->onDelete('cascade');
-            $table->enum('language_code', ['ar', 'en']);
-            $table->string("slug");
+            $table->foreignId('article_id')->constrained('articles')->onUpdate('cascade')->onDelete('cascade');
+            $table->enum('language_code', ['en', 'ar', 'de', 'es', 'fr', 'ru', 'pt']);
+            $table->unique(['article_id', 'language_code']);
+            $table->string("slug"); //->unique();
+            $table->unique(['language_code', 'slug']);
             $table->string('title');
             $table->longText('description');
             $table->string('meta_title');
