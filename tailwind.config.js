@@ -1,11 +1,23 @@
 // tailwind.config.js
 module.exports = {
+    content: [
+        "./resources/**/*.blade.php",
+        "./resources/**/*.js",
+        "./resources/**/*.vue",
+    ],
     theme: {
         extend: {
             // إضافة container مطابق لـ Bootstrap
             container: {
                 center: true,
-                padding: "1rem",
+                padding: {
+                    DEFAULT: "0.75rem", // 12px (نفس Bootstrap)
+                    sm: "0.75rem",
+                    md: "0.75rem",
+                    lg: "0.75rem",
+                    xl: "0.75rem",
+                    "2xl": "0.75rem",
+                },
                 screens: {
                     sm: "540px", // Bootstrap: 100% عند < 576px
                     md: "720px", // Bootstrap: 100% عند < 768px
@@ -23,4 +35,5 @@ module.exports = {
             },
         },
     },
+    plugins: [],
 };

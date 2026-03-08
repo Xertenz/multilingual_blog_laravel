@@ -37,7 +37,7 @@
                     <td class="px-6 py-4 font-medium">{{ $category->sign }}</td>
                     <td class="px-6 py-4 font-medium">
                         <img 
-                        src = "{{ $category->getFirstMediaUrl('featured_imgs', 'thumb')?? '' }}"
+                            src = "{{ $category->getFirstMediaUrl('featured_imgs', 'thumb')?? '' }}"
                          />
                     </td>
                     <td class="px-6 py-4 text-slate-500">{{ "[Inside Category Translation]" }}</td>

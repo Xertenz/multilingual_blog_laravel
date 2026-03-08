@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
+use App\Http\Controllers\Controller;
 
 use App\Models\Article;
 use App\Models\ArticleTranslation;
@@ -79,15 +80,18 @@ class ArticleTranslationController extends Controller
 
     public function show(string $article_trans_slug) {
         $article_trans = ArticleTranslation::where('slug', $article_trans_slug)->first();
+        /*
+        $article_trans = ArticleTranslation::where('slug', $article_trans_slug)->first();
         $article_trans_lang_code = $article_trans->lang_code;
         $article_trans_title = $article_trans->title;
         $article_trans_description = $article_trans->description;
         $article_trans_meta_title = $article_trans->meta_title;
         $article_trans_meta_description = $article_trans->meta_description;
+        */
 
         $doc = new DOMDocument();
         @$doc->loadHTML(
-            mb_convert_encoding($article_trans_description, 'HTML-ENTITIES', 'UTF-8'),
+            mb_convert_encoding($article_trans->description, 'HTML-ENTITIES', 'UTF-8'),
             LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
         );
         $imgs = $doc->getElementsByTagName('img');
@@ -97,9 +101,13 @@ class ArticleTranslationController extends Controller
             $img->setAttribute('sizes', '(max-width: 768px) 100vw, 800px');
         }
 
+        /*
         $article_trans_description = $doc->saveHTML();
+        */
+        $article_trans->description = $doc->saveHTML();
 
-        return view('admin.article.index', compact('article_trans_title', 'article_trans_description'));
+
+        return view('articles.show', compact('article_trans'));
     }
 
     public function create_content_img_srcset($content_img_id) {
@@ -118,16 +126,16 @@ class ArticleTranslationController extends Controller
         }
         return $srcset;
         */
-        $content_img = Media::find($content_img_id);
+        $content_img = Media::findOrFail($content_img_id);
         $srcset = '';
 
-        $srcset .= "{$content_img->getUrl('content_375w')} 375w,";
-        $srcset .= "{$content_img->getUrl('content_480w')} 480w,";
-        $srcset .= "{$content_img->getUrl('content_768w')} 768w,";
-        $srcset .= "{$content_img->getUrl('content_800w')} 800w,";
-        $srcset .= "{$content_img->getUrl('content_1024w')} 1024w,";
-        $srcset .= "{$content_img->getUrl('content_1200w')} 1200w,";
-        $srcset .= "{$content_img->getUrl('content_1600w')} 1600w,";
+        $srcset .= $content_img->getUrl("content_375w") ? "{$content_img->getUrl('content_375w')} 375w," : '';
+        $srcset .= $content_img->getUrl("content_480w") ? "{$content_img->getUrl('content_480w')} 480w," : '';
+        $srcset .= $content_img->getUrl('content_768w') ? "{$content_img->getUrl('content_768w')} 768w," : '';
+        $srcset .= $content_img->getUrl('content_800w') ? "{$content_img->getUrl('content_800w')} 800w," : '';
+        $srcset .= $content_img->getUrl('content_1024w') ? "{$content_img->getUrl('content_1024w')} 1024w," : '';
+        $srcset .= $content_img->getUrl('content_1200w') ? "{$content_img->getUrl('content_1200w')} 1200w," : '';
+        $srcset .= $content_img->getUrl('content_1600w') ? "{$content_img->getUrl('content_1600w')} 1600w," : '';
 
         return $srcset;
     }
@@ -189,7 +197,8 @@ class ArticleTranslationController extends Controller
             'meta_description' => $request->meta_description,
         ]);
 
-        return to_route('admin.articles.index');
+        //return to_route('admin.articles.index');
+        return redirect()->back();
     }
 
     public function destroy($article_trans_id) {

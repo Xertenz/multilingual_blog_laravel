@@ -1,6 +1,5 @@
 @extends("layouts.admin.master")
 
-
 {{-- @section('page-title', 'Add New Article') --}}
 @section('title', 'New Article')
 

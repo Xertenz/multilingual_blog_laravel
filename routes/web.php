@@ -1,9 +1,9 @@
 <?php
 
-use App\Http\Controllers\ArticleController;
-use App\Http\Controllers\ArticleTranslationController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\CategoryTranslationController;
+use App\Http\Controllers\Admin\ArticleController;
+use App\Http\Controllers\Admin\ArticleTranslationController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CategoryTranslationController;
 use App\Http\Controllers\TestController;
 use Illuminate\Support\Facades\Route;
 
@@ -11,12 +11,12 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::view('test', "test");
-Route::post('/upload', [TestController::class, 'upload'])->name('test.upload');
-Route::get('/showtest', [TestController::class, 'showimgs'])->name('test.show');
+//Route::view('test', "test");
+//Route::post('/upload', [TestController::class, 'upload'])->name('test.upload');
+//Route::get('/showtest', [TestController::class, 'showimgs'])->name('test.show');
 
 
-Route::get('/articles/{slug}', [ArticleTranslationController::class, 'show'])->name('visitor.articles.show');
+Route::get('/articles/{slug}', [ArticleTranslationController::class, 'show'])->name('articles.show');
 Route::post('/articles/content_img_info', [ArticleController::class, 'get_content_img_info'])->name('visitor.articles.content_img.info');
 
 Route::view('admin/dashboard', 'admin.layout.dashboard');
@@ -47,5 +47,10 @@ Route::get('/admin/categories/{cat_id}/edit', [CategoryTranslationController::cl
 Route::put('/admin/categories/{cat_id}', [CategoryTranslationController::class, 'update'])->name('admin.categories.update');
 Route::delete('/admin/categories/{cat_id}', [CategoryTranslationController::class, 'destroy'])->name('admin.categories.destroy');
 
+Route::view('/privacy', 'privacy')->name('privacy');
+Route::view('/terms', 'terms')->name('terms');
+Route::view('/contact', 'contact')->name('contact');
+Route::post('/contact', function(){})->name('contact.submit');
+Route::view('/about', 'about')->name('about');
 
 //Route::post('/admin/articles/upload-article-test-img', [ArticleController::class, 'test_upload_with_tiny'])->name('articles.upload.test');

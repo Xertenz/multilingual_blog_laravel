@@ -36,17 +36,17 @@ class Article extends Model  implements HasMedia
         $this->addMediaConversion('large')->performOnCollections('featured_imgs')->width(1200)->optimize() ->sharpen(5)->quality(85)->format('webp')->nonQueued();
 
             // 📱 Mobile أحجام
-        $this->addMediaConversion('content_375w')->performOnCollections('content_imgs')->width(375)->optimize()->sharpen(10)->quality(85)->format('webp')->nonQueued();
-        $this->addMediaConversion('content_480w')->performOnCollections('content_imgs')->width(480)->optimize()->sharpen(10)->quality(85)->format('webp')->nonQueued();
+        $this->addMediaConversion('content_375w')->performOnCollections('content_imgs')->width(375)->optimize()->sharpen(5)->quality(90)->format('webp')->nonQueued();
+        $this->addMediaConversion('content_480w')->performOnCollections('content_imgs')->width(480)->optimize()->sharpen(5)->quality(90)->format('webp')->nonQueued();
         
         // 📟 Tablet أحجام
-        $this->addMediaConversion('content_768w')->performOnCollections('content_imgs')->width(768)->optimize()->sharpen(10)->quality(85)->format('webp')->nonQueued();
-        $this->addMediaConversion('content_800w')->performOnCollections('content_imgs')->width(800)->optimize()->sharpen(10)->quality(85)->format('webp')->nonQueued();
+        $this->addMediaConversion('content_768w')->performOnCollections('content_imgs')->width(768)->optimize()->sharpen(5)->quality(90)->format('webp')->nonQueued();
+        $this->addMediaConversion('content_800w')->performOnCollections('content_imgs')->width(800)->optimize()->sharpen(5)->quality(90)->format('webp')->nonQueued();
         // 💻 Desktop أحجام
-        $this->addMediaConversion('content_1024w')->performOnCollections('content_imgs')->width(1024)->optimize()->sharpen(10)->quality(85)->format('webp')->nonQueued();
-        $this->addMediaConversion('content_1200w')->performOnCollections('content_imgs')->width(1200)->optimize()->sharpen(10)->quality(85)->format('webp')->nonQueued();
+        $this->addMediaConversion('content_1024w')->performOnCollections('content_imgs')->width(1024)->optimize()->sharpen(5)->quality(90)->format('webp')->nonQueued();
+        $this->addMediaConversion('content_1200w')->performOnCollections('content_imgs')->width(1200)->optimize()->sharpen(5)->quality(90)->format('webp')->nonQueued();
         // 🖥️ Large Screens
-        $this->addMediaConversion('content_1600w')->performOnCollections('content_imgs')->width(1600)->optimize()->sharpen(10)->quality(85)->format('webp')->nonQueued();
+        $this->addMediaConversion('content_1600w')->performOnCollections('content_imgs')->width(1600)->optimize()->sharpen(5)->quality(90)->format('webp')->nonQueued();
     }
     
 

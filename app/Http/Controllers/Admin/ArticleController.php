@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
+use App\Http\Controllers\Controller;
 
 use App\Models\Article;
 use App\Models\ArticleTranslation;
@@ -106,24 +107,25 @@ class ArticleController extends Controller
     }
 
     public function uploadContentImg(Request $request) {
-
         $request->validate([
             'article_id' => 'required|numeric|exists:articles,id',
             'content_img' => "required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048"
         ]);
 
-        $file = $request->file('content_img');
-        $file_ext = $file->getClientOriginalExtension();
-        $fileName = Str::uuid() . '_' . time() . '.' . $file_ext;
-
         $article = Article::findOrFail($request->article_id);
+        if($request->hasFile('content_img')) {
+            $file = $request->file('content_img');
+            $file_ext = $file->getClientOriginalExtension();
+            $fileName = Str::random(8) . '_' . time() . '.' . $file_ext;
+            //$fileName = Str::uuid() . '_' . time() . '.' . $file_ext;
 
-        $article
-            ->addMedia($file) // $article->addMediaFromRequest('content_img)
-            //->usingFileName(Str::random(32).'.'.$file_ext)
-            ->usingFileName($fileName)
-            //->withResponsiveImages()
-            ->toMediaCollection("content_imgs");
+            $article
+                ->addMedia($file) // $article->addMediaFromRequest('content_img)
+                //->usingFileName(Str::random(32).'.'.$file_ext)
+                ->usingFileName($fileName)
+                //->withResponsiveImages()
+                ->toMediaCollection("content_imgs");
+        }
         
         $article_media = Article::findOrFail($request->article_id)
             ->getMedia('content_imgs');
