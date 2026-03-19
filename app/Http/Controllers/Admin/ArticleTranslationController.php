@@ -9,6 +9,7 @@ use App\Models\CategoryTranslation;
 use DOMDocument;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class ArticleTranslationController extends Controller
@@ -39,9 +40,6 @@ class ArticleTranslationController extends Controller
                     return $query->where('article_id', (int)$request->article_id);
                 })
             ],
-            
-
-            //'slug' => "required|string|unique:article_translations,slug",
             'slug' => [
                 'required',
                 'string',
@@ -79,7 +77,15 @@ class ArticleTranslationController extends Controller
     }
 
     public function show(string $article_trans_slug) {
-        $article_trans = ArticleTranslation::where('slug', $article_trans_slug)->first();
+        $lang_code = LaravelLocalization::getCurrentLocale();
+
+        // check the article existence with the language
+        $article_trans_exists = ArticleTranslation::where('slug', $article_trans_slug)->where('language_code', $lang_code)->exists();
+        if(!$article_trans_exists) {
+            return to_route('home');
+        }
+
+        $article_trans = ArticleTranslation::where('slug', $article_trans_slug)->where('language_code', $lang_code)->first();
         /*
         $article_trans = ArticleTranslation::where('slug', $article_trans_slug)->first();
         $article_trans_lang_code = $article_trans->lang_code;
@@ -141,11 +147,11 @@ class ArticleTranslationController extends Controller
     }
 
     public function edit(Request $request, int $article_trans_id) {
-        $cats = CategoryTranslation::all()->where('language_code', 'ar');
+        //$cats = CategoryTranslation::all()->where('language_code', 'ar');
         $article_trans = ArticleTranslation::find($article_trans_id);
         $article = $article_trans->article;
         $article_content_imgs = $article->getMedia('content_imgs');
-        return view('admin.articles.edit-trans', compact('cats', 'article_trans', 'article_content_imgs'));
+        return view('admin.articles.edit-trans', compact(/* 'cats',*/ 'article_trans', 'article_content_imgs'));
     }
 
     public function update(Request $request, int $article_trans_id) {
@@ -158,14 +164,6 @@ class ArticleTranslationController extends Controller
                     return $query->where('article_id', (int)$request->article_id);
                 })->ignore($article_trans_id),
             ],
-            /*
-            'slug' => [
-                'required',
-                'string',
-                //'unique:article_translations,slug,$article_trans_id'
-                Rule::unique('article_translations', 'slug')->ignore($article_trans_id)
-            ],
-            */
             'slug' => [
                 'required',
                 'string',

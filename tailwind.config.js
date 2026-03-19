@@ -1,39 +1,21 @@
-// tailwind.config.js
-module.exports = {
+import defaultTheme from 'tailwindcss/defaultTheme';
+import forms from '@tailwindcss/forms';
+
+/** @type {import('tailwindcss').Config} */
+export default {
     content: [
-        "./resources/**/*.blade.php",
-        "./resources/**/*.js",
-        "./resources/**/*.vue",
+        './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
+        './storage/framework/views/*.php',
+        './resources/views/**/*.blade.php',
     ],
+
     theme: {
         extend: {
-            // إضافة container مطابق لـ Bootstrap
-            container: {
-                center: true,
-                padding: {
-                    DEFAULT: "0.75rem", // 12px (نفس Bootstrap)
-                    sm: "0.75rem",
-                    md: "0.75rem",
-                    lg: "0.75rem",
-                    xl: "0.75rem",
-                    "2xl": "0.75rem",
-                },
-                screens: {
-                    sm: "540px", // Bootstrap: 100% عند < 576px
-                    md: "720px", // Bootstrap: 100% عند < 768px
-                    lg: "960px", // Bootstrap: 960px عند ≥ 992px
-                    xl: "1140px", // Bootstrap: 1140px عند ≥ 1200px
-                    "2xl": "1320px", // Bootstrap: 1320px عند ≥ 1400px
-                },
-            },
-            screens: {
-                sm: "576px", // Bootstrap breakpoint
-                md: "768px", // Bootstrap breakpoint
-                lg: "992px", // Bootstrap breakpoint
-                xl: "1200px", // Bootstrap breakpoint
-                "2xl": "1400px", // Bootstrap breakpoint
+            fontFamily: {
+                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
         },
     },
-    plugins: [],
+
+    plugins: [forms],
 };

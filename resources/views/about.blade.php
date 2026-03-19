@@ -202,7 +202,7 @@
             <p class="text-gray-300 mb-6">{{ __('about.approach.content') }}</p>
             <div class="space-y-4">
                 @foreach(__('about.approach.steps') as $step => $description)
-                    <div class="border-l-4 border-red-500 pl-4">
+                    <div class="border-s-4 border-red-500 ps-4">
                         <h3 class="text-lg font-bold text-white mb-1">{{ $step }}</h3>
                         <p class="text-gray-400">{{ $description }}</p>
                     </div>

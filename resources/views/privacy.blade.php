@@ -29,8 +29,12 @@
         font-weight: 700;
         margin: 2.5rem 0 1.5rem 0;
         color: white;
+        /*
         border-left: 4px solid #ef4444;
         padding-left: 1.5rem;
+        */
+        border-inline-start: 4px solid #ef4444;
+        padding-inline-start: 1.5rem;
     }
     
     .legal-content h3 {

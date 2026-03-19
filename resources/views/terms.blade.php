@@ -28,8 +28,12 @@
             font-weight: 700;
             margin: 2.5rem 0 1.5rem 0;
             color: white;
+            /*
             border-left: 4px solid #ef4444;
             padding-left: 1.5rem;
+            */
+            border-inline-start: 4px solid #ef4444;
+            padding-inline-start: 1.5rem;
         }
         
         .legal-content p {
@@ -85,6 +89,15 @@
     @section('content')
     <!-- Main Content -->
     <div class="container mx-auto px-4 py-16 max-w-4xl">
+
+
+        @guest
+        <a href="{{route('login')}}">login</a>
+        @endguest
+        @auth
+        <a href="{{route('dashboard')}}">dashboard</a>
+        @endauth
+
         <div class="relative">
             <div class="evidence-stamp">LEGAL BINDING</div>
             

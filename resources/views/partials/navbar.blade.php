@@ -9,7 +9,7 @@
                         <span class="text-gray-300">CHRONICLES</span>
                     </span>
                 </a>
-                
+
                 <!-- Navigation -->
                 <div class="hidden md:flex items-center space-x-6">
                     <a href="/cases" class="text-gray-300 hover:text-red-500 transition text-sm font-medium">{{__('nav.cases')}}</a>
@@ -19,6 +19,17 @@
                 </div>
                 
                 <!-- Language Switcher (إذا كان متاح) -->
+                <select id="lang-switcher" class="lang-switcher" onchange="location=this.value;">
+                    @foreach(LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
+                        <option value="{{LaravelLocalization::getLocalizedURL($localeCode, null, [], true)}}" {{ app()->getLocale() == $localeCode ? 'selected' : '' }} class="text-black px-8">
+                            <span class="block px-33">
+                            {{ $properties['native'] }}
+                            </span>
+                        </option>
+                    @endforeach
+                </select>
+
+                {{--
                 @if(isset($otherLanguages) && count($otherLanguages) > 0)
                 <div class="flex items-center space-x-2">
                     @foreach($otherLanguages as $langCode => $langUrl)
@@ -29,6 +40,13 @@
                     @endforeach
                 </div>
                 @endif
+                --}}
             </div>
         </div>
     </nav>
+
+
+    @push('scripts')
+    <script>
+    </script>
+    @endpush

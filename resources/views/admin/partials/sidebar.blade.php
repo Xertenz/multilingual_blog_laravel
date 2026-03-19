@@ -133,7 +133,7 @@
         
         {{-- Logout --}}
         <div class="border-t border-slate-700 mt-6 pt-4">
-            <form method="POST" action="route('admin.logout')">
+            <form method="POST" action="{{route('logout')}}">
                 @csrf
                 <button type="submit" class="w-full flex items-center px-3 py-2.5 text-slate-300 hover:bg-red-600/20 hover:text-red-400 rounded-lg transition">
                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

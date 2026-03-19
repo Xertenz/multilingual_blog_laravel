@@ -17,7 +17,6 @@ class ArticleController extends Controller
     //
     public function index() {
         $articles = Article::with('translations')->paginate(10);
-
         return view("admin.articles.index", compact('articles'));
     }
 
@@ -25,7 +24,6 @@ class ArticleController extends Controller
         $cats = Category::orderBy('sign', 'asc')->get();
         return view('admin.articles.create', compact('cats'));
     }
-
 
     public function store(Request $request) {
         $validated = $request->validate([

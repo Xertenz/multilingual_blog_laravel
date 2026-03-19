@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('category_translations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('category_id')->nullable()->constrained('categories')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->enum('language_code', ['en', 'ar', 'gr', 'sp', 'fr', 'ru', 'pt']);
+            $table->enum('language_code', ['en', 'ar', 'de', 'es', 'fr', 'ru', 'pt']);
             $table->unique(['category_id', 'language_code']);
-            $table->string("slug")->unique();
+            $table->string("slug");//->unique();
+            $table->unique(['language_code', 'slug']);
             $table->string('name');
             $table->text('description');
             $table->string('meta_title');

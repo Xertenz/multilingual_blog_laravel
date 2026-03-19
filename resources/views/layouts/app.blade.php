@@ -1,12 +1,20 @@
-    <!-- Header -->
+    <!-- ==================== -->
+    <!-- Header / Navigation -->
+    <!-- ==================== -->
     @include('partials.header')
 
-    <!-- Navigation -->
     @include('partials.navbar')
-    <!-- شريط مسرح الجريمة (تأثير بصري) -->
     <div class="crime-scene-tape"></div>
     
+    <!-- ==================== -->
     <!-- Main Content -->
-    @yield('content')
+    <!-- ==================== -->
+    <main class="flex-1">
+        @yield('content')
+    </main>
+    
+    <!-- ==================== -->
     <!-- Footer -->
+    <!-- ==================== -->
     @include('partials.footer')
+    

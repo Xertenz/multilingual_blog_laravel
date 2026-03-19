@@ -1,7 +1,7 @@
 @extends("layouts.admin.master")
 
 {{-- @section('page-title', 'Add New Article') --}}
-@section('title', 'New Article')
+@section('title', 'Add New Article')
 
 @push('styles')
     <link rel="preconnect" href="https://fonts.googleapis.com">

@@ -66,8 +66,8 @@ class CategoryTranslationController extends Controller
 
         //inserting other optional category translations
         $this->store_cat_trans($cat, $request, 'arabic', 'ar');
-        $this->store_cat_trans($cat, $request, 'german', 'gr');
-        $this->store_cat_trans($cat, $request, 'spanish', 'sp');
+        $this->store_cat_trans($cat, $request, 'german', 'de');
+        $this->store_cat_trans($cat, $request, 'spanish', 'es');
         $this->store_cat_trans($cat, $request, 'french', 'fr');
         $this->store_cat_trans($cat, $request, 'russian', 'ru');
         $this->store_cat_trans($cat, $request, 'portuguese', 'pt');
@@ -122,8 +122,8 @@ class CategoryTranslationController extends Controller
             'english_meta_description' => 'required|string',
 
             'arabic_slug' => "unique:category_translations,slug,{$cat->translations()->where('language_code', 'ar')->value('id')}",
-            'german_slug' => "unique:category_translations,slug,{$cat->translations()->where('language_code', 'gr')->value('id')}",
-            'spanish_slug' => "unique:category_translations,slug,{$cat->translations()->where('language_code', 'sp')->value('id')}",
+            'german_slug' => "unique:category_translations,slug,{$cat->translations()->where('language_code', 'de')->value('id')}",
+            'spanish_slug' => "unique:category_translations,slug,{$cat->translations()->where('language_code', 'es')->value('id')}",
             'french_slug' => "unique:category_translations,slug,{$cat->translations()->where('language_code', 'fr')->value('id')}",
             'russian_slug' => "unique:category_translations,slug,{$cat->translations()->where('language_code', 'ru')->value('id')}",
             'portuguese_slug' => "unique:category_translations,slug,{$cat->translations()->where('language_code', 'pt')->value('id')}",
@@ -168,8 +168,8 @@ class CategoryTranslationController extends Controller
         ]);
 
         $this->update_cat_trans($cat, $request, 'arabic', 'ar');
-        $this->update_cat_trans($cat, $request, 'german', 'gr');
-        $this->update_cat_trans($cat, $request, 'spanish', 'sp');
+        $this->update_cat_trans($cat, $request, 'german', 'de');
+        $this->update_cat_trans($cat, $request, 'spanish', 'es');
         $this->update_cat_trans($cat, $request, 'french', 'fr');
         $this->update_cat_trans($cat, $request, 'russian', 'ru');
         $this->update_cat_trans($cat, $request, 'portuguese', 'pt');
