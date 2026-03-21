@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 // ⚠️ تأكد من هذه الـ imports
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as AuthenticatableUser; // هذا مهم
 use Illuminate\Notifications\Notifiable;
 
@@ -31,4 +32,14 @@ class User extends AuthenticatableUser implements Authenticatable
         'password' => 'hashed',
         'is_admin' => 'boolean'
     ];
+
+    public function articles(): HasMany
+    {
+        return $this->hasMany(Article::class);
+    }
+
+    public function categories(): HasMany
+    {
+        return $this->hasMany(Category::class);
+    }
 }

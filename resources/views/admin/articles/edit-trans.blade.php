@@ -222,6 +222,11 @@
                                 <option value="fr" {{$article_trans->language_code == 'fr' ? 'selected' : ''}}>🇫🇷 French</option>
                                 <option value="ru" {{$article_trans->language_code == 'ru' ? 'selected' : ''}}>🇷🇺 Russian</option>
                                 <option value="pt" {{$article_trans->language_code == 'pt' ? 'selected' : ''}}>🇵🇹 Portuguese</option>
+                                <option value="nl" {{$article_trans->language_code == 'nl' ? 'selected' : ''}}>🇳🇱 Dutch</option>
+                                <option value="it" {{$article_trans->language_code == 'it' ? 'selected' : ''}}>🇮🇹 Italian</option>
+                                <option value="sv" {{$article_trans->language_code == 'sv' ? 'selected' : ''}}>🇸🇪 Swedish</option>
+                                <option value="da" {{$article_trans->language_code == 'da' ? 'selected' : ''}}>🇩🇰 Danish</option>
+                                <option value="nb" {{$article_trans->language_code == 'nb' ? 'selected' : ''}}>🇳🇴 Norwegian (Bokmål)</option>
                             </select>
                             <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
                                 <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

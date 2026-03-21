@@ -6,7 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+
+use Carbon\Carbon;
 
 class CategoryTranslationController extends Controller
 {
@@ -20,7 +24,14 @@ class CategoryTranslationController extends Controller
             "cat_sign" => 'required|string|unique:categories,sign',
             'cat_featured_img' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
 
-            'english_slug' => 'required|string|unique:category_translations,slug',
+            'english_slug' => [
+                'required',
+                'string',
+                //'unique:category_translations,slug',
+                Rule::unique('category_translations', 'slug')->where(function($query) use ($request){
+                    return $query->where('language_code', 'en');
+                })
+            ],
             'english_name' => 'required|string',
             'english_description' => 'required|string',
             'english_meta_title' => 'required|string',
@@ -37,7 +48,8 @@ class CategoryTranslationController extends Controller
 
         //inserting main article record (without translation)
         $cat = Category::create([
-            'sign' => $request->cat_sign
+            'sign' => $request->cat_sign,
+            'user_id' => Auth::id()
         ]);
 
 
@@ -62,6 +74,8 @@ class CategoryTranslationController extends Controller
             'description' => $english_description,
             'meta_title' => $english_meta_title,
             'meta_description' => $english_meta_description,
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
         ]);
 
         //inserting other optional category translations
@@ -71,12 +85,16 @@ class CategoryTranslationController extends Controller
         $this->store_cat_trans($cat, $request, 'french', 'fr');
         $this->store_cat_trans($cat, $request, 'russian', 'ru');
         $this->store_cat_trans($cat, $request, 'portuguese', 'pt');
+        $this->store_cat_trans($cat, $request, 'dutch', 'nl');
+        $this->store_cat_trans($cat, $request, 'italian', 'it');
+        $this->store_cat_trans($cat, $request, 'swedish', 'sv');
+        $this->store_cat_trans($cat, $request, 'danish', 'da');
+        $this->store_cat_trans($cat, $request, 'norwegian', 'nb');
 
         return to_route('admin.categories.index');
     }
 
     public function store_cat_trans(Category $cat, Request $request, string $lang, string $lang_code) {
-
 
         $lang_slug = $request->input("{$lang}_slug");
         $lang_name = $request->input("{$lang}_name");
@@ -98,6 +116,8 @@ class CategoryTranslationController extends Controller
                 'description' => $lang_description,
                 'meta_title' => $lang_meta_title,
                 'meta_description' => $lang_meta_description,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
             ]);
         }
     }
@@ -113,7 +133,7 @@ class CategoryTranslationController extends Controller
     
         $validated = $request->validate([
             'cat_sign' => "required|string|unique:categories,sign,$id",
-            'cat_featured_img' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'cat_featured_img' => 'image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
 
             'english_slug' => "required|string|unique:category_translations,slug,{$cat->translations()->where('language_code', 'en')->value('id')}",
             'english_name' => 'required|string',
@@ -127,6 +147,11 @@ class CategoryTranslationController extends Controller
             'french_slug' => "unique:category_translations,slug,{$cat->translations()->where('language_code', 'fr')->value('id')}",
             'russian_slug' => "unique:category_translations,slug,{$cat->translations()->where('language_code', 'ru')->value('id')}",
             'portuguese_slug' => "unique:category_translations,slug,{$cat->translations()->where('language_code', 'pt')->value('id')}",
+            'dutch_slug' => "unique:category_translations,slug,{$cat->translations()->where('language_code', 'nl')->value('id')}",
+            'italian_slug' => "unique:category_translations,slug,{$cat->translations()->where('language_code', 'it')->value('id')}",
+            'swedish_slug' => "unique:category_translations,slug,{$cat->translations()->where('language_code', 'sv')->value('id')}",
+            'danish_slug' => "unique:category_translations,slug,{$cat->translations()->where('language_code', 'da')->value('id')}",
+            'norwegian_slug' => "unique:category_translations,slug,{$cat->translations()->where('language_code', 'nb')->value('id')}",
         ]);
 
         $english_slug = $request->english_slug;
@@ -137,9 +162,9 @@ class CategoryTranslationController extends Controller
 
         //Updating main category record (without translation)
         $cat->update([
-            'sign' => $request->cat_sign
+            'sign' => $request->cat_sign,
+            'user_id' => Auth::id()
         ]);
-
 
         if($request->hasFile('cat_featured_img')) {
             if ($cat->hasMedia('featured_imgs')) {
@@ -165,6 +190,7 @@ class CategoryTranslationController extends Controller
             'description' => $english_description,
             'meta_title' => $english_meta_title,
             'meta_description' => $english_meta_description,
+            'updated_at' => Carbon::now()
         ]);
 
         $this->update_cat_trans($cat, $request, 'arabic', 'ar');
@@ -173,6 +199,11 @@ class CategoryTranslationController extends Controller
         $this->update_cat_trans($cat, $request, 'french', 'fr');
         $this->update_cat_trans($cat, $request, 'russian', 'ru');
         $this->update_cat_trans($cat, $request, 'portuguese', 'pt');
+        $this->update_cat_trans($cat, $request, 'dutch', 'nl');
+        $this->update_cat_trans($cat, $request, 'italian', 'it');
+        $this->update_cat_trans($cat, $request, 'swedish', 'sv');
+        $this->update_cat_trans($cat, $request, 'danish', 'da');
+        $this->update_cat_trans($cat, $request, 'norwegian', 'nb');
 
         return to_route('admin.categories.index');
         /*
@@ -211,6 +242,7 @@ class CategoryTranslationController extends Controller
                     'description' => $lang_description,
                     'meta_title' => $lang_meta_title,
                     'meta_description' => $lang_meta_description,
+                    'updated_at' => Carbon::now()
                 ]);
             }else{
                 $this->store_cat_trans($cat, $request, $lang, $lang_code);

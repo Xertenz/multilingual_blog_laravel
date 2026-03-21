@@ -569,7 +569,7 @@
                             @enderror
                         </div>
                     </div>
-                    <input type="hidden" name="german_language_code" value="gr">
+                    <input type="hidden" name="german_language_code" value="de">
                 </div>
                 
                 <!-- Spanish Translation Section -->
@@ -653,7 +653,7 @@
                             @enderror
                         </div>
                     </div>
-                    <input type="hidden" name="spanish_language_code" value="sp">
+                    <input type="hidden" name="spanish_language_code" value="es">
                 </div>
                 
                 <!-- French Translation Section -->
@@ -907,6 +907,426 @@
                     </div>
                     <input type="hidden" name="portuguese_language_code" value="pt">
                 </div>
+
+                {{-- Dutch Translation --}}
+                <div class="section-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="section-title mb-0">
+                            <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
+                            </svg>
+                            <span>Dutch Translation</span>
+                        </div>
+                        <span class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">Optional</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="dutch_slug" class="input-label">Slug</label>
+                            <input type="text" 
+                                name="dutch_slug" 
+                                id="dutch_slug" 
+                                value="{{ old('dutch_slug', $dutchTranslation->slug ?? '') }}" 
+                                class="input-field @error('dutch_slug') error @enderror" 
+                                placeholder="bijv. technologie-nieuws" 
+                                autocomplete="off">
+                            @error('dutch_slug')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <div>
+                            <label for="dutch_name" class="input-label">Name</label>
+                            <input type="text" 
+                                name="dutch_name" 
+                                id="dutch_name" 
+                                value="{{ old('dutch_name', $dutchTranslation->name ?? '') }}" 
+                                class="input-field @error('dutch_name') error @enderror" 
+                                placeholder="bijv. Technologie" 
+                                autocomplete="off">
+                            @error('dutch_name')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label for="dutch_description" class="input-label">Description</label>
+                        <textarea name="dutch_description" 
+                                id="dutch_description" 
+                                rows="3" 
+                                class="input-field @error('dutch_description') error @enderror" 
+                                placeholder="Categorie beschrijving in het Nederlands">{{ old('dutch_description', $dutchTranslation->description ?? '') }}</textarea>
+                        @error('dutch_description')
+                            <div class="error-message">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label for="dutch_meta_title" class="input-label">Meta Title</label>
+                            <input type="text" 
+                                name="dutch_meta_title" 
+                                id="dutch_meta_title" 
+                                value="{{ old('dutch_meta_title', $dutchTranslation->meta_title ?? '') }}" 
+                                class="input-field @error('dutch_meta_title') error @enderror" 
+                                placeholder="Meta titel in het Nederlands" 
+                                autocomplete="off">
+                            @error('dutch_meta_title')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <div>
+                            <label for="dutch_meta_description" class="input-label">Meta Description</label>
+                            <textarea name="dutch_meta_description" 
+                                    id="dutch_meta_description" 
+                                    rows="2" 
+                                    class="input-field @error('dutch_meta_description') error @enderror" 
+                                    placeholder="Meta beschrijving in het Nederlands">{{ old('dutch_meta_description', $dutchTranslation->meta_description ?? '') }}</textarea>
+                            @error('dutch_meta_description')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <input type="hidden" name="dutch_language_code" value="nl">
+                </div>
+
+                {{-- Italian Translation --}}
+                <div class="section-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="section-title mb-0">
+                            <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
+                            </svg>
+                            <span>Italian Translation</span>
+                        </div>
+                        <span class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">Optional</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="italian_slug" class="input-label">Slug</label>
+                            <input type="text" 
+                                name="italian_slug" 
+                                id="italian_slug" 
+                                value="{{ old('italian_slug', $italianTranslation->slug ?? '') }}" 
+                                class="input-field @error('italian_slug') error @enderror" 
+                                placeholder="es. notizie-tecnologia" 
+                                autocomplete="off">
+                            @error('italian_slug')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <div>
+                            <label for="italian_name" class="input-label">Name</label>
+                            <input type="text" 
+                                name="italian_name" 
+                                id="italian_name" 
+                                value="{{ old('italian_name', $italianTranslation->name ?? '') }}" 
+                                class="input-field @error('italian_name') error @enderror" 
+                                placeholder="es. Tecnologia" 
+                                autocomplete="off">
+                            @error('italian_name')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label for="italian_description" class="input-label">Description</label>
+                        <textarea name="italian_description" 
+                                id="italian_description" 
+                                rows="3" 
+                                class="input-field @error('italian_description') error @enderror" 
+                                placeholder="Descrizione della categoria in italiano">{{ old('italian_description', $italianTranslation->description ?? '') }}</textarea>
+                        @error('italian_description')
+                            <div class="error-message">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label for="italian_meta_title" class="input-label">Meta Title</label>
+                            <input type="text" 
+                                name="italian_meta_title" 
+                                id="italian_meta_title" 
+                                value="{{ old('italian_meta_title', $italianTranslation->meta_title ?? '') }}" 
+                                class="input-field @error('italian_meta_title') error @enderror" 
+                                placeholder="Meta titolo in italiano" 
+                                autocomplete="off">
+                            @error('italian_meta_title')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <div>
+                            <label for="italian_meta_description" class="input-label">Meta Description</label>
+                            <textarea name="italian_meta_description" 
+                                    id="italian_meta_description" 
+                                    rows="2" 
+                                    class="input-field @error('italian_meta_description') error @enderror" 
+                                    placeholder="Meta descrizione in italiano">{{ old('italian_meta_description', $italianTranslation->meta_description ?? '') }}</textarea>
+                            @error('italian_meta_description')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <input type="hidden" name="italian_language_code" value="it">
+                </div>
+
+                {{-- Swedish Translation --}}
+                <div class="section-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="section-title mb-0">
+                            <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
+                            </svg>
+                            <span>Swedish Translation</span>
+                        </div>
+                        <span class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">Optional</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="swedish_slug" class="input-label">Slug</label>
+                            <input type="text" 
+                                name="swedish_slug" 
+                                id="swedish_slug" 
+                                value="{{ old('swedish_slug', $swedishTranslation->slug ?? '') }}" 
+                                class="input-field @error('swedish_slug') error @enderror" 
+                                placeholder="t.ex. teknik-nyheter" 
+                                autocomplete="off">
+                            @error('swedish_slug')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <div>
+                            <label for="swedish_name" class="input-label">Name</label>
+                            <input type="text" 
+                                name="swedish_name" 
+                                id="swedish_name" 
+                                value="{{ old('swedish_name', $swedishTranslation->name ?? '') }}" 
+                                class="input-field @error('swedish_name') error @enderror" 
+                                placeholder="t.ex. Teknik" 
+                                autocomplete="off">
+                            @error('swedish_name')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label for="swedish_description" class="input-label">Description</label>
+                        <textarea name="swedish_description" 
+                                id="swedish_description" 
+                                rows="3" 
+                                class="input-field @error('swedish_description') error @enderror" 
+                                placeholder="Kategoribeskrivning på svenska">{{ old('swedish_description', $swedishTranslation->description ?? '') }}</textarea>
+                        @error('swedish_description')
+                            <div class="error-message">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label for="swedish_meta_title" class="input-label">Meta Title</label>
+                            <input type="text" 
+                                name="swedish_meta_title" 
+                                id="swedish_meta_title" 
+                                value="{{ old('swedish_meta_title', $swedishTranslation->meta_title ?? '') }}" 
+                                class="input-field @error('swedish_meta_title') error @enderror" 
+                                placeholder="Meta titel på svenska" 
+                                autocomplete="off">
+                            @error('swedish_meta_title')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <div>
+                            <label for="swedish_meta_description" class="input-label">Meta Description</label>
+                            <textarea name="swedish_meta_description" 
+                                    id="swedish_meta_description" 
+                                    rows="2" 
+                                    class="input-field @error('swedish_meta_description') error @enderror" 
+                                    placeholder="Meta beskrivning på svenska">{{ old('swedish_meta_description', $swedishTranslation->meta_description ?? '') }}</textarea>
+                            @error('swedish_meta_description')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <input type="hidden" name="swedish_language_code" value="sv">
+                </div>
+
+                {{-- Danish Translation --}}
+                <div class="section-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="section-title mb-0">
+                            <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
+                            </svg>
+                            <span>Danish Translation</span>
+                        </div>
+                        <span class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">Optional</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="danish_slug" class="input-label">Slug</label>
+                            <input type="text" 
+                                name="danish_slug" 
+                                id="danish_slug" 
+                                value="{{ old('danish_slug', $danishTranslation->slug ?? '') }}" 
+                                class="input-field @error('danish_slug') error @enderror" 
+                                placeholder="f.eks. teknologi-nyheder" 
+                                autocomplete="off">
+                            @error('danish_slug')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <div>
+                            <label for="danish_name" class="input-label">Name</label>
+                            <input type="text" 
+                                name="danish_name" 
+                                id="danish_name" 
+                                value="{{ old('danish_name', $danishTranslation->name ?? '') }}" 
+                                class="input-field @error('danish_name') error @enderror" 
+                                placeholder="f.eks. Teknologi" 
+                                autocomplete="off">
+                            @error('danish_name')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label for="danish_description" class="input-label">Description</label>
+                        <textarea name="danish_description" 
+                                id="danish_description" 
+                                rows="3" 
+                                class="input-field @error('danish_description') error @enderror" 
+                                placeholder="Kategoribeskrivelse på dansk">{{ old('danish_description', $danishTranslation->description ?? '') }}</textarea>
+                        @error('danish_description')
+                            <div class="error-message">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label for="danish_meta_title" class="input-label">Meta Title</label>
+                            <input type="text" 
+                                name="danish_meta_title" 
+                                id="danish_meta_title" 
+                                value="{{ old('danish_meta_title', $danishTranslation->meta_title ?? '') }}" 
+                                class="input-field @error('danish_meta_title') error @enderror" 
+                                placeholder="Meta titel på dansk" 
+                                autocomplete="off">
+                            @error('danish_meta_title')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <div>
+                            <label for="danish_meta_description" class="input-label">Meta Description</label>
+                            <textarea name="danish_meta_description" 
+                                    id="danish_meta_description" 
+                                    rows="2" 
+                                    class="input-field @error('danish_meta_description') error @enderror" 
+                                    placeholder="Meta beskrivelse på dansk">{{ old('danish_meta_description', $danishTranslation->meta_description ?? '') }}</textarea>
+                            @error('danish_meta_description')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <input type="hidden" name="danish_language_code" value="da">
+                </div>
+
+                {{-- Norwegian Translation (Bokmål) --}}
+                <div class="section-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="section-title mb-0">
+                            <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
+                            </svg>
+                            <span>Norwegian Translation (Bokmål)</span>
+                        </div>
+                        <span class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">Optional</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="norwegian_slug" class="input-label">Slug</label>
+                            <input type="text" 
+                                name="norwegian_slug" 
+                                id="norwegian_slug" 
+                                value="{{ old('norwegian_slug', $norwegianTranslation->slug ?? '') }}" 
+                                class="input-field @error('norwegian_slug') error @enderror" 
+                                placeholder="f.eks. teknologi-nyheter" 
+                                autocomplete="off">
+                            @error('norwegian_slug')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <div>
+                            <label for="norwegian_name" class="input-label">Name</label>
+                            <input type="text" 
+                                name="norwegian_name" 
+                                id="norwegian_name" 
+                                value="{{ old('norwegian_name', $norwegianTranslation->name ?? '') }}" 
+                                class="input-field @error('norwegian_name') error @enderror" 
+                                placeholder="f.eks. Teknologi" 
+                                autocomplete="off">
+                            @error('norwegian_name')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label for="norwegian_description" class="input-label">Description</label>
+                        <textarea name="norwegian_description" 
+                                id="norwegian_description" 
+                                rows="3" 
+                                class="input-field @error('norwegian_description') error @enderror" 
+                                placeholder="Kategoribeskrivelse på norsk">{{ old('norwegian_description', $norwegianTranslation->description ?? '') }}</textarea>
+                        @error('norwegian_description')
+                            <div class="error-message">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label for="norwegian_meta_title" class="input-label">Meta Title</label>
+                            <input type="text" 
+                                name="norwegian_meta_title" 
+                                id="norwegian_meta_title" 
+                                value="{{ old('norwegian_meta_title', $norwegianTranslation->meta_title ?? '') }}" 
+                                class="input-field @error('norwegian_meta_title') error @enderror" 
+                                placeholder="Meta tittel på norsk" 
+                                autocomplete="off">
+                            @error('norwegian_meta_title')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        
+                        <div>
+                            <label for="norwegian_meta_description" class="input-label">Meta Description</label>
+                            <textarea name="norwegian_meta_description" 
+                                    id="norwegian_meta_description" 
+                                    rows="2" 
+                                    class="input-field @error('norwegian_meta_description') error @enderror" 
+                                    placeholder="Meta beskrivelse på norsk">{{ old('norwegian_meta_description', $norwegianTranslation->meta_description ?? '') }}</textarea>
+                            @error('norwegian_meta_description')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+                    <input type="hidden" name="norwegian_language_code" value="nb">
+                </div>
                 
                 <!-- Form Actions -->
                 <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
@@ -956,6 +1376,26 @@
         <div class="bg-white/80 backdrop-blur-sm rounded-xl p-3 text-center border border-red-100">
             <span class="text-lg font-bold text-gray-800">🇵🇹</span>
             <p class="text-xs text-gray-600 mt-1">Portuguese</p>
+        </div>
+        <div class="bg-white/80 backdrop-blur-sm rounded-xl p-3 text-center border border-orange-100">
+            <span class="text-lg font-bold text-gray-800">🇳🇱</span>
+            <p class="text-xs text-gray-600 mt-1">Dutch</p>
+        </div>
+        <div class="bg-white/80 backdrop-blur-sm rounded-xl p-3 text-center border border-emerald-100">
+            <span class="text-lg font-bold text-gray-800">🇮🇹</span>
+            <p class="text-xs text-gray-600 mt-1">Italian</p>
+        </div>
+        <div class="bg-white/80 backdrop-blur-sm rounded-xl p-3 text-center border border-cyan-100">
+            <span class="text-lg font-bold text-gray-800">🇸🇪</span>
+            <p class="text-xs text-gray-600 mt-1">Swedish</p>
+        </div>
+        <div class="bg-white/80 backdrop-blur-sm rounded-xl p-3 text-center border border-teal-100">
+            <span class="text-lg font-bold text-gray-800">🇩🇰</span>
+            <p class="text-xs text-gray-600 mt-1">Danish</p>
+        </div>
+        <div class="bg-white/80 backdrop-blur-sm rounded-xl p-3 text-center border border-amber-100">
+            <span class="text-lg font-bold text-gray-800">🇳🇴</span>
+            <p class="text-xs text-gray-600 mt-1">Norwegian (Bokmål)</p>
         </div>
     </div>
 </div>

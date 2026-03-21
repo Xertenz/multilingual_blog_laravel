@@ -35,15 +35,15 @@ class ArticleTranslationController extends Controller
             'article_id' => 'required|numeric|exists:articles,id',
             'language_code' => [
                 'required',
-                'in:en,ar,de,es,fr,ru,pt',
-                Rule::unique('article_translations')->where(function($query) use ($request){
+                'in:en,ar,de,es,fr,ru,pt,it,nl,sv,da,nb',
+                Rule::unique('article_translations', 'language_code')->where(function($query) use ($request){
                     return $query->where('article_id', (int)$request->article_id);
                 })
             ],
             'slug' => [
                 'required',
                 'string',
-                Rule::unique('article_translations')->where(function($query) use ($request){
+                Rule::unique('article_translations', 'slug')->where(function($query) use ($request){
                     return $query->where('language_code', $request->language_code);
                 })
             ],
@@ -159,7 +159,7 @@ class ArticleTranslationController extends Controller
             'article_id' => 'required|numeric|exists:articles,id',
             'language_code' => [
                 'required',
-                'in:en,ar,de,es,fr,ru,pt',
+                'in:en,ar,de,es,fr,ru,pt,it,nl,sv,da,nb',
                 Rule::unique('article_translations')->where(function($query) use ($request){
                     return $query->where('article_id', (int)$request->article_id);
                 })->ignore($article_trans_id),

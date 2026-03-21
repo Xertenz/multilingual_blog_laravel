@@ -222,6 +222,11 @@
                                 <option value="fr" class="py-2">🇫🇷 French</option>
                                 <option value="ru" class="py-2">🇷🇺 Russian</option>
                                 <option value="pt" class="py-2">🇵🇹 Portuguese</option>
+                                <option value="nl" class="py-2">🇳🇱 Dutch</option>
+                                <option value="it" class="py-2">🇮🇹 Italian</option>
+                                <option value="sv" class="py-2">🇸🇪 Swedish</option>
+                                <option value="da" class="py-2">🇩🇰 Danish</option>
+                                <option value="nb" class="py-2">🇳🇴 Norwegian (Bokmål)</option>
                             </select>
                             <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
                                 <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

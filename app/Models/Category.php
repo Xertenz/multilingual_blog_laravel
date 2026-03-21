@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -12,7 +13,7 @@ class Category extends Model implements HasMedia
 {
     //
     use InteractsWithMedia;
-    protected $fillable = ['sign'];
+    protected $fillable = ['sign', 'user_id'];
 
     //public $timestamps = false;
 
@@ -23,6 +24,10 @@ class Category extends Model implements HasMedia
     
     public function articles():HasMany {
         return $this->hasMany(Article::class);
+    }
+
+    public function user():BelongsTo {
+        return $this->belongsTo(User::class);
     }
 
     public function registerMediaConversions(Media $media = null): void

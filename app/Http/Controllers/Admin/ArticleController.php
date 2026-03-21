@@ -8,6 +8,7 @@ use App\Models\ArticleTranslation;
 use App\Models\Category;
 use App\Models\CategoryTranslation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -35,6 +36,7 @@ class ArticleController extends Controller
 
         $article = Article::create([
             'category_id' => (int)$request->category_id,
+            'user_id' => Auth::id(),
             'sign' => $request->sign,
             'views' => 0,
             'status' => $request->status,
@@ -72,6 +74,7 @@ class ArticleController extends Controller
         ]);
         $article = Article::findOrFail($article_id);
         $article->category_id = (int)($request->category_id);
+        $article->user_id = Auth::id();
         if($request->hasFile('featured_img')) {
             if ($article->hasMedia('featured_imgs')) {
                 $article->clearMediaCollection('featured_imgs');

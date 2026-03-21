@@ -7,13 +7,21 @@
 @endpush
 
 @section('content')
+    {{-- Header Actions --}}
+    <div class="flex justify-between items-center mb-6">
+        <p class="text-slate-600">Manage your articles</p>
+        <a href="{{ route('admin.articles.create') }}" 
+           class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md flex items-center gap-1 transition">
+            <span>Add +</span>
+        </a>
+    </div>
+
     <div class="container mx-auto">
         <div class="shadow-lg rounded-lg overflow-auto">
             <table class="">
                 <thead>
                     <tr class="bg-gray-100">
-                        <th class="w-1/10 py-4 px-6 text-left text-gray-600 text-xs">Id</th>
-                        <th class="w-1/10 py-4 px-6 text-left text-gray-600 text-xs">Category id</th>
+                        <th class="w-1/10 py-4 px-6 text-left text-gray-600 text-xs">Category</th>
                         <th class="w-2/10 py-4 px-6 text-left text-gray-600 text-xs">Featured img</th>
                         <th class="w-2/10 py-4 px-6 text-left text-gray-600 text-xs">Sign</th>
                         <th class="w-1/10 py-4 px-6 text-left text-gray-600 text-xs">Actions</th>
@@ -27,8 +35,7 @@
                     <!-- Add more rows here -->
                 @foreach ($articles as $article)
                 <tr>
-                    <td class="py-4 px-6 border-b border-gray-200">{{$article->id}}</td>
-                    <td class="py-4 px-6 border-b border-gray-200">{{$article->category->id??'[Null]'}}</td>
+                    <td class="py-4 px-6 border-b border-gray-200">{{$article->category->sign??'[Null]'}}</td>
                     <td class="py-4 px-6 border-b border-gray-200">{{$article->featured_img}}
 
                         <img 
@@ -77,15 +84,6 @@
                 </tbody>
             </table>
         </div>
-
-        <a href="{{route('admin.articles.create')}}" class="cursor-pointer inline-block mt-4 px-3 py-1 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
-            <button class="cursor-pointer flex items-center gap-1" id="add-article">
-                <span>Add</span>
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-            </button>
-        </a>
     </div>
 
     {{-- Pagination --}}

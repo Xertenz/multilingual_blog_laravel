@@ -24,6 +24,10 @@ class Article extends Model  implements HasMedia
         return $this->belongsTo(Category::class);
     }
 
+    public function user():BelongsTo {
+        return $this->belongsTo(User::class);
+    }
+
     public function registerMediaConversions(Media $media = null): void
     {
         // 1. thumbnail صغير (للقوائم)
