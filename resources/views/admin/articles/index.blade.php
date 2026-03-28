@@ -16,7 +16,7 @@
         </a>
     </div>
 
-    <div class="container mx-auto">
+    <div class="">
         <div class="shadow-lg rounded-lg overflow-auto">
             <table class="">
                 <thead>

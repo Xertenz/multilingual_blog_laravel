@@ -42,4 +42,9 @@ class User extends AuthenticatableUser implements Authenticatable
     {
         return $this->hasMany(Category::class);
     }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(Comment::class);
+    }
 }

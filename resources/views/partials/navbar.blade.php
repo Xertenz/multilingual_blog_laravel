@@ -19,7 +19,7 @@
                 </div>
                 
                 <!-- Language Switcher (إذا كان متاح) -->
-                <select id="lang-switcher" class="lang-switcher" onchange="location=this.value;">
+                <select id="lang-switcher" class="lang-switcher text-black capitalize" onchange="location=this.value;">
                     @foreach(LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
                         <option value="{{LaravelLocalization::getLocalizedURL($localeCode, null, [], true)}}" {{ app()->getLocale() == $localeCode ? 'selected' : '' }} class="text-black px-8">
                             <span class="block px-33">

@@ -10,6 +10,7 @@ use DOMDocument;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
+use Mews\Purifier\Facades\Purifier;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class ArticleTranslationController extends Controller
@@ -80,12 +81,13 @@ class ArticleTranslationController extends Controller
         $lang_code = LaravelLocalization::getCurrentLocale();
 
         // check the article existence with the language
-        $article_trans_exists = ArticleTranslation::where('slug', $article_trans_slug)->where('language_code', $lang_code)->exists();
+        $article_trans_exists = ArticleTranslation::whereSlug($article_trans_slug)->where('language_code', $lang_code)->exists();
+
         if(!$article_trans_exists) {
             return to_route('home');
         }
 
-        $article_trans = ArticleTranslation::where('slug', $article_trans_slug)->where('language_code', $lang_code)->first();
+        $article_trans = ArticleTranslation::whereSlug($article_trans_slug)->where('language_code', $lang_code)->first();
         /*
         $article_trans = ArticleTranslation::where('slug', $article_trans_slug)->first();
         $article_trans_lang_code = $article_trans->lang_code;
@@ -100,7 +102,9 @@ class ArticleTranslationController extends Controller
             mb_convert_encoding($article_trans->description, 'HTML-ENTITIES', 'UTF-8'),
             LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
         );
+
         $imgs = $doc->getElementsByTagName('img');
+
         foreach($imgs as $img) {
             $content_img_id = $img->getAttribute('data-image-id');
             $img->setAttribute('srcset', $this->create_content_img_srcset($content_img_id));
@@ -111,6 +115,7 @@ class ArticleTranslationController extends Controller
         $article_trans_description = $doc->saveHTML();
         */
         $article_trans->description = $doc->saveHTML();
+
 
 
         return view('articles.show', compact('article_trans'));
@@ -132,16 +137,17 @@ class ArticleTranslationController extends Controller
         }
         return $srcset;
         */
-        $content_img = Media::findOrFail($content_img_id);
+        $content_img = Media::find($content_img_id);
         $srcset = '';
-
-        $srcset .= $content_img->getUrl("content_375w") ? "{$content_img->getUrl('content_375w')} 375w," : '';
-        $srcset .= $content_img->getUrl("content_480w") ? "{$content_img->getUrl('content_480w')} 480w," : '';
-        $srcset .= $content_img->getUrl('content_768w') ? "{$content_img->getUrl('content_768w')} 768w," : '';
-        $srcset .= $content_img->getUrl('content_800w') ? "{$content_img->getUrl('content_800w')} 800w," : '';
-        $srcset .= $content_img->getUrl('content_1024w') ? "{$content_img->getUrl('content_1024w')} 1024w," : '';
-        $srcset .= $content_img->getUrl('content_1200w') ? "{$content_img->getUrl('content_1200w')} 1200w," : '';
-        $srcset .= $content_img->getUrl('content_1600w') ? "{$content_img->getUrl('content_1600w')} 1600w," : '';
+        if($content_img) {
+            $srcset .= $content_img->getUrl("content_375w") ? "{$content_img->getUrl('content_375w')} 375w," : '';
+            $srcset .= $content_img->getUrl("content_480w") ? "{$content_img->getUrl('content_480w')} 480w," : '';
+            $srcset .= $content_img->getUrl('content_768w') ? "{$content_img->getUrl('content_768w')} 768w," : '';
+            $srcset .= $content_img->getUrl('content_800w') ? "{$content_img->getUrl('content_800w')} 800w," : '';
+            $srcset .= $content_img->getUrl('content_1024w') ? "{$content_img->getUrl('content_1024w')} 1024w," : '';
+            $srcset .= $content_img->getUrl('content_1200w') ? "{$content_img->getUrl('content_1200w')} 1200w," : '';
+            $srcset .= $content_img->getUrl('content_1600w') ? "{$content_img->getUrl('content_1600w')} 1600w," : '';
+        }
 
         return $srcset;
     }
@@ -188,11 +194,11 @@ class ArticleTranslationController extends Controller
         $article_trans = ArticleTranslation::findOrFail($article_trans_id);
         $article_trans->update([
             'language_code' => $request->language_code,
-            'slug' => $request->slug,
-            'title' => $request->title,
-            'description' => $request->description,
-            'meta_title' => $request->meta_title,
-            'meta_description' => $request->meta_description,
+            'slug' => trim($request->slug),
+            'title' => trim($request->title),
+            'description' => trim($request->description),
+            'meta_title' => trim($request->meta_title),
+            'meta_description' => trim($request->meta_description),
         ]);
 
         //return to_route('admin.articles.index');

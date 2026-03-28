@@ -251,7 +251,7 @@
     @include('partials.navbar')
     
     <!-- شريط مسرح الجريمة (تأثير بصري) -->
-    <div class="crime-scene-tape"></div>
+    <div class="crime-scene-tape sticky top-[65px] left-0"></div>
     
     <!-- ==================== -->
     <!-- محتوى المقالة الرئيسي -->
@@ -321,6 +321,36 @@
         <!-- ==================== -->
         <div class="article-description">
             {!! $article_trans->description !!}
+        </div>
+
+        <hr />
+        <!-- Comment Form -->
+        <div class="comments-wrapper mt-8">
+            @auth
+            <form action="" data-article-id="{{ $article_trans->article->id }}" method="POST" id="comment-form">
+                @csrf
+                <textarea 
+                    name="comment-body"
+                    id="comment-body"
+                    rows="8"
+                    placeholder="Enter Your Comment Here..."
+                    class="w-full text-slate-200 bg-slate-600 placeholder-slate-400 py-2 px-4 rounded-md border-2 border-slate-500 transition-colors duration-300 focus:border-red-600 focus:shadow-transparent focus:outline-none focus:ring-0"
+                    style="field-sizing: content;"
+                ></textarea>
+                <button class="bg-sky-500 text-sm py-2 px-3 rounded">Add Comment</button>
+            </form>
+            @else
+                <h3 class="font-bold text-slate-200 italic text-center">Create an account to comment: <a href="{{route('register')}}" class="underline">Register</a> </h3>
+            @endauth
+        </div>
+
+        <h1 class="text-3xl font-bold my-8">Comments:</h1>
+        <div>
+            <ul id="comments-container">
+            @foreach ($article_trans->article->comments as $comment)
+                @include('partials.comment_item', ['comment_item' => $comment])
+            @endforeach
+            </ul>
         </div>
 
         <!-- ==================== -->
@@ -497,6 +527,124 @@
             // يمكن إضافة مكتبة lightbox هنا أو نافذة بسيطة
             alert('Opening evidence image #' + (index + 1));
         }
+
+        //Comment
+        let commentForm = document.getElementById('comment-form');
+        commentForm.addEventListener('submit', async function(e){
+            e.preventDefault();
+            let article_id = commentForm.dataset.articleId;
+            let user_id = "{{ Auth::id() }}";
+            let comment_body = document.getElementById('comment-body');
+            let locale = "{{ LaravelLocalization::getCurrentLocale() }}";
+            let url = " {{ route('comments.store') }} ";
+            let comment_item;
+
+            if(comment_body.value == '') {
+                return;
+            }
+
+            try {
+                let res = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({ 
+                        article_id,
+                        user_id,
+                        comment_body: comment_body.value,
+                        locale
+                    })
+                });
+                comment_item = await res.json();
+            } catch(err) {
+                alert('Error in adding a comment:', err);
+            } finally {
+                comment_body.value = '';
+                let comm_cont = document.getElementById('comments-container');
+                comm_cont.insertAdjacentHTML('afterbegin', comment_item.html)
+            }
+            
+        });
+
+
+        // Updating Comment
+        function showEditForm(id) {
+            let comment_actions = document.getElementById(`comment-actions-${id}`);
+            let edit_form = document.getElementById(`edit-form-${id}`);
+            edit_form.style.display = 'block';
+            comment_actions.style.display = 'none';
+        }
+
+        function hideEditForm(id) {
+            let comment_actions = document.getElementById(`comment-actions-${id}`);
+            let edit_form = document.getElementById(`edit-form-${id}`);
+            edit_form.style.display = 'none';
+            comment_actions.style.display = 'flex';
+        }
+
+        async function updateComment(id) {
+            let new_body = document.getElementById(`edit-input-${id}`);
+            let url = "{{ route('comments.update') }}";
+
+            let data;
+            try {
+                let request = await fetch(url, {
+                    method: "PUT",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        id,
+                        body: new_body.value.trim()
+                    })
+                })
+                data = await request.json();
+            }catch(err) {
+                console.log('Error in updating a comment:', err);
+            }finally {
+                let comment_text = document.getElementById(`comment-text-${id}`);
+                comment_text.textContent = data.new_body;
+                hideEditForm(id);
+            }
+            
+        }
+
+        async function deleteComment(id) {
+            if(!confirm('are you sure?')) {
+                return;
+            }
+            let url = "{{ route('comments.delete') }}";
+
+            let data;
+            try {
+                let request = await fetch(url, {
+                    method: "DELETE",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        id,
+                    })
+                })
+                data = await request.json();
+            }catch(err) {
+                console.log('Error in deleting a comment:', err);
+            }finally {
+                let comment_item = document.getElementById(`comment-${id}`);
+                comment_item.style.transition = '0.5s';
+                comment_item.style.opacity = '0';
+                setTimeout(() => {
+                    comment_item.remove();
+                }, 500);
+            }
+
+        }
+        
     </script>
 </body>
 </html>

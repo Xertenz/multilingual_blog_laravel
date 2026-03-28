@@ -10,7 +10,11 @@
     <!-- Main Content -->
     <!-- ==================== -->
     <main class="flex-1">
-        @yield('content')
+        @if (isset($slot))
+            {{$slot}}
+        @else
+            @yield('content')
+        @endif
     </main>
     
     <!-- ==================== -->

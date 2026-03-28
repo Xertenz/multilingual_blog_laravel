@@ -15,7 +15,7 @@ use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\ArticleTranslationController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CategoryTranslationController;
-use App\Http\Controllers\TestController;
+use App\Http\Controllers\CommentController;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 
@@ -33,8 +33,8 @@ Route::group([
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
-
     require __DIR__.'/auth.php';
+
     // For all users and visitors
     Route::get('/', function () {
         return view('welcome');
@@ -42,6 +42,16 @@ Route::group([
     Route::get('/articles/{slug}', [ArticleTranslationController::class, 'show'])->name('articles.show');
     Route::post('/articles/content_img_info', [ArticleController::class, 'get_content_img_info'])->name('visitor.articles.content_img.info');
 
+    // For Users only (not visitors)
+    Route::post('/articles/comments', [CommentController::class, 'store'])
+        ->middleware('auth')
+        ->name('comments.store');
+    Route::put('/articles/comments', [CommentController::class, 'update'])
+        ->middleware('auth')
+        ->name('comments.update');
+    Route::delete('/articles/comments', [CommentController::class, 'delete'])
+        ->middleware('auth')
+        ->name('comments.delete');
 
     // For Admin(s)
     Route::group(['middleware' => ['auth', 'admin'], 'prefix' => "admin"], function() {
