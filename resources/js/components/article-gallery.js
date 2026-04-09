@@ -96,7 +96,7 @@ window.createGalleryHTML = async function (article_id) {
 <div class="article-gallery-wrapper" id="article-gallery-wrapper">
     <div class="popup">
         <div class="top-bar">
-            <label for="content-img" class="cursor-pointer px-3 py-1 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">Upload +</label>
+            <label for="content-img" class="cursor-pointer px-3 py-1 border-2 border-indigo-400 text-base font-medium rounded-md text-indigo-800 bg-indigo-400 hover:bg-indigo-700">Upload +</label>
             <input type="file" name="content-img" id="content-img" class="hidden" data-article-id="${article_id}" onchange="choosingFile(this)">
             <button class="close-icon" id="close-icon" onclick="closing(this)">
                 <span>X</span>

@@ -37,20 +37,21 @@ class ArticleController extends Controller
         $article = Article::create([
             'category_id' => (int)$request->category_id,
             'user_id' => Auth::id(),
-            'sign' => $request->sign,
+            'sign' => trim($request->sign),
             'views' => 0,
             'status' => $request->status,
         ]);
 
         $file = $request->file('featured_img');
-        $file_ext = $file->getClientOriginalExtension();
-        $fileName = Str::random(8) . '_' . time() . '.' . $file_ext;
+        $file_ext = strtolower($file->getClientOriginalExtension());
+        $fileName = uniqid() . '.' . $file_ext;
+        //$fileName = Str::random(8) . '_' . time() . '.' . $file_ext;
 
         $article
             ->addMedia($file) // $article->addMediaFromRequest('content_img)
             //->usingFileName(Str::random(32).'.'.$file_ext)
             ->usingFileName($fileName)
-            //->withResponsiveImages()
+            ->withResponsiveImages()
             ->toMediaCollection("featured_imgs");
 
         return to_route('admin.articles.index');
@@ -80,17 +81,18 @@ class ArticleController extends Controller
                 $article->clearMediaCollection('featured_imgs');
             }
             $file = $request->file('featured_img');
-            $file_ext = $file->getClientOriginalExtension();
-            $fileName = Str::random(8) . '_' . time() . '.' . $file_ext;
+            $file_ext = strtolower($file->getClientOriginalExtension());
+            $fileName = uniqid() . '.' . $file_ext;
+            //$fileName = Str::random(8) . '_' . time() . '.' . $file_ext;
 
             $article
                 ->addMedia($file) // $article->addMediaFromRequest('content_img)
                 //->usingFileName(Str::random(32).'.'.$file_ext)
                 ->usingFileName($fileName)
-                //->withResponsiveImages()
+                ->withResponsiveImages()
                 ->toMediaCollection("featured_imgs");
         }
-        $article->sign = $request->sign;
+        $article->sign = trim($request->sign);
         $article->status = $request->status;
         $article->save();
             //'views' => 0,
@@ -116,15 +118,16 @@ class ArticleController extends Controller
         $article = Article::findOrFail($request->article_id);
         if($request->hasFile('content_img')) {
             $file = $request->file('content_img');
-            $file_ext = $file->getClientOriginalExtension();
-            $fileName = Str::random(8) . '_' . time() . '.' . $file_ext;
+            $file_ext = strtolower($file->getClientOriginalExtension());
+            //$fileName = Str::random(8) . '_' . time() . '.' . $file_ext;
             //$fileName = Str::uuid() . '_' . time() . '.' . $file_ext;
+            $fileName = uniqid() . '.' . $file_ext;
 
             $article
                 ->addMedia($file) // $article->addMediaFromRequest('content_img)
                 //->usingFileName(Str::random(32).'.'.$file_ext)
                 ->usingFileName($fileName)
-                //->withResponsiveImages()
+                ->withResponsiveImages()
                 ->toMediaCollection("content_imgs");
         }
         
@@ -148,10 +151,14 @@ class ArticleController extends Controller
         // getting the media
         $content_img_id = $request->content_img_id;
         $content_img = Media::find($content_img_id);
+        if($content_img) {
+            // deleting the media
+            $content_img->delete();
+            return response()->json(['message' => 'media deleted successfully']);
+        }else{
+            return response()->json(['error' => 'error in delete media']);
+        }
 
-        // deleting the media
-        $content_img->delete();
-        return response()->json(['message' => 'media deleted successfully']);
     }
 
     public function get_content_img_info(Request $request) {
@@ -160,10 +167,5 @@ class ArticleController extends Controller
         return response()->json($media);
     }
 
-    public function test_upload_with_tiny(Request $request){
-        //dd($request);
-        $article_media = Article::findOrFail($request->article_id)->getFirstMedia('content_imgs');
-        return response()->json(['location' => $article_media->original_url]);
-    }
 
 }

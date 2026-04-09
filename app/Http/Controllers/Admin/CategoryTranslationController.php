@@ -38,42 +38,43 @@ class CategoryTranslationController extends Controller
             'english_meta_description' => 'required|string',
         ]);
 
-        $english_slug = $request->english_slug;
-        $english_name = $request->english_name;
-        $english_description = $request->english_description;
-        $english_meta_title = $request->english_meta_title;
-        $english_meta_description = $request->english_meta_description;
+        $english_slug = trim($request->english_slug);
+        $english_name = trim($request->english_name);
+        $english_description = trim($request->english_description);
+        $english_meta_title = trim($request->english_meta_title);
+        $english_meta_description = trim($request->english_meta_description);
 
 
 
         //inserting main article record (without translation)
         $cat = Category::create([
-            'sign' => $request->cat_sign,
+            'sign' => trim($request->cat_sign),
             'user_id' => Auth::id()
         ]);
 
 
         $file = $request->file('cat_featured_img');
-        $file_ext = $file->getClientOriginalExtension();
-        $fileName = Str::random(8) . '_' . time() . '.' . $file_ext;
+        $file_ext = strtolower($file->getClientOriginalExtension());
+        $fileName = uniqid() . '.' . $file_ext;
+        //$fileName = Str::random(8) . '_' . time() . '.' . $file_ext;
 
 
         $cat
             ->addMedia($file) // $article->addMediaFromRequest('content_img)
             //->usingFileName(Str::random(32).'.'.$file_ext)
             ->usingFileName($fileName)
-            //->withResponsiveImages()
+            ->withResponsiveImages()
             ->toMediaCollection("featured_imgs");
 
 
         //inserting English article translation
         $cat->translations()->create([
             'language_code' => 'en',
-            'slug' => $english_slug,
-            'name' => $english_name,
-            'description' => $english_description,
-            'meta_title' => $english_meta_title,
-            'meta_description' => $english_meta_description,
+            'slug' => trim($english_slug),
+            'name' => trim($english_name),
+            'description' => trim($english_description),
+            'meta_title' => trim($english_meta_title),
+            'meta_description' => trim($english_meta_description),
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
@@ -111,11 +112,11 @@ class CategoryTranslationController extends Controller
 
             $cat->translations()->create([
                 'language_code' => $lang_code,
-                'slug' => $lang_slug,
-                'name' => $lang_name,
-                'description' => $lang_description,
-                'meta_title' => $lang_meta_title,
-                'meta_description' => $lang_meta_description,
+                'slug' => trim($lang_slug),
+                'name' => trim($lang_name),
+                'description' => trim($lang_description),
+                'meta_title' => trim($lang_meta_title),
+                'meta_description' => trim($lang_meta_description),
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]);
@@ -154,15 +155,15 @@ class CategoryTranslationController extends Controller
             'norwegian_slug' => "unique:category_translations,slug,{$cat->translations()->where('language_code', 'nb')->value('id')}",
         ]);
 
-        $english_slug = $request->english_slug;
-        $english_name = $request->english_name;
-        $english_description = $request->english_description;
-        $english_meta_title = $request->english_meta_title;
-        $english_meta_description = $request->english_meta_description;
+        $english_slug = trim($request->english_slug);
+        $english_name = trim($request->english_name);
+        $english_description = trim($request->english_description);
+        $english_meta_title = trim($request->english_meta_title);
+        $english_meta_description = trim($request->english_meta_description);
 
         //Updating main category record (without translation)
         $cat->update([
-            'sign' => $request->cat_sign,
+            'sign' => trim($request->cat_sign),
             'user_id' => Auth::id()
         ]);
 
@@ -171,7 +172,7 @@ class CategoryTranslationController extends Controller
                 $cat->clearMediaCollection('featured_imgs');
             }
             $file = $request->file('cat_featured_img');
-            $file_ext = $file->getClientOriginalExtension();
+            $file_ext = strtolower($file->getClientOriginalExtension());
             $fileName = Str::random(8) . '_' . time() . '.' . $file_ext;
 
             $cat
@@ -237,17 +238,16 @@ class CategoryTranslationController extends Controller
             if($cat_trans->exists()) {
                 $cat_trans->update([
                     'language_code' => $lang_code,
-                    'slug' => $lang_slug,
-                    'name' => $lang_name,
-                    'description' => $lang_description,
-                    'meta_title' => $lang_meta_title,
-                    'meta_description' => $lang_meta_description,
+                    'slug' => trim($lang_slug),
+                    'name' => trim($lang_name),
+                    'description' => trim($lang_description),
+                    'meta_title' => trim($lang_meta_title),
+                    'meta_description' => trim($lang_meta_description),
                     'updated_at' => Carbon::now()
                 ]);
             }else{
                 $this->store_cat_trans($cat, $request, $lang, $lang_code);
             }
-
         }else{
 
         }

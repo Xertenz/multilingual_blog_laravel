@@ -39,7 +39,8 @@
                     <td class="py-4 px-6 border-b border-gray-200">{{$article->featured_img}}
 
                         <img 
-                            src = "{{ $article->getFirstMediaUrl('featured_imgs', 'thumb')?? '' }}"
+                            src = "{{ $article->getFirstMediaUrl('featured_imgs') }}"
+                            srcset = "{{ $article->getFirstMedia('featured_imgs')->getSrcset() }}"
                          />
                     </td>
                     <td class="py-4 px-6 border-b border-gray-200">{{$article->sign?? "no sign"}}</td>

@@ -11,9 +11,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as AuthenticatableUser; // هذا مهم
 use Illuminate\Notifications\Notifiable;
 
+
 class User extends AuthenticatableUser implements Authenticatable
 {
     use HasFactory, Notifiable;
+
 
     protected $fillable = [
         'name',

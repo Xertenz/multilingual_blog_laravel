@@ -23,7 +23,7 @@ class ArticleTranslation extends Model implements HasMedia
     //
     public function article(): BelongsTo
     {
-        return $this->belongsTo(Article::class);
+        return $this->belongsTo(Article::class, 'article_id');
     }
 
 }

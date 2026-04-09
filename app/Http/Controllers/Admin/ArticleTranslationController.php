@@ -5,12 +5,10 @@ use App\Http\Controllers\Controller;
 
 use App\Models\Article;
 use App\Models\ArticleTranslation;
-use App\Models\CategoryTranslation;
 use DOMDocument;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
-use Mews\Purifier\Facades\Purifier;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class ArticleTranslationController extends Controller
@@ -87,7 +85,17 @@ class ArticleTranslationController extends Controller
             return to_route('home');
         }
 
-        $article_trans = ArticleTranslation::whereSlug($article_trans_slug)->where('language_code', $lang_code)->first();
+        //$article_trans = ArticleTranslation::whereSlug($article_trans_slug)->where('language_code', $lang_code)->first();
+
+        $article_trans = ArticleTranslation::with([
+            'article.comments' => function($query){
+                $query->whereNull('parent_id')->with('replies');
+            }
+        ])
+        ->whereSlug($article_trans_slug)
+        ->where('language_code', $lang_code)
+        ->first();
+        //dd($article_trans);
         /*
         $article_trans = ArticleTranslation::where('slug', $article_trans_slug)->first();
         $article_trans_lang_code = $article_trans->lang_code;
@@ -107,8 +115,15 @@ class ArticleTranslationController extends Controller
 
         foreach($imgs as $img) {
             $content_img_id = $img->getAttribute('data-image-id');
+            $media = Media::find($content_img_id);
+            if($media) {
+                $img->setAttribute('srcset', $media->getSrcset());
+                $img->setAttribute('sizes', '(max-width: 768px) 100vw, 1200px');
+            }
+            /*
             $img->setAttribute('srcset', $this->create_content_img_srcset($content_img_id));
             $img->setAttribute('sizes', '(max-width: 768px) 100vw, 800px');
+            */
         }
 
         /*
@@ -116,13 +131,11 @@ class ArticleTranslationController extends Controller
         */
         $article_trans->description = $doc->saveHTML();
 
-
-
         return view('articles.show', compact('article_trans'));
     }
 
+    /*
     public function create_content_img_srcset($content_img_id) {
-        /*
         $content_img = Media::find($content_img_id);
         $content_img_names = $content_img['responsive_images']['responsive']['urls'];
         $content_img_year = $content_img->created_at->format('Y');
@@ -136,7 +149,6 @@ class ArticleTranslationController extends Controller
             $i += 1;
         }
         return $srcset;
-        */
         $content_img = Media::find($content_img_id);
         $srcset = '';
         if($content_img) {
@@ -151,6 +163,7 @@ class ArticleTranslationController extends Controller
 
         return $srcset;
     }
+    */
 
     public function edit(Request $request, int $article_trans_id) {
         //$cats = CategoryTranslation::all()->where('language_code', 'ar');

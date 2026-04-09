@@ -19,15 +19,12 @@ use App\Http\Controllers\CommentController;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 
-//Route::view('test', "test");
-//Route::post('/upload', [TestController::class, 'upload'])->name('test.upload');
-//Route::get('/showtest', [TestController::class, 'showimgs'])->name('test.show');
-
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),
 	'middleware' => [ 'localeSessionRedirect', 'localizationRedirect', 'localeViewPath' ]
 ], function () {
 
+    // For Auth
     Route::middleware('auth')->group(function () {
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -89,5 +86,4 @@ Route::group([
     Route::post('/contact', function(){})->name('contact.submit');
     Route::view('/about', 'about')->name('about');
 
-    //Route::post('/admin/articles/upload-article-test-img', [ArticleController::class, 'test_upload_with_tiny'])->name('articles.upload.test');
 });

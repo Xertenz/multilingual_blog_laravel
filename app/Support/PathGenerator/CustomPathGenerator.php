@@ -27,12 +27,13 @@ class CustomPathGenerator implements PathGenerator
         $collectionPath = $this->getCollectionPath($collection);
         
         return sprintf(
-            '%s/%s/%d/%02d/%02d/',
+            '%s/%s/%d/%02d/%02d/%d/',
             strtolower($modelType),  // 'articles'
             $collectionPath,          // 'featured' or 'content'
             $createdAt->year,         // 2024
             $createdAt->month,        // 01
-            $createdAt->day           //
+            $createdAt->day,          // 02
+            $media->id                // 1521
         );
     }
     

@@ -327,27 +327,32 @@
         <!-- Comment Form -->
         <div class="comments-wrapper mt-8">
             @auth
-            <form action="" data-article-id="{{ $article_trans->article->id }}" method="POST" id="comment-form">
-                @csrf
-                <textarea 
-                    name="comment-body"
-                    id="comment-body"
-                    rows="8"
-                    placeholder="Enter Your Comment Here..."
-                    class="w-full text-slate-200 bg-slate-600 placeholder-slate-400 py-2 px-4 rounded-md border-2 border-slate-500 transition-colors duration-300 focus:border-red-600 focus:shadow-transparent focus:outline-none focus:ring-0"
-                    style="field-sizing: content;"
-                ></textarea>
-                <button class="bg-sky-500 text-sm py-2 px-3 rounded">Add Comment</button>
-            </form>
+                <form action="" data-article-id="{{ $article_trans->article->id }}" method="POST" id="comment-form">
+                    @csrf
+                    <textarea 
+                        name="comment-body"
+                        id="comment-body"
+                        rows="8"
+                        placeholder="Write a comment..."
+                        class="w-full text-slate-200 bg-slate-600 placeholder-slate-400 py-2 px-4 rounded-md border-2 border-slate-500 transition-colors duration-300 focus:border-red-600 focus:shadow-transparent focus:outline-none focus:ring-0"
+                        style="field-sizing: content;"
+                    ></textarea>
+                    <button class="bg-sky-500 text-sm py-2 px-3 rounded" onclick="addComment(this)">Add Comment</button>
+                </form>
             @else
                 <h3 class="font-bold text-slate-200 italic text-center">Create an account to comment: <a href="{{route('register')}}" class="underline">Register</a> </h3>
             @endauth
         </div>
 
-        <h1 class="text-3xl font-bold my-8">Comments:</h1>
+        @if ($article_trans->article->comments->count() > 0)
+            <h1 class="text-3xl font-bold my-8">Comments({{$article_trans->article->comments->count()}}):</h1>
+        @else
+            <h1 class="text-3xl font-bold my-8">No comments</h1>
+        @endif
+
         <div>
             <ul id="comments-container">
-            @foreach ($article_trans->article->comments as $comment)
+            @foreach ($article_trans->article->comments->where('parent_id', null) as $comment)
                 @include('partials.comment_item', ['comment_item' => $comment])
             @endforeach
             </ul>
@@ -356,6 +361,7 @@
         <!-- ==================== -->
         <!-- صور المحتوى الإضافية -->
         <!-- ==================== -->
+        {{--
         @if($article_trans->article->hasMedia('content_imgs'))
         <div class="mt-16">
             <h2 class="text-2xl font-bold text-white mb-8 flex items-center">
@@ -368,7 +374,7 @@
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                 @foreach($article_trans->article->getMedia('content_imgs') as $index => $image)
                 <div class="relative group cursor-pointer" onclick="openLightbox({{ $index }})">
-                    <img src="{{ $image->getUrl('content_375w') }}" 
+                    <img src="{{ $image->getUrl() }}" 
                          alt="Evidence image {{ $index + 1 }}"
                          class="w-full h-48 object-cover rounded-lg border-2 border-gray-700 group-hover:border-red-500 transition">
                     <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition rounded-lg flex items-center justify-center">
@@ -379,6 +385,7 @@
             </div>
         </div>
         @endif
+        --}}
         
         <!-- ==================== -->
         <!-- تذييل المقالة (مشاركة، تصنيفات) -->
@@ -461,18 +468,6 @@
                 </button>
             </form>
             
-            <!-- عرض التعليقات إن وجدت -->
-            @if($comments ?? false)
-                @foreach($comments as $comment)
-                <div class="bg-[#1e293b] p-4 rounded-lg mb-3 border border-gray-700">
-                    <div class="flex justify-between mb-2">
-                        <span class="font-medium text-white">{{ $comment->user_name ?? 'Anonymous' }}</span>
-                        <span class="text-xs text-gray-500">{{ $comment->created_at->diffForHumans() }}</span>
-                    </div>
-                    <p class="text-gray-400 text-sm">{{ $comment->content }}</p>
-                </div>
-                @endforeach
-            @endif
         </div>
     </div>
     
@@ -528,10 +523,13 @@
             alert('Opening evidence image #' + (index + 1));
         }
 
-        //Comment
-        let commentForm = document.getElementById('comment-form');
-        commentForm.addEventListener('submit', async function(e){
-            e.preventDefault();
+        //Adding a Comment
+        async function addComment(event){
+            let commentForm = document.getElementById('comment-form');
+            commentForm.onsubmit= function(e) {
+                e.preventDefault();
+            }
+            
             let article_id = commentForm.dataset.articleId;
             let user_id = "{{ Auth::id() }}";
             let comment_body = document.getElementById('comment-body');
@@ -554,42 +552,53 @@
                     body: JSON.stringify({ 
                         article_id,
                         user_id,
+                        parent_id: null,
                         comment_body: comment_body.value,
                         locale
                     })
                 });
                 comment_item = await res.json();
-            } catch(err) {
-                alert('Error in adding a comment:', err);
-            } finally {
+                
                 comment_body.value = '';
                 let comm_cont = document.getElementById('comments-container');
                 comm_cont.insertAdjacentHTML('afterbegin', comment_item.html)
-            }
-            
-        });
+
+            } catch(err) {
+                alert('Error in adding a comment:', err);
+            }                 
+        }
 
 
         // Updating Comment
         function showEditForm(id) {
+            hideReplyForm(id);
             let comment_actions = document.getElementById(`comment-actions-${id}`);
             let edit_form = document.getElementById(`edit-form-${id}`);
+            let edit_input = document.getElementById(`edit-input-${id}`);
             edit_form.style.display = 'block';
             comment_actions.style.display = 'none';
+            edit_input.focus();
+
+            let commentText = document.getElementById(`comment-text-${id}`);
+            commentText.style.display = 'none';
         }
 
         function hideEditForm(id) {
             let comment_actions = document.getElementById(`comment-actions-${id}`);
             let edit_form = document.getElementById(`edit-form-${id}`);
-            edit_form.style.display = 'none';
+            if(edit_form) {
+                edit_form.style.display = 'none';
+            }
             comment_actions.style.display = 'flex';
+
+            let commentText = document.getElementById(`comment-text-${id}`);
+            commentText.style.display = 'block';
         }
 
         async function updateComment(id) {
             let new_body = document.getElementById(`edit-input-${id}`);
             let url = "{{ route('comments.update') }}";
 
-            let data;
             try {
                 let request = await fetch(url, {
                     method: "PUT",
@@ -599,18 +608,16 @@
                     },
                     body: JSON.stringify({
                         id,
-                        body: new_body.value.trim()
+                        body: new_body.value
                     })
                 })
-                data = await request.json();
-            }catch(err) {
-                console.log('Error in updating a comment:', err);
-            }finally {
+                let data = await request.json();
                 let comment_text = document.getElementById(`comment-text-${id}`);
                 comment_text.textContent = data.new_body;
                 hideEditForm(id);
-            }
-            
+            }catch(err) {
+                console.log('Error in updating a comment:', err);
+            }            
         }
 
         async function deleteComment(id) {
@@ -619,7 +626,6 @@
             }
             let url = "{{ route('comments.delete') }}";
 
-            let data;
             try {
                 let request = await fetch(url, {
                     method: "DELETE",
@@ -631,20 +637,158 @@
                         id,
                     })
                 })
-                data = await request.json();
-            }catch(err) {
-                console.log('Error in deleting a comment:', err);
-            }finally {
+                let data = await request.json();
                 let comment_item = document.getElementById(`comment-${id}`);
                 comment_item.style.transition = '0.5s';
                 comment_item.style.opacity = '0';
                 setTimeout(() => {
                     comment_item.remove();
                 }, 500);
+            }catch(err) {
+                console.log('Error in deleting a comment:', err);
+            }
+        }
+
+        // Replying to a comment
+        function showReplyForm(id) {
+            hideEditForm(id);
+            let comment_actions = document.getElementById(`comment-actions-${id}`);
+            let reply_form = document.getElementById(`reply-form-${id}`);
+            let reply_input = document.getElementById(`reply-input-${id}`);
+            reply_form.style.display = 'block';
+            comment_actions.style.display = 'none';
+            reply_input.focus();
+        }
+        function hideReplyForm(id) {
+            let comment_actions = document.getElementById(`comment-actions-${id}`);
+            let reply_form = document.getElementById(`reply-form-${id}`);
+            reply_form.style.display = 'none';
+            comment_actions.style.display = 'flex';
+            
+        }
+
+        async function replyToComment(event, parent_id) {
+
+
+            let user_id = "{{ Auth::id() }}";
+            let comment_reply_body = document.getElementById(`reply-input-${parent_id}`);
+            
+            let article_id = comment_reply_body.dataset.articleId;
+            
+            let locale = "{{ LaravelLocalization::getCurrentLocale() }}";
+            let url = " {{ route('comments.store') }} ";
+
+            if(comment_reply_body.value == '') {
+                return;
             }
 
+            try {
+                let res = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({ 
+                        article_id,
+                        user_id,
+                        parent_id,
+                        comment_body: comment_reply_body.value,
+                        locale
+                    })
+                });
+                let comment_reply_item = await res.json();
+                comment_reply_body.value = '';
+                let replies_cont = document.getElementById(`replies-container-${parent_id}`);
+                
+                replies_cont.insertAdjacentHTML('beforeend', comment_reply_item.html)
+                hideReplyForm(parent_id);
+            } catch(err) {
+                alert('Error in replying to a comment:', err);
+            }
         }
-        
+
+        //Editing and Deleting Reply
+        function showEditReplyForm(event, id) {
+            let reply_text = document.getElementById(`reply-text-${id}`);
+            let edit_reply_form = document.getElementById(`edit-reply-form-${id}`);
+            let reply_actions = document.getElementById(`reply-actions-${id}`);
+            let reply_input = document.getElementById(`new-reply-input-${id}`);
+
+            reply_text.style.display = 'none';
+            edit_reply_form.style.display = 'block';
+            reply_actions.style.display = 'none'
+
+            reply_input.focus();
+        }
+
+        function hideEditReplyForm(event, id) {
+            let reply_text = document.getElementById(`reply-text-${id}`);
+            let edit_reply_form = document.getElementById(`edit-reply-form-${id}`);
+            let reply_actions = document.getElementById(`reply-actions-${id}`);
+
+            reply_text.style.display = 'block';
+            edit_reply_form.style.display = 'none';
+            reply_actions.style.display = 'flex'
+        }
+
+        async function updateReply(event, id) {
+            let new_body = document.getElementById(`new-reply-input-${id}`);
+            let url = "{{ route('comments.update') }}";
+
+            try {
+                let request = await fetch(url, {
+                    method: "PUT",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        id,
+                        body: new_body.value
+                    })
+                })
+                let data = await request.json();
+                let reply_text = document.getElementById(`reply-text-${id}`);
+                reply_text.textContent = data.new_body;
+                hideEditReplyForm(event, id);
+            }catch(err) {
+                console.log('Error in updating a comment:', err);
+            }            
+        }
+
+        async function deleteReply(id) {
+            if(!confirm('are you sure?')) {
+                return;
+            }
+            let url = "{{ route('comments.delete') }}";
+
+            try {
+                let request = await fetch(url, {
+                    method: "DELETE",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        id,
+                    })
+                })
+                
+                let data = await request.json();
+                let reply_item = document.getElementById(`reply-${id}`);
+                console.log(reply_item);
+                
+                reply_item.style.transition = '0.5s';
+                reply_item.style.opacity = '0';
+                setTimeout(() => {
+                    reply_item.remove();
+                }, 500);
+            }catch(err) {
+                console.log('Error in deleting a reply:', err);
+            }
+        }
     </script>
 </body>
 </html>

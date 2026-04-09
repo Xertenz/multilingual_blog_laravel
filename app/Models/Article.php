@@ -35,6 +35,7 @@ class Article extends Model  implements HasMedia
 
     public function registerMediaConversions(Media $media = null): void
     {
+        /*
         // 1. thumbnail صغير (للقوائم)
         $this->addMediaConversion('thumb')->performOnCollections('featured_imgs')->width(150)->optimize() ->sharpen(5)->quality(80)->format('webp')->nonQueued();
         // 2. صغير (للمعاينات)
@@ -56,6 +57,7 @@ class Article extends Model  implements HasMedia
         $this->addMediaConversion('content_1200w')->performOnCollections('content_imgs')->width(1200)->optimize()->sharpen(5)->quality(90)->format('webp')->nonQueued();
         // 🖥️ Large Screens
         $this->addMediaConversion('content_1600w')->performOnCollections('content_imgs')->width(1600)->optimize()->sharpen(5)->quality(90)->format('webp')->nonQueued();
+        */
     }
     
 

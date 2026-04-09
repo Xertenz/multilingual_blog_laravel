@@ -1,5 +1,5 @@
     <!-- Header -->
-    @extends('layouts.app')
+    @extends('layouts.main')
     @section('title', __('contact.title'))
     @push('styles')
     <style>
