@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use App\Http\Controllers\Controller;
 
 use App\Models\Article;
@@ -21,28 +22,30 @@ class ArticleTranslationController extends Controller
     }
     */
 
-    public function create(int $article_id ) {
+    public function create(int $article_id)
+    {
         //$cats = CategoryTranslation::all()->where('language_code', 'ar');
         $article = Article::find($article_id);
         $article_content_imgs = $article->getMedia('content_imgs');
-        return view('admin.articles.create-trans', compact( 'article_id', 'article_content_imgs'));
+        return view('admin.articles.create-trans', compact('article_id', 'article_content_imgs'));
     }
 
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $validated = $request->validate([
             'article_id' => 'required|numeric|exists:articles,id',
             'language_code' => [
                 'required',
                 'in:en,ar,de,es,fr,ru,pt,it,nl,sv,da,nb',
-                Rule::unique('article_translations', 'language_code')->where(function($query) use ($request){
+                Rule::unique('article_translations', 'language_code')->where(function ($query) use ($request) {
                     return $query->where('article_id', (int)$request->article_id);
                 })
             ],
             'slug' => [
                 'required',
                 'string',
-                Rule::unique('article_translations', 'slug')->where(function($query) use ($request){
+                Rule::unique('article_translations', 'slug')->where(function ($query) use ($request) {
                     return $query->where('language_code', $request->language_code);
                 })
             ],
@@ -70,40 +73,33 @@ class ArticleTranslationController extends Controller
             'meta_title' => trim($request->meta_title),
             'meta_description' => trim($request->meta_description),
         ]);
-        
-        return to_route('admin.articles.index');
 
+        return to_route('admin.articles.index');
     }
 
-    public function show(string $article_trans_slug) {
+
+    public function show(int $article_trans_id, string $article_trans_slug = null)
+    {
         $lang_code = LaravelLocalization::getCurrentLocale();
 
-        // check the article existence with the language
-        $article_trans_exists = ArticleTranslation::whereSlug($article_trans_slug)->where('language_code', $lang_code)->exists();
-
-        if(!$article_trans_exists) {
-            return to_route('home');
-        }
-
-        //$article_trans = ArticleTranslation::whereSlug($article_trans_slug)->where('language_code', $lang_code)->first();
-
+        // Getting the translated article basen on id only
         $article_trans = ArticleTranslation::with([
-            'article.comments' => function($query){
+            'article.comments' => function ($query) {
                 $query->whereNull('parent_id')->with('replies');
             }
         ])
-        ->whereSlug($article_trans_slug)
-        ->where('language_code', $lang_code)
-        ->first();
-        //dd($article_trans);
-        /*
-        $article_trans = ArticleTranslation::where('slug', $article_trans_slug)->first();
-        $article_trans_lang_code = $article_trans->lang_code;
-        $article_trans_title = $article_trans->title;
-        $article_trans_description = $article_trans->description;
-        $article_trans_meta_title = $article_trans->meta_title;
-        $article_trans_meta_description = $article_trans->meta_description;
-        */
+            ->with([
+                'article.reactions' => function ($query) {
+                    $query->whereIn('type', ['like', 'dislike']);
+                }
+            ])
+            ->where('id', $article_trans_id)
+            //->whereSlug($article_trans_slug)
+            ->first();
+
+        if (!$article_trans) {
+            return to_route('home');
+        }
 
         $doc = new DOMDocument();
         @$doc->loadHTML(
@@ -111,82 +107,56 @@ class ArticleTranslationController extends Controller
             LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
         );
 
+
         $imgs = $doc->getElementsByTagName('img');
 
-        foreach($imgs as $img) {
+        foreach ($imgs as $img) {
             $content_img_id = $img->getAttribute('data-image-id');
             $media = Media::find($content_img_id);
-            if($media) {
+            if ($media) {
                 $img->setAttribute('srcset', $media->getSrcset());
                 $img->setAttribute('sizes', '(max-width: 768px) 100vw, 1200px');
             }
-            /*
-            $img->setAttribute('srcset', $this->create_content_img_srcset($content_img_id));
-            $img->setAttribute('sizes', '(max-width: 768px) 100vw, 800px');
-            */
         }
 
-        /*
-        $article_trans_description = $doc->saveHTML();
-        */
         $article_trans->description = $doc->saveHTML();
+
+        // correct the slug if it's wrong (because id is only for getting the record)
+        if (empty($article_trans_slug) || $article_trans->slug !== $article_trans_slug) {
+            return redirect()->route('articles.show', [
+                'id'   => $article_trans->id,
+                'slug' => $article_trans->slug
+            ], 301);
+        }
 
         return view('articles.show', compact('article_trans'));
     }
 
-    /*
-    public function create_content_img_srcset($content_img_id) {
-        $content_img = Media::find($content_img_id);
-        $content_img_names = $content_img['responsive_images']['responsive']['urls'];
-        $content_img_year = $content_img->created_at->format('Y');
-        $content_img_month = $content_img->created_at->format('m');
-        $widths = [1200, 1003, 839, 702, 587, 491, 411, 344, 288, 241];
-        $srcset = '';
-        $i = 0;
-        foreach($content_img_names as $content_img_name) {
-            $url = asset("storage/article/content/$content_img_year/$content_img_month/responsive/$content_img_name");
-            $srcset .= "$url $widths[$i]w, ";
-            $i += 1;
-        }
-        return $srcset;
-        $content_img = Media::find($content_img_id);
-        $srcset = '';
-        if($content_img) {
-            $srcset .= $content_img->getUrl("content_375w") ? "{$content_img->getUrl('content_375w')} 375w," : '';
-            $srcset .= $content_img->getUrl("content_480w") ? "{$content_img->getUrl('content_480w')} 480w," : '';
-            $srcset .= $content_img->getUrl('content_768w') ? "{$content_img->getUrl('content_768w')} 768w," : '';
-            $srcset .= $content_img->getUrl('content_800w') ? "{$content_img->getUrl('content_800w')} 800w," : '';
-            $srcset .= $content_img->getUrl('content_1024w') ? "{$content_img->getUrl('content_1024w')} 1024w," : '';
-            $srcset .= $content_img->getUrl('content_1200w') ? "{$content_img->getUrl('content_1200w')} 1200w," : '';
-            $srcset .= $content_img->getUrl('content_1600w') ? "{$content_img->getUrl('content_1600w')} 1600w," : '';
-        }
 
-        return $srcset;
-    }
-    */
-
-    public function edit(Request $request, int $article_trans_id) {
+    public function edit(Request $request, int $article_trans_id)
+    {
         //$cats = CategoryTranslation::all()->where('language_code', 'ar');
         $article_trans = ArticleTranslation::find($article_trans_id);
         $article = $article_trans->article;
         $article_content_imgs = $article->getMedia('content_imgs');
-        return view('admin.articles.edit-trans', compact(/* 'cats',*/ 'article_trans', 'article_content_imgs'));
+        return view('admin.articles.edit-trans', compact(/* 'cats',*/'article_trans', 'article_content_imgs'));
     }
 
-    public function update(Request $request, int $article_trans_id) {
+    public function update(Request $request, int $article_trans_id)
+    {
         $validated = $request->validate([
             'article_id' => 'required|numeric|exists:articles,id',
             'language_code' => [
                 'required',
                 'in:en,ar,de,es,fr,ru,pt,it,nl,sv,da,nb',
-                Rule::unique('article_translations')->where(function($query) use ($request){
+                Rule::unique('article_translations')->where(function ($query) use ($request) {
                     return $query->where('article_id', (int)$request->article_id);
                 })->ignore($article_trans_id),
             ],
             'slug' => [
                 'required',
                 'string',
-                Rule::unique('article_translations')->where(function($query) use ($request){
+                Rule::unique('article_translations')->where(function ($query) use ($request) {
                     return $query->where('language_code', $request->language_code);
                 })->ignore($article_trans_id)
             ],
@@ -218,11 +188,11 @@ class ArticleTranslationController extends Controller
         return redirect()->back();
     }
 
-    public function destroy($article_trans_id) {
+    public function destroy($article_trans_id)
+    {
         $article_trans = ArticleTranslation::findOrFail($article_trans_id);
         $article_trans->delete();
 
         return to_route('admin.articles.index');
     }
-
 }

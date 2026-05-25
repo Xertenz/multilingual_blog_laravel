@@ -1,4 +1,4 @@
-<li class="mb-4">
+<li class="mb-4 scroll-mt-[80px]" id="reply-item-{{$reply->id}}">
     <div id="reply-{{$reply->id}}">
         <div class="flex justify-between ms-3">
             <p class="capitalize whitespace-normal text-slate-200 font-bold">{{$reply->user->name}}:</p>

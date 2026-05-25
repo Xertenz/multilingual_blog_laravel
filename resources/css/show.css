@@ -1,0 +1,178 @@
+body {
+    font-family: "Inter", sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #f1f5f9;
+    min-height: 100vh;
+}
+
+/* تخصيص المحتوى */
+.article-description {
+    font-family: "Merriweather", serif;
+    line-height: 1.9;
+    color: #e2e8f0;
+}
+
+.article-description > h1,
+.article-description > h2,
+.article-description > h3 {
+    font-family: "Inter", sans-serif;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.article-description > h1 {
+    font-size: 2.5rem;
+    border-left: 4px solid #dc2626;
+    padding-left: 1rem;
+}
+
+.article-description > h2 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    font-size: 1.8rem;
+    border-bottom: 2px solid #334155;
+    padding-bottom: 0.25rem;
+    margin-top: 1rem;
+}
+
+.article-description > h3 {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.article-description p {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    font-family: "Inter", sans-serif;
+}
+
+.article-description a {
+    color: #ef4444;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.article-description a:hover {
+    color: #b91c1c;
+}
+
+.article-description > ul,
+.article-description > ol {
+    margin: 1rem 0 1.5rem 1.5rem;
+}
+
+.article-description li {
+    margin-bottom: 0.5rem;
+}
+
+.article-description > blockquote {
+    border-left: 4px solid #dc2626;
+    background: #1e293b;
+    padding: 1.5rem;
+    font-style: italic;
+    margin: 2rem 0;
+    border-radius: 0 12px 12px 0;
+    color: #cbd5e1;
+}
+
+.article-description .content_img-wrapper {
+    margin: 2rem 0;
+}
+
+.article-description img {
+    border: 2px solid #334155;
+    transition: transform 0.3s ease;
+    width: 40rem;
+}
+
+.article-description img + p {
+    margin: 0px;
+}
+
+.article-description img:hover {
+    transform: scale(1.02);
+    border-color: #ef4444;
+}
+
+/* بطاقات القضايا */
+.case-badge {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    color: #94a3b8;
+    transition: all 0.3s ease;
+}
+
+.case-badge:hover {
+    border-color: #ef4444;
+    color: white;
+}
+
+.evidence-box {
+    background: rgba(30, 41, 59, 0.8);
+    backdrop-filter: blur(10px);
+    border-left: 4px solid #dc2626;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+.share-button {
+    transition: all 0.3s ease;
+    background: #1e293b;
+    border: 1px solid #334155;
+}
+
+.share-button:hover {
+    background: #dc2626;
+    border-color: #b91c1c;
+    transform: translateY(-2px);
+}
+
+/* شريط تقدم القراءة */
+.reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 3px;
+    background: linear-gradient(90deg, #ef4444, #b91c1c);
+    z-index: 1000;
+    transition: width 0.1s ease;
+}
+
+/* صورة القضية */
+.case-image {
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+    border: 2px solid #334155;
+}
+
+.case-image::after {
+    content: "EVIDENCE";
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(220, 38, 38, 0.9);
+    color: white;
+    padding: 0.25rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    border-radius: 20px;
+    transform: rotate(2deg);
+}
+
+/* تذييل المقالة */
+.article-footer {
+    border-top: 2px solid #334155;
+    margin-top: 4rem;
+    padding-top: 2rem;
+}

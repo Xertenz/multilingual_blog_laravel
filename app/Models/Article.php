@@ -12,7 +12,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class Article extends Model  implements HasMedia
 {
     use InteractsWithMedia;
-    protected $fillable = ['category_id', 'sign', 'views', 'status'];
+    protected $fillable = ['category_id', 'user_id', 'sign', 'views', 'status'];
     //public $timestamps = false;
     //
     public function translations(): HasMany
@@ -31,6 +31,10 @@ class Article extends Model  implements HasMedia
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class)->latest();
+    }
+
+    public function reactions() {
+        return $this->morphMany(Reaction::class, 'reactionable');
     }
 
     public function registerMediaConversions(Media $media = null): void

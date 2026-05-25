@@ -16,12 +16,14 @@ use App\Http\Controllers\Admin\ArticleTranslationController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CategoryTranslationController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ReactionController;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),
-	'middleware' => [ 'localeSessionRedirect', 'localizationRedirect', 'localeViewPath' ]
+    'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath']
 ], function () {
 
     // For Auth
@@ -29,14 +31,19 @@ Route::group([
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+        Route::get('/notifications/fetch', [NotificationController::class, 'fetch'])->name('notifications.fetch');
+        Route::get('/notifications/{id}/read', [NotificationController::class, 'read'])->name('notifications.read');
     });
-    require __DIR__.'/auth.php';
+    require __DIR__ . '/auth.php';
 
     // For all users and visitors
     Route::get('/', function () {
         return view('welcome');
     })->name('home');
-    Route::get('/articles/{slug}', [ArticleTranslationController::class, 'show'])->name('articles.show');
+    Route::get('/articles/{id}/{slug?}', [ArticleTranslationController::class, 'show'])
+        ->where('id', '[0-9]+')
+        ->name('articles.show');
     Route::post('/articles/content_img_info', [ArticleController::class, 'get_content_img_info'])->name('visitor.articles.content_img.info');
 
     // For Users only (not visitors)
@@ -50,8 +57,12 @@ Route::group([
         ->middleware('auth')
         ->name('comments.delete');
 
+    Route::post('/articles/reactions/toggle', [ReactionController::class, 'toggleArticleReaction'])
+        ->middleware('auth')
+        ->name('articles.reactions.toggle');
+
     // For Admin(s)
-    Route::group(['middleware' => ['auth', 'admin'], 'prefix' => "admin"], function() {
+    Route::group(['middleware' => ['auth', 'admin'], 'prefix' => "admin"], function () {
         Route::view('/dashboard', 'admin.layout.dashboard')->name('dashboard');
 
         Route::get('/articles', [ArticleController::class, 'index'])->name('admin.articles.index');
@@ -83,7 +94,6 @@ Route::group([
     Route::view('/privacy', 'privacy')->name('privacy');
     Route::view('/terms', 'terms')->name('terms');
     Route::view('/contact', 'contact')->name('contact');
-    Route::post('/contact', function(){})->name('contact.submit');
+    Route::post('/contact', function () {})->name('contact.submit');
     Route::view('/about', 'about')->name('about');
-
 });

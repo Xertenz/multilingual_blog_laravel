@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use App\Http\Controllers\Controller;
 
 use App\Models\Article;
@@ -15,11 +16,13 @@ use Carbon\Carbon;
 class CategoryTranslationController extends Controller
 {
 
-    public function create() {
+    public function create()
+    {
         return view('admin.categories.create');
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $validated = $request->validate([
             "cat_sign" => 'required|string|unique:categories,sign',
             'cat_featured_img' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
@@ -28,7 +31,7 @@ class CategoryTranslationController extends Controller
                 'required',
                 'string',
                 //'unique:category_translations,slug',
-                Rule::unique('category_translations', 'slug')->where(function($query) use ($request){
+                Rule::unique('category_translations', 'slug')->where(function ($query) use ($request) {
                     return $query->where('language_code', 'en');
                 })
             ],
@@ -38,11 +41,11 @@ class CategoryTranslationController extends Controller
             'english_meta_description' => 'required|string',
         ]);
 
-        $english_slug = trim($request->english_slug);
-        $english_name = trim($request->english_name);
-        $english_description = trim($request->english_description);
-        $english_meta_title = trim($request->english_meta_title);
-        $english_meta_description = trim($request->english_meta_description);
+        $english_slug = $request->english_slug;
+        $english_name = $request->english_name;
+        $english_description = $request->english_description;
+        $english_meta_title = $request->english_meta_title;
+        $english_meta_description = $request->english_meta_description;
 
 
 
@@ -95,14 +98,15 @@ class CategoryTranslationController extends Controller
         return to_route('admin.categories.index');
     }
 
-    public function store_cat_trans(Category $cat, Request $request, string $lang, string $lang_code) {
+    public function store_cat_trans(Category $cat, Request $request, string $lang, string $lang_code)
+    {
 
         $lang_slug = $request->input("{$lang}_slug");
         $lang_name = $request->input("{$lang}_name");
         $lang_description = $request->input("{$lang}_description");
         $lang_meta_title = $request->input("{$lang}_meta_title");
         $lang_meta_description = $request->input("{$lang}_meta_description");
-        if(
+        if (
             $lang_slug != null &&
             $lang_name != null &&
             $lang_description != null &&
@@ -123,15 +127,17 @@ class CategoryTranslationController extends Controller
         }
     }
 
-    public function edit($id) {
+    public function edit($id)
+    {
         $cat = Category::with('translations')->find($id);
         $translations = $cat->translations->keyBy('language_code');
         return view('admin.categories.edit', compact('cat', 'translations'));
     }
 
-    public function update(Request $request, int $id) {
+    public function update(Request $request, int $id)
+    {
         $cat = Category::find($id);
-    
+
         $validated = $request->validate([
             'cat_sign' => "required|string|unique:categories,sign,$id",
             'cat_featured_img' => 'image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
@@ -167,7 +173,7 @@ class CategoryTranslationController extends Controller
             'user_id' => Auth::id()
         ]);
 
-        if($request->hasFile('cat_featured_img')) {
+        if ($request->hasFile('cat_featured_img')) {
             if ($cat->hasMedia('featured_imgs')) {
                 $cat->clearMediaCollection('featured_imgs');
             }
@@ -216,17 +222,17 @@ class CategoryTranslationController extends Controller
             "{$lang}_slug" => "unique:category_translations,slug,{$current_trans?->id}"
         ]);
         */
-
     }
 
-    public function update_cat_trans(Category $cat, Request $request, string $lang, string $lang_code) {
+    public function update_cat_trans(Category $cat, Request $request, string $lang, string $lang_code)
+    {
 
         $lang_slug = $request->input("{$lang}_slug");
         $lang_name = $request->input("{$lang}_name");
         $lang_description = $request->input("{$lang}_description");
         $lang_meta_title = $request->input("{$lang}_meta_title");
         $lang_meta_description = $request->input("{$lang}_meta_description");
-        if(
+        if (
             $lang_slug != null &&
             $lang_name != null &&
             $lang_description != null &&
@@ -235,7 +241,7 @@ class CategoryTranslationController extends Controller
         ) {
 
             $cat_trans = $cat->translations()->where('language_code', $lang_code);
-            if($cat_trans->exists()) {
+            if ($cat_trans->exists()) {
                 $cat_trans->update([
                     'language_code' => $lang_code,
                     'slug' => trim($lang_slug),
@@ -245,15 +251,15 @@ class CategoryTranslationController extends Controller
                     'meta_description' => trim($lang_meta_description),
                     'updated_at' => Carbon::now()
                 ]);
-            }else{
+            } else {
                 $this->store_cat_trans($cat, $request, $lang, $lang_code);
             }
-        }else{
-
+        } else {
         }
     }
 
-    public function destroy($cat_id) {
+    public function destroy($cat_id)
+    {
         $cat = Category::findOrFail($cat_id);
         $cat->delete();
         return to_route('admin.categories.index');

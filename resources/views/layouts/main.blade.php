@@ -1,11 +1,6 @@
-    <!-- ==================== -->
-    <!-- Header / Navigation -->
-    <!-- ==================== -->
     @include('partials.header')
 
     @include('partials.navbar')
-    <div class="crime-scene-tape"></div>
-    
     <!-- ==================== -->
     <!-- Main Content -->
     <!-- ==================== -->

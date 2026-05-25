@@ -1,116 +1,12 @@
 @extends('layouts.main')
 @section('title', __('about.title'))
+
+@section('meta_tags')
+@vite(['resources/css/about.css'])
+@endsection
+
 @push('styles')
-<style>
-    body {
-        font-family: 'Inter', sans-serif;
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-        color: #f1f5f9;
-        min-height: 100vh;
-    }
-    
-    .about-content {
-        line-height: 1.8;
-        color: #e2e8f0;
-    }
-    
-    .about-card {
-        background: rgba(30, 41, 59, 0.5);
-        backdrop-filter: blur(10px);
-        border: 1px solid #334155;
-        border-radius: 16px;
-        padding: 2rem;
-        transition: all 0.3s ease;
-    }
-    
-    .about-card:hover {
-        border-color: #ef4444;
-        transform: translateY(-5px);
-        box-shadow: 0 20px 25px -5px rgba(239, 68, 68, 0.2);
-    }
-    
-    .team-card {
-        background: rgba(30, 41, 59, 0.5);
-        backdrop-filter: blur(10px);
-        border: 1px solid #334155;
-        border-radius: 16px;
-        padding: 1.5rem;
-        transition: all 0.3s ease;
-    }
-    
-    .team-card:hover {
-        border-color: #ef4444;
-        transform: translateY(-5px);
-    }
-    
-    .stat-card {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-        border: 1px solid #334155;
-        border-radius: 16px;
-        padding: 1.5rem;
-        text-align: center;
-    }
-    
-    .evidence-stamp {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        background: rgba(220, 38, 38, 0.1);
-        color: #ef4444;
-        padding: 0.25rem 1rem;
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 2px;
-        border-radius: 20px;
-        border: 1px dashed #ef4444;
-        transform: rotate(2deg);
-    }
-    
-    .crime-scene-tape {
-        background: repeating-linear-gradient(45deg, #fbbf24 0px, #fbbf24 20px, #000000 20px, #000000 40px);
-        height: 6px;
-        width: 100%;
-    }
-    
-    .milestone-item {
-        position: relative;
-        padding-left: 2rem;
-        margin-bottom: 1rem;
-    }
-    
-    .milestone-item::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 0.5rem;
-        width: 12px;
-        height: 12px;
-        background: #ef4444;
-        border-radius: 50%;
-        border: 2px solid #1e293b;
-    }
-    
-    [dir="rtl"] .milestone-item {
-        padding-left: 0;
-        padding-right: 2rem;
-    }
-    
-    [dir="rtl"] .milestone-item::before {
-        left: auto;
-        right: 0;
-    }
-    
-    .value-icon {
-        width: 3rem;
-        height: 3rem;
-        background: rgba(239, 68, 68, 0.1);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 1rem;
-    }
-</style>
+
 @endpush
 
 

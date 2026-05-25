@@ -1,0 +1,18 @@
+nav .notifications-list-wrapper {
+    display: none;
+}
+nav .notifications-list-wrapper.active {
+    display: block;
+}
+/* تأثيرات خاصة */
+.crime-scene-tape {
+    background: repeating-linear-gradient(
+        45deg,
+        #fbbf24 0px,
+        #fbbf24 20px,
+        #000000 20px,
+        #000000 40px
+    );
+    height: 5px;
+    width: 100%;
+}

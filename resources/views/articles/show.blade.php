@@ -1,16 +1,10 @@
 {{-- resources/views/articles/show.blade.php --}}
-<!DOCTYPE html>
-<html lang="{{ $article_trans->language_code ?? 'en' }}" 
-      dir="{{ in_array($article_trans->language_code ?? 'en', ['ar', 'fa', 'ur']) ? 'rtl' : 'ltr' }}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    
+@extends('layouts.main')
+@section('title', __('about.title'))
+
+@section('meta_tags')
     <!-- Meta Tags للزوار ومحركات البحث -->
-    <title>{{ $article_trans->meta_title ?? $article_trans->meta_title }} | Crime Chronicles</title>
     <meta name="description" content="{{ $article_trans->meta_description ?? Str::limit(strip_tags($article_trans->meta_description), 160) }}">
-    
     <!-- Open Graph للشبكات الاجتماعية -->
     <meta property="og:title" content="{{ $article_trans->meta_title ?? $article_trans->meta_title }}">
     <meta property="og:description" content="{{ $article_trans->meta_description ?? Str::limit(strip_tags($article_trans->meta_description), 160) }}">
@@ -23,7 +17,7 @@
     --}}
     <meta property="og:locale" content="{{ $article_trans->language_code ?? 'en' }}">
     <meta property="og:site_name" content="Crime Chronicles">
-    
+
     <!-- Twitter Cards -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ $article_trans->meta_title ?? $article_trans->meta_title }}">
@@ -33,225 +27,27 @@
         <meta name="twitter:image" content="{{ $article->getFeaturedImageUrl('large') }}">
     @endif
     --}}
-    
+
     <!-- Canonical URL -->
     <link rel="canonical" href="{{ url()->current() }}">
-    
+
     <!-- Alternate Languages (إذا كان المقال متوفر بلغات أخرى) -->
     @if($article_trans->article->translations ?? false)
         @foreach($article_trans->article->translations as $translation)
             <link rel="alternate" hreflang="{{ $translation->language_code }}" 
-                  href="{{ route('articles.show', ['slug' => $translation->slug, 'lang' => $translation->language_code]) }}">
+                    {{-- href="{{ route('articles.show', ['slug' => $translation->slug, 'lang' => $translation->language_code]) }}"> --}}
+                    href="{{ route('articles.show', ['slug' => $translation->slug, 'id' => $translation->id]) }}">
         @endforeach
     @endif
-    
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Merriweather:wght@300;400;700;900&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
-    @vite(['resources/css/app.css'])
-    
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: #f1f5f9;
-            min-height: 100vh;
-        }
-        
-        /* تخصيص المحتوى */
-        .article-description {
-            font-family: 'Merriweather', serif;
-            line-height: 1.9;
-            color: #e2e8f0;
-        }
-        
-        .article-description > h1, 
-        .article-description > h2, 
-        .article-description > h3,
-         {
-            font-family: 'Inter', sans-serif ;
-            font-weight: 700;
-            margin-top: 2rem;
-            margin-bottom: 1rem;
-            color: white;
-        }
-        
-        .article-description > h1 {
-            font-size: 2.5rem;
-            border-left: 4px solid #dc2626;
-            padding-left: 1rem;
-        }
-        
-        .article-description > h2 {
-            font-family: Arial, Helvetica, sans-serif;
-            font-weight: bold;
-            font-size: 1.8rem;
-            border-bottom: 2px solid #334155;
-            padding-bottom: 0.25rem;
-            margin-top: 1rem;
-        }
 
-        .article-description > h3 {
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 1.5rem;
-            font-weight: bold
-        }
-        
-        .article-description p {
-            margin-top: 0.5rem;
-            margin-bottom: 0.5rem;
-            font-family: 'Inter', sans-serif;
-        }
-        
-        .article-description a {
-            color: #ef4444;
-            text-decoration: underline;
-            text-underline-offset: 2px;
-        }
-        
-        .article-description a:hover {
-            color: #b91c1c;
-        }
-        
-        .article-description > ul, 
-        .article-description > ol {
-            margin: 1rem 0 1.5rem 1.5rem;
-        }
-        
-        .article-description li {
-            margin-bottom: 0.5rem;
-        }
-        
-        .article-description > blockquote {
-            border-left: 4px solid #dc2626;
-            background: #1e293b;
-            padding: 1.5rem;
-            font-style: italic;
-            margin: 2rem 0;
-            border-radius: 0 12px 12px 0;
-            color: #cbd5e1;
-        }
-        
-        .article-description .content_img-wrapper {
-            margin: 2rem 0;
-        }
+    @vite(['resources/css/show.css'])
+@endsection
 
-        .article-description img {
-            border: 2px solid #334155;
-            transition: transform 0.3s ease;
-            width: 40rem;
-        }
-
-        .article-description img + p {
-            margin: 0px;
-        }
-        
-        .article-description img:hover {
-            transform: scale(1.02);
-            border-color: #ef4444;
-        }
-        
-        /* بطاقات القضايا */
-        .case-badge {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-            color: #94a3b8;
-            transition: all 0.3s ease;
-        }
-        
-        .case-badge:hover {
-            border-color: #ef4444;
-            color: white;
-        }
-        
-        /* تأثيرات خاصة */
-        .crime-scene-tape {
-            background: repeating-linear-gradient(45deg, #fbbf24 0px, #fbbf24 20px, #000000 20px, #000000 40px);
-            height: 6px;
-            width: 100%;
-        }
-        
-        .evidence-box {
-            background: rgba(30, 41, 59, 0.8);
-            backdrop-filter: blur(10px);
-            border-left: 4px solid #dc2626;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin: 2rem 0;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-        }
-        
-        .share-button {
-            transition: all 0.3s ease;
-            background: #1e293b;
-            border: 1px solid #334155;
-        }
-        
-        .share-button:hover {
-            background: #dc2626;
-            border-color: #b91c1c;
-            transform: translateY(-2px);
-        }
-        
-        /* شريط تقدم القراءة */
-        .reading-progress {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 0%;
-            height: 3px;
-            background: linear-gradient(90deg, #ef4444, #b91c1c);
-            z-index: 1000;
-            transition: width 0.1s ease;
-        }
-        
-        /* صورة القضية */
-        .case-image {
-            position: relative;
-            overflow: hidden;
-            border-radius: 16px;
-            border: 2px solid #334155;
-        }
-        
-        .case-image::after {
-            content: 'EVIDENCE';
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            background: rgba(220, 38, 38, 0.9);
-            color: white;
-            padding: 0.25rem 1rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            letter-spacing: 2px;
-            border-radius: 20px;
-            transform: rotate(2deg);
-        }
-        
-        /* تذييل المقالة */
-        .article-footer {
-            border-top: 2px solid #334155;
-            margin-top: 4rem;
-            padding-top: 2rem;
-        }
-    </style>
-</head>
-<body class="antialiased">
+@section('content')
 
     <!-- شريط تقدم القراءة -->
     <div class="reading-progress" id="readingProgress"></div>
     
-    <!-- Navigation -->
-    @include('partials.navbar')
-    
-    <!-- شريط مسرح الجريمة (تأثير بصري) -->
-    <div class="crime-scene-tape sticky top-[65px] left-0"></div>
     
     <!-- ==================== -->
     <!-- محتوى المقالة الرئيسي -->
@@ -276,7 +72,6 @@
                 {{ $article_trans->title }}
             </h1>
 
-            
             <!-- معلومات الكاتب/النشر -->
             <div class="flex items-center text-gray-500 text-sm space-x-4">
                 <div class="flex items-center">
@@ -299,6 +94,27 @@
                 </div>
             </div>
         </header>
+
+
+        <button 
+            id="article-like-{{$article_trans->article->id}}"
+            onclick="articleLike(event, {{$article_trans->article->id}})"
+            >
+            <span>like</span>
+            <span id="article-like-count-{{$article_trans->article->id}}">
+                ({{$article_trans->article->reactions->where('type', 'like')->count()}})
+            </span>
+        </button>
+        <span>|</span>
+        <button 
+            id="article-dislike-{{$article_trans->article->id}}"
+            onclick="articleDislike(event, {{$article_trans->article->id}})"
+            >
+            <span>dislike</span>
+            <span id="article-dislike-count-{{$article_trans->article->id}}">
+                ({{$article_trans->article->reactions->where('type', 'dislike')->count()}})
+            </span>
+        </button>
         
         <!-- ==================== -->
         <!-- الصورة الرئيسية -->
@@ -474,6 +290,7 @@
     <!-- ==================== -->
     <!-- Footer بسيط -->
     <!-- ==================== -->
+    {{-- 
     <footer class="bg-[#0a0f1f] border-t border-gray-800 mt-16 py-8">
         <div class="container mx-auto px-4 text-center text-gray-500 text-sm">
             <p>&copy; {{ date('Y') }} Crime Chronicles. All rights reserved.</p>
@@ -484,13 +301,14 @@
             </p>
         </div>
     </footer>
-    
-    <!-- ==================== -->
-    <!-- JavaScript -->
-    <!-- ==================== -->
-    @vite(['resources/js/app.js'])
+    --}}
+@endsection
+@push('scripts')
     <script>
         // شريط تقدم القراءة
+
+
+
         window.addEventListener('scroll', function() {
             const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
             const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
@@ -531,7 +349,6 @@
             }
             
             let article_id = commentForm.dataset.articleId;
-            let user_id = "{{ Auth::id() }}";
             let comment_body = document.getElementById('comment-body');
             let locale = "{{ LaravelLocalization::getCurrentLocale() }}";
             let url = " {{ route('comments.store') }} ";
@@ -551,7 +368,6 @@
                     },
                     body: JSON.stringify({ 
                         article_id,
-                        user_id,
                         parent_id: null,
                         comment_body: comment_body.value,
                         locale
@@ -669,13 +485,11 @@
 
         async function replyToComment(event, parent_id) {
 
-
-            let user_id = "{{ Auth::id() }}";
             let comment_reply_body = document.getElementById(`reply-input-${parent_id}`);
             
             let article_id = comment_reply_body.dataset.articleId;
             
-            let locale = "{{ LaravelLocalization::getCurrentLocale() }}";
+            //let locale = "{{ LaravelLocalization::getCurrentLocale() }}";
             let url = " {{ route('comments.store') }} ";
 
             if(comment_reply_body.value == '') {
@@ -692,10 +506,9 @@
                     },
                     body: JSON.stringify({ 
                         article_id,
-                        user_id,
                         parent_id,
                         comment_body: comment_reply_body.value,
-                        locale
+                        //locale
                     })
                 });
                 let comment_reply_item = await res.json();
@@ -789,6 +602,65 @@
                 console.log('Error in deleting a reply:', err);
             }
         }
+
+        async function articleLike(event, id) {
+            let type = 'like';
+            let url = "{{ route('articles.reactions.toggle') }}";
+
+            try {
+                let request = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        id, // article id
+                        type
+                    })
+                })
+
+                let data = await request.json();
+                // updating likes count
+                let articleLikeCount = document.getElementById(`article-like-count-${id}`);
+                articleLikeCount.textContent = `(${data.likes})`;
+                // updating dislikes count
+                let articleDislikeCount = document.getElementById(`article-dislike-count-${id}`);
+                articleDislikeCount.textContent = `(${data.dislikes})`;
+            }catch(err) {
+                console.log('error in article like')
+            }
+        }
+
+        async function articleDislike(event, id) {
+            let type = 'dislike';
+            let url = "{{ route('articles.reactions.toggle') }}";
+
+            try {
+                let request = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        id, // article id
+                        type
+                    })
+                })
+
+                let data = await request.json();
+                // updating dislikes count
+                let articleDislikeCount = document.getElementById(`article-dislike-count-${id}`);
+                articleDislikeCount.textContent = `(${data.dislikes})`;
+                // updating likes count
+                let articleLikeCount = document.getElementById(`article-like-count-${id}`);
+                articleLikeCount.textContent = `(${data.likes})`;
+            }catch(err) {
+                console.log('error in article dislike')
+            }
+        }
+
+        // Notification in Navbar
     </script>
-</body>
-</html>
+@endpush

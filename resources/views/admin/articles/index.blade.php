@@ -36,11 +36,11 @@
                 @foreach ($articles as $article)
                 <tr>
                     <td class="py-4 px-6 border-b border-gray-200">{{$article->category->sign??'[Null]'}}</td>
-                    <td class="py-4 px-6 border-b border-gray-200">{{$article->featured_img}}
+                    <td class="py-4 px-6 border-b border-gray-200">
 
                         <img 
                             src = "{{ $article->getFirstMediaUrl('featured_imgs') }}"
-                            srcset = "{{ $article->getFirstMedia('featured_imgs')->getSrcset() }}"
+                            srcset = "{{ $article->getFirstMedia('featured_imgs') !== null ? $article->getFirstMedia('featured_imgs')->getSrcset() : '' }}"
                          />
                     </td>
                     <td class="py-4 px-6 border-b border-gray-200">{{$article->sign?? "no sign"}}</td>

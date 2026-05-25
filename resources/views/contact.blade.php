@@ -2,109 +2,12 @@
     @extends('layouts.main')
     @section('title', __('contact.title'))
     @push('styles')
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-            color: #f1f5f9;
-            min-height: 100vh;
-        }
-        
-        .contact-form {
-            background: rgba(30, 41, 59, 0.5);
-            backdrop-filter: blur(10px);
-            border: 1px solid #334155;
-            border-radius: 16px;
-            padding: 2.5rem;
-        }
-        
-        .contact-input {
-            background: #1e293b;
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 0.75rem 1rem;
-            color: white;
-            width: 100%;
-            transition: all 0.3s ease;
-        }
-        
-        .contact-input:focus {
-            border-color: #ef4444;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
-        }
-        
-        .contact-input::placeholder {
-            color: #64748b;
-        }
-        
-        .contact-label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #94a3b8;
-            margin-bottom: 0.5rem;
-        }
-        
-        .submit-btn {
-            background: linear-gradient(135deg, #ef4444, #b91c1c);
-            color: white;
-            font-weight: 600;
-            padding: 0.75rem 2rem;
-            border-radius: 12px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-        }
-        
-        .submit-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4);
-        }
-        
-        .contact-card {
-            background: rgba(30, 41, 59, 0.5);
-            backdrop-filter: blur(10px);
-            border: 1px solid #334155;
-            border-radius: 16px;
-            padding: 1.5rem;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-        
-        .contact-card:hover {
-            border-color: #ef4444;
-            transform: translateY(-5px);
-        }
-        
-        /* تأثيرات خاصة للشريج المخطط تحت النافبار */
-        .crime-scene-tape {
-            background: repeating-linear-gradient(45deg, #fbbf24 0px, #fbbf24 20px, #000000 20px, #000000 40px);
-            height: 6px;
-            width: 100%;
-        }
-        
-        .success-message {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid #10b981;
-            color: #10b981;
-            padding: 1rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-        }
-        
-        .error-message {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid #ef4444;
-            color: #ef4444;
-            padding: 1rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-        }
-    </style>
+
     @endpush
 
+    @section('meta_tags')
+    @vite(['resources/css/contact.css'])
+    @endsection
     <!-- Main Content -->
     @section('content')
     <div class="container mx-auto px-4 py-16 max-w-4xl">
