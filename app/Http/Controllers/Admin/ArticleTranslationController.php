@@ -33,7 +33,7 @@ class ArticleTranslationController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'article_id' => 'required|numeric|exists:articles,id',
             'language_code' => [
                 'required',
@@ -144,7 +144,7 @@ class ArticleTranslationController extends Controller
 
     public function update(Request $request, int $article_trans_id)
     {
-        $validated = $request->validate([
+        $request->validate([
             'article_id' => 'required|numeric|exists:articles,id',
             'language_code' => [
                 'required',
@@ -188,7 +188,7 @@ class ArticleTranslationController extends Controller
         return redirect()->back();
     }
 
-    public function destroy($article_trans_id)
+    public function destroy(int $article_trans_id)
     {
         $article_trans = ArticleTranslation::findOrFail($article_trans_id);
         $article_trans->delete();

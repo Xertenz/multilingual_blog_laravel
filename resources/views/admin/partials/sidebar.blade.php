@@ -130,6 +130,60 @@
                 </li>
             </ul>
         </div>
+
+        {{-- Divider --}}
+        <div class="border-t border-slate-700 my-4"></div>
+        
+        {{-- Tags Section --}}
+        <div class="mb-6">
+            <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 px-3">
+                Tags
+            </div>
+            
+            <ul class="space-y-1">
+                {{-- All Tags Link --}}
+                <li>
+                    <a href="{{ route('admin.tags.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 
+                              {{ request()->routeIs('admin.tags.*') && !request()->routeIs('admin.tags.create') 
+                                 ? 'bg-gradient-to-r from-orange-600/20 to-amber-600/20 text-white' 
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            {{-- أيقونة الوسم (Tag Icon) --}}
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M6 20l6.5-6.5A2.5 2.5 0 0012 10a2.5 2.5 0 00-3.5 0L2 16.5V20h4zM21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">All Tags</span>
+                        <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
+                            {{ \App\Models\Tag::count() }}
+                        </span>
+                    </a>
+                </li>
+                
+                {{-- Add Tag Link --}}
+                <li>
+                    <a href="{{ route('admin.tags.create') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.tags.create') 
+                                 ? 'bg-gradient-to-r from-amber-500/20 to-red-500/20 text-white' 
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            {{-- أيقونة إضافة وسم جديد --}}
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">Add New Tag</span>
+                        @if(request()->routeIs('admin.tags.create'))
+                            <span class="bg-amber-500/20 text-amber-400 text-xs px-2 py-1 rounded-full">Now</span>
+                        @else
+                            <span class="bg-amber-600/20 text-amber-400 text-xs px-2 py-1 rounded-full">#</span>
+                        @endif
+                    </a>
+                </li>
+            </ul>
+        </div>
         
         {{-- Logout --}}
         <div class="border-t border-slate-700 mt-6 pt-4">

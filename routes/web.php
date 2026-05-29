@@ -15,9 +15,11 @@ use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\ArticleTranslationController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CategoryTranslationController;
+use App\Http\Controllers\Admin\TagTranslationController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReactionController;
+use App\Http\Controllers\Admin\TagController;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 
@@ -89,6 +91,13 @@ Route::group([
         Route::get('/categories/{cat_id}/edit', [CategoryTranslationController::class, 'edit'])->name('admin.categories.edit');
         Route::put('/categories/{cat_id}', [CategoryTranslationController::class, 'update'])->name('admin.categories.update');
         Route::delete('/categories/{cat_id}', [CategoryTranslationController::class, 'destroy'])->name('admin.categories.destroy');
+
+        Route::get('/tags/create', [TagTranslationController::class, 'create'])->name('admin.tags.create');
+        Route::get('/tags', [TagController::class, 'index'])->name('admin.tags.index');
+        Route::post('/tags', [TagTranslationController::class, 'store'])->name('admin.tags.store');
+        Route::get('/tags/{tag}/edit', [TagTranslationController::class, 'edit'])->name('admin.tags.edit');
+        Route::put('/tags/{tag}', [TagTranslationController::class, 'update'])->name('admin.tags.update');
+        Route::delete('/tags/{tag}', [TagTranslationController::class, 'destroy'])->name('admin.tags.destroy');
     });
 
     Route::view('/privacy', 'privacy')->name('privacy');

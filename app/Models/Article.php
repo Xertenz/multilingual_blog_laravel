@@ -19,12 +19,14 @@ class Article extends Model  implements HasMedia
     {
         return $this->hasMany(ArticleTranslation::class);
     }
-    
-    public function category():BelongsTo {
+
+    public function category(): BelongsTo
+    {
         return $this->belongsTo(Category::class);
     }
 
-    public function user():BelongsTo {
+    public function user(): BelongsTo
+    {
         return $this->belongsTo(User::class);
     }
 
@@ -33,8 +35,14 @@ class Article extends Model  implements HasMedia
         return $this->hasMany(Comment::class)->latest();
     }
 
-    public function reactions() {
+    public function reactions()
+    {
         return $this->morphMany(Reaction::class, 'reactionable');
+    }
+
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class);
     }
 
     public function registerMediaConversions(Media $media = null): void
@@ -63,6 +71,4 @@ class Article extends Model  implements HasMedia
         $this->addMediaConversion('content_1600w')->performOnCollections('content_imgs')->width(1600)->optimize()->sharpen(5)->quality(90)->format('webp')->nonQueued();
         */
     }
-    
-
 }

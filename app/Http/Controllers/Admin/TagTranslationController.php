@@ -1,0 +1,120 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Tag;
+use App\Models\TagTranslation;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+
+class TagTranslationController extends Controller
+{
+    //
+    public function create()
+    {
+        return view('admin.tags.create');
+    }
+
+    public function store(Request $request)
+    {
+        // 1. التحقق من البيانات (Sign مطلوب والترجمات مصفوفة)
+        $request->validate([
+            'sign' => 'required|string|unique:tags,sign|max:50',
+            'translations.*.name' => 'nullable|string|max:50', // جعلناها nullable لو أراد إضافة لغات معينة فقط وتأجيل الباقي
+        ]);
+
+        // 2. إضافة الـ Sign في جدول tags الأساسي
+        $tag = Tag::create([
+            'sign' => Str::slug($request->sign, '-') // تجميل الـ Sign ليكون متناسقاً كرمز
+        ]);
+
+        // 3. الدوران حول لغات الـ 12 الممررة من الحقول
+        foreach ($request->translations as $localeCode => $data) {
+
+            // التحقق من أن الحقل ليس فارغاً لهذه اللغة
+            if (!empty($data['name'])) {
+
+                TagTranslation::create([
+                    'tag_id'        => $tag->id,
+                    'language_code' => $localeCode, // يُحفظ تلقائياً من الـ Key الخاص بالمصفوفة (ar, en, ja...)
+                    'name'          => $data['name'],
+                    // توليد السلوج تلقائياً بناءً على الاسم المكتوب باللغة نفسها
+                    'slug'          => Str::slug($data['name'], '-', null)
+                ]);
+            }
+        }
+
+        return to_route('admin.tags.index')->with('success', 'تم حفظ الوسم والترجمات بنجاح!');
+    }
+
+    public function edit(Tag $tag)
+    {
+        return view('admin.tags.edit', compact('tag'));
+    }
+
+    public function update(Request $request, Tag $tag)
+    {
+
+        // 1. الآن نقوم بعمل الـ Validation على القيمة النظيفة والنهائية
+        $request->validate([
+            'sign' => 'required|string|max:50|unique:tags,sign,' . $tag->id,
+            'translations.*.name' => 'nullable|string|max:50',
+            'translations.*.slug' => 'nullable|string|max:50',
+        ]);
+
+        // 2. تحديث الـ Sign الأساسي بأمان تام وبدون تكرار الدالة
+        $tag->update([
+            'sign' => Str::of($request->sign)->slug('-')
+        ]);
+
+        // 3. الدوران حول اللغات الـ 12
+        foreach ($request->translations as $localeCode => $data) {
+            if (empty($data['name'])) {
+                continue;
+            }
+
+            $finalSlug = !empty($data['slug'])
+                ? (string) Str::of($data['slug'])->slug('-')
+                : (string) Str::of($data['name'])->slug('-');
+
+            // دالة updateOrCreate تبحث عن السطر بناءً على الشرط الأول، وتحدثه أو تنشئه بناءً على مصفوفة البيانات الثانية
+            TagTranslation::updateOrCreate(
+                [
+                    'tag_id'        => $tag->id,
+                    'language_code' => $localeCode,
+                ],
+                [
+                    'name'          => $data['name'],
+                    'slug'          => $finalSlug,
+                ]
+            );
+        }
+
+        return redirect()->route('admin.tags.index')->with('success', 'Tag updated successfully!');
+    }
+
+    //public function destroy(Tag $Tag) {}
+    public function destroy(int $id)
+    {
+        // 1. جلب الوسم أو إرجاع خطأ 404 في حال عدم وجوده لضمان أمان العملية
+        $tag = Tag::findOrFail($id);
+
+        // 2. فك ارتباط الوسم بجميع المقالات المرتبطة به في الجدول الوسيط (إن وُجدت)
+        // هذا يمنع حدوث مشاكل في قاعدة البيانات (Foreign Key Constraints)
+        if (method_exists($tag, 'articles')) {
+            $tag->articles()->detach();
+        }
+
+        // 3. إذا كنت تستخدم جدول ترجمات منفصل للوسوم (مثل الفئات)، قم بحذف الترجمات أولاً
+        if (method_exists($tag, 'translations')) {
+            $tag->translations()->delete();
+        }
+
+        // 4. حذف السجل الأساسي للوسم
+        $tag->delete();
+
+        // 5. إعادة التوجيه إلى الصفحة الرئيسية للوسوم مع رسالة نجاح (Session Flash Message)
+        return to_route('admin.tags.index')->with('success', 'Tag and its relations deleted successfully!');
+    }
+}

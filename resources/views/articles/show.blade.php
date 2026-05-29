@@ -305,9 +305,6 @@
 @endsection
 @push('scripts')
     <script>
-        // شريط تقدم القراءة
-
-
 
         window.addEventListener('scroll', function() {
             const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
@@ -661,6 +658,5 @@
             }
         }
 
-        // Notification in Navbar
     </script>
 @endpush

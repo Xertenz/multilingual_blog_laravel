@@ -288,7 +288,6 @@
                     </div>
                 </div>
 
-
                 <!-- Article Sign Section -->
                 <div class="section-card">
                     <div class="section-title">
@@ -438,6 +437,54 @@
                         </div>
                     </div>
                 </div>
+
+
+
+
+
+                <div class="section-card">
+                    <div class="section-title">
+                        <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M6 20l6.5-6.5A2.5 2.5 0 0012 10a2.5 2.5 0 00-3.5 0L2 16.5V20h4zM21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3"></path>
+                        </svg>
+                        <span>Article Tags</span>
+                    </div>
+                    
+                    <div>
+                        <label for="tags" class="input-label">
+                            Select Tags <span class="text-gray-400 text-xs font-normal">(Optional - Hold Ctrl/Cmd to select multiple)</span>
+                        </label>
+                        <div class="relative">
+                            <select name="tags[]" id="tags" multiple
+                                    class="input-field @error('tags') error @enderror">
+                                @foreach ($tags as $tag)
+                                    <option value="{{ $tag['id'] }}" {{ is_array(old('tags')) && in_array($tag['id'], old('tags')) ? 'selected' : '' }}>
+                                        {{ $tag['sign'] }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        @error('tags')
+                            <div class="error-message mt-2">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                </svg>
+                                {{$message}}
+                            </div>
+                        @enderror
+                        
+                        <div class="mt-3 flex items-center text-xs text-gray-500">
+                            <svg class="w-4 h-4 mr-1 text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Total tags available to attach: {{ count($tags) }}</span>
+                        </div>
+                    </div>
+                </div>
+
+
+
                 
                 <!-- Next Steps Info -->
                 <div class="bg-indigo-50 rounded-xl p-4 mb-6 flex items-start">
@@ -494,7 +541,7 @@
                 </div>
                 <div>
                     <p class="text-xs text-gray-500">Supported Languages</p>
-                    <p class="text-lg font-bold text-gray-800">7</p>
+                    <p class="text-lg font-bold text-gray-800">12</p>
                 </div>
             </div>
         </div>

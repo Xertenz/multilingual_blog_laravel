@@ -29,7 +29,7 @@
             
             {{-- Main Content (Your pages go here) --}}
             <main class="p-8">
-                <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-200 min-h-[600px]">
+                <div class="bg-white/90 rounded-2xl shadow-sm p-6 border border-slate-200 min-h-[600px]">
                     
                     {{-- Page Title --}}
                     @hasSection('page-title')
