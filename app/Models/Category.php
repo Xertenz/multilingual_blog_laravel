@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -21,25 +22,31 @@ class Category extends Model implements HasMedia
     {
         return $this->hasMany(CategoryTranslation::class);
     }
-    
-    public function articles():HasMany {
+
+    public function articles(): HasMany
+    {
         return $this->hasMany(Article::class);
     }
 
-    public function user():BelongsTo {
+    public function user(): BelongsTo
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function registerMediaConversions(Media $media = null): void
+    public function followers(): BelongsToMany
     {
-        // 1. thumbnail صغير (للقوائم)
-        $this->addMediaConversion('thumb')->performOnCollections('featured_imgs')->width(150)->optimize() ->sharpen(5)->quality(80)->format('webp')->nonQueued();
-        // 2. صغير (للمعاينات)
-        $this->addMediaConversion('small')->performOnCollections('featured_imgs')->width(300)->optimize() ->sharpen(5)->quality(85)->format('webp')->nonQueued();
-        // 3. متوسط (للصفحة الرئيسية)
-        $this->addMediaConversion('medium')->performOnCollections('featured_imgs')->width(600)->optimize() ->sharpen(5)->quality(85)->format('webp')->nonQueued();
-        // 4. كبير (لصفحة المقال الرئيسية)
-        $this->addMediaConversion('large')->performOnCollections('featured_imgs')->width(1200)->optimize() ->sharpen(5)->quality(85)->format('webp')->nonQueued();
+        return $this->belongsToMany(User::class, 'category_user')->withTimestamps();
     }
 
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        // 1. thumbnail صغير (للقوائم)
+        $this->addMediaConversion('thumb')->performOnCollections('featured_imgs')->width(150)->optimize()->sharpen(5)->quality(80)->format('webp')->nonQueued();
+        // 2. صغير (للمعاينات)
+        $this->addMediaConversion('small')->performOnCollections('featured_imgs')->width(300)->optimize()->sharpen(5)->quality(85)->format('webp')->nonQueued();
+        // 3. متوسط (للصفحة الرئيسية)
+        $this->addMediaConversion('medium')->performOnCollections('featured_imgs')->width(600)->optimize()->sharpen(5)->quality(85)->format('webp')->nonQueued();
+        // 4. كبير (لصفحة المقال الرئيسية)
+        $this->addMediaConversion('large')->performOnCollections('featured_imgs')->width(1200)->optimize()->sharpen(5)->quality(85)->format('webp')->nonQueued();
+    }
 }

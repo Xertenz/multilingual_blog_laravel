@@ -8,12 +8,44 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
+use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 class ProfileController extends Controller
 {
     /**
      * Display the user's profile form.
      */
+
+    public function favoriteCategories(Request $request)
+    {
+        $lang_code = LaravelLocalization::getCurrentLocale();
+
+        // جلب المستخدم الحالي مع فئاته المفضلة وتراجمها باللغة الحالية لمنع N+1
+        $user = $request->user()->load([
+            'favoriteCategories.translations' => function ($query) use ($lang_code) {
+                $query->where('language_code', $lang_code);
+            }
+        ]);
+
+
+        return view('profile.favorite-categories', [
+            'favoriteCategories' => $user->favoriteCategories,
+        ]);
+    }
+
+    public function favoriteArticles(Request $request)
+    {
+        $lang_code = LaravelLocalization::getCurrentLocale();
+        $user = $request->user()->load([
+            'favoriteArticles.translations' => function ($query) use ($lang_code) {
+                $query->where('language_code', $lang_code);
+            }
+        ]);
+        return view('profile.favorite-articles', [
+            'favoriteArticles' => $user->favoriteArticles,
+        ]);
+    }
+
     public function edit(Request $request): View
     {
         return view('profile.edit', [

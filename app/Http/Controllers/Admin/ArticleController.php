@@ -122,7 +122,7 @@ class ArticleController extends Controller
     }
 
 
-    public function destroy($article_id)
+    public function destroy(int $article_id)
     {
         $article = Article::findOrFail($article_id);
         $article->delete();

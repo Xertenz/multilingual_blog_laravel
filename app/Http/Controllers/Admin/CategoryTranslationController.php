@@ -403,7 +403,7 @@ class CategoryTranslationController extends Controller
         return to_route('admin.categories.index')->with('success', 'Category updated successfully!');
     }
 
-    public function destroy($cat_id)
+    public function destroy(int $cat_id)
     {
         $cat = Category::findOrFail($cat_id);
         $cat->delete();

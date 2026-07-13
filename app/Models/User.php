@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 // ⚠️ تأكد من هذه الـ imports
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as AuthenticatableUser; // هذا مهم
 use Illuminate\Notifications\Notifiable;
@@ -53,5 +54,15 @@ class User extends AuthenticatableUser implements Authenticatable
     public function reacitons(): HasMany
     {
         return $this->hasMany(Reaction::class);
+    }
+
+    public function favoriteCategories()
+    {
+        return $this->belongsToMany(Category::class, 'category_user')->withTimestamps();
+    }
+
+    public function favoriteArticles(): BelongsToMany
+    {
+        return $this->belongsToMany(Article::class, 'article_user')->withTimestamps();
     }
 }

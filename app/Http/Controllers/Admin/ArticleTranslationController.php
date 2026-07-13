@@ -6,11 +6,13 @@ use App\Http\Controllers\Controller;
 
 use App\Models\Article;
 use App\Models\ArticleTranslation;
+use App\Notifications\NewArticleInFavoriteCategory;
 use DOMDocument;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Illuminate\Support\Facades\Notification;
 
 class ArticleTranslationController extends Controller
 {
@@ -64,7 +66,7 @@ class ArticleTranslationController extends Controller
         */
 
         // Adding a new Article
-        ArticleTranslation::create([
+        $article_trans = ArticleTranslation::create([
             'article_id' => $request->article_id,
             'language_code' => $request->language_code,
             'slug' => trim($request->slug),
@@ -74,11 +76,21 @@ class ArticleTranslationController extends Controller
             'meta_description' => trim($request->meta_description),
         ]);
 
+        // Sending the Notification of a new article of the favorite category
+        $article = $article_trans->article;
+        $article->load(['category.followers', 'translations']);
+        if ($article->status === 'published') {
+            $usersToNotify = $article->category->followers;
+
+            // Sending the notification to all users
+            Notification::send($usersToNotify, new NewArticleInFavoriteCategory($article));
+        }
+
         return to_route('admin.articles.index');
     }
 
 
-    public function show(int $article_trans_id, string $article_trans_slug = null)
+    public function show(int $article_trans_id, ?string $article_trans_slug = null)
     {
         $lang_code = LaravelLocalization::getCurrentLocale();
 
@@ -86,20 +98,51 @@ class ArticleTranslationController extends Controller
         $article_trans = ArticleTranslation::with([
             'article.comments' => function ($query) {
                 $query->whereNull('parent_id')->with('replies');
+            },
+
+            'article.reactions' => function ($query) {
+                $query->whereIn('type', ['like', 'dislike']);
+            },
+
+            'article.tags.translations' => function ($query) use ($lang_code) {
+                $query->where('language_code', $lang_code);
+            },
+            'article.category.translations' => function ($query) use ($lang_code) {
+                $query->where('language_code', $lang_code);
             }
+
         ])
-            ->with([
-                'article.reactions' => function ($query) {
-                    $query->whereIn('type', ['like', 'dislike']);
-                }
-            ])
             ->where('id', $article_trans_id)
             //->whereSlug($article_trans_slug)
             ->first();
 
-        if (!$article_trans) {
+        //dd($article_trans->article->tags);
+
+        if (!$article_trans || $article_trans->article->status != "published") {
             return to_route('home');
         }
+
+
+        // Redirect if there is no translation for the specifed $lang_code
+        if ($article_trans->language_code !== $lang_code) {
+
+            // Get article_translation based on specifed $lang_code
+            $target_translation = $article_trans->article->translations
+                ->where('language_code', $lang_code)
+                ->first();
+
+            if ($target_translation) {
+                // Redirect if the translation exists
+                return redirect()->route('articles.show', [
+                    'id'   => $target_translation->id,
+                    'slug' => $target_translation->slug
+                ]);
+            } else {
+                // Redirect to home page if the translation not exists
+                return to_route('home')->with('info', __('This article is not available in your language.'));
+            }
+        }
+
 
         $doc = new DOMDocument();
         @$doc->loadHTML(
@@ -121,7 +164,7 @@ class ArticleTranslationController extends Controller
 
         $article_trans->description = $doc->saveHTML();
 
-        // correct the slug if it's wrong (because id is only for getting the record)
+        // correct the slug if it's wrong (because only id is required for getting the record)
         if (empty($article_trans_slug) || $article_trans->slug !== $article_trans_slug) {
             return redirect()->route('articles.show', [
                 'id'   => $article_trans->id,
