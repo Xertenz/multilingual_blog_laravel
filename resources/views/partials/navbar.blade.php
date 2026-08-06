@@ -1,9 +1,9 @@
 <nav class="bg-[#0a0f1f]/90 backdrop-blur-md border-b border-b-gray-500 border-gray-850 sticky top-0 z-40 transition-all duration-300">
     <div class="container mx-auto px-4">
-        <div class="flex justify-between items-center h-16">
+        <div class="flex justify-between items-center h-16 gap-4">
             
             <!-- القسم الأيسر: الشعار والقائمة الأساسية -->
-            <div class="left flex items-center gap-6">
+            <div class="left flex items-center gap-4 lg:gap-6">
                 <!-- زر القائمة للجوال (Hamburger Menu) -->
                 <button id="mobile-menu-btn" class="md:hidden flex items-center justify-center p-2 rounded-lg bg-slate-955 border border-slate-800 text-gray-400 hover:text-white transition">
                     <svg class="w-5 h-5" id="hamburger-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -12,7 +12,7 @@
                 </button>
 
                 <!-- Logo -->
-                <a href="/" class="flex items-center space-x-2 group">
+                <a href="/" class="flex items-center space-x-2 group flex-shrink-0">
                     <span class="text-xl md:text-2xl font-black tracking-wider transition duration-300">
                         <span class="text-red-600 drop-shadow-[0_0_10px_rgba(220,38,38,0.3)] group-hover:text-red-500">CRIME</span>
                         <span class="text-gray-300 font-light group-hover:text-white transition duration-300 text-base md:text-lg ml-1">CHRONICLES</span>
@@ -20,12 +20,31 @@
                 </a>
 
                 <!-- القائمة الرئيسية للشاشات الكبيرة -->
-                <div class="hidden md:flex items-center space-x-1 rtl:space-x-reverse">
+                <div class="hidden lg:flex items-center space-x-1 rtl:space-x-reverse">
                     <a href="/cases" class="text-gray-400 hover:text-red-500 hover:bg-slate-900/50 px-3 py-1.5 rounded-lg transition-all text-sm font-medium">{{__('nav.cases')}}</a>
                     <a href="/categories" class="text-gray-400 hover:text-red-500 hover:bg-slate-900/50 px-3 py-1.5 rounded-lg transition-all text-sm font-medium">{{__('nav.categories')}}</a>
                     <a href="/cold-cases" class="text-gray-400 hover:text-red-500 hover:bg-slate-900/50 px-3 py-1.5 rounded-lg transition-all text-sm font-medium">{{__('nav.cold-cases')}}</a>
                     <a href="/about" class="text-gray-400 hover:text-red-500 hover:bg-slate-900/50 px-3 py-1.5 rounded-lg transition-all text-sm font-medium">{{__('nav.about')}}</a>
                 </div>
+            </div>
+
+            <!-- حقل البحث للشاشات المتوسطة والكبيرة (Desktop & Tablet Search Bar) -->
+            <div class="hidden md:block flex-1 max-w-xs lg:max-w-sm">
+                <form action="{{ route('search') }}" method="GET" class="relative">
+                    <input 
+                        type="text" 
+                        name="q" 
+                        value="{{ request('q') }}"
+                        placeholder="{{ __('Search articles...') }}" 
+                        class="w-full bg-slate-900/90 border border-slate-800 text-gray-200 placeholder-gray-500 text-xs rounded-lg ltr:pl-9 ltr:pr-3 rtl:pr-9 rtl:pl-3 py-2 focus:outline-none focus:border-red-600/60 focus:ring-1 focus:ring-red-600/50 transition duration-200"
+                        required
+                    />
+                    <button type="submit" class="absolute ltr:left-2.5 rtl:right-2.5 top-2.5 text-gray-500 hover:text-red-500 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </button>
+                </form>
             </div>
             
             <!-- القسم الأيمن: أدوات المستخدم واللغة -->
@@ -91,7 +110,24 @@
     </div>
 
     <!-- قائمة الجوال المنسدلة (Mobile Dropdown Menu) -->
-    <div id="mobile-menu" class="hidden md:hidden border-t border-slate-850 bg-[#0a0f1f]/95 backdrop-blur-md px-4 py-3 space-y-2 transition-all duration-300">
+    <div id="mobile-menu" class="hidden md:hidden border-t border-slate-850 bg-[#0a0f1f]/95 backdrop-blur-md px-4 py-3 space-y-3 transition-all duration-300">
+        <!-- حقل البحث للجوال داخل القائمة -->
+        <form action="{{ route('search') }}" method="GET" class="relative">
+            <input 
+                type="text" 
+                name="q" 
+                value="{{ request('q') }}"
+                placeholder="{{ __('Search articles...') }}" 
+                class="w-full bg-slate-900 border border-slate-800 text-gray-200 placeholder-gray-500 text-xs rounded-lg ltr:pl-9 ltr:pr-3 rtl:pr-9 rtl:pl-3 py-2 focus:outline-none focus:border-red-600/60 transition duration-200"
+                required
+            />
+            <button type="submit" class="absolute ltr:left-2.5 rtl:right-2.5 top-2.5 text-gray-500 hover:text-red-500 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </button>
+        </form>
+
         <a href="/cases" class="block text-gray-400 hover:text-red-500 hover:bg-slate-900/60 px-3 py-2 rounded-lg text-sm font-medium">{{__('nav.cases')}}</a>
         <a href="/categories" class="block text-gray-400 hover:text-red-500 hover:bg-slate-900/60 px-3 py-2 rounded-lg text-sm font-medium">{{__('nav.categories')}}</a>
         <a href="/cold-cases" class="block text-gray-400 hover:text-red-500 hover:bg-slate-900/60 px-3 py-2 rounded-lg text-sm font-medium">{{__('nav.cold-cases')}}</a>
@@ -121,8 +157,10 @@
         animation: crimeTapeScroll 15s linear infinite;
     }
     @keyframes crimeTapeScroll {
+        /*
         from { background-position: 0 0; }
         to { background-position: 300px 0; }
+        */
     }
     #notifications-list::-webkit-scrollbar { width: 4px; }
     #notifications-list::-webkit-scrollbar-track { background: #0f1526; }
@@ -149,12 +187,14 @@
     });
 
     // تفعيل إغلاق وفتح الإشعارات
-    notifications_icon.addEventListener('click', function(e) {
-        e.stopPropagation();
-        // إغلاق قائمة الجوال إذا كانت مفتوحة لعدم تداخل القوائم
-        mobileMenu.classList.add('hidden'); 
-        notifications_list_wrapper.classList.toggle('active');
-    });
+    if(notifications_icon) {
+        notifications_icon.addEventListener('click', function(e) {
+            e.stopPropagation();
+            // إغلاق قائمة الجوال إذا كانت مفتوحة لعدم تداخل القوائم
+            mobileMenu.classList.add('hidden'); 
+            notifications_list_wrapper.classList.toggle('active');
+        });
+    }
 
     // إغلاق القوائم عند النقر في أي مكان خارجي
     window.addEventListener('click', function(event) {
@@ -162,7 +202,7 @@
             mobileMenu.classList.add('hidden');
         }
 
-        if (notifications_list_wrapper.classList.contains('active')) {
+        if (notifications_list_wrapper && notifications_list_wrapper.classList.contains('active')) {
             if(
                 event.target != notifications &&
                 event.target != notifications_icon &&
@@ -180,6 +220,7 @@
     let page = 1;
     const url = '{{ route("notifications.fetch") }}';
     async function fetchNotifications() {
+        if(!notifications_list) return;
         try {
             let res = await fetch(url + `?page=${page}`);
             notification_item = await res.json();

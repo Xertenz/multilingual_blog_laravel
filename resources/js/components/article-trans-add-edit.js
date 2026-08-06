@@ -59,6 +59,7 @@ tinymce.init({
     },
 });
 
+/*
 window.addImage = function (src, content_img_id) {
     tinymce.activeEditor.insertContent(`
             <div class="content_img-wrapper">
@@ -69,5 +70,26 @@ window.addImage = function (src, content_img_id) {
                 class="content_img"
                 />
             </div>`);
+    tinymce.activeEditor.windowManager.close();
+};
+*/
+
+window.addImage = function (src, content_img_id) {
+    // إدراج الصورة باستخدام هيكلية figure و figcaption مع تفعيل إمكانية التعديل على النص
+    tinymce.activeEditor.insertContent(`
+        <figure class="article-image-container my-4 text-center">
+            <img src="${src}"
+                 data-image-id="${content_img_id}"
+                 decoding="async"
+                 loading="lazy"
+                 class="content_img max-w-full h-auto rounded-lg shadow-sm"
+                 alt="Article image"
+            />
+            <figcaption class="image-caption mt-2 text-sm text-gray-550 italic" contenteditable="true">
+                اكتب وصف الصورة هنا...
+            </figcaption>
+        </figure>
+        <p>&nbsp;</p> `);
+
     tinymce.activeEditor.windowManager.close();
 };

@@ -392,5 +392,22 @@
         const article_content_imgs_info = @json($article_content_imgs_info);
 
     </script>
+
+
     @vite(['resources/js/components/article-trans-add-edit.js'])
+    @vite(['resources/js/app.js'])
+    <script>
+        // كود تشغيل تلقائي بمجرد تحميل الموديول بالكامل وبأمان
+document.addEventListener('DOMContentLoaded', () => {
+    const successMeta = document.querySelector('meta[name="session-success"]');
+    const errorMeta = document.querySelector('meta[name="session-error"]');
+
+    if (successMeta) {
+        showToast('success', successMeta.getAttribute('content'));
+    }
+    if (errorMeta) {
+        showToast('error', errorMeta.getAttribute('content'));
+    }
+});
+    </script>
 @endpush

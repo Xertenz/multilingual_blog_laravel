@@ -32,6 +32,20 @@
     @vite(['resources/css/show.css'])
 @endsection
 
+@push('styles')
+<style>
+    /* تطبيق Capitalize على العناوين فقط داخل حاوي المحتوى */
+    .article-body h1,
+    .article-body h2,
+    .article-body h3,
+    .article-body h4,
+    .article-body h5,
+    .article-body h6 {
+        text-transform: capitalize;
+    }
+</style>
+@endpush
+
 @section('content')
 
     <!-- شريط تقدم القراءة -->
@@ -48,7 +62,7 @@
         <header class="mb-8 pb-6 border-b border-gray-800">
             
             <!-- العنوان الرئيسي -->
-            <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
+            <h1 class="text-3xl capitalize md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
                 {{ $article_trans->title }}
             </h1>
 
@@ -110,7 +124,7 @@
         <!-- ==================== -->
         <!-- نصوص ومحتوى المقال الرئيسي -->
         <!-- ==================== -->
-        <article class="article-description text-gray-200 leading-relaxed mb-8">
+        <article class="article-body first-letter:uppercase article-description text-gray-200 leading-relaxed mb-8">
             {!! $article_trans->description !!}
         </article>
 

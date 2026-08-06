@@ -13,6 +13,8 @@ use App\Http\Controllers\Front\ArticleFavoriteController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReactionController;
 use App\Http\Controllers\Front\CategoryFavoriteController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\SearchController;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 Route::group([
@@ -58,9 +60,17 @@ Route::group([
     // ==========================================
     // 2. للجميع (زوار ومستخدمين)
     // ==========================================
+    /*
     Route::get('/', function () {
         return view('welcome');
     })->name('home');
+    */
+    Route::get('/', [HomeController::class, 'index'])->name('home.index');
+    //Route::get('/category/{id}', [CategoryTranslationController::class, 'show'])->name('categories.show');
+    // في web.php
+    Route::get('/category/{id}/{slug?}', [CategoryTranslationController::class, 'show'])->name('categories.show');
+
+    Route::get('/search', SearchController::class)->name('search');
 
     Route::get('/articles/{id}/{slug?}', [ArticleTranslationController::class, 'show'])
         ->where('id', '[0-9]+')

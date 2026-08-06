@@ -176,3 +176,25 @@ body {
     margin-top: 4rem;
     padding-top: 2rem;
 }
+
+/* Article Images */
+.article-image-container {
+    display: block;
+    margin: 1.5rem auto;
+    text-align: center;
+}
+
+.article-image-container img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+}
+
+.image-caption {
+    display: block;
+    font-size: 0.875rem;
+    color: #64748b; /* لون رمادي مناسب */
+    font-style: italic;
+    margin-top: 0.5rem;
+}
+/* Article Images */

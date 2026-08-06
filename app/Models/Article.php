@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\App;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -76,5 +77,22 @@ class Article extends Model  implements HasMedia
         // 🖥️ Large Screens
         $this->addMediaConversion('content_1600w')->performOnCollections('content_imgs')->width(1600)->optimize()->sharpen(5)->quality(90)->format('webp')->nonQueued();
         */
+    }
+
+    public function scopeSearch($query, ?string $term)
+    {
+        if (empty(trim($term))) {
+            return $query;
+        }
+
+        $locale = App::getLocale();
+
+        return $query->whereHas("translations", function ($q) use ($term, $locale) {
+            $q->where('language_code', $locale)
+                ->where(function ($subQuery) use ($term) {
+                    $subQuery->where('title', 'LIKE', "%{$term}%")
+                        ->orWhere('description', 'LIKE', "%{$term}%");
+                });
+        });
     }
 }
