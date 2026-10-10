@@ -248,7 +248,7 @@
                                     class="input-field appearance-none cursor-pointer pr-10 @error('category') error @enderror">
                                 <option value="" disabled>-- Select a category --</option>
                                 @foreach ($cats as $cat)
-                                <option value="{{$cat['id']}}" {{ $cat['id'] == $article->category_id ? 'selected' : '' }}>
+                                <option value="{{$cat['id']}}" {{ $cat['id'] == $article->category->id ? 'selected' : '' }}>
                                     {{$cat['sign']}}
                                 </option>
                                 @endforeach
@@ -346,12 +346,12 @@
                             
                             <!-- Status Description with Published Date if applicable -->
                             <div class="flex items-center text-sm status-description-wrapper">
-                                @if($article->status == 'published' && $article->published_at)
+                                @if($article->status == 'published' && $article->created_at)
                                     <span class="text-green-600 flex items-center mr-3">
                                         <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
                                         </svg>
-                                        {{ $article->published_at->format('M d, Y') }}
+                                        {{ $article->created_at->format('M d, Y') }}
                                     </span>
                                 @endif
                                 <span class="status-description text-gray-500">
@@ -394,7 +394,7 @@
                         <label class="input-label">Update Image <span class="text-gray-400 text-xs font-normal">(Optional)</span></label>
                         
                         <!-- Current Image Display -->
-                        @if($article->featured_image ?? false)
+                        @if($article->getFirstMedia('featured_imgs') ?? false)
                         <div class="current-image">
                             <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>

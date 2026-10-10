@@ -18,7 +18,7 @@
     <title>@yield('title', 'Admin Panel') - {{ config('app.name') }}</title>
     
     {{-- Tailwind CSS via Vite --}}
-    @vite(['resources/css/app.css'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     
     {{-- Additional Styles --}}
     @stack('styles')
@@ -59,7 +59,6 @@
     </div>
     
     {{-- Scripts --}}
-    @vite(['resources/js/app.js'])
     @stack('scripts')
 </body>
 </html>

@@ -60,18 +60,11 @@ Route::group([
     // ==========================================
     // 2. للجميع (زوار ومستخدمين)
     // ==========================================
-    /*
-    Route::get('/', function () {
-        return view('welcome');
-    })->name('home');
-    */
-    Route::get('/', [HomeController::class, 'index'])->name('home.index');
     //Route::get('/category/{id}', [CategoryTranslationController::class, 'show'])->name('categories.show');
     // في web.php
     Route::get('/category/{id}/{slug?}', [CategoryTranslationController::class, 'show'])->name('categories.show');
-
+    Route::get('/tags/{id}/{slug?}', [TagTranslationController::class, 'show'])->name('tags.show');
     Route::get('/search', SearchController::class)->name('search');
-
     Route::get('/articles/{id}/{slug?}', [ArticleTranslationController::class, 'show'])
         ->where('id', '[0-9]+')
         ->name('articles.show');
@@ -123,6 +116,7 @@ Route::group([
     });
 
     // الصفحات العامة الثابتة
+    Route::get('/', [HomeController::class, 'index'])->name('home.index');
     Route::view('/privacy', 'privacy')->name('privacy');
     Route::view('/terms', 'terms')->name('terms');
     Route::view('/contact', 'contact')->name('contact');

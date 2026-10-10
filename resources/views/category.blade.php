@@ -1,15 +1,15 @@
 @extends('layouts.main')
 
 {{-- 1️⃣ عنوان الصفحة والـ Meta Tags المترجمة للفئة --}}
-@section('title', $categoryTrans->meta_title ?? $categoryTrans->title ?? $category->sign)
+@section('title', $category_trans->meta_title ?? $category_trans->title ?? $category->sign)
 
 @section('meta_tags')
-    <meta name="description" content="{{ $categoryTrans->meta_description ?? Str::limit(strip_tags($categoryTrans->description ?? ''), 150) }}">
-    <meta property="og:title" content="{{ $categoryTrans->title ?? $category->sign }}">
-    <meta property="og:description" content="{{ $categoryTrans->meta_description ?? '' }}">
+    <meta name="description" content="{{ $category_trans->meta_description ?? Str::limit(strip_tags($category_trans->description ?? ''), 150) }}">
+    <meta property="og:title" content="{{ $category_trans->title ?? $category_trans->category->sign }}">
+    <meta property="og:description" content="{{ $category_trans->meta_description ?? '' }}">
     
     {{-- رابط الـ Canonical للـ SEO --}}
-    <link rel="canonical" href="{{ route('categories.show', ['id' => $category->id, 'slug' => $categoryTrans->slug ?? '']) }}">
+    <link rel="canonical" href="{{ route('categories.show', ['id' => $category_trans->category->id, 'slug' => $category_trans->slug ?? '']) }}">
 @endsection
 
 @section('content')
@@ -18,11 +18,11 @@
     {{-- 2️⃣ رأس الصفحة: اسم الفئة والوصف المترجمين --}}
     <div class="bg-[#1e293b]/60 border border-slate-800 rounded-2xl p-6 md:p-8 mb-8 text-center shadow-lg">
         <h1 class="text-3xl md:text-4xl font-extrabold text-white mb-3">
-            📂 {{ $categoryTrans->title ?? $category->sign }}
+            📂 {{ $category_trans->title ?? $category_trans->category->sign }}
         </h1>
         
         {{-- وصف الفئة المترجم (إذا كان متوفراً) --}}
-        @if(isset($categoryTrans->description) && !empty($categoryTrans->description))
+        @if(isset($category_trans->description) && !empty($categoryTrans->description))
             <p class="text-gray-300 text-sm md:text-base max-w-2xl mx-auto mb-4 leading-relaxed">
                 {{ $categoryTrans->description }}
             </p>

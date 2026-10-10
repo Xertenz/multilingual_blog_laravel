@@ -71,3 +71,16 @@
         {{ $cats->links() }}
     </div>
 @endsection
+
+@push('scripts')
+
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            if(@json(session('success'))) {
+                const successMsg = @json(session('success'));
+                showToast('success', successMsg)
+            }
+        });
+    </script>
+
+@endpush

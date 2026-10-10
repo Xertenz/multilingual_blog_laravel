@@ -49,7 +49,7 @@ class NotificationController extends Controller
         }
 
         $data = $notification->data;
-        $targetUrl = route('home'); // رابط افتراضي للـ Fallback
+        $targetUrl = route('home.index'); // رابط افتراضي للـ Fallback
 
         // 3. التوجيه الديناميكي حسب نوع الإشعار
         switch ($notification->type) {
@@ -86,7 +86,7 @@ class NotificationController extends Controller
 
             // 🔮 لأي أنواع إشعارات مستقبلية
             default:
-                $targetUrl = route('home');
+                $targetUrl = route('home.index');
                 break;
         }
 

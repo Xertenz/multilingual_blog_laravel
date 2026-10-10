@@ -24,8 +24,9 @@
     <!-- Alternate Languages -->
     @if($article_trans->article->translations ?? false)
         @foreach($article_trans->article->translations as $translation)
-            <link rel="alternate" hreflang="{{ $translation->language_code }}" 
-                    href="{{ route('articles.show', ['slug' => $translation->slug, 'id' => $translation->id]) }}">
+            <link rel="alternate"
+                hreflang="{{ $translation->language_code }}" 
+                href="{{ route('articles.show', ['slug' => $translation->slug, 'id' => $translation->id]) }}">
         @endforeach
     @endif
 
@@ -490,7 +491,7 @@
 
             if (likeBtn.getAttribute('data-active') === 'true') {
                 likeBtn.setAttribute('data-active', 'false');
-                likeBtn.className = "flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-300 hover:text-emerald-400 hover:bg-slate-700/60 rounded-lg transition duration-200";
+                likeBtn.className = "flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-gray-300 hover:text-emerald-400 hover:bg-slate-700/60 rounded-lg border border-transparent transition duration-200";
             } else {
                 likeBtn.setAttribute('data-active', 'true');
                 likeBtn.className = "flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition duration-200 bg-emerald-950/80 text-emerald-400 border border-emerald-800/60";

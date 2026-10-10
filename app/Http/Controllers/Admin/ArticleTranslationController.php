@@ -33,46 +33,46 @@ class ArticleTranslationController extends Controller
         return view('admin.articles.create-trans', compact('article_id', 'article_content_imgs'));
     }
 
-
     public function store(Request $request)
     {
+        // 1. استخراج الـ slug أو الاعتماد على الـ title كخيار بديل
+        $slugSource = trim($request->input('slug')) !== ''
+            ? $request->input('slug')
+            : $request->input('title');
+
+        // 2. توليد الـ slug النهائي (يدعم الإنجليزية والعربية)
+        $finalSlug = (string) Str::of($slugSource)->slug('-');
+        // دمج الـ slug الناتج داخل الـ Request قبل التمرير لـ Validation
+        $request->merge(['slug' => $finalSlug]);
+
+        // جلب اللغات المدعومة ديناميكياً من مكتبة mcamara
+        $supportedLocales = implode(',', LaravelLocalization::getSupportedLanguagesKeys());
+
+        // 3. التحقق من البيانات
+        $validated = $request->validate([
+            'article_id' => 'required|numeric|exists:articles,id',
+            'language_code' => [
+                'required',
+                'in:' . $supportedLocales, // 👈 التعديل الديناميكي
+                Rule::unique('article_translations', 'language_code')->where(function ($query) use ($request) {
+                    return $query->where('article_id', (int)$request->article_id);
+                })
+            ],
+            'slug' => [
+                'required', // تم تغييرها إلى required لأن الـ slug تم دمجه مسبقاً في الخطوة 2
+                'string',
+                Rule::unique('article_translations', 'slug')->where(function ($query) use ($request) {
+                    return $query->where('language_code', $request->language_code);
+                })
+            ],
+            'title' => "required|string|min:3",
+            'description' => "required|string|min:20",
+            'meta_title' => "required|string|min:3",
+            'meta_description' => "required|string|min:20",
+        ]);
+
+
         try {
-            // 1. استخراج الـ slug أو الاعتماد على الـ title كخيار بديل
-            $slugSource = trim($request->input('slug')) !== ''
-                ? $request->input('slug')
-                : $request->input('title');
-
-            // 2. توليد الـ slug النهائي (يدعم الإنجليزية والعربية)
-            $finalSlug = (string) Str::of($slugSource)->slug('-');
-            // دمج الـ slug الناتج داخل الـ Request قبل التمرير لـ Validation
-            $request->merge(['slug' => $finalSlug]);
-
-            // جلب اللغات المدعومة ديناميكياً من مكتبة mcamara
-            $supportedLocales = implode(',', LaravelLocalization::getSupportedLanguagesKeys());
-
-            // 3. التحقق من البيانات
-            $request->validate([
-                'article_id' => 'required|numeric|exists:articles,id',
-                'language_code' => [
-                    'required',
-                    'in:' . $supportedLocales, // 👈 التعديل الديناميكي
-                    Rule::unique('article_translations', 'language_code')->where(function ($query) use ($request) {
-                        return $query->where('article_id', (int)$request->article_id);
-                    })
-                ],
-                'slug' => [
-                    'required', // تم تغييرها إلى required لأن الـ slug تم دمجه مسبقاً في الخطوة 2
-                    'string',
-                    Rule::unique('article_translations', 'slug')->where(function ($query) use ($request) {
-                        return $query->where('language_code', $request->language_code);
-                    })
-                ],
-                'title' => "required|string|min:3",
-                'description' => "required|string|min:20",
-                'meta_title' => "required|string|min:3",
-                'meta_description' => "required|string|min:20",
-            ]);
-
             // 4. إضافة الترجمة
             $article_trans = ArticleTranslation::create([
                 'article_id'       => $request->article_id,
@@ -88,11 +88,14 @@ class ArticleTranslationController extends Controller
             $article = $article_trans->article;
 
             if ($article && $article->status === 'published' && $article->category) {
-                $article->load(['category.followers', 'translations']);
-                $usersToNotify = $article->category->followers;
+                // Sending Notification one time for users
+                if ($article->translations()->count() === 1) {
+                    $article->load(['category.followers', 'translations']);
+                    $usersToNotify = $article->category->followers;
 
-                if ($usersToNotify->isNotEmpty()) {
-                    Notification::send($usersToNotify, new NewArticleInFavoriteCategory($article));
+                    if ($usersToNotify->isNotEmpty()) {
+                        Notification::send($usersToNotify, new NewArticleInFavoriteCategory($article));
+                    }
                 }
             }
 
@@ -154,7 +157,7 @@ class ArticleTranslationController extends Controller
                 ]);
             } else {
                 // Redirect to home page if the translation not exists
-                return to_route('home')->with('info', __('This article is not available in your language.'));
+                return to_route('home.index')->with('info', __('This article is not available in your language.'));
             }
         }
 
@@ -187,6 +190,17 @@ class ArticleTranslationController extends Controller
             ], 301);
         }
 
+        $article_trans->load(
+            'article',
+            'article.translations',
+            'article.reactions',
+            'article.category',
+            'article.category.translations',
+            'article.tags',
+            'article.tags.translations',
+            'article.comments',
+            'article.media'
+        );
         return view('articles.show', compact('article_trans'));
     }
 
@@ -194,7 +208,7 @@ class ArticleTranslationController extends Controller
     public function edit(Request $request, int $article_trans_id)
     {
         //$cats = CategoryTranslation::all()->where('language_code', 'ar');
-        $article_trans = ArticleTranslation::find($article_trans_id);
+        $article_trans = ArticleTranslation::with('article', 'media')->find($article_trans_id);
         $article = $article_trans->article;
         $article_content_imgs = $article->getMedia('content_imgs');
         return view('admin.articles.edit-trans', compact(/* 'cats',*/'article_trans', 'article_content_imgs'));
@@ -203,43 +217,43 @@ class ArticleTranslationController extends Controller
 
     public function update(Request $request, int $article_trans_id)
     {
+        // 1. استخراج الـ slug أو الاعتماد على الـ title كخيار بديل
+        $slugSource = trim($request->input('slug')) !== ''
+            ? $request->input('slug')
+            : $request->input('title');
+
+        // 2. توليد الـ slug النهائي (يدعم الإنجليزية والعربية)
+        $finalSlug = (string) Str::of($slugSource)->slug('-');
+
+        // دمج الـ slug الناتج داخل الـ Request قبل التمرير لـ Validation
+        $request->merge(['slug' => $finalSlug]);
+
+        // جلب اللغات المدعومة ديناميكياً من مكتبة mcamara
+        $supportedLocales = implode(',', LaravelLocalization::getSupportedLanguagesKeys());
+
+        $request->validate([
+            'article_id' => 'required|numeric|exists:articles,id',
+            'language_code' => [
+                'required',
+                'in:' . $supportedLocales, // 👈 أصبح ديناميكياً هنا
+                Rule::unique('article_translations')->where(function ($query) use ($request) {
+                    return $query->where('article_id', (int)$request->article_id);
+                })->ignore($article_trans_id),
+            ],
+            'slug' => [
+                'required',
+                'string',
+                Rule::unique('article_translations')->where(function ($query) use ($request) {
+                    return $query->where('language_code', $request->language_code);
+                })->ignore($article_trans_id)
+            ],
+            'title' => "required|string|min:3",
+            'description' => "required|string|min:20",
+            'meta_title' => "required|string|min:3",
+            'meta_description' => "required|string|min:20",
+        ]);
+
         try {
-            // 1. استخراج الـ slug أو الاعتماد على الـ title كخيار بديل
-            $slugSource = trim($request->input('slug')) !== ''
-                ? $request->input('slug')
-                : $request->input('title');
-
-            // 2. توليد الـ slug النهائي (يدعم الإنجليزية والعربية)
-            $finalSlug = (string) Str::of($slugSource)->slug('-');
-
-            // دمج الـ slug الناتج داخل الـ Request قبل التمرير لـ Validation
-            $request->merge(['slug' => $finalSlug]);
-
-            // جلب اللغات المدعومة ديناميكياً من مكتبة mcamara
-            $supportedLocales = implode(',', LaravelLocalization::getSupportedLanguagesKeys());
-
-            $request->validate([
-                'article_id' => 'required|numeric|exists:articles,id',
-                'language_code' => [
-                    'required',
-                    'in:' . $supportedLocales, // 👈 أصبح ديناميكياً هنا
-                    Rule::unique('article_translations')->where(function ($query) use ($request) {
-                        return $query->where('article_id', (int)$request->article_id);
-                    })->ignore($article_trans_id),
-                ],
-                'slug' => [
-                    'required',
-                    'string',
-                    Rule::unique('article_translations')->where(function ($query) use ($request) {
-                        return $query->where('language_code', $request->language_code);
-                    })->ignore($article_trans_id)
-                ],
-                'title' => "required|string|min:3",
-                'description' => "required|string|min:20",
-                'meta_title' => "required|string|min:3",
-                'meta_description' => "required|string|min:20",
-            ]);
-
             $article_trans = ArticleTranslation::findOrFail($article_trans_id);
             $article_trans->update([
                 'language_code' => $request->language_code,
@@ -263,6 +277,6 @@ class ArticleTranslationController extends Controller
         $article_trans = ArticleTranslation::findOrFail($article_trans_id);
         $article_trans->delete();
 
-        return to_route('admin.articles.index');
+        return to_route('admin.articles.index')->with('success', 'Article Translation Deleted Successfully.');
     }
 }

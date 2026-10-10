@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Article;
 use App\Models\Tag;
 use App\Models\TagTranslation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 class TagTranslationController extends Controller
 {
@@ -46,6 +48,51 @@ class TagTranslationController extends Controller
         }
 
         return to_route('admin.tags.index')->with('success', 'تم حفظ الوسم والترجمات بنجاح!');
+    }
+
+    public function show(int $tag_trans_id, ?string $slug = null)
+    {
+
+        // 1. جلب ترجمة التاك المطلوبة مع التاك الأساسي وعلاقاته
+        $tag_trans = TagTranslation::with('tag')->find($tag_trans_id);
+        if (!$tag_trans) {
+            return to_route('home.index');
+        }
+
+        $lang_code = LaravelLocalization::getCurrentLocale();
+
+        // 2. التحقق من تطابق لغة التاك مع لغة الموقع الحالية (Fallback الذكي لمنع الـ Infinite Loop)
+        if ($tag_trans->language_code !== $lang_code) {
+            $target_trans = $tag_trans->tag->translations
+                ->where('language_code', $lang_code)
+                ->first();
+
+            if ($target_trans) {
+                return redirect()->route('tags.show', [
+                    'id'   => $target_trans->id,
+                    'slug' => $target_trans->slug
+                ]);
+            }
+
+            return to_route('home.index')->with('info', __('This tag is not available in your language.'));
+        }
+
+        // 3. تصحيح الـ Slug في الـ URL لدعم SEO
+        if (empty($slug) || $tag_trans->slug !== $slug) {
+            return redirect()->route('tags.show', [
+                'id'   => $tag_trans->id,
+                'slug' => $tag_trans->slug
+            ]);
+        }
+
+        // 5. جلب المقالات المكتملة مع الصور (media) والترجمات والمؤلف
+        $articles = $tag_trans->tag->articles()
+            ->with(['translations', 'media', 'user'])
+            ->where('status', 'published')
+            ->latest()
+            ->paginate(12);
+
+        return view('tag', compact('tag_trans', 'articles'));
     }
 
     public function edit(Tag $tag)

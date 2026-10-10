@@ -91,6 +91,8 @@
     <div class="mt-6">
         {{ $articles->links() }}
     </div>
+
+
 @endsection
 @push('scripts')
     <script>
@@ -98,6 +100,18 @@
         window.upload_url = "{{ route('admin.articles.upload.content') }}";
         window.article_content_imgs_url = "{{ route('admin.articles.get.content') }}";
         window.delete_content_img_url = "{{ route('admin.articles.delete.content_img') }}"
+
     </script>
     @vite(['resources/js/components/article-gallery.js'])
+
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            if(@json(session('success'))) {
+                const successMsg = @json(session('success'));
+                showToast('success', successMsg)
+            }
+        });
+    </script>
+
+
 @endpush

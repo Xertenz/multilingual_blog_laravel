@@ -5,10 +5,14 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 
 use App\Models\Article;
+use App\Models\ArticleTranslation;
 use App\Models\Category;
+use App\Models\CategoryTranslation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 use Carbon\Carbon;
 
@@ -23,6 +27,22 @@ class CategoryTranslationController extends Controller
 
     public function store(Request $request)
     {
+        // 1. معالجة وتوليد الـ Slug لكل لغة في المصفوفة قبل التمرير للـ Validation
+        $translations = $request->input('translations', []);
+
+        foreach ($translations as $locale => $data) {
+            if (!empty($data['name'])) {
+                $slugSource = !empty($data['slug']) ? $data['slug'] : $data['name'];
+                $translations[$locale]['slug'] = (string) Str::of($slugSource)->slug('-');
+            }
+        }
+
+        // دمج المصفوفة المعدلة التي تحتوي على الـ slugs الموالدة داخل الـ Request
+        $request->merge(['translations' => $translations]);
+
+        // جلب اللغات المدعومة ديناميكياً من مكتبة mcamara
+        $supportedLocales = implode(',', LaravelLocalization::getSupportedLanguagesKeys());
+
         // 1. التحقق من البيانات (المصفوفة الجديدة والـ Sign العام)
         $request->validate([
             'cat_sign' => 'required|string|unique:categories,sign|max:50',
@@ -30,7 +50,12 @@ class CategoryTranslationController extends Controller
 
             // التحقق من الحقول داخل مصفوفة اللغات
             'translations.*.name' => 'nullable|string|max:100',
-            'translations.*.slug' => 'nullable|string|max:100',
+            'translations.*.slug' => [
+                'nullable',
+                'string',
+                'max:100',
+                Rule::unique('category_translations', 'slug')
+            ],
             'translations.*.description' => 'nullable|string',
             'translations.*.meta_title' => 'nullable|string|max:150',
             'translations.*.meta_description' => 'nullable|string|max:255',
@@ -54,23 +79,30 @@ class CategoryTranslationController extends Controller
                 ->toMediaCollection("featured_imgs");
         }
 
+        // 5. حفظ الترجمات في قاعدة البيانات
+        $validLocales = LaravelLocalization::getSupportedLanguagesKeys();
+
         // 4. الدوران السحري حول اللغات الـ 12 الممررة من الفورم المختصر
         foreach ($request->translations as $localeCode => $data) {
 
             // قاعدة عامة: إذا كان الاسم فارغاً، نتخطى هذه اللغة تماماً لتوفير الوقت للمشرف
-            if (empty($data['name'])) {
+            if (!in_array($localeCode, $validLocales) || empty($data['name'])) {
                 continue;
             }
 
+
             // تطبيق الفلسفة الذكية للـ Slug: إن كُتب يدوياً نأخذه، وإن تُرِك فارغاً نولده من الاسم
+            /*
             $finalSlug = !empty($data['slug'])
                 ? (string) Str::of($data['slug'])->slug('-')
                 : (string) Str::of($data['name'])->slug('-');
+            */
 
             // إدخال الترجمة الحالية في قاعدة البيانات
             $cat->translations()->create([
                 'language_code'    => $localeCode,
-                'slug'             => trim($finalSlug),
+                //'slug'             => trim($finalSlug),
+                'slug'             => trim($data['slug']),
                 'name'             => trim($data['name']),
                 'description'      => trim($data['description'] ?? ''),
                 'meta_title'       => trim($data['meta_title'] ?? $data['name']), // إن ترك الميتا فارغاً نضع الاسم كعنوان
@@ -80,17 +112,45 @@ class CategoryTranslationController extends Controller
             ]);
         }
 
-        return to_route('admin.categories.index')->with('success', 'تم إنشاء القسم والترجمات بنجاح!');
+        return to_route('admin.categories.index')->with('success', 'Category Created Successfully!');
     }
 
-    public function show(int $id)
+    public function show(int $category_trans_id, ?string $slug = null)
     {
         // 1. جلب الفئة مع الترجمات
-        $category = Category::with(['translations'])->findOrFail($id);
+        $category_trans = CategoryTranslation::with(['category.translations'])->find($category_trans_id);
 
-        // الحصول على الترجمة باللغة الحالية أو أول ترجمة متاح كخيار احتياطي (Fallback)
-        $categoryTrans = $category->translations->where('language_code', app()->getLocale())->first()
-            ?? $category->translations->first();
+        if (!$category_trans) {
+            return to_route('home.index');
+        }
+
+        $lang_code = LaravelLocalization::getCurrentLocale();
+
+        if ($category_trans->language_code !== $lang_code) {
+            $category_trans = $category_trans->category->translations->where('language_code', $lang_code)
+                ->first();
+            if ($category_trans) {
+                return redirect()->route(
+                    'categories.show',
+                    [
+                        'id' => $category_trans->id,
+                        'slug' => $category_trans->slug
+                    ]
+                );
+            }
+            return to_route('home.index')->with('info', __('This category is not available in your language.'));
+        }
+
+        if (empty($slug) || $category_trans->slug !== $slug) {
+            return redirect()->route(
+                'categories.show',
+                [
+                    'id' => $category_trans->id,
+                    'slug' => $category_trans->slug
+                ]
+            );
+        }
+
 
         // 2. جلب المقالات المكتملة مع الصور (media) والترجمات والمؤلف
         $articles = Article::with([
@@ -98,15 +158,16 @@ class CategoryTranslationController extends Controller
             'media',
             'user' // أو 'user' حسب اسم العلاقة المسجلة في موديل Article
         ])
-            ->where('category_id', $category->id)
+            ->where('category_id', $category_trans->category->id)
             ->where('status', 'published')
             ->latest()
             ->paginate(12);
 
-        return view('category', compact('category', 'categoryTrans', 'articles'));
+        //return view('category', compact('category', 'categoryTrans', 'articles'));
+        return view('category', compact('category_trans', 'articles'));
     }
 
-    public function edit($id)
+    public function edit(int $id)
     {
         $cat = Category::with('translations')->find($id);
         $translations = $cat->translations->keyBy('language_code');
@@ -162,7 +223,7 @@ class CategoryTranslationController extends Controller
 
             $file = $request->file('cat_featured_img');
             $file_ext = strtolower($file->getClientOriginalExtension());
-            $fileName = Str::random(8) . '_' . time() . '.' . $file_ext;
+            $fileName = uniqid() . '.' . $file_ext;
 
             $cat->addMedia($file)
                 ->usingFileName($fileName)
@@ -198,13 +259,14 @@ class CategoryTranslationController extends Controller
             );
         }
 
-        return to_route('admin.categories.index')->with('success', 'Category updated successfully!');
+        return to_route('admin.categories.index')->with('success', 'Category Updated Successfully!');
     }
 
     public function destroy(int $cat_id)
     {
         $cat = Category::findOrFail($cat_id);
         $cat->delete();
-        return to_route('admin.categories.index');
+        //return to_route('admin.categories.index');
+        return to_route('admin.categories.index')->with('success', 'Category Deleted Successfully!');
     }
 }

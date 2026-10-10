@@ -71,7 +71,8 @@ class ArticleController extends Controller
 
     public function edit(int $article_id)
     {
-        $article = Article::findOrFail($article_id);
+        //$article = Article::findOrFail($article_id);
+        $article = Article::with('category', 'tags')->findOrFail($article_id);
         $cats = Category::all();
         $tags = Tag::all();
         return view('admin.articles.edit', compact('article', 'cats', 'tags'));

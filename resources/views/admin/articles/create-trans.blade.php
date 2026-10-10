@@ -191,9 +191,9 @@
         
         <!-- Form Body -->
         <div class="p-8">
-            <form action="{{route('admin.articles-trans.store', $article_id)}}" method="POST" enctype="multipart/form-data">
+            <form action="{{route('admin.articles-trans.store' {{-- , $article_id --}} )}}" method="POST" enctype="multipart/form-data">
                 @csrf
-                
+                @method('POST')
                 <!-- Language Error Alert -->
                 @error('language_exists')
                     <div class="alert-error">
@@ -206,7 +206,6 @@
                 
                 <!-- Language & Slug Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                    
                     <!-- Language Selection -->
                     <div>
                         <label for="language_code" class="input-label">
@@ -287,7 +286,12 @@
                                        placeholder="Enter meta title" autocomplete="off">
                             </div>
                             @error('meta_title')
-                                <div class="error-message">{{$message}}</div>
+                                <div class="error-message">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    {{$message}}
+                                </div>
                             @enderror
                         </div>
                         
@@ -302,7 +306,12 @@
                                           placeholder="Brief description for search engines">{{old('meta_description')}}</textarea>
                             </div>
                             @error('meta_description')
-                                <div class="error-message">{{$message}}</div>
+                                <div class="error-message">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    {{$message}}
+                                </div>
                             @enderror
                         </div>
                     </div>
@@ -328,7 +337,12 @@
                                    placeholder="Enter your article title" autocomplete="off">
                         </div>
                         @error('title')
-                            <div class="error-message">{{$message}}</div>
+                            <div class="error-message">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                </svg>
+                                {{$message}}
+                            </div>
                         @enderror
                     </div>
                     
@@ -344,7 +358,12 @@
                                       placeholder="Write your article content here...">{{old('description')}}</textarea>
                         </div>
                         @error('description')
-                            <div class="error-message">{{$message}}</div>
+                            <div class="error-message">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                </svg>
+                                {{$message}}
+                            </div>
                         @enderror
                     </div>
                 </div>
