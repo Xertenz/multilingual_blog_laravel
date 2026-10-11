@@ -132,9 +132,9 @@
 
                                     {{-- شارة الفئة قابلة للنقر مع الـ Slug --}}
                                     @if($article->category)
-                                        <a href="{{ route('categories.show', ['id' => $article->category->id, 'slug' => $catTrans->slug ?? '']) }}" 
+                                        <a href="{{ route('categories.show', ['id' => $catTrans->id, 'slug' => $catTrans->slug ?? '']) }}" 
                                            class="absolute top-3 left-3 rtl:left-auto rtl:right-3 px-2.5 py-1 text-xs font-medium text-white bg-slate-900/80 hover:bg-red-600/90 backdrop-blur-md rounded-lg border border-slate-700 transition-colors z-10">
-                                            {{ $catTrans->title ?? $article->category->sign }}
+                                            {{ $catTrans->name ?? $article->category->sign }}
                                         </a>
                                     @endif
                                 </div>

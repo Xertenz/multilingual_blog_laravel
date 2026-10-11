@@ -522,6 +522,7 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+
         const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('featured_img');
         const imagePreview = document.getElementById('imagePreview');
@@ -576,6 +577,9 @@
             
             reader.readAsDataURL(file);
         }
+
+
+
     });
 
     // Status Switcher Functionality for Edit Page

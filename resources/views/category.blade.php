@@ -18,18 +18,18 @@
     {{-- 2️⃣ رأس الصفحة: اسم الفئة والوصف المترجمين --}}
     <div class="bg-[#1e293b]/60 border border-slate-800 rounded-2xl p-6 md:p-8 mb-8 text-center shadow-lg">
         <h1 class="text-3xl md:text-4xl font-extrabold text-white mb-3">
-            📂 {{ $category_trans->title ?? $category_trans->category->sign }}
+            📂 {{ $category_trans->name ?? $category_trans->category->sign }}
         </h1>
         
         {{-- وصف الفئة المترجم (إذا كان متوفراً) --}}
-        @if(isset($category_trans->description) && !empty($categoryTrans->description))
+        @if(isset($category_trans->description) && !empty($category_trans->description))
             <p class="text-gray-300 text-sm md:text-base max-w-2xl mx-auto mb-4 leading-relaxed">
-                {{ $categoryTrans->description }}
+                {{ $category_trans->description }}
             </p>
         @endif
 
         <span class="inline-block px-3 py-1 bg-slate-800/80 text-gray-400 text-xs rounded-full border border-slate-700/50">
-            {{ __('category.total_articles', ['count' => $articles->total()]) }}
+            {{ __('category.total_articles', ['count' => $category_trans->category->articles->count()]) }}
         </span>
     </div>
 

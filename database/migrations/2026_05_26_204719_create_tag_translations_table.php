@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('tag_translations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tag_id')->constrained('tags')->onDelete('cascade');
-            $table->string('language_code', 5); // ar, en, ja
+            $table->string('language_code', 5); // ar, en, en-US
             $table->string('name');
             $table->string('slug');
             $table->timestamps();

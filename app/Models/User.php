@@ -6,16 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 // ⚠️ تأكد من هذه الـ imports
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as AuthenticatableUser; // هذا مهم
 use Illuminate\Notifications\Notifiable;
-
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends AuthenticatableUser implements Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
 
     protected $fillable = [
@@ -64,5 +65,16 @@ class User extends AuthenticatableUser implements Authenticatable
     public function favoriteArticles(): BelongsToMany
     {
         return $this->belongsToMany(Article::class, 'article_user')->withTimestamps();
+    }
+
+    // To get the formatted role name of the user
+    public function formattedRole(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                $role = $this->roles->first();
+                return $role ? ucwords(str_replace('-', ' ', $role->name)) : 'User';
+            }
+        );
     }
 }

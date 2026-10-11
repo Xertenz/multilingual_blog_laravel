@@ -187,11 +187,12 @@
                 <div class="flex items-center gap-3">
                     <span class="text-gray-500 text-xs font-medium">More in:</span>
                     @php
-                        $category_translation = $article_trans->article->category->translations->first();
+                        $current_locale = app()->getLocale(); 
+                        $category_translation = $article_trans->article->category->translations->where('language_code', $current_locale)->first();
                         $categoryName = $category_translation ? $category_translation->name : $article_trans->article->category->sign;
                         $categoryId = $article_trans->article->category->id;
                     @endphp
-                    <a href="#alskdfj" class="case-badge text-xs bg-red-950/40 text-red-400 border border-red-900/50 px-2.5 py-1 rounded-md hover:bg-red-600/20 transition">
+                    <a href="{{route('categories.show', ['id' => $category_translation->id])}}" class="case-badge text-xs bg-red-950/40 text-red-400 border border-red-900/50 px-2.5 py-1 rounded-md hover:bg-red-600/20 transition">
                         {{$categoryName}}
                     </a>
 
@@ -242,7 +243,7 @@
                             $tagName = $tag_translation ? $tag_translation->name : $tag->sign;
                         @endphp
                         
-                        <a href="#" class="flex items-center gap-1 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white px-2.5 py-1 rounded-md text-xs font-medium transition duration-200 border border-slate-700/40">
+                        <a href="{{route('tags.show', ['id' => $tag_translation->id])}}" class="flex items-center gap-1 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white px-2.5 py-1 rounded-md text-xs font-medium transition duration-200 border border-slate-700/40">
                             <svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581a1.125 1.125 0 001.591 0l7.182-7.182a1.125 1.125 0 000-1.59l-9.581-9.581A2.25 2.25 0 009.568 3z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z"></path>

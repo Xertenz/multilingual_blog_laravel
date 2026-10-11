@@ -47,11 +47,13 @@
                     <td class="py-4 px-6 border-b border-gray-200">
                         <div style="display: flex; gap: 1rem">
                             <a href="{{route('admin.articles.edit', $article->id)}}"><button class="bg-blue-500 text-white py-1 px-2 rounded-sm text-xs cursor-pointer">Edit</button></a>
+                            @can('delete-articles')
                             <form action="{{route('admin.articles.destroy', $article->id)}}" method="POST" onsubmit="return confirm('Are you sure you want to delete this main article with all it\'s translated articles?');">
                                 @csrf
                                 @method('DELETE')
                                 <button class="bg-red-500 text-white py-1 px-2 rounded-sm text-xs cursor-pointer">Delete</button>
                             </form>
+                            @endcan
                         </div>
                     </td>
                     <td class="py-4 px-6 border-b border-gray-200">{{$article->views}}</td>
@@ -65,11 +67,13 @@
                                         {{$article_translation->language_code}}
                                     </button>
                                 </a>
+                                @can('delete-articles')
                                 <form action="{{route('admin.articles-trans.destroy', $article_translation->id)}}" method="POST" onsubmit="return confirm('Are you sure you want to delete this article translation?');"  >
                                     @csrf
                                     @method('DELETE')
                                     <button class="bg-red-500 text-white py-1 px-2 rounded-sm text-xs cursor-pointer">{{$article_translation->language_code}}</button>
                                 </form>
+                                @endcan
                             </div>
                         @endforeach
                         <div style="display: flex; flex-direction:column">
@@ -106,10 +110,11 @@
 
     <script>
         window.addEventListener('DOMContentLoaded', function() {
-            if(@json(session('success'))) {
-                const successMsg = @json(session('success'));
-                showToast('success', successMsg)
-            }
+            @if(session('success'))
+                showToast('success', @json(session('success')));
+            @elseif(session('error'))
+                showToast('error', @json(session('error')));
+            @endif
         });
     </script>
 

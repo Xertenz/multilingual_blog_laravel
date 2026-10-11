@@ -24,7 +24,7 @@
             </div>
             <div class="flex-1">
                 <p class="text-sm font-medium">{{ auth()->user()->name ?? 'John Doe' }}</p>
-                <p class="text-xs text-slate-400">{{ auth()->user()->role ?? 'Administrator' }}</p>
+                <p class="text-xs text-slate-400">{{ auth()->user()->formatted_role }}</p>
             </div>
         </div>
     </div>
@@ -35,6 +35,55 @@
         <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 px-3">
             Main Menu
         </div>
+
+        {{-- Articles Section --}}
+        <div class="mb-6">
+            <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 px-3">
+                Articles
+            </div>
+            
+            <ul class="space-y-1">
+                {{-- All Articles Link --}}
+                <li>
+                    <a href="{{ route('admin.articles.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.articles.index') 
+                                 ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-white' 
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">All Articles</span>
+                        <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
+                            {{ \App\Models\Article::count() }}
+                        </span>
+                    </a>
+                </li>
+                
+                {{-- Add Article Link --}}
+                <li>
+                    <a href="{{ route('admin.articles.create') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.articles.create') 
+                                 ? 'bg-gradient-to-r from-purple-600/20 to-pink-600/20 text-white' 
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">Write New Article</span>
+                        <span class="bg-purple-600/20 text-purple-400 text-xs px-2 py-1 rounded-full">+</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        @role('super-admin|editor')
+        {{-- Divider --}}
+        <div class="border-t border-slate-700 my-4"></div>
         
         {{-- Categories Section --}}
         <div class="mb-6">
@@ -83,54 +132,6 @@
             </ul>
         </div>
         
-        {{-- Divider --}}
-        <div class="border-t border-slate-700 my-4"></div>
-        
-        {{-- Articles Section --}}
-        <div class="mb-6">
-            <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 px-3">
-                Articles
-            </div>
-            
-            <ul class="space-y-1">
-                {{-- All Articles Link --}}
-                <li>
-                    <a href="{{ route('admin.articles.index') }}" 
-                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
-                              {{ request()->routeIs('admin.articles.index') 
-                                 ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-white' 
-                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
-                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
-                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
-                            </svg>
-                        </div>
-                        <span class="flex-1 text-sm font-medium">All Articles</span>
-                        <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
-                            {{ \App\Models\Article::count() }}
-                        </span>
-                    </a>
-                </li>
-                
-                {{-- Add Article Link --}}
-                <li>
-                    <a href="{{ route('admin.articles.create') }}" 
-                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
-                              {{ request()->routeIs('admin.articles.create') 
-                                 ? 'bg-gradient-to-r from-purple-600/20 to-pink-600/20 text-white' 
-                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
-                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
-                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <span class="flex-1 text-sm font-medium">Write New Article</span>
-                        <span class="bg-purple-600/20 text-purple-400 text-xs px-2 py-1 rounded-full">+</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-
         {{-- Divider --}}
         <div class="border-t border-slate-700 my-4"></div>
         
@@ -184,6 +185,7 @@
                 </li>
             </ul>
         </div>
+        @endrole
         
         {{-- Logout --}}
         <div class="border-t border-slate-700 mt-6 pt-4">

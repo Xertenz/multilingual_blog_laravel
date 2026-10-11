@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CategoryTranslationController;
 use App\Http\Controllers\Admin\TagTranslationController;
 use App\Http\Controllers\Admin\TagController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\Front\ArticleFavoriteController;
 use App\Http\Controllers\NotificationController;
@@ -74,24 +75,25 @@ Route::group([
     // ==========================================
     // 3. للـ Admin فقط
     // ==========================================
-    Route::group(['middleware' => ['auth', 'admin'], 'prefix' => "admin"], function () {
+    Route::group(['middleware' => ['auth', 'role:super-admin|editor|writer'], 'prefix' => "admin"], function () {
         // لوحة تحكم الأدمن
         Route::view('/dashboard', 'admin.layout.dashboard')->name('dashboard');
 
         // إدارة المقالات
         Route::get('/articles', [ArticleController::class, 'index'])->name('admin.articles.index');
-        Route::get('/articles/create', [ArticleController::class, 'create'])->name('admin.articles.create');
-        Route::post('/articles', [ArticleController::class, 'store'])->name('admin.articles.store');
-        Route::get('/articles/{article_id}/edit', [ArticleController::class, 'edit'])->name('admin.articles.edit');
-        Route::put('/articles/{article_id}', [ArticleController::class, 'update'])->name('admin.articles.update');
-        Route::delete('/articles/{article_id}', [ArticleController::class, 'destroy'])->name('admin.articles.destroy');
+        Route::get('/articles/create', [ArticleController::class, 'create'])->name('admin.articles.create')->middleware('permission:create-articles');
+        Route::post('/articles', [ArticleController::class, 'store'])->name('admin.articles.store')->middleware('permission:create-articles');
+        Route::get('/articles/{article_id}/edit', [ArticleController::class, 'edit'])->name('admin.articles.edit')->middleware('permission:edit-articles');
+        Route::put('/articles/{article_id}', [ArticleController::class, 'update'])->name('admin.articles.update')->middleware('permission:edit-articles');
+        // حذف المقالة محصور بمن يملك صلاحية delete-articles فقط (أدمن ومحرر)
+        Route::delete('/articles/{article_id}', [ArticleController::class, 'destroy'])->name('admin.articles.destroy')->middleware('permission:delete-articles');
 
         // إدارة تراجم المقالات
-        Route::get('/articles-trans/create/{article_id}', [ArticleTranslationController::class, 'create'])->name('admin.articles-trans.create');
-        Route::post('/articles-trans', [ArticleTranslationController::class, 'store'])->name('admin.articles-trans.store');
-        Route::get('/articles-trans/{article_id}/edit', [ArticleTranslationController::class, 'edit'])->name('admin.articles-trans.edit');
-        Route::put('/articles-trans/{article_id}', [ArticleTranslationController::class, 'update'])->name('admin.articles-trans.update');
-        Route::delete('/articles-trans/{article_id}', [ArticleTranslationController::class, 'destroy'])->name('admin.articles-trans.destroy');
+        Route::get('/articles-trans/create/{article_id}', [ArticleTranslationController::class, 'create'])->name('admin.articles-trans.create')->middleware('permission:create-articles');
+        Route::post('/articles-trans', [ArticleTranslationController::class, 'store'])->name('admin.articles-trans.store')->middleware('permission:create-articles');
+        Route::get('/articles-trans/{article_id}/edit', [ArticleTranslationController::class, 'edit'])->name('admin.articles-trans.edit')->middleware('permission:edit-articles');
+        Route::put('/articles-trans/{article_id}', [ArticleTranslationController::class, 'update'])->name('admin.articles-trans.update')->middleware('permission:edit-articles');
+        Route::delete('/articles-trans/{article_id}', [ArticleTranslationController::class, 'destroy'])->name('admin.articles-trans.destroy')->middleware('permission:delete-articles');
 
         // رفع وإدارة الصور داخل المحتوى
         Route::post('/articles/upload-article-content-img', [ArticleController::class, 'uploadContentImg'])->name('admin.articles.upload.content');
@@ -99,20 +101,22 @@ Route::group([
         Route::post('/articles/delete-article-image', [ArticleController::class, 'deleteContentImg'])->name('admin.articles.delete.content_img');
 
         // إدارة الفئات والتراجم
-        Route::get('/categories/create', [CategoryTranslationController::class, 'create'])->name('admin.categories.create');
-        Route::get('/categories', [CategoryController::class, 'index'])->name('admin.categories.index');
-        Route::post('/categories', [CategoryTranslationController::class, 'store'])->name('admin.categories.store');
-        Route::get('/categories/{cat_id}/edit', [CategoryTranslationController::class, 'edit'])->name('admin.categories.edit');
-        Route::put('/categories/{cat_id}', [CategoryTranslationController::class, 'update'])->name('admin.categories.update');
-        Route::delete('/categories/{cat_id}', [CategoryTranslationController::class, 'destroy'])->name('admin.categories.destroy');
+        Route::group(['middleware' => ['role:super-admin|editor']], function () {
+            Route::get('/categories/create', [CategoryTranslationController::class, 'create'])->name('admin.categories.create');
+            Route::get('/categories', [CategoryController::class, 'index'])->name('admin.categories.index');
+            Route::post('/categories', [CategoryTranslationController::class, 'store'])->name('admin.categories.store');
+            Route::get('/categories/{cat_id}/edit', [CategoryTranslationController::class, 'edit'])->name('admin.categories.edit');
+            Route::put('/categories/{cat_id}', [CategoryTranslationController::class, 'update'])->name('admin.categories.update');
+            Route::delete('/categories/{cat_id}', [CategoryTranslationController::class, 'destroy'])->name('admin.categories.destroy');
 
-        // إدارة الأوسمة والتراجم
-        Route::get('/tags/create', [TagTranslationController::class, 'create'])->name('admin.tags.create');
-        Route::get('/tags', [TagController::class, 'index'])->name('admin.tags.index');
-        Route::post('/tags', [TagTranslationController::class, 'store'])->name('admin.tags.store');
-        Route::get('/tags/{tag}/edit', [TagTranslationController::class, 'edit'])->name('admin.tags.edit');
-        Route::put('/tags/{tag}', [TagTranslationController::class, 'update'])->name('admin.tags.update');
-        Route::delete('/tags/{tag}', [TagTranslationController::class, 'destroy'])->name('admin.tags.destroy');
+            // إدارة الأوسمة والتراجم
+            Route::get('/tags/create', [TagTranslationController::class, 'create'])->name('admin.tags.create');
+            Route::get('/tags', [TagController::class, 'index'])->name('admin.tags.index');
+            Route::post('/tags', [TagTranslationController::class, 'store'])->name('admin.tags.store');
+            Route::get('/tags/{tag}/edit', [TagTranslationController::class, 'edit'])->name('admin.tags.edit');
+            Route::put('/tags/{tag}', [TagTranslationController::class, 'update'])->name('admin.tags.update');
+            Route::delete('/tags/{tag}', [TagTranslationController::class, 'destroy'])->name('admin.tags.destroy');
+        });
     });
 
     // الصفحات العامة الثابتة

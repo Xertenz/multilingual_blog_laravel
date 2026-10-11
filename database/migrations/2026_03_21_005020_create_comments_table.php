@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('article_id')->nullable()->constrained('articles')->cascadeOnDelete();
             $table->foreignId('parent_id')->nullable()->constrained('comments')->cascadeOnDelete();
             $table->text('body');
-            $table->string('locale')->default('en');
+            $table->string('locale', 5)->default('en');
             $table->timestamps();
         });
     }

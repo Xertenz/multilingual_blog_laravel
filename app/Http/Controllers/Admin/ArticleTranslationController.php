@@ -207,22 +207,35 @@ class ArticleTranslationController extends Controller
 
     public function edit(Request $request, int $article_trans_id)
     {
-        //$cats = CategoryTranslation::all()->where('language_code', 'ar');
         $article_trans = ArticleTranslation::with('article', 'media')->find($article_trans_id);
         $article = $article_trans->article;
+
+        if (!$request->user()->hasRole(['super-admin', 'editor']) && $article->user_id !== $request->user()->id) {
+            abort(403, 'غير مسموح لك بتعديل ترجمة مقال لا تملكه.');
+        }
+
         $article_content_imgs = $article->getMedia('content_imgs');
-        return view('admin.articles.edit-trans', compact(/* 'cats',*/'article_trans', 'article_content_imgs'));
+        return view('admin.articles.edit-trans', compact('article_trans', 'article_content_imgs'));
     }
 
 
     public function update(Request $request, int $article_trans_id)
     {
-        // 1. استخراج الـ slug أو الاعتماد على الـ title كخيار بديل
+        // 1. جلب الترجمة أولاً لنتمكن من الوصول للمقال المرتبط بها والتحقق من مالكه
+        $article_trans = ArticleTranslation::findOrFail($article_trans_id);
+        $article = $article_trans->article;
+
+        // 👈 التحقق من الملكية قبل إجراء أي تعديل
+        if (!$request->user()->hasRole(['super-admin', 'editor']) && $article->user_id !== $request->user()->id) {
+            abort(403, 'غير مسموح لك بتحديث ترجمة مقال لا تملكه.');
+        }
+
+        // 2. استخراج الـ slug أو الاعتماد على الـ title كخيار بديل
         $slugSource = trim($request->input('slug')) !== ''
             ? $request->input('slug')
             : $request->input('title');
 
-        // 2. توليد الـ slug النهائي (يدعم الإنجليزية والعربية)
+        // 3. توليد الـ slug النهائي (يدعم الإنجليزية والعربية)
         $finalSlug = (string) Str::of($slugSource)->slug('-');
 
         // دمج الـ slug الناتج داخل الـ Request قبل التمرير لـ Validation
@@ -235,7 +248,7 @@ class ArticleTranslationController extends Controller
             'article_id' => 'required|numeric|exists:articles,id',
             'language_code' => [
                 'required',
-                'in:' . $supportedLocales, // 👈 أصبح ديناميكياً هنا
+                'in:' . $supportedLocales,
                 Rule::unique('article_translations')->where(function ($query) use ($request) {
                     return $query->where('article_id', (int)$request->article_id);
                 })->ignore($article_trans_id),
@@ -254,7 +267,6 @@ class ArticleTranslationController extends Controller
         ]);
 
         try {
-            $article_trans = ArticleTranslation::findOrFail($article_trans_id);
             $article_trans->update([
                 'language_code' => $request->language_code,
                 'slug' => trim($request->slug),
@@ -264,7 +276,7 @@ class ArticleTranslationController extends Controller
                 'meta_description' => trim($request->meta_description),
             ]);
 
-            return redirect()->back()->with('success', 'Article Updated Successfully.');
+            return to_route('admin.articles.index')->with('success', 'Article Updated Successfully.');
         } catch (\Exception $e) {
             return redirect()->back()
                 ->withInput()

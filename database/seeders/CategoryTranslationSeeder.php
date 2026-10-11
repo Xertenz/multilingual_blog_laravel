@@ -49,5 +49,16 @@ class CategoryTranslationSeeder extends Seeder
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
+        DB::table('category_translations')->insert([
+            'category_id' => 2,
+            'language_code' => 'ar',
+            'slug' => 'جرائم',
+            'name' => 'جرائم',
+            'description' => 'قضايا جرائم',
+            'meta_title' => 'هذه قضايا جرائم من اي نوع',
+            'meta_description' => 'هذه قضايا جرائم من اي نوع',
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
+        ]);
     }
 }
