@@ -1,7 +1,6 @@
 <x-app-layout>
     <div class="py-8 bg-[#0a0f1f] min-h-screen text-slate-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-
             {{-- شريط التنقل الخاص بالملف الشخصي --}}
             @include('profile.partials.profile-menu')
 
@@ -25,7 +24,6 @@
                     @include('profile.partials.delete-user-form')
                 </div>
             </div>
-
         </div>
     </div>
 </x-app-layout>

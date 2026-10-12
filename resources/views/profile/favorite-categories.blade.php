@@ -53,6 +53,7 @@
                             <p class="text-sm font-medium text-slate-400">{{ __('You are not following any categories yet.') }}</p>
                         </div>
                     @endforelse
+
                 </div>
 
             </div>

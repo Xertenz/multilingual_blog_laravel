@@ -1,4 +1,5 @@
 <section>
+
     <header>
         <h2 class="text-lg font-bold text-white">
             {{ __('Update Password') }}
@@ -47,4 +48,5 @@
             @endif
         </div>
     </form>
+
 </section>

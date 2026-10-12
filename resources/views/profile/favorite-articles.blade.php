@@ -64,6 +64,7 @@
                             <p class="text-sm font-medium text-slate-400">{{ __('Your reading list is empty.') }}</p>
                         </div>
                     @endforelse
+
                 </div>
 
             </div>
