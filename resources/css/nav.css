@@ -16,3 +16,9 @@ nav .notifications-list-wrapper.active {
     height: 5px;
     width: 100%;
 }
+
+#user-dropdown-list.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(100%) translateY(0);
+}

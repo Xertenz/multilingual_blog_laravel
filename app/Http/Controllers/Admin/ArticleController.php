@@ -24,8 +24,12 @@ class ArticleController extends Controller
         return view("admin.articles.index", compact('articles'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
+        // 👈 التحقق الأمني: التأكد من أن المستخدم يملك رتبة تخوله إنشاء مقال
+        if (!$request->user()->hasRole(['super-admin', 'editor', 'writer'])) {
+            abort(403, 'غير مسموح لك بإنشاء مقالات.');
+        }
         $cats = Category::orderBy('sign', 'asc')->get();
         $tags = Tag::all();
         return view('admin.articles.create', compact('cats', 'tags'));
@@ -33,6 +37,11 @@ class ArticleController extends Controller
 
     public function store(Request $request)
     {
+
+        // 👈 التحقق الأمني: التأكد من أن المستخدم يملك رتبة تخوله إنشاء مقال
+        if (!$request->user()->hasRole(['super-admin', 'editor', 'writer'])) {
+            abort(403, 'غير مسموح لك بإنشاء مقالات.');
+        }
         // إذا لم يكن المستخدم يملك صلاحية النشر، نجبر الحالة تلقائياً على أن تكون draft (مسودة)
         // حتى لو حاول التلاعب بالطلب وإرسال status = published
         $status = 'draft';
@@ -79,8 +88,13 @@ class ArticleController extends Controller
 
     public function edit(Request $request, int $article_id)
     {
-        //$article = Article::findOrFail($article_id);
         $article = Article::with('category', 'tags')->findOrFail($article_id);
+
+        $user = $request->user();
+        // 👈 التحقق الأمني: الأدمن والمحرر يمكنهم تعديل أي مقال، أما الكاتب فيعدل مقاله فقط
+        if (!$user->hasRole(['super-admin', 'editor']) && $article->user_id !== $user->id) {
+            abort(403, 'غير مسموح لك بتعديل مقال لا تملكه.');
+        }
 
         if (!$request->user()->hasRole(['super-admin', 'editor']) && Auth::id() !== $article->user_id) {
             abort(403, 'غير مسموح لك بتعديل مقال لا تملكه.');
@@ -95,7 +109,7 @@ class ArticleController extends Controller
     {
         $article = Article::findOrFail($article_id);
 
-        if (!$request->user()->hasRole(['super-admin', 'editor']) && Auth::id() !== $article->user_id) {
+        if (!$request->user()->hasRole(['super-admin', 'editor']) && $article->user_id !== Auth::id()) {
             abort(403, 'غير مسموح لك بتعديل مقال لا تملكه.');
         }
 
@@ -157,6 +171,7 @@ class ArticleController extends Controller
     }
 
 
+    /*
     public function destroy(int $article_id)
     {
         try {
@@ -166,6 +181,30 @@ class ArticleController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()
                 ->withInput()
+                ->with('error', 'Failed to delete article. Please try again.');
+        }
+    }
+    */
+
+    public function destroy(Request $request, int $article_id)
+    {
+        // 👈 التحقق الأمني: حصر الحذف حصراً بالمشرف والمحرر
+        if (!$request->user()->hasRole(['super-admin', 'editor'])) {
+            abort(403, 'غير مسموح لك بحذف المقالات.');
+        }
+
+        try {
+            $article = Article::findOrFail($article_id);
+
+            // (اختياري ولكن مفحسن): حذف الوسائط المرتبطة أولاً لتنظيف مساحة التخزين
+            $article->clearMediaCollection('featured_imgs');
+            $article->clearMediaCollection('content_imgs');
+
+            $article->delete();
+
+            return to_route('admin.articles.index')->with('success', 'Article Deleted Successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()
                 ->with('error', 'Failed to delete article. Please try again.');
         }
     }

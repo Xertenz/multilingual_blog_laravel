@@ -119,6 +119,13 @@ Route::group([
         });
     });
 
+    // إدارة المستخدمين (مقصورة حصراً على الـ super-admin لزيادة الأمان)
+    Route::group(['middleware' => ['auth', 'role:super-admin'], 'prefix' => 'admin'], function () {
+        Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
+        Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
+        Route::put('/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
+    });
+
     // الصفحات العامة الثابتة
     Route::get('/', [HomeController::class, 'index'])->name('home.index');
     Route::view('/privacy', 'privacy')->name('privacy');

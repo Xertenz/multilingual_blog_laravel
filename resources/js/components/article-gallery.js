@@ -93,30 +93,62 @@ window.createGalleryHTML = async function (article_id) {
     let article_content_imgs = await getArticleContentImgs(article_id);
 
     let html = `
-<div class="article-gallery-wrapper" id="article-gallery-wrapper">
-    <div class="popup">
-        <div class="top-bar">
-            <label for="content-img" class="cursor-pointer px-3 py-1 border-2 border-indigo-400 text-base font-medium rounded-md text-indigo-800 bg-indigo-400 hover:bg-indigo-700">Upload +</label>
-            <input type="file" name="content-img" id="content-img" class="hidden" data-article-id="${article_id}" onchange="choosingFile(this)">
-            <button class="close-icon" id="close-icon" onclick="closing(this)">
-                <span>X</span>
-            </button>
+<div class="article-gallery-wrapper fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 animate-fade-in" id="article-gallery-wrapper">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-100 w-full max-w-3xl overflow-hidden flex flex-col max-h-[85vh]">
+        
+        <!-- Top Bar Header -->
+        <div class="flex items-center justify-between px-6 py-4 bg-slate-50 border-b border-slate-200">
+            <div class="flex items-center gap-2">
+                <span class="text-base font-bold text-slate-800">Article Content Gallery</span>
+                <span class="bg-blue-100 text-blue-700 text-xs font-semibold px-2.5 py-0.5 rounded-full">${article_content_imgs.length} Images</span>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <!-- Upload Button -->
+                <label for="content-img-${article_id}" class="cursor-pointer inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs px-3 py-2 rounded-lg shadow-sm transition-all">
+                    <span>+ Upload Image</span>
+                </label>
+                <input type="file" name="content-img" id="content-img-${article_id}" class="hidden" data-article-id="${article_id}" onchange="choosingFile(this)" accept="image/*">
+                
+                <!-- Close Button -->
+                <button class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-200 hover:bg-red-100 text-slate-600 hover:text-red-600 transition-colors cursor-pointer text-sm font-bold" id="close-icon" onclick="closing(${article_id})">
+                    &times;
+                </button>
+            </div>
         </div>
-        <div class="images-wrapper">
-            <div class="images images-container">`;
+
+        <!-- Images Container Grid -->
+        <div class="p-6 overflow-y-auto flex-1 bg-slate-50/50">`;
 
     if (article_content_imgs.length > 0) {
+        html += `<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">`;
         article_content_imgs.forEach((article_content_img) => {
-            html += `<div class="image">
-                            <img src="${article_content_img.original_url}" alt="" loading="lazy" />
-                            <button class="delete-icon" id="delete-icon" data-content-image-id="${article_content_img.id}" onclick="removeImage(this, ${article_id})">X</button>
-                    </div>`;
+            html += `
+                <div class="group relative bg-white border border-slate-200 rounded-xl overflow-hidden shadow-2xs aspect-square flex items-center justify-center">
+                    <img src="${article_content_img.original_url}" alt="Gallery Image" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                    
+                    <!-- Delete Overlay Action -->
+                    <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                        <button class="bg-red-600 hover:bg-red-700 text-white p-2 rounded-lg shadow-md transition-transform hover:scale-110 cursor-pointer text-xs font-medium flex items-center gap-1" 
+                                data-content-image-id="${article_content_img.id}" 
+                                onclick="removeImage(this, ${article_id})"
+                                title="Delete Image">
+                            🗑️ Delete
+                        </button>
+                    </div>
+                </div>`;
         });
+        html += `</div>`;
     } else {
-        html += "<p class='no-images'>no images</p>";
+        html += `
+            <div class="flex flex-col items-center justify-center py-12 text-slate-400">
+                <span class="text-4xl mb-2">📁</span>
+                <p class="text-sm font-medium">No images uploaded for this article yet.</p>
+                <p class="text-xs text-slate-400 mt-1">Upload images to use them inside your translated content.</p>
+            </div>`;
     }
 
-    html += `</div>
+    html += `
         </div>
     </div>
 </div>`;

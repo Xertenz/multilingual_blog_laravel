@@ -9,30 +9,29 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+            background-color: #f8fafc;
         }
         .form-card {
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.98);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(102, 126, 234, 0.1) inset;
-            border-radius: 24px;
+            background: #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
             overflow: hidden;
         }
         .input-field {
             transition: all 0.2s ease;
             background: #ffffff;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            padding: 0.75rem 1rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 0.6rem 0.875rem;
             width: 100%;
             outline: none;
-            font-size: 0.95rem;
-            color: #1f2937;
+            font-size: 0.875rem;
+            color: #1e293b;
         }
         .input-field:focus {
             border-color: #6366f1;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-            transform: translateY(-1px);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
         }
         .input-field.error {
             border-color: #ef4444;
@@ -40,142 +39,110 @@
         }
         .input-label {
             display: block;
-            font-size: 0.875rem;
+            font-size: 0.8125rem;
             font-weight: 600;
-            color: #374151;
-            margin-bottom: 0.5rem;
+            color: #475569;
+            margin-bottom: 0.35rem;
         }
         .input-label .required {
             color: #ef4444;
-            margin-left: 0.25rem;
-            margin-right: 0.25rem;
+            margin-left: 0.15rem;
+            margin-right: 0.15rem;
         }
         .input-hint {
             font-size: 0.75rem;
-            color: #9ca3af;
+            color: #94a3b8;
             margin-top: 0.25rem;
         }
         .error-message {
             color: #ef4444;
-            font-size: 0.875rem;
+            font-size: 0.75rem;
             margin-top: 0.25rem;
             display: flex;
             align-items: center;
             gap: 0.25rem;
-            animation: slideIn 0.3s ease;
-        }
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
         }
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #4f46e5;
             color: white;
             font-weight: 600;
-            padding: 0.75rem 2rem;
-            border-radius: 12px;
+            padding: 0.6rem 1.5rem;
+            border-radius: 10px;
             border: none;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
-            box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.2);
+            font-size: 0.875rem;
         }
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px -5px rgba(102, 126, 234, 0.4);
+            background: #4338ca;
         }
         .btn-secondary {
             background: white;
-            color: #4b5563;
+            color: #475569;
             font-weight: 600;
-            padding: 0.75rem 2rem;
-            border-radius: 12px;
-            border: 2px solid #e5e7eb;
+            padding: 0.6rem 1.5rem;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
+            font-size: 0.875rem;
         }
         .btn-secondary:hover {
-            background: #f9fafb;
-            border-color: #9ca3af;
+            background: #f1f5f9;
+            border-color: #94a3b8;
         }
         .section-card {
-            background: linear-gradient(to right, #f9fafb, #ffffff);
-            border-radius: 16px;
-            padding: 1.5rem;
-            border: 1px solid #e5e7eb;
-            margin-bottom: 1.5rem;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 1.25rem;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 1rem;
         }
         .section-title {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            font-size: 1.125rem;
+            font-size: 0.95rem;
             font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 1rem;
-            padding-bottom: 0.75rem;
-            border-bottom: 1px solid #e5e7eb;
+            color: #1e293b;
+            margin-bottom: 0.75rem;
         }
         .section-icon {
-            width: 1.5rem;
-            height: 1.5rem;
+            width: 1.25rem;
+            height: 1.25rem;
             color: #6366f1;
-        }
-        .language-badge {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 0.25rem 1rem;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: inline-block;
         }
     </style>
 @endpush
 
 @section('content')
-<div class="container mx-auto pb-8 px-4 max-w-4xl">
+<div class="container mx-auto pb-8 px-4 max-w-2xl">
     
-    <div class="text-center mb-8">
-        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 mb-4 shadow-inner">
-            <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l5 5a2 2 0 01.586 1.414V19a2 2 0 01-2 2H7a3 3 0 01-3-3V6a3 3 0 013-3z"></path>
-            </svg>
+    {{-- Compact Header --}}
+    <div class="flex items-center justify-between mb-4">
+        <div>
+            <h1 class="text-xl font-bold text-slate-900">Create New Tag</h1>
+            <p class="text-xs text-slate-500">Add a new tag with multi-language support</p>
         </div>
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Create New Tag</h1>
-        <p class="text-gray-600">Add a new tag with multi-language support</p>
+        <a href="{{ route('admin.tags.index') }}" class="text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-2xs">
+            &larr; Back to Tags
+        </a>
     </div>
     
     <div class="form-card">
-        
-        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 px-8 py-5">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h2 class="text-xl font-semibold text-white flex items-center">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l5 5a2 2 0 01.586 1.414V19a2 2 0 01-2 2H7a3 3 0 01-3-3V6a3 3 0 013-3z"></path>
-                        </svg>
-                        Tag Details
-                    </h2>
-                    <p class="text-indigo-100 text-sm mt-1">Set up the tag sign and its translations</p>
-                </div>
-                <div class="bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 text-white text-sm font-medium">
-                    {{ count(LaravelLocalization::getSupportedLocales()) }} Languages
-                </div>
-            </div>
-        </div>
-        
-        <div class="p-8">
+        <div class="p-6">
             <form action="{{ route('admin.tags.store') }}" method="POST">
                 @csrf
                 
+                {{-- Basic Information Section --}}
                 <div class="section-card">
                     <div class="section-title">
                         <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -187,7 +154,6 @@
                     <div class="mb-2">
                         <label for="sign" class="input-label">
                             Tag Sign <span class="required">*</span>
-                            <span class="input-hint">(Unique identifier in English, only for admins, not shown to visitors)</span>
                         </label>
                         <input type="text" 
                                name="sign" 
@@ -196,9 +162,10 @@
                                class="input-field @error('sign') error @enderror" 
                                placeholder="e.g., serial-killer, mystery, cold-case" 
                                autocomplete="off">
+                        <p class="input-hint">Unique identifier in English, only for admins, not shown to visitors.</p>
                         @error('sign')
                             <div class="error-message">
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                                 </svg>
                                 {{ $message }}
@@ -207,25 +174,30 @@
                     </div>
                 </div>
                 
+                {{-- Translations Sections --}}
                 @foreach(LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
                     @php
                         $isDefaultLang = ($localeCode === config('app.locale') || $localeCode === 'en');
                     @endphp
                     
                     <div class="section-card">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="section-title mb-0">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="section-title mb-0 border-0 pb-0">
                                 <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"></path>
                                 </svg>
-                                <span>{{ $properties['native'] }} Translation ({{ strtoupper($localeCode) }})</span>
+                                <span class="text-xs">{{ $properties['native'] }} ({{ strtoupper($localeCode) }})</span>
                             </div>
-                            <span class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full text-xs font-medium">Optional</span>
+                            @if($isDefaultLang)
+                                <span class="bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full text-[10px] font-semibold border border-indigo-100">Required</span>
+                            @else
+                                <span class="bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full text-[10px] font-medium">Optional</span>
+                            @endif
                         </div>
                         
                         <div>
                             <label class="input-label">
-                                Name 
+                                Name @if($isDefaultLang)<span class="required">*</span>@endif
                             </label>
                             <input type="text" 
                                    name="translations[{{ $localeCode }}][name]" 
@@ -235,21 +207,24 @@
                                    placeholder="e.g., {{ $localeCode == 'ar' ? 'قاتل متسلسل' : 'Serial Killer' }}" 
                                    autocomplete="off">
                             @error("translations.$localeCode.name")
-                                <div class="error-message">{{ $message }}</div>
+                                <div class="error-message">
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    {{ $message }}
+                                </div>
                             @enderror
                         </div>
                     </div>
                 @endforeach
                 
-                <div class="flex items-center justify-end gap-4 mt-8 pt-6 border-t border-gray-200">
+                {{-- Form Actions --}}
+                <div class="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100">
                     <a href="{{ route('admin.tags.index') }}" class="btn-secondary text-decoration-none">
                         Cancel
                     </a>
                     <button type="submit" class="btn-primary">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                        </svg>
-                        Create Tag
+                        Create Tag &rarr;
                     </button>
                 </div>
                 

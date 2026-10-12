@@ -774,6 +774,41 @@
     }
 
 
+    // to make 'Enter' create a new comment of a new reply instead of making a new line
+    document.addEventListener('keydown', function(event) {
+    // التحقق مما إذا كان العنصر الحالي عبارة عن textarea داخل نظام التعليقات
+    if (event.target && event.target.tagName === 'TEXTAREA') {
+        // إذا ضغط المستخدم على Enter بدون مفتاح Shift
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault(); // منع السلوك الافتراضي (النزول لسطر جديد)
+            
+            let textarea = event.target;
+            let id = textarea.id;
+
+            // 1. إذا كان حقل التعليق الأساسي الجديد
+            if (id === 'comment-body') {
+                let addBtn = textarea.closest('form').querySelector('button');
+                if (addBtn) addBtn.click();
+            }
+            // 2. إذا كان حقل رد على تعليق (يبدأ بـ reply-input-)
+            else if (id.startsWith('reply-input-')) {
+                let commentId = id.replace('reply-input-', '');
+                let replyBtn = textarea.closest('div').querySelector('button');
+                if (replyBtn) replyBtn.click();
+            }
+            // 3. إذا كان حقل تعديل تعليق (يبدأ بـ edit-input-)
+            else if (id.startsWith('edit-input-')) {
+                let commentId = id.replace('edit-input-', '');
+                updateComment(commentId);
+            }
+            // 4. إذا كان حقل تعديل رد (يبدأ بـ new-reply-input-)
+            else if (id.startsWith('new-reply-input-')) {
+                let replyId = id.replace('new-reply-input-', '');
+                updateReply(replyId);
+            }
+        }
+    }
+});
 
 </script>
 

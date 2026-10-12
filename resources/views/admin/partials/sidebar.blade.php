@@ -1,20 +1,30 @@
 {{-- resources/views/admin/partials/sidebar.blade.php --}}
 <aside class="w-72 bg-gradient-to-b from-slate-900 to-slate-800 text-white fixed h-full overflow-y-auto">
     
-    {{-- Logo --}}
+    {{-- Logo & Home Link --}}
     <div class="p-6 border-b border-slate-700">
-        <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                        Admin Panel
+                    </h1>
+                    <p class="text-xs text-slate-400 mt-0.5">Content Management</p>
+                </div>
+            </div>
+
+            {{-- زر الانتقال للصفحة الرئيسية (تفتح في تبويب جديد) --}}
+            <a href="{{ url('/') }}" target="_blank" title="View Website" 
+               class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white p-2 rounded-xl transition-all border border-slate-700/60 flex items-center justify-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                 </svg>
-            </div>
-            <div>
-                <h1 class="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                    Admin Panel
-                </h1>
-                <p class="text-xs text-slate-400 mt-0.5">Content Management</p>
-            </div>
+            </a>
         </div>
         
         {{-- Admin Info --}}
@@ -81,7 +91,7 @@
             </ul>
         </div>
 
-        @role('super-admin|editor')
+        @hasanyrole('super-admin|editor')
         {{-- Divider --}}
         <div class="border-t border-slate-700 my-4"></div>
         
@@ -150,7 +160,6 @@
                                  ? 'bg-gradient-to-r from-orange-600/20 to-amber-600/20 text-white' 
                                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
-                            {{-- أيقونة الوسم (Tag Icon) --}}
                             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M6 20l6.5-6.5A2.5 2.5 0 0012 10a2.5 2.5 0 00-3.5 0L2 16.5V20h4zM21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3"></path>
                             </svg>
@@ -170,7 +179,6 @@
                                  ? 'bg-gradient-to-r from-amber-500/20 to-red-500/20 text-white' 
                                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
-                            {{-- أيقونة إضافة وسم جديد --}}
                             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
                             </svg>
@@ -181,6 +189,39 @@
                         @else
                             <span class="bg-amber-600/20 text-amber-400 text-xs px-2 py-1 rounded-full">#</span>
                         @endif
+                    </a>
+                </li>
+            </ul>
+        </div>
+        @endhasanyrole
+
+        @role('super-admin')
+        {{-- Divider --}}
+        <div class="border-t border-slate-700 my-4"></div>
+
+        {{-- Users Section --}}
+        <div class="mb-6">
+            <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 px-3">
+                Users
+            </div>
+            
+            <ul class="space-y-1">
+                {{-- All Users Link --}}
+                <li>
+                    <a href="{{ route('admin.users.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 
+                              {{ request()->routeIs('admin.users.*') && !request()->routeIs('admin.users.index') 
+                                 ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-white' 
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">All Users</span>
+                        <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
+                            {{ \App\Models\User::count() }}
+                        </span>
                     </a>
                 </li>
             </ul>
