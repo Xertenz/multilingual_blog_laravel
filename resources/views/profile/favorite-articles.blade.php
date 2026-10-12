@@ -1,60 +1,70 @@
 <x-app-layout>
-    <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-8 bg-[#0a0f1f] min-h-screen text-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
             @include('profile.partials.profile-menu')
 
-            <div class="p-6 bg-white shadow sm:rounded-lg">
-                <header class="mb-6">
-                    <h3 class="text-lg font-medium text-gray-900">
+            <div class="bg-slate-900/90 backdrop-blur-md shadow-xl rounded-2xl border border-slate-800 overflow-hidden">
+                <div class="p-6 sm:p-8 border-b border-slate-800">
+                    <h3 class="text-lg font-bold text-white">
                         {{ __('My Saved Articles') }}
                     </h3>
-                    <p class="mt-1 text-sm text-gray-600">
+                    <p class="mt-1 text-xs text-slate-400">
                         {{ __('A list of articles you have bookmarked for later reading.') }}
                     </p>
-                </header>
+                </div>
 
-                @if($favoriteArticles->isEmpty())
-                    <p class="text-sm text-gray-500 italic p-4 bg-gray-55 rounded-xl border border-dashed border-gray-300">
-                        {{ __('Your reading list is empty.') }}
-                    </p>
-                @else
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        @foreach($favoriteArticles as $article)
-                            @php
-                                // جلب الترجمة باللغة الحالية التي قمنا بشحنها مسبقاً
-                                $translation = $article->translations->first();
-                            @endphp
-                            
-                            @if($translation)
-                                <div id="article-card-{{ $article->id }}" class="flex flex-col justify-between p-4 bg-gray-50 border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200">
-                                    <div class="mb-4">
-                                        <a href="{{ route('articles.show', ['id' => $translation->id, 'slug' => $translation->slug]) }}" 
-                                           class="text-sm font-bold text-gray-900 hover:text-indigo-600 transition-colors line-clamp-2">
-                                            {{ $translation->title }}
-                                        </a>
-                                        <p class="text-xs text-gray-500 mt-2 line-clamp-2">
-                                            {!! strip_tags($translation->description) !!}
-                                        </p>
-                                    </div>
+                <div class="p-6 sm:p-8" id="favorite-articles-grid-wrapper">
+                    @php
+                        $savedArticles = isset($favoriteArticles) ?$favoriteArticles : collect();
+                    @endphp
 
-                                    <div class="flex items-center justify-between border-t border-gray-200/60 pt-3 mt-auto">
-                                        <span class="text-[11px] text-gray-400 font-medium">
-                                            {{ $article->created_at->format('Y-m-d') }}
-                                        </span>
+                    @forelse ($savedArticles as $article)
+                        @if($loop->first)
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="articles-grid">
+                        @endif
 
-                                        <button 
-                                            onclick="removeArticleFromProfile(event, {{$article->id}})"
-                                            type="submit"
-                                            class="text-xs text-red-600 hover:text-red-800 font-semibold px-2.5 py-1 rounded-lg hover:bg-red-50 transition duration-150">
-                                            {{ __('Remove') }}
-                                        </button>
-                                    </div>
+                        @php
+                            $translation =$article->translations->first();
+                        @endphp
+                        
+                        @if($translation)
+                            <div id="article-card-{{ $article->id }}" class="flex flex-col justify-between p-5 bg-slate-900/50 border border-slate-800 rounded-xl shadow-sm hover:border-slate-700 transition-all duration-200 group">
+                                <div>
+                                    <a href="{{ route('articles.show', ['id' => $translation->id, 'slug' =>$translation->slug]) }}" 
+                                       class="text-sm font-bold text-slate-200 group-hover:text-red-500 transition-colors line-clamp-2 leading-snug">
+                                        {{ $translation->title }}
+                                    </a>
+                                    <p class="text-xs text-slate-400 mt-2.5 line-clamp-2 leading-relaxed">
+                                        {!! strip_tags($translation->description) !!}
+                                    </p>
                                 </div>
-                            @endif
-                        @endforeach
-                    </div>
-                @endif
+
+                                <div class="flex items-center justify-between border-t border-slate-800/80 pt-4 mt-4">
+                                    <span class="text-[11px] text-slate-500 font-mono">
+                                        {{ $article->created_at->format('Y-m-d') }}
+                                    </span>
+
+                                    <button 
+                                        onclick="removeArticleFromProfile(event, {{ $article->id }})"
+                                        type="button"
+                                        class="text-xs text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-900/40 border border-rose-900/50 font-semibold px-3 py-1.5 rounded-lg transition-colors duration-150">
+                                        {{ __('Remove') }}
+                                    </button>
+                                </div>
+                            </div>
+                        @endif
+
+                        @if($loop->last)
+                            </div>
+                        @endif
+                    @empty
+                        <div class="text-center py-12 bg-slate-900/40 rounded-xl border border-dashed border-slate-800">
+                            <span class="text-3xl mb-2 block">📚</span>
+                            <p class="text-sm font-medium text-slate-400">{{ __('Your reading list is empty.') }}</p>
+                        </div>
+                    @endforelse
+                </div>
 
             </div>
         </div>
@@ -62,66 +72,57 @@
 
     @push('scripts')
     <script>
-        //window.addEventListener('DOMContentLoaded', function() {
+        async function removeArticleFromProfile(event, articleId) {
+            event.preventDefault();
+            
+            const baseUrl = "{{ route('articles.favorite', ':id') }}";
+            const url = baseUrl.replace(':id', articleId);
+            const card = document.getElementById(`article-card-${articleId}`);
+            
+            try {
+                let response = await fetch(url, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                        'Accept': 'application/json'
+                    }
+                });
 
-            async function removeArticleFromProfile(event, articleId) {
-                event.preventDefault();
+                if (!response.ok) throw new Error('Network response was not ok');
                 
-                // نفس حيلة توليد المسار والاستبدال التي اعتمدناها سابقاً
-                const baseUrl = "{{ route('articles.favorite', ':id') }}";
-                const url = baseUrl.replace(':id', articleId);
+                let data = await response.json();
                 
-                const card = document.getElementById(`article-card-${articleId}`);
-                
-                try {
-                    let response = await fetch(url, {
-                        method: "POST",
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'Accept': 'application/json'
-                        }
-                    });
-
-                    if (!response.ok) throw new Error('Network response was not ok');
+                if (!data.is_saved) {
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.95)';
+                    card.style.transition = 'all 0.3s ease';
                     
-                    let data = await response.json();
-                    
-                    // بما أن السيرفر قام بعمل toggle، نتحقق أنه تمت إزالتها بالفعل (is_saved == false)
-                    if (!data.is_saved) {
-                        // إضافة تأثير بصري للتلاشي قبل الحذف النهائي من الـ DOM
-                        card.style.opacity = '0';
-                        card.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        card.remove();
                         
-                        setTimeout(() => {
-                            card.remove();
-                            
-                            // إذا أصبحت القائمة فارغة تماماً، نعرض رسالة "قائمتك فارغة" دون الحاجة لعمل ريفريش
-                            const grid = document.getElementById('articles-grid');
-                            if (grid && grid.children.length === 0) {
-                                document.getElementById('favorite-articles-grid-wrapper').innerHTML = `
-                                    <p class="text-sm text-gray-500 italic p-4 bg-gray-55 rounded-xl border border-dashed border-gray-300">
-                                        {{ __('Your reading list is empty.') }}
-                                    </p>
-                                `;
-                            }
-                        }, 300); // 300ms متطابقة مع متطلبات التلاشي duration-300
-                    }
+                        const grid = document.getElementById('articles-grid');
+                        if (grid && grid.children.length === 0) {
+                            document.getElementById('favorite-articles-grid-wrapper').innerHTML = `
+                                <div class="text-center py-12 bg-slate-900/40 rounded-xl border border-dashed border-slate-800">
+                                    <span class="text-3xl mb-2 block">📚</span>
+                                    <p class="text-sm font-medium text-slate-400">{{ __('Your reading list is empty.') }}</p>
+                                </div>
+                            `;
+                        }
+                    }, 300);
+                }
 
-                    if(typeof window.showToast == 'function') {
-                        showToast(    'success', "{{__('Successfully removed from favorites!')}}")    ;
-                    }
-                } catch (error) {
-                    console.error('Error removing article from profile:', error);
-                    if(typeof window.showToast == 'function') {
-                        showToast('error', "{{__('Error in removing from favorites!')}}");
-                    }
+                if(typeof window.showToast == 'function') {
+                    showToast('success', "{{ __('Successfully removed from favorites!') }}");
+                }
+            } catch (error) {
+                console.error('Error removing article from profile:', error);
+                if(typeof window.showToast == 'function') {
+                    showToast('error', "{{ __('Error in removing from favorites!') }}");
                 }
             }
-
-        //})
-
+        }
     </script>
-
     @endpush
 </x-app-layout>

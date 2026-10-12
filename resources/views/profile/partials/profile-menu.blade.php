@@ -1,29 +1,28 @@
-<div class="flex border-b border-gray-200 mb-6 bg-white p-2 rounded-xl shadow-sm gap-2">
+<div class="flex items-center border border-slate-800 mb-6 bg-slate-900/90 backdrop-blur-md p-1.5 rounded-xl shadow-xl gap-1 overflow-x-auto">
     <a href="{{ route('profile.favorite-articles') }}" 
-        class="px-4 py-2 text-sm font-semibold rounded-lg transition-colors duration-150
+        class="flex-1 text-center px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-150 whitespace-nowrap
         {{ request()->routeIs('profile.favorite-articles') 
-            ? 'bg-indigo-55 text-indigo-600' 
-            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' 
+            ? 'bg-red-950/60 text-red-400 border border-red-900/50 shadow-sm' 
+            : 'text-slate-400 hover:text-white hover:bg-slate-800/60' 
         }}">
-        {{ __('Favorite Articles') }}
+        {{ __('Saved Articles') }}
     </a>
 
     <a href="{{ route('profile.favorites') }}" 
-       class="px-4 py-2 text-sm font-semibold rounded-lg transition-colors duration-150 rtl:space-x-reverse 
+       class="flex-1 text-center px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-150 whitespace-nowrap
        {{ request()->routeIs('profile.favorites') 
-           ? 'bg-indigo-55 text-indigo-600' 
-           : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' 
+           ? 'bg-red-950/60 text-red-400 border border-red-900/50 shadow-sm' 
+           : 'text-slate-400 hover:text-white hover:bg-slate-800/60' 
        }}">
-        {{ __('Favorite Categories') }}
+        {{ __('Followed Categories') }}
     </a>
 
     <a href="{{ route('profile.edit') }}" 
-       class="px-4 py-2 text-sm font-semibold rounded-lg transition-colors duration-150 rtl:space-x-reverse
+       class="flex-1 text-center px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-150 whitespace-nowrap
        {{ request()->routeIs('profile.edit') 
-           ? 'bg-indigo-55 text-indigo-600' 
-           : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' 
+           ? 'bg-red-950/60 text-red-400 border border-red-900/50 shadow-sm' 
+           : 'text-slate-400 hover:text-white hover:bg-slate-800/60' 
        }}">
         {{ __('Account Settings') }}
     </a>
-
 </div>

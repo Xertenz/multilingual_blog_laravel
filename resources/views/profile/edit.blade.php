@@ -1,34 +1,31 @@
 <x-app-layout>
-    {{--
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Profile') }}
-        </h2>
-    </x-slot>
-    --}}
+    <div class="py-8 bg-[#0a0f1f] min-h-screen text-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-
+            {{-- شريط التنقل الخاص بالملف الشخصي --}}
             @include('profile.partials.profile-menu')
 
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+            {{-- 1. بطاقة تحديث المعلومات الشخصية --}}
+            <div class="p-6 sm:p-8 bg-slate-900/90 backdrop-blur-md shadow-xl rounded-2xl border border-slate-800">
                 <div class="max-w-xl">
                     @include('profile.partials.update-profile-information-form')
                 </div>
             </div>
 
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+            {{-- 2. بطاقة تغيير كلمة المرور --}}
+            <div class="p-6 sm:p-8 bg-slate-900/90 backdrop-blur-md shadow-xl rounded-2xl border border-slate-800">
                 <div class="max-w-xl">
                     @include('profile.partials.update-password-form')
                 </div>
             </div>
 
-            <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+            {{-- 3. بطاقة حذف الحساب --}}
+            <div class="p-6 sm:p-8 bg-slate-900/90 backdrop-blur-md shadow-xl rounded-2xl border border-slate-800">
                 <div class="max-w-xl">
                     @include('profile.partials.delete-user-form')
                 </div>
             </div>
+
         </div>
     </div>
 </x-app-layout>

@@ -1,58 +1,59 @@
 <x-app-layout>
-    {{--
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('My Content Preferences') }}
-        </h2>
-    </x-slot>
-    --}}
-
-    <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-8 bg-[#0a0f1f] min-h-screen text-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             @include('profile.partials.profile-menu')
 
-            <div class="p-6 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+            <div class="bg-slate-900/90 backdrop-blur-md shadow-xl rounded-2xl border border-slate-800 overflow-hidden">
                 
-                <header class="mb-6">
-                    <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">
+                <div class="p-6 sm:p-8 border-b border-slate-800">
+                    <h3 class="text-lg font-bold text-white">
                         {{ __('Followed Categories') }}
                     </h3>
-                    <p class="mt-1 text-sm text-gray-650 dark:text-gray-400">
+                    <p class="mt-1 text-xs text-slate-400">
                         {{ __('Manage the categories you follow. You will receive database notifications when new articles are published.') }}
                     </p>
-                </header>
+                </div>
 
-                @if($favoriteCategories->isEmpty())
-                    <p class="text-sm text-gray-500 italic p-4 bg-gray-55 dark:bg-gray-900 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
-                        {{ __('You are not following any categories yet.') }}
-                    </p>
-                @else
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        @foreach($favoriteCategories as $category)
-                            @php
-                                $translation = $category->translations->first();
-                                $categoryName = $translation ? $translation->name : $category->sign;
-                            @endphp
-                            
-                            <div id="category-card-{{ $category->id }}" class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-750 rounded-xl shadow-sm transition-all duration-300">
-                                <a href="#" class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-2">
-                                    <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
-                                    {{ $categoryName }}
-                                </a>
+                <div class="p-6 sm:p-8" id="favorite-categories-grid-wrapper">
+                    @php
+                        $categories = isset($favoriteCategories) ?$favoriteCategories : collect();
+                    @endphp
 
-                                <form action="{{ route('categories.favorite', $category->id) }}" method="POST">
-                                    @csrf
-                                    <button 
-                                        onclick="removeCategoryFromProfile(event, {{$category->id}})"
-                                        type="submit" class="text-xs text-red-650 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 font-medium bg-red-50/50 hover:bg-red-50 px-2.5 py-1.5 rounded-lg transition duration-150">
-                                        {{ __('Unfollow') }}
-                                    </button>
-                                </form>
+                    @forelse ($categories as $category)
+                        @if($loop->first)
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="categories-grid">
+                        @endif
+
+                        @php
+                            $category_translation = $category->translations->first();
+                            $categoryName =$category_translation ? $category_translation->name :$category->sign;
+                        @endphp
+                        
+                        <div id="category-card-{{ $category->id }}" class="flex items-center justify-between p-4 bg-slate-900/50 border border-slate-800 rounded-xl shadow-sm hover:border-slate-700 transition-all duration-300">
+                            <a href="{{route('categories.show', ['id' => $category_translation->id])}}" class="text-sm font-semibold text-red-400 hover:text-red-300 transition-colors flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"></span>
+                                {{ $categoryName }}
+                            </a>
+
+                            <button 
+                                onclick="removeCategoryFromProfile(event, {{ $category->id }})"
+                                type="button" 
+                                class="text-xs text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-900/40 border border-rose-900/50 font-semibold px-3 py-1.5 rounded-lg transition-colors duration-150">
+                                {{ __('Unfollow') }}
+                            </button>
+                        </div>
+
+                        @if($loop->last)
                             </div>
-                        @endforeach
-                    </div>
-                @endif
+                        @endif
+                    @empty
+                        <div class="text-center py-12 bg-slate-900/40 rounded-xl border border-dashed border-slate-800" id="empty-categories-message">
+                            <span class="text-3xl mb-2 block">📂</span>
+                            <p class="text-sm font-medium text-slate-400">{{ __('You are not following any categories yet.') }}</p>
+                        </div>
+                    @endforelse
+                </div>
 
             </div>
         </div>
@@ -63,10 +64,8 @@
         async function removeCategoryFromProfile(event, categoryId) {
             event.preventDefault();
             
-            // جلب مسار مفضلة الفئات المستهدف
             const baseUrl = "{{ route('categories.favorite', ':id') }}";
             const url = baseUrl.replace(':id', categoryId);
-            
             const card = document.getElementById(`category-card-${categoryId}`);
             
             try {
@@ -83,36 +82,36 @@
                 
                 let data = await response.json();
                 
-                // بما أن السيرفر يُرجع 'is_favorite'، نتحقق أنه تم إلغاء التفضيل بنجاح (false)
                 if (!data.is_favorite) {
-                    // تطبيق تأثير التلاشي البصري الذكي
-
                     if (card) {
                         card.style.opacity = '0';
                         card.style.transform = 'scale(0.95)';
+                        card.style.transition = 'all 0.3s ease';
                     }
                     
                     setTimeout(() => {
                         if (card) card.remove();
                         
-                        // فحص ما إذا كانت شجرة العناصر فرغت بالكامل لعرض رسالة فارغة
                         const grid = document.getElementById('categories-grid');
                         if (grid && grid.children.length === 0) {
+                            grid.remove();
                             document.getElementById('favorite-categories-grid-wrapper').innerHTML = `
-                                <p class="text-sm text-gray-500 italic p-4 bg-gray-55 rounded-xl border border-dashed border-gray-300">
-                                    {{ __('Your favorite categories list is empty.') }}
-                                </p>
+                                <div class="text-center py-12 bg-slate-900/40 rounded-xl border border-dashed border-slate-800" id="empty-categories-message">
+                                    <span class="text-3xl mb-2 block">📂</span>
+                                    <p class="text-sm font-medium text-slate-400">{{ __('You are not following any categories yet.') }}</p>
+                                </div>
                             `;
                         }
                     }, 300);
                 }
+
                 if(typeof window.showToast == 'function') {
-                    showToast(    'success', "{{__('Successfully removed from favorites!')}}")    ;
+                    showToast('success', "{{ __('Successfully removed from favorites!') }}");
                 }
             } catch (error) {
                 console.error('Error removing category from profile:', error);
                 if(typeof window.showToast == 'function') {
-                    showToast('error', "{{__('Error in removing from favorites!')}}");
+                    showToast('error', "{{ __('Error in removing from favorites!') }}");
                 }
             }
         }
