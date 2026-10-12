@@ -22,26 +22,49 @@
 
                     @forelse ($categories as $category)
                         @if($loop->first)
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="categories-grid">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="categories-grid">
                         @endif
 
                         @php
-                            $category_translation = $category->translations->first();
+                            $category_translation =$category->translations->first();
                             $categoryName =$category_translation ? $category_translation->name :$category->sign;
+                            // جلب الصورة باستخدام Spatie MediaLibrary
+                            $categoryImage = $category->getFirstMediaUrl('featured_imgs', 'small') ?:$category->getFirstMediaUrl('featured_imgs');
                         @endphp
                         
-                        <div id="category-card-{{ $category->id }}" class="flex items-center justify-between p-4 bg-slate-900/50 border border-slate-800 rounded-xl shadow-sm hover:border-slate-700 transition-all duration-300">
-                            <a href="{{route('categories.show', ['id' => $category_translation->id])}}" class="text-sm font-semibold text-red-400 hover:text-red-300 transition-colors flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"></span>
-                                {{ $categoryName }}
-                            </a>
+                        <!-- بطاقة الفئة بتصميم مرئي يضم الصورة عبر MediaLibrary -->
+                        <div id="category-card-{{ $category->id }}" class="bg-slate-900/50 border border-slate-800 rounded-xl overflow-hidden shadow-sm hover:border-slate-700 transition-all duration-300 flex flex-col justify-between">
+                            
+                            <div>
+                                <!-- عرض صورة الفئة المرفقة -->
+                                <div class="h-36 w-full overflow-hidden bg-slate-950 relative">
+                                    @if($categoryImage)
+                                        <img src="{{ $categoryImage }}" alt="{{ $categoryName }}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
+                                    @else
+                                        <div class="w-full h-full flex items-center justify-center text-slate-600 bg-slate-950/60 border-b border-slate-800/80">
+                                            <span class="text-3xl">📂</span>
+                                        </div>
+                                    @endif
+                                </div>
 
-                            <button 
-                                onclick="removeCategoryFromProfile(event, {{ $category->id }})"
-                                type="button" 
-                                class="text-xs text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-900/40 border border-rose-900/50 font-semibold px-3 py-1.5 rounded-lg transition-colors duration-150">
-                                {{ __('Unfollow') }}
-                            </button>
+                                <!-- اسم الفئة ورابطها -->
+                                <div class="p-4 pb-2">
+                                    <a href="{{ $category_translation ? route('categories.show', ['id' => $category_translation->id]) : '#' }}" class="text-sm font-semibold text-white hover:text-red-400 transition-colors flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"></span>
+                                        {{ $categoryName }}
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- زر إلغاء المتابعة في أسفل البطاقة -->
+                            <div class="p-4 pt-2 flex items-center justify-end border-t border-slate-800/50 mt-2">
+                                <button 
+                                    onclick="removeCategoryFromProfile(event, {{ $category->id }})"
+                                    type="button" 
+                                    class="text-xs text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-900/40 border border-rose-900/50 font-semibold px-3 py-1.5 rounded-lg transition-colors duration-150">
+                                    {{ __('Unfollow') }}
+                                </button>
+                            </div>
                         </div>
 
                         @if($loop->last)
