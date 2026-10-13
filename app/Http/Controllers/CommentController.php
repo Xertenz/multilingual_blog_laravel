@@ -8,6 +8,7 @@ use App\Models\Comment;
 use App\Notifications\NewCommentReply;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 use Mews\Purifier\Facades\Purifier;
@@ -43,6 +44,15 @@ class CommentController extends Controller
             'locale' =>  LaravelLocalization::getCurrentLocale()
         ]);
         //return response()->json($request->all());
+
+        // جلب المقال مع جميع ترجماته لمسح الكاش لكل لغات المقال
+        // ليظهر التعليق في صفحة المقالة المترجمة مباشرة بدون انتظار انتهاء الكاش
+        $article = Article::with('translations')->find($request->article_id);
+        if ($article) {
+            foreach ($article->translations as $translation) {
+                Cache::forget("article_show_{$translation->id}_lang_{$translation->language_code}");
+            }
+        }
 
         $article_trans = ArticleTranslation::where('article_id', (int) $request->article_id)->where('language_code', $comment_item->locale)->first();
         if (!$article_trans) {
@@ -89,6 +99,15 @@ class CommentController extends Controller
             'body' => trim(strip_tags($request->body)),
         ]);
 
+        // جلب المقال وترجماته المرتبطة بالتعليق ومسح الكاش ليظهر
+        // التعليق في صفحة المقالة مباشرة بدون تأخير
+        $article = Article::with('translations')->find($comment_item->article_id);
+        if ($article) {
+            foreach ($article->translations as $translation) {
+                Cache::forget("article_show_{$translation->id}_lang_{$translation->language_code}");
+            }
+        }
+
         return response()->json([
             'message' => 'Comment Updated Successfully',
             'new_body' => $comment_item->body
@@ -107,7 +126,17 @@ class CommentController extends Controller
             return response()->json(['error' => 'This comment is not yours']);
         }
 
+        $article_id = $comment_item->article_id;
+
         $comment_item->delete();
+        // جلب المقال وترجماته ومسح الكاش
+        // ليختفي التعليق مباشرة قبل انتظار انتهاء الكاش
+        $article = Article::with('translations')->find($article_id);
+        if ($article) {
+            foreach ($article->translations as $translation) {
+                Cache::forget("article_show_{$translation->id}_lang_{$translation->language_code}");
+            }
+        }
 
         return response()->json([
             'message' => 'Comment Deleted Successfully',

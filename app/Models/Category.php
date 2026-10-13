@@ -41,12 +41,16 @@ class Category extends Model implements HasMedia
     public function registerMediaConversions(?Media $media = null): void
     {
         // 1. thumbnail صغير (للقوائم)
-        $this->addMediaConversion('thumb')->performOnCollections('featured_imgs')->width(150)->optimize()->sharpen(5)->quality(80)->format('webp')->nonQueued();
+        //$this->addMediaConversion('thumb')->performOnCollections('featured_imgs')->width(150)->optimize()->sharpen(5)->quality(80)->format('webp')->nonQueued();
+        $this->addMediaConversion('thumb')->performOnCollections('featured_imgs')->width(150)->optimize()->sharpen(5)->quality(80)->format('webp')->queued();
         // 2. صغير (للمعاينات)
-        $this->addMediaConversion('small')->performOnCollections('featured_imgs')->width(300)->optimize()->sharpen(5)->quality(85)->format('webp')->nonQueued();
+        //$this->addMediaConversion('small')->performOnCollections('featured_imgs')->width(300)->optimize()->sharpen(5)->quality(85)->format('webp')->nonQueued();
+        $this->addMediaConversion('small')->performOnCollections('featured_imgs')->width(300)->optimize()->sharpen(5)->quality(85)->format('webp')->queued();
         // 3. متوسط (للصفحة الرئيسية)
-        $this->addMediaConversion('medium')->performOnCollections('featured_imgs')->width(600)->optimize()->sharpen(5)->quality(85)->format('webp')->nonQueued();
+        //$this->addMediaConversion('medium')->performOnCollections('featured_imgs')->width(600)->optimize()->sharpen(5)->quality(85)->format('webp')->nonQueued();
+        $this->addMediaConversion('medium')->performOnCollections('featured_imgs')->width(600)->optimize()->sharpen(5)->quality(85)->format('webp')->queued();
         // 4. كبير (لصفحة المقال الرئيسية)
-        $this->addMediaConversion('large')->performOnCollections('featured_imgs')->width(1200)->optimize()->sharpen(5)->quality(85)->format('webp')->nonQueued();
+        //$this->addMediaConversion('large')->performOnCollections('featured_imgs')->width(1200)->optimize()->sharpen(5)->quality(85)->format('webp')->nonQueued();
+        $this->addMediaConversion('large')->performOnCollections('featured_imgs')->width(1200)->optimize()->sharpen(5)->quality(85)->format('webp')->queued();
     }
 }

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-
+use App\Jobs\SendNewArticleNotificationJob;
 use App\Models\Article;
 use App\Models\ArticleTranslation;
 use App\Notifications\NewArticleInFavoriteCategory;
@@ -91,12 +91,16 @@ class ArticleTranslationController extends Controller
             if ($article && $article->status === 'published' && $article->category) {
                 // Sending Notification one time for users
                 if ($article->translations()->count() === 1) {
+                    /*
                     $article->load(['category.followers', 'translations']);
                     $usersToNotify = $article->category->followers;
 
                     if ($usersToNotify->isNotEmpty()) {
                         Notification::send($usersToNotify, new NewArticleInFavoriteCategory($article));
                     }
+                    */
+                    //SendNewArticleNotificationJob::dispatch($article)->noQueue('default');
+                    \App\Jobs\SendNewArticleNotificationJob::dispatch($article)->onQueue('default');
                 }
             }
 
