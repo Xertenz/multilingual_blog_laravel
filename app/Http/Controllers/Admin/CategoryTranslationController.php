@@ -116,6 +116,7 @@ class CategoryTranslationController extends Controller
         // إبطال كاش الـ Navbar لكل اللغات المتاحة
         foreach (LaravelLocalization::getSupportedLanguagesKeys() as $lang) {
             Cache::forget("navbar_categories_{$lang}");
+            Cache::forget("all_categories_page_{$lang}");
         }
 
         return to_route('admin.categories.index')->with('success', 'Category Created Successfully!');
@@ -130,10 +131,10 @@ class CategoryTranslationController extends Controller
             return to_route('home.index');
         }
 
-        $lang_code = LaravelLocalization::getCurrentLocale();
+        $current_locale = LaravelLocalization::getCurrentLocale();
 
-        if ($category_trans->language_code !== $lang_code) {
-            $category_trans = $category_trans->category->translations->where('language_code', $lang_code)
+        if ($category_trans->language_code !== $current_locale) {
+            $category_trans = $category_trans->category->translations->where('language_code', $current_locale)
                 ->first();
             if ($category_trans) {
                 return redirect()->route(
@@ -159,15 +160,20 @@ class CategoryTranslationController extends Controller
 
 
         // 2. جلب المقالات المكتملة مع الصور (media) والترجمات والمؤلف
-        $articles = Article::with([
-            'translations',
-            'media',
-            'user' // أو 'user' حسب اسم العلاقة المسجلة في موديل Article
-        ])
-            ->where('category_id', $category_trans->category->id)
-            ->where('status', 'published')
-            ->latest()
-            ->paginate(12);
+        $page = request()->get('page', 1);
+        $cacheKey = "category_page_{$category_trans_id}_{$current_locale}_p{$page}";
+        $articles = Cache::remember($cacheKey, 3600, function () use ($category_trans) {
+            return  Article::with([
+                'translations',
+                'media',
+                'user' // أو 'user' حسب اسم العلاقة المسجلة في موديل Article
+            ])
+                ->where('category_id', $category_trans->category->id)
+                ->where('status', 'published')
+                ->latest()
+                ->paginate(12);
+        });
+
 
         //return view('category', compact('category', 'categoryTrans', 'articles'));
         return view('category', compact('category_trans', 'articles'));
@@ -268,6 +274,7 @@ class CategoryTranslationController extends Controller
         // إبطال كاش الـ Navbar لكل اللغات المتاحة
         foreach (LaravelLocalization::getSupportedLanguagesKeys() as $lang) {
             Cache::forget("navbar_categories_{$lang}");
+            Cache::forget("all_categories_page_{$lang}");
         }
 
         return to_route('admin.categories.index')->with('success', 'Category Updated Successfully!');
@@ -281,6 +288,7 @@ class CategoryTranslationController extends Controller
         // إبطال كاش الـ Navbar لكل اللغات المتاحة
         foreach (LaravelLocalization::getSupportedLanguagesKeys() as $lang) {
             Cache::forget("navbar_categories_{$lang}");
+            Cache::forget("all_categories_page_{$lang}");
         }
 
         return to_route('admin.categories.index')->with('success', 'Category Deleted Successfully!');

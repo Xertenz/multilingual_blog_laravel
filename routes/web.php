@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\CategoryTranslationController;
 use App\Http\Controllers\Admin\TagTranslationController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\CategoryVisitorController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\Front\ArticleFavoriteController;
 use App\Http\Controllers\NotificationController;
@@ -128,6 +129,9 @@ Route::group([
 
     // الصفحات العامة الثابتة
     Route::get('/', [HomeController::class, 'index'])->name('home.index');
+
+    Route::get('/categories', [CategoryVisitorController::class, 'index'])->name('categories.index');
+
     Route::view('/privacy', 'privacy')->name('privacy');
     Route::view('/terms', 'terms')->name('terms');
     Route::view('/contact', 'contact')->name('contact');

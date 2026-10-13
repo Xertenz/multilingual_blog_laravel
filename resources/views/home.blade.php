@@ -124,7 +124,7 @@
                                                 'alt'   => $trans->title,
                                             ]) }}
                                         @else
-                                            <img src="{{ asset('assets/images/placeholder.jpg') }}" 
+                                            <img src="{{ asset('images/default-article.jpg') }}" 
                                                  alt="{{ $trans->title }}" 
                                                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                                         @endif

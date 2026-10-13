@@ -30,7 +30,7 @@
                             {{-- صورة المقالة مع تأثير التقريب Zoom --}}
                             <a href="{{ route('articles.show', ['id' => $trans->id, 'slug' => $trans->slug]) }}" class="block relative overflow-hidden aspect-video">
                                 <img 
-                                    src="{{ $article->getFirstMediaUrl('featured_imgs', 'thumb') ?: asset('images/default.jpg') }}" 
+                                    src="{{ $article->getFirstMediaUrl('featured_imgs', 'thumb') ?: asset('images/default-article.jpg') }}" 
                                     alt="{{ $trans->title }}" 
                                     class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500 ease-out"
                                 >

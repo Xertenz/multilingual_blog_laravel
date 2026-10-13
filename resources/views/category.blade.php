@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 {{-- 1️⃣ عنوان الصفحة والـ Meta Tags المترجمة للفئة --}}
-@section('title', $category_trans->meta_title ?? $category_trans->title ?? $category->sign)
+@section('title', $category_trans->meta_title ?? $category_trans->name ?? $category->sign)
 
 @section('meta_tags')
     <meta name="description" content="{{ $category_trans->meta_description ?? Str::limit(strip_tags($category_trans->description ?? ''), 150) }}">
@@ -9,7 +9,7 @@
     <meta property="og:description" content="{{ $category_trans->meta_description ?? '' }}">
     
     {{-- رابط الـ Canonical للـ SEO --}}
-    <link rel="canonical" href="{{ route('categories.show', ['id' => $category_trans->category->id, 'slug' => $category_trans->slug ?? '']) }}">
+    <link rel="canonical" href="{{ route('categories.show', ['id' => $category_trans->id, 'slug' => $category_trans->slug ?? '']) }}">
 @endsection
 
 @section('content')
@@ -29,7 +29,7 @@
         @endif
 
         <span class="inline-block px-3 py-1 bg-slate-800/80 text-gray-400 text-xs rounded-full border border-slate-700/50">
-            {{ __('category.total_articles', ['count' => $category_trans->category->articles->count()]) }}
+            {{  __('category.total_articles', ['count' => $articles->total()]) }}
         </span>
     </div>
 
@@ -54,7 +54,7 @@
                                         'alt'   => $trans->title,
                                     ]) }}
                                 @else
-                                    <img src="{{ asset('assets/images/placeholder.jpg') }}" 
+                                    <img src="{{ asset('images/default-article.jpg') }}" 
                                          alt="{{ $trans->title }}" 
                                          class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
                                 @endif
