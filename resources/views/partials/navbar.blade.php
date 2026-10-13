@@ -21,10 +21,42 @@
 
                 <!-- القائمة الرئيسية للشاشات الكبيرة -->
                 <div class="hidden lg:flex items-center space-x-1 rtl:space-x-reverse">
+                    {{--
                     <a href="/cases" class="text-gray-400 hover:text-red-500 hover:bg-slate-900/50 px-3 py-1.5 rounded-lg transition-all text-sm font-medium">{{__('nav.cases')}}</a>
                     <a href="/categories" class="text-gray-400 hover:text-red-500 hover:bg-slate-900/50 px-3 py-1.5 rounded-lg transition-all text-sm font-medium">{{__('nav.categories')}}</a>
                     <a href="/cold-cases" class="text-gray-400 hover:text-red-500 hover:bg-slate-900/50 px-3 py-1.5 rounded-lg transition-all text-sm font-medium">{{__('nav.cold-cases')}}</a>
                     <a href="/about" class="text-gray-400 hover:text-red-500 hover:bg-slate-900/50 px-3 py-1.5 rounded-lg transition-all text-sm font-medium">{{__('nav.about')}}</a>
+                    --}}
+
+                    <!-- قائمة منسدلة للتصنيفات في الـ Navbar -->
+                    <div class="relative group">
+                        <button class="flex items-center gap-1 text-gray-400 hover:text-red-500 hover:bg-slate-900/50 px-3 py-1.5 rounded-lg transition-all text-sm font-medium">
+                            <span>{{__('nav.categories')}}</span>
+                            <svg class="w-3 h-3 transition-transform duration-200 group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+
+                        <!-- محتوى القائمة المنسدلة -->
+                        <div class="absolute right-0 rtl:left-0 rtl:right-auto top-full pt-2 w-56 bg-[#0f1526] border border-slate-800 rounded-xl shadow-2xl shadow-black/90 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 transform scale-95 group-hover:scale-100 z-50">
+                            <div class="p-2 space-y-1 max-h-64 overflow-y-auto">
+                                @forelse($categories as $cat)
+                                    @php
+                                        $cat_trans = $cat->translations->first();
+                                        $catName = $cat_trans ? $cat_trans->name : $cat->sign;
+                                    @endphp
+                                    <a href="{{ $cat_trans ? route('categories.show', ['id' => $cat_trans->id]) : '#' }}" class="block px-3 py-2 text-xs text-gray-300 hover:bg-slate-800/80 hover:text-white rounded-lg transition truncate">
+                                        {{ $catName }}
+                                    </a>
+                                @empty
+                                    <span class="block px-3 py-2 text-xs text-gray-500 text-center">{{ __('No categories found') }}</span>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+
+
+
                 </div>
             </div>
 

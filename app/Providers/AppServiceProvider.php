@@ -2,8 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Category;
 use App\Support\PathGenerator\CustomPathGenerator;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 use Spatie\MediaLibrary\Support\PathGenerator\PathGenerator;
 
 class AppServiceProvider extends ServiceProvider
@@ -26,6 +30,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        View::composer('partials.navbar', function ($navbar_view) {
+            $current_locale = LaravelLocalization::getCurrentLocale();
+            $cacheKey = "navbar_categories_{$current_locale}";
+
+            $categories = Cache::remember($cacheKey, 3600, function () use ($current_locale) {
+                return Category::with(['translations' => function ($query) use ($current_locale) {
+                    $query->where('language_code', $current_locale);
+                }])->get();
+            });
+            $navbar_view->with('categories', $categories);
+        });
     }
 }

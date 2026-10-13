@@ -15,6 +15,7 @@ use Illuminate\Validation\Rule;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class CategoryTranslationController extends Controller
 {
@@ -110,6 +111,11 @@ class CategoryTranslationController extends Controller
                 'created_at'       => Carbon::now(),
                 'updated_at'       => Carbon::now(),
             ]);
+        }
+
+        // إبطال كاش الـ Navbar لكل اللغات المتاحة
+        foreach (LaravelLocalization::getSupportedLanguagesKeys() as $lang) {
+            Cache::forget("navbar_categories_{$lang}");
         }
 
         return to_route('admin.categories.index')->with('success', 'Category Created Successfully!');
@@ -259,6 +265,11 @@ class CategoryTranslationController extends Controller
             );
         }
 
+        // إبطال كاش الـ Navbar لكل اللغات المتاحة
+        foreach (LaravelLocalization::getSupportedLanguagesKeys() as $lang) {
+            Cache::forget("navbar_categories_{$lang}");
+        }
+
         return to_route('admin.categories.index')->with('success', 'Category Updated Successfully!');
     }
 
@@ -266,7 +277,12 @@ class CategoryTranslationController extends Controller
     {
         $cat = Category::findOrFail($cat_id);
         $cat->delete();
-        //return to_route('admin.categories.index');
+
+        // إبطال كاش الـ Navbar لكل اللغات المتاحة
+        foreach (LaravelLocalization::getSupportedLanguagesKeys() as $lang) {
+            Cache::forget("navbar_categories_{$lang}");
+        }
+
         return to_route('admin.categories.index')->with('success', 'Category Deleted Successfully!');
     }
 }
