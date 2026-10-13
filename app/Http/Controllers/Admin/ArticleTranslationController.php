@@ -9,6 +9,7 @@ use App\Models\ArticleTranslation;
 use App\Notifications\NewArticleInFavoriteCategory;
 use DOMDocument;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Validation\Rule;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -99,6 +100,7 @@ class ArticleTranslationController extends Controller
                 }
             }
 
+            Cache::forget("article_show_{$article_trans->id}_lang_{$article_trans->language_code}");
             return to_route('admin.articles.index')->with('success', 'Article Translation Added Successfully.');
         } catch (\Exception $e) {
             return redirect()->back()
@@ -108,81 +110,80 @@ class ArticleTranslationController extends Controller
     }
 
 
+
     public function show(int $article_trans_id, ?string $article_trans_slug = null)
     {
         $lang_code = LaravelLocalization::getCurrentLocale();
+        $cacheKey = "article_show_{$article_trans_id}_lang_{$lang_code}";
 
-        // Getting the translated article basen on id only
-        $article_trans = ArticleTranslation::with([
-            'article.comments' => function ($query) {
-                $query->whereNull('parent_id')->with('replies');
-            },
+        // تخزين المقال ومعالجته في Redis لمدة ساعتين لضمان سرعة فائقة
+        $article_trans = Cache::remember($cacheKey, 7200, function () use ($article_trans_id, $lang_code) {
+            $trans = ArticleTranslation::with([
+                'article.comments' => function ($query) {
+                    $query->whereNull('parent_id')->with('replies');
+                },
+                'article.reactions' => function ($query) {
+                    $query->whereIn('type', ['like', 'dislike']);
+                },
+                'article.tags.translations' => function ($query) use ($lang_code) {
+                    $query->where('language_code', $lang_code);
+                },
+                'article.category.translations' => function ($query) use ($lang_code) {
+                    $query->where('language_code', $lang_code);
+                },
+                'article',
+                'article.translations',
+                'article.category',
+                'article.tags',
+                'article.media'
+            ])->find($article_trans_id);
 
-            'article.reactions' => function ($query) {
-                $query->whereIn('type', ['like', 'dislike']);
-            },
-
-            'article.tags.translations' => function ($query) use ($lang_code) {
-                $query->where('language_code', $lang_code);
-            },
-            'article.category.translations' => function ($query) use ($lang_code) {
-                $query->where('language_code', $lang_code);
+            if (!$trans || $trans->article->status != "published") {
+                return null;
             }
 
-        ])
-            ->where('id', $article_trans_id)
-            //->whereSlug($article_trans_slug)
-            ->first();
+            // معالجة صور الـ DOMDocument وحقن الـ srcset داخل الكاش
+            $doc = new DOMDocument();
+            @$doc->loadHTML(
+                mb_convert_encoding($trans->description, 'HTML-ENTITIES', 'UTF-8'),
+                LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+            );
 
-        //dd($article_trans->article->tags);
+            $imgs = $doc->getElementsByTagName('img');
+            foreach ($imgs as $img) {
+                $content_img_id = $img->getAttribute('data-image-id');
+                $media = Media::find($content_img_id);
+                if ($media) {
+                    $img->setAttribute('srcset', $media->getSrcset());
+                    $img->setAttribute('sizes', '(max-width: 768px) 100vw, 1200px');
+                }
+            }
 
-        if (!$article_trans || $article_trans->article->status != "published") {
+            $trans->description = $doc->saveHTML();
+            return $trans;
+        });
+
+        if (!$article_trans) {
             return to_route('home.index');
         }
 
-
-        // Redirect if there is no translation for the specifed $lang_code
+        // Redirect if there is no translation for the specified $lang_code
         if ($article_trans->language_code !== $lang_code) {
-
-            // Get article_translation based on specifed $lang_code
             $target_translation = $article_trans->article->translations
                 ->where('language_code', $lang_code)
                 ->first();
 
             if ($target_translation) {
-                // Redirect if the translation exists
                 return redirect()->route('articles.show', [
                     'id'   => $target_translation->id,
                     'slug' => $target_translation->slug
                 ]);
             } else {
-                // Redirect to home page if the translation not exists
                 return to_route('home.index')->with('info', __('This article is not available in your language.'));
             }
         }
 
-
-        $doc = new DOMDocument();
-        @$doc->loadHTML(
-            mb_convert_encoding($article_trans->description, 'HTML-ENTITIES', 'UTF-8'),
-            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
-        );
-
-
-        $imgs = $doc->getElementsByTagName('img');
-
-        foreach ($imgs as $img) {
-            $content_img_id = $img->getAttribute('data-image-id');
-            $media = Media::find($content_img_id);
-            if ($media) {
-                $img->setAttribute('srcset', $media->getSrcset());
-                $img->setAttribute('sizes', '(max-width: 768px) 100vw, 1200px');
-            }
-        }
-
-        $article_trans->description = $doc->saveHTML();
-
-        // correct the slug if it's wrong (because only id is required for getting the record)
+        // correct the slug if it's wrong
         if (empty($article_trans_slug) || $article_trans->slug !== $article_trans_slug) {
             return redirect()->route('articles.show', [
                 'id'   => $article_trans->id,
@@ -190,17 +191,6 @@ class ArticleTranslationController extends Controller
             ], 301);
         }
 
-        $article_trans->load(
-            'article',
-            'article.translations',
-            'article.reactions',
-            'article.category',
-            'article.category.translations',
-            'article.tags',
-            'article.tags.translations',
-            'article.comments',
-            'article.media'
-        );
         return view('articles.show', compact('article_trans'));
     }
 
@@ -276,6 +266,7 @@ class ArticleTranslationController extends Controller
                 'meta_description' => trim($request->meta_description),
             ]);
 
+            Cache::forget("article_show_{$article_trans->id}_lang_{$article_trans->language_code}");
             return to_route('admin.articles.index')->with('success', 'Article Updated Successfully.');
         } catch (\Exception $e) {
             return redirect()->back()
@@ -287,8 +278,10 @@ class ArticleTranslationController extends Controller
     public function destroy(int $article_trans_id)
     {
         $article_trans = ArticleTranslation::findOrFail($article_trans_id);
-        $article_trans->delete();
 
+        Cache::forget("article_show_{$article_trans->id}_lang_{$article_trans->language_code}");
+
+        $article_trans->delete();
         return to_route('admin.articles.index')->with('success', 'Article Translation Deleted Successfully.');
     }
 }

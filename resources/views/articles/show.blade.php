@@ -1,12 +1,12 @@
 {{-- resources/views/articles/show.blade.php --}}
 @extends('layouts.main')
-@section('title', __('about.title'))
+@section('title', $article_trans->meta_title ?? $article_trans->title)
 
 @section('meta_tags')
     <!-- Meta Tags للزوار ومحركات البحث -->
     <meta name="description" content="{{ $article_trans->meta_description ?? Str::limit(strip_tags($article_trans->meta_description), 160) }}">
     <!-- Open Graph للشبكات الاجتماعية -->
-    <meta property="og:title" content="{{ $article_trans->meta_title ?? $article_trans->meta_title }}">
+    <meta property="og:title" content="{{ $article_trans->meta_title ?? $article_trans->title }}">
     <meta property="og:description" content="{{ $article_trans->meta_description ?? Str::limit(strip_tags($article_trans->meta_description), 160) }}">
     <meta property="og:type" content="article">
     <meta property="og:url" content="{{ url()->current() }}">
@@ -15,7 +15,7 @@
 
     <!-- Twitter Cards -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ $article_trans->meta_title ?? $article_trans->meta_title }}">
+    <meta name="twitter:title" content="{{ $article_trans->meta_title ?? $article_trans->title }}">
     <meta name="twitter:description" content="{{ $article_trans->meta_description ?? Str::limit(strip_tags($article_trans->meta_description), 160) }}">
 
     <!-- Canonical URL -->
@@ -183,8 +183,8 @@
                     </button>
                 </div>
 
-                <!-- قسم فئة المقال وزر الحفظ الخاص بها -->
-                <div class="flex items-center gap-3">
+                <!-- قسم فئة المقال وزر الحفظ الخاص بها (بتنسيق موحد ومتناسق) -->
+                <div class="flex items-center flex-wrap gap-2">
                     <span class="text-gray-500 text-xs font-medium">More in:</span>
                     @php
                         $current_locale = app()->getLocale(); 
@@ -192,41 +192,57 @@
                         $categoryName = $category_translation ? $category_translation->name : $article_trans->article->category->sign;
                         $categoryId = $article_trans->article->category->id;
                     @endphp
-                    <a href="{{route('categories.show', ['id' => $category_translation->id])}}" class="case-badge text-xs bg-red-950/40 text-red-400 border border-red-900/50 px-2.5 py-1 rounded-md hover:bg-red-600/20 transition">
-                        {{$categoryName}}
-                    </a>
 
-                    @auth
-                        @php
-                            $isCategoryFavorite = Auth::user()->favoriteCategories->contains($categoryId);
-                        @endphp
+                    @if($category_translation)
+                        <div class="inline-flex items-center bg-slate-800/80 rounded-xl p-1 border border-slate-700/50 gap-1">
+                            <!-- رابط الفئة -->
+                            <a href="{{ route('categories.show', ['id' => $category_translation->id, 'slug' => $category_translation->slug]) }}" 
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-400 hover:text-red-300 hover:bg-slate-700/60 rounded-lg transition duration-200">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776"></path>
+                                </svg>
+                                <span>{{ $categoryName }}</span>
+                            </a>
 
-                        <button type="button" 
-                                id="fav-category-btn-{{ $categoryId }}"
-                                onclick="toggleFavoriteCategory(event, {{ $categoryId }})"
-                                data-saved="{{ $isCategoryFavorite ? 'true' : 'false' }}"
-                                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all duration-200 border
-                                {{ $isCategoryFavorite 
-                                    ? 'bg-red-950/60 text-red-400 border-red-800 hover:bg-red-900/40' 
-                                    : 'bg-slate-800 text-gray-400 border-slate-700 hover:bg-slate-700 hover:text-gray-200' 
-                                }}">
-                            
-                            <svg id="fav-category-icon-{{ $categoryId }}" 
-                                class="w-3.5 h-3.5 transition-colors duration-200 {{ $isCategoryFavorite ? 'fill-current text-red-500' : 'fill-none' }}" 
-                                stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"></path>
-                            </svg>
+                            @auth
+                                <span class="text-slate-600 px-0.5">|</span>
 
-                            <span id="fav-category-text-{{ $categoryId }}">
-                                {{ $isCategoryFavorite ? __('Remove Favorites') : __('Add Favorites') }}
-                            </span>
-                        </button>
-                    @endauth
+                                @php
+                                    $isCategoryFavorite = Auth::user()->favoriteCategories->contains($categoryId);
+                                @endphp
+
+                                <!-- زر متابعة/إلغاء متابعة الفئة بتنسيق متطابق -->
+                                <button type="button" 
+                                        id="fav-category-btn-{{ $categoryId }}"
+                                        onclick="toggleFavoriteCategory(event, {{ $categoryId }})"
+                                        data-saved="{{ $isCategoryFavorite ? 'true' : 'false' }}"
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition duration-200
+                                        {{ $isCategoryFavorite 
+                                            ? 'bg-red-950/80 text-red-400 border border-red-800/60' 
+                                            : 'text-gray-300 hover:text-red-400 hover:bg-slate-700/60' 
+                                        }}">
+                                    
+                                    <svg id="fav-category-icon-{{ $categoryId }}" 
+                                        class="w-3.5 h-3.5 transition-colors duration-200 {{ $isCategoryFavorite ? 'fill-current text-red-500' : 'fill-none' }}" 
+                                        stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"></path>
+                                    </svg>
+
+                                    <span id="fav-category-text-{{ $categoryId }}">
+                                        {{ $isCategoryFavorite ? __('Following') : __('Follow Category') }}
+                                    </span>
+                                </button>
+                            @endauth
+                        </div>
+                    @endif
 
                     @guest
-                        <a href="{{ route('login') }}" class="text-xs text-gray-500 underline hover:text-gray-400">
-                            {{ __('Log in to favorite this category') }}
-                        </a>
+                        @if($category_translation)
+                            <a href="{{ route('categories.show', ['id' => $category_translation->id, 'slug' => $category_translation->slug]) }}" 
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-slate-800/80 text-red-400 border border-slate-700/50 rounded-xl hover:bg-slate-700/60 transition">
+                                {{ $categoryName }}
+                            </a>
+                        @endif
                     @endguest
                 </div>
             </div>
@@ -243,6 +259,7 @@
                             $tagName = $tag_translation ? $tag_translation->name : $tag->sign;
                         @endphp
                         
+                        @if ($tag_translation)
                         <a href="{{route('tags.show', ['id' => $tag_translation->id])}}" class="flex items-center gap-1 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white px-2.5 py-1 rounded-md text-xs font-medium transition duration-200 border border-slate-700/40">
                             <svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581a1.125 1.125 0 001.591 0l7.182-7.182a1.125 1.125 0 000-1.59l-9.581-9.581A2.25 2.25 0 009.568 3z"></path>
@@ -250,6 +267,7 @@
                             </svg>
                             <span>{{ $tagName }}</span>
                         </a>
+                        @endif
                     @endforeach
                 </div>
             @endif
