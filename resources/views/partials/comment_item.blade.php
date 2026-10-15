@@ -1,3 +1,4 @@
+{{-- resources/views/partials/comment_item.blade.php --}}
 <li>
     <div id="comment-{{$comment_item->id}}" class="bg-slate-900/50 mb-3 p-3 rounded-xl border border-slate-800 text-sm">
         
@@ -29,7 +30,7 @@
             <div id="edit-form-{{$comment_item->id}}" class="my-2 ms-3" style="display: none">
                 <textarea
                     id="edit-input-{{$comment_item->id}}"
-                    rows="2" {{-- تم تقليله من 10 إلى 2 لضغط المساحة الرأسية --}}
+                    rows="2"
                     style="field-sizing: content;"
                     class="w-full text-xs text-slate-200 bg-slate-800 placeholder-slate-500 py-2 px-3 mb-1.5 rounded-lg border border-slate-700 transition duration-200 focus:border-red-600 focus:outline-none focus:ring-0"
                 >{{$comment_item->body}}</textarea>
@@ -45,7 +46,7 @@
                 placeholder="Enter a reply here..."
                 id="reply-input-{{$comment_item->id}}"
                 data-article-id="{{$comment_item->article->id}}"
-                rows="2" {{-- تم تقليله من 10 إلى 2 لمنع الانتفاخ الرأسي --}}
+                rows="2"
                 style="field-sizing: content;"
                 class="w-full text-xs text-slate-200 bg-slate-800 placeholder-slate-500 py-2 px-3 mb-1.5 rounded-lg border border-slate-700 transition duration-200 focus:border-red-600 focus:outline-none focus:ring-0"
             ></textarea>
@@ -55,13 +56,12 @@
             </div>
         </div>
 
-        <div id="replies-container-{{$comment_item->id}}" class="ms-3 mt-2 replies-container border-l border-slate-800/85 pl-4 rtl:border-l-0 rtl:border-r rtl:pl-0 rtl:pr-4">
+        {{-- حاوية الردود المتداخلة مع خط طولي أنيق --}}
+        <div id="replies-container-{{$comment_item->id}}" class="ms-3 mt-2 replies-container border-l border-slate-800/85 pl-4 rtl:border-l-0 rtl:border-r rtl:pl-0 rtl:pr-4 space-y-2.5">
             @if($comment_item->replies->count() > 0)
-            <ul class="space-y-2 mt-2">
-            @foreach($comment_item->replies as $reply)
-                @include('partials.comment_reply', ['reply' => $reply])
-            @endforeach
-            </ul>
+                @foreach($comment_item->replies as $reply)
+                    @include('partials.comment_reply', ['reply' => $reply])
+                @endforeach
             @endif
         </div>
 

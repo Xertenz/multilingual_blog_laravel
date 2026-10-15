@@ -593,6 +593,7 @@
         }                 
     }
 
+    /*
     function showEditForm(id) {
         hideReplyForm(id);
         let comment_actions = document.getElementById(`comment-actions-${id}`);
@@ -605,7 +606,21 @@
         let commentText = document.getElementById(`comment-text-${id}`);
         commentText.style.display = 'none';
     }
+        */
+    function showEditForm(id) {
+        hideReplyForm(id);
+        let comment_actions = document.getElementById(`comment-actions-${id}`);
+        let edit_form = document.getElementById(`edit-form-${id}`);
+        let edit_input = document.getElementById(`edit-input-${id}`);
+        if (edit_form) edit_form.style.display = 'block';
+        if (comment_actions) comment_actions.style.display = 'none';
+        if (edit_input) edit_input.focus();
 
+        let commentText = document.getElementById(`comment-text-${id}`);
+        if (commentText) commentText.style.display = 'none';
+    }
+
+    /*
     function hideEditForm(id) {
         let comment_actions = document.getElementById(`comment-actions-${id}`);
         let edit_form = document.getElementById(`edit-form-${id}`);
@@ -614,6 +629,16 @@
 
         let commentText = document.getElementById(`comment-text-${id}`);
         commentText.style.display = 'block';
+    }
+    */
+    function hideEditForm(id) {
+        let comment_actions = document.getElementById(`comment-actions-${id}`);
+        let edit_form = document.getElementById(`edit-form-${id}`);
+        if (edit_form) { edit_form.style.display = 'none'; }
+        if (comment_actions) { comment_actions.style.display = 'flex'; }
+
+        let commentText = document.getElementById(`comment-text-${id}`);
+        if (commentText) { commentText.style.display = 'block'; }
     }
 
     async function updateComment(id) {
@@ -662,6 +687,7 @@
     }
 
     // 7. نظام الردود على التعليقات (Replies System)
+    /*
     function showReplyForm(id) {
         hideEditForm(id);
         let comment_actions = document.getElementById(`comment-actions-${id}`);
@@ -671,12 +697,34 @@
         comment_actions.style.display = 'none';
         reply_input.focus();
     }
+    */
 
+    function showReplyForm(id) {
+        hideEditForm(id);
+        // نتحقق من نوع العنصر (هل هو تعليق رئيسي أم رد فرعي) لإخفاء أزراره الصحيحة
+        let actions = document.getElementById(`comment-actions-${id}`) || document.getElementById(`reply-actions-${id}`);
+        let reply_form = document.getElementById(`reply-form-${id}`);
+        let reply_input = document.getElementById(`reply-input-${id}`);
+        
+        if (reply_form) reply_form.style.display = 'block';
+        if (actions) actions.style.display = 'none';
+        if (reply_input) reply_input.focus();
+    }
+
+    /*
     function hideReplyForm(id) {
         let comment_actions = document.getElementById(`comment-actions-${id}`);
         let reply_form = document.getElementById(`reply-form-${id}`);
         reply_form.style.display = 'none';
         comment_actions.style.display = 'flex';
+    }
+    */
+   function hideReplyForm(id) {
+        let actions = document.getElementById(`comment-actions-${id}`) || document.getElementById(`reply-actions-${id}`);
+        let reply_form = document.getElementById(`reply-form-${id}`);
+        
+        if (reply_form) reply_form.style.display = 'none';
+        if (actions) actions.style.display = 'flex';
     }
 
     async function replyToComment(event, parent_id) {
