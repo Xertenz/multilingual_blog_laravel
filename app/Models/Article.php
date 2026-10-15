@@ -95,4 +95,11 @@ class Article extends Model  implements HasMedia
                 });
         });
     }
+
+    public function series(): BelongsToMany
+    {
+        return $this->belongsToMany(Series::class, 'article_series', 'article_id', 'series_id')
+            ->withPivot('sort_order')
+            ->withTimestamps();
+    }
 }

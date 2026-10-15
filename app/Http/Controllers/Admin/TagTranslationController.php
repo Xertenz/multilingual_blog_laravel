@@ -47,7 +47,7 @@ class TagTranslationController extends Controller
             }
         }
 
-        return to_route('admin.tags.index')->with('success', 'تم حفظ الوسم والترجمات بنجاح!');
+        return to_route('admin.tags.index')->with('success', 'Tag added successfully.');
     }
 
     public function show(int $tag_trans_id, ?string $slug = null)

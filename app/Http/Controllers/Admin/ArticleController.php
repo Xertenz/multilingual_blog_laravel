@@ -83,7 +83,7 @@ class ArticleController extends Controller
             ->withResponsiveImages()
             ->toMediaCollection("featured_imgs");
 
-        return to_route('admin.articles.index');
+        return to_route('admin.articles.index')->with('success', 'Article Created Successfully.');
     }
 
     public function edit(Request $request, int $article_id)

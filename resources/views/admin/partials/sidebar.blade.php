@@ -193,6 +193,58 @@
                 </li>
             </ul>
         </div>
+
+        {{-- Divider --}}
+        <div class="border-t border-slate-700 my-4"></div>
+
+        {{-- Series Section (قسم السلاسل الجديد) --}}
+        <div class="mb-6">
+            <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 px-3">
+                Series
+            </div>
+            
+            <ul class="space-y-1">
+                {{-- All Series Link --}}
+                <li>
+                    <a href="{{ route('admin.series.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 
+                              {{ request()->routeIs('admin.series.*') && !request()->routeIs('admin.series.create') 
+                                 ? 'bg-gradient-to-r from-indigo-600/20 to-purple-600/20 text-white' 
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">All Series</span>
+                        <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
+                            {{ \App\Models\Series::count() }}
+                        </span>
+                    </a>
+                </li>
+                
+                {{-- Add Series Link --}}
+                <li>
+                    <a href="{{ route('admin.series.create') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.series.create') 
+                                 ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-white' 
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">Add New Series</span>
+                        @if(request()->routeIs('admin.series.create'))
+                            <span class="bg-indigo-500/20 text-indigo-400 text-xs px-2 py-1 rounded-full">Now</span>
+                        @else
+                            <span class="bg-indigo-600/20 text-indigo-400 text-xs px-2 py-1 rounded-full">+</span>
+                        @endif
+                    </a>
+                </li>
+            </ul>
+        </div>
         @endhasanyrole
 
         @role('super-admin')

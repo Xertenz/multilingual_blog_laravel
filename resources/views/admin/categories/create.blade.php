@@ -18,29 +18,6 @@
             border: 1px solid #e2e8f0;
             overflow: hidden;
         }
-        .input-field {
-            transition: all 0.2s ease;
-            background: #ffffff;
-            border: 1px solid #cbd5e1;
-            border-radius: 10px;
-            padding: 0.6rem 0.875rem;
-            width: 100%;
-            outline: none;
-            font-size: 0.875rem;
-            color: #1e293b;
-        }
-        textarea.input-field {
-            resize: vertical;
-            min-height: 70px;
-        }
-        .input-field:focus {
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
-        }
-        .input-field.error {
-            border-color: #ef4444;
-            background-color: #fef2f2;
-        }
         .input-label {
             display: block;
             font-size: 0.8125rem;
@@ -57,14 +34,6 @@
             font-size: 0.75rem;
             color: #94a3b8;
             margin-top: 0.25rem;
-        }
-        .error-message {
-            color: #ef4444;
-            font-size: 0.75rem;
-            margin-top: 0.25rem;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
         }
         .btn-primary {
             background: #4f46e5;
@@ -204,12 +173,17 @@
                                name="cat_sign" 
                                id="cat_sign" 
                                value="{{ old('cat_sign') }}" 
-                               class="input-field @error('cat_sign') error @enderror" 
+                               class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error('cat_sign') border-red-500 bg-red-50/50 @enderror" 
                                placeholder="e.g., tech, news, sports" 
                                autocomplete="off">
                         <p class="input-hint">Unique identifier in English, only for admins.</p>
                         @error('cat_sign')
-                            <div class="error-message">{{ $message }}</div>
+                        <div class="text-red-500 text-xs mt-1 flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                            </svg>
+                            {{ $message }}
+                        </div>
                         @enderror
                     </div>
                     
@@ -225,7 +199,12 @@
                             <img id="imagePreview" class="image-preview mx-auto" src="#" alt="Preview">
                         </div>
                         @error('cat_featured_img')
-                            <div class="error-message">{{ $message }}</div>
+                        <div class="text-red-500 text-xs mt-1 flex items-center gap-1">
+                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                            </svg>
+                            {{ $message }}
+                        </div>
                         @enderror
                     </div>
                 </div>
@@ -259,12 +238,17 @@
                                        name="translations[{{ $localeCode }}][name]" 
                                        value="{{ old("translations.$localeCode.name") }}" 
                                        dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}"
-                                       class="name-input input-field @error("translations.$localeCode.name") error @enderror" 
+                                       class="name-input w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error("translations.$localeCode.name") border-red-500 bg-red-50/50 @enderror" 
                                        placeholder="e.g., {{ $localeCode == 'ar' ? 'تقنية' : 'Technology' }}" 
                                        data-locale="{{ $localeCode }}"
                                        autocomplete="off">
                                 @error("translations.$localeCode.name")
-                                    <div class="error-message">{{ $message }}</div>
+                                    <div class="text-red-500 text-xs mt-1 flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        {{ $message }}
+                                    </div>
                                 @enderror
                             </div>
 
@@ -276,12 +260,17 @@
                                        name="translations[{{ $localeCode }}][slug]" 
                                        value="{{ old("translations.$localeCode.slug") }}" 
                                        dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}"
-                                       class="slug-input input-field @error("translations.$localeCode.slug") error @enderror" 
+                                       class="slug-input w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error("translations.$localeCode.slug") border-red-500 bg-red-50/50 @enderror" 
                                        placeholder="Auto-generated" 
                                        data-locale="{{ $localeCode }}"
                                        autocomplete="off">
                                 @error("translations.$localeCode.slug")
-                                    <div class="error-message">{{ $message }}</div>
+                                    <div class="text-red-500 text-xs mt-1 flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        {{ $message }}
+                                    </div>
                                 @enderror
                             </div>
                         </div>
@@ -293,10 +282,15 @@
                             <textarea name="translations[{{ $localeCode }}][description]" 
                                       rows="2" 
                                       dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}"
-                                      class="input-field @error("translations.$localeCode.description") error @enderror" 
+                                      class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition resize-y min-h-[70px] @error("translations.$localeCode.description") border-red-500 bg-red-50/50 @enderror" 
                                       placeholder="Description in {{ $properties['name'] }}">{{ old("translations.$localeCode.description") }}</textarea>
                             @error("translations.$localeCode.description")
-                                <div class="error-message">{{ $message }}</div>
+                                <div class="text-red-500 text-xs mt-1 flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    {{ $message }}
+                                </div>
                             @enderror
                         </div>
                         
@@ -307,11 +301,16 @@
                                        name="translations[{{ $localeCode }}][meta_title]" 
                                        value="{{ old("translations.$localeCode.meta_title") }}" 
                                        dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}"
-                                       class="input-field @error("translations.$localeCode.meta_title") error @enderror" 
+                                       class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error("translations.$localeCode.meta_title") border-red-500 bg-red-50/50 @enderror" 
                                        placeholder="Meta title for SEO" 
                                        autocomplete="off">
                                 @error("translations.$localeCode.meta_title")
-                                    <div class="error-message">{{ $message }}</div>
+                                    <div class="text-red-500 text-xs mt-1 flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        {{ $message }}
+                                    </div>
                                 @enderror
                             </div>
                             
@@ -320,10 +319,15 @@
                                 <textarea name="translations[{{ $localeCode }}][meta_description]" 
                                           rows="1" 
                                           dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}"
-                                          class="input-field @error("translations.$localeCode.meta_description") error @enderror" 
+                                          class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition resize-y min-h-[50px] @error("translations.$localeCode.meta_description") border-red-500 bg-red-50/50 @enderror" 
                                           placeholder="Meta description for SEO">{{ old("translations.$localeCode.meta_description") }}</textarea>
                                 @error("translations.$localeCode.meta_description")
-                                    <div class="error-message">{{ $message }}</div>
+                                    <div class="text-red-500 text-xs mt-1 flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        {{ $message }}
+                                    </div>
                                 @enderror
                             </div>
                         </div>

@@ -236,6 +236,7 @@
                         </div>
                     @endif
 
+                    {{--
                     @guest
                         @if($category_translation)
                             <a href="{{ route('categories.show', ['id' => $category_translation->id, 'slug' => $category_translation->slug]) }}" 
@@ -244,6 +245,7 @@
                             </a>
                         @endif
                     @endguest
+                    --}}
                 </div>
             </div>
 

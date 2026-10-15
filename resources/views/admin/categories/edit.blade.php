@@ -18,29 +18,6 @@
             border: 1px solid #e2e8f0;
             overflow: hidden;
         }
-        .input-field {
-            transition: all 0.2s ease;
-            background: #ffffff;
-            border: 1px solid #cbd5e1;
-            border-radius: 10px;
-            padding: 0.6rem 0.875rem;
-            width: 100%;
-            outline: none;
-            font-size: 0.875rem;
-            color: #1e293b;
-        }
-        textarea.input-field {
-            resize: vertical;
-            min-height: 70px;
-        }
-        .input-field:focus {
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
-        }
-        .input-field.error {
-            border-color: #ef4444;
-            background-color: #fef2f2;
-        }
         .input-label {
             display: block;
             font-size: 0.8125rem;
@@ -179,7 +156,7 @@
     <div class="flex items-center justify-between mb-4">
         <div>
             <h1 class="text-xl font-bold text-slate-900">Edit Category</h1>
-            <p class="text-xs text-slate-500">Update category information and translations (ID: {{ $cat->id }})</p>
+            <p class="text-xs text-slate-500">Update category information and translations (ID: {{ $cat->id }})[cite: 6]</p>
         </div>
         <a href="{{ route('admin.categories.index') }}" class="text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-2xs">
             &larr; Back to Categories
@@ -208,7 +185,7 @@
                                name="cat_sign" 
                                id="cat_sign" 
                                value="{{ old('cat_sign', $cat->sign) }}" 
-                               class="input-field @error('cat_sign') error @enderror" 
+                               class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error('cat_sign') border-red-500 bg-red-50/50 @enderror" 
                                placeholder="e.g., tech, news, sports" 
                                autocomplete="off">
                         <p class="input-hint">Unique identifier in English, only for admins.</p>
@@ -267,7 +244,7 @@
                                        name="translations[{{ $localeCode }}][name]" 
                                        value="{{ old("translations.$localeCode.name", $translation->name ?? '') }}" 
                                        dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}"
-                                       class="name-input input-field @error("translations.$localeCode.name") error @enderror" 
+                                       class="name-input w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error("translations.$localeCode.name") border-red-500 bg-red-50/50 @enderror" 
                                        placeholder="e.g., {{ $localeCode == 'ar' ? 'تقنية' : 'Technology' }}" 
                                        data-locale="{{ $localeCode }}"
                                        autocomplete="off">
@@ -282,7 +259,7 @@
                                        name="translations[{{ $localeCode }}][slug]" 
                                        value="{{ old("translations.$localeCode.slug", $translation->slug ?? '') }}" 
                                        dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}"
-                                       class="slug-input input-field @error("translations.$localeCode.slug") error @enderror" 
+                                       class="slug-input w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error("translations.$localeCode.slug") border-red-500 bg-red-50/50 @enderror" 
                                        placeholder="Auto-generated" 
                                        data-locale="{{ $localeCode }}"
                                        autocomplete="off">
@@ -297,7 +274,7 @@
                             <textarea name="translations[{{ $localeCode }}][description]" 
                                       rows="2" 
                                       dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}"
-                                      class="input-field @error("translations.$localeCode.description") error @enderror" 
+                                      class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition resize-y min-h-[70px] @error("translations.$localeCode.description") border-red-500 bg-red-50/50 @enderror" 
                                       placeholder="Description in {{ $properties['name'] }}">{{ old("translations.$localeCode.description", $translation->description ?? '') }}</textarea>
                             @error("translations.$localeCode.description")
                                 <div class="error-message">{{ $message }}</div>
@@ -311,7 +288,7 @@
                                        name="translations[{{ $localeCode }}][meta_title]" 
                                        value="{{ old("translations.$localeCode.meta_title", $translation->meta_title ?? '') }}" 
                                        dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}"
-                                       class="input-field @error("translations.$localeCode.meta_title") error @enderror" 
+                                       class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error("translations.$localeCode.meta_title") border-red-500 bg-red-50/50 @enderror" 
                                        placeholder="Meta title for SEO" 
                                        autocomplete="off">
                                 @error("translations.$localeCode.meta_title")
@@ -324,7 +301,7 @@
                                 <textarea name="translations[{{ $localeCode }}][meta_description]" 
                                           rows="1" 
                                           dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}"
-                                          class="input-field @error("translations.$localeCode.meta_description") error @enderror" 
+                                          class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition resize-y min-h-[50px] @error("translations.$localeCode.meta_description") border-red-500 bg-red-50/50 @enderror" 
                                           placeholder="Meta description for SEO">{{ old("translations.$localeCode.meta_description", $translation->meta_description ?? '') }}</textarea>
                                 @error("translations.$localeCode.meta_description")
                                     <div class="error-message">{{ $message }}</div>

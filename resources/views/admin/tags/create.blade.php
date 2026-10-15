@@ -18,25 +18,6 @@
             border: 1px solid #e2e8f0;
             overflow: hidden;
         }
-        .input-field {
-            transition: all 0.2s ease;
-            background: #ffffff;
-            border: 1px solid #cbd5e1;
-            border-radius: 10px;
-            padding: 0.6rem 0.875rem;
-            width: 100%;
-            outline: none;
-            font-size: 0.875rem;
-            color: #1e293b;
-        }
-        .input-field:focus {
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
-        }
-        .input-field.error {
-            border-color: #ef4444;
-            background-color: #fef2f2;
-        }
         .input-label {
             display: block;
             font-size: 0.8125rem;
@@ -159,7 +140,7 @@
                                name="sign" 
                                id="sign" 
                                value="{{ old('sign') }}" 
-                               class="input-field @error('sign') error @enderror" 
+                               class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error('sign') border-red-500 bg-red-50/50 @enderror" 
                                placeholder="e.g., serial-killer, mystery, cold-case" 
                                autocomplete="off">
                         <p class="input-hint">Unique identifier in English, only for admins, not shown to visitors.</p>
@@ -203,7 +184,7 @@
                                    name="translations[{{ $localeCode }}][name]" 
                                    value="{{ old("translations.$localeCode.name") }}" 
                                    dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}"
-                                   class="input-field @error("translations.$localeCode.name") error @enderror" 
+                                   class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error("translations.$localeCode.name") border-red-500 bg-red-50/50 @enderror" 
                                    placeholder="e.g., {{ $localeCode == 'ar' ? 'قاتل متسلسل' : 'Serial Killer' }}" 
                                    autocomplete="off">
                             @error("translations.$localeCode.name")

@@ -70,6 +70,8 @@ Route::group([
     Route::get('/articles/{id}/{slug?}', [ArticleTranslationController::class, 'show'])
         ->where('id', '[0-9]+')
         ->name('articles.show');
+    // في قسم الزوار (المجموعة العامة للـ localization)
+    Route::get('/series/{id}/{slug?}', [App\Http\Controllers\Front\SeriesController::class, 'show'])->name('series.show');
 
     Route::post('/articles/content_img_info', [ArticleController::class, 'get_content_img_info'])->name('visitor.articles.content_img.info');
 
@@ -117,6 +119,14 @@ Route::group([
             Route::get('/tags/{tag}/edit', [TagTranslationController::class, 'edit'])->name('admin.tags.edit');
             Route::put('/tags/{tag}', [TagTranslationController::class, 'update'])->name('admin.tags.update');
             Route::delete('/tags/{tag}', [TagTranslationController::class, 'destroy'])->name('admin.tags.destroy');
+
+            // إدارة السلاسل (Series)
+            Route::get('/series', [App\Http\Controllers\Admin\SeriesController::class, 'index'])->name('admin.series.index');
+            Route::get('/series/create', [App\Http\Controllers\Admin\SeriesController::class, 'create'])->name('admin.series.create');
+            Route::post('/series', [App\Http\Controllers\Admin\SeriesController::class, 'store'])->name('admin.series.store');
+            Route::get('/series/{series}/edit', [App\Http\Controllers\Admin\SeriesController::class, 'edit'])->name('admin.series.edit');
+            Route::put('/series/{series}', [App\Http\Controllers\Admin\SeriesController::class, 'update'])->name('admin.series.update');
+            Route::delete('/series/{series}', [App\Http\Controllers\Admin\SeriesController::class, 'destroy'])->name('admin.series.destroy');
         });
     });
 
