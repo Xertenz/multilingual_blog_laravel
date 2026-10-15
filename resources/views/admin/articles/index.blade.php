@@ -28,6 +28,7 @@
                         <th class="py-3 px-4">Category</th>
                         <th class="py-3 px-4">Featured Img</th>
                         <th class="py-3 px-4">Sign</th>
+                        <th class="py-3 px-4">Writer</th>
                         <th class="py-3 px-4">Status</th>
                         <th class="py-3 px-4">Views</th>
                         <th class="py-3 px-4">Translations</th>
@@ -64,6 +65,11 @@
                         {{-- Sign --}}
                         <td class="py-3.5 px-4 text-slate-600 font-mono text-xs">
                             {{ $article->sign ?? "no sign" }}
+                        </td>
+
+                        {{-- Writer --}}
+                        <td class="py-3.5 px-4 text-slate-600 font-mono text-xs">
+                            {{ $article->user->name ?? "no name" }}
                         </td>
 
                         {{-- Status Badge --}}

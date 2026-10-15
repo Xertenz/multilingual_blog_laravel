@@ -20,7 +20,7 @@ class ArticleController extends Controller
     //
     public function index()
     {
-        $articles = Article::with('translations')->paginate(10);
+        $articles = Article::with(['translations', 'user'])->paginate(10);
         return view("admin.articles.index", compact('articles'));
     }
 
@@ -268,5 +268,54 @@ class ArticleController extends Controller
         $content_img_id = (int)$request->content_img_id;
         $media = Media::find($content_img_id);
         return response()->json($media);
+    }
+
+
+    /**
+     * عرض قائمة المقالات المعلقة التي تنتظر موافقة المدير (Pending Articles)
+     */
+    public function pending(Request $request)
+    {
+        // التحقق الأمني: فقط السوبر أدمن أو المحرر يمكنه مراجعة المقالات
+        if (!$request->user()->hasRole(['super-admin', 'editor'])) {
+            abort(403, 'غير مسموح لك بمراجعة المقالات.');
+        }
+
+        $articles = Article::with(['translations', 'user'])
+            ->where('status', 'pending')
+            ->latest()
+            ->paginate(10);
+
+        return view('admin.articles.pending', compact('articles'));
+    }
+
+    /**
+     * الموافقة على المقال ونشره
+     */
+    public function approve(Request $request, int $article_id)
+    {
+        if (!$request->user()->hasRole(['super-admin', 'editor'])) {
+            abort(403, 'غير مسموح لك بالموافقة على المقالات.');
+        }
+
+        $article = Article::findOrFail($article_id);
+        $article->update(['status' => 'published']);
+
+        return redirect()->route('admin.articles.pending')->with('success', 'Article approved and published successfully.');
+    }
+
+    /**
+     * رفض المقال أو إعادته كمسودة
+     */
+    public function reject(Request $request, int $article_id)
+    {
+        if (!$request->user()->hasRole(['super-admin', 'editor'])) {
+            abort(403, 'غير مسموح لك برفض المقالات.');
+        }
+
+        $article = Article::findOrFail($article_id);
+        $article->update(['status' => 'draft']);
+
+        return redirect()->route('admin.articles.pending')->with('success', 'Article rejected and moved back to draft.');
     }
 }

@@ -88,6 +88,27 @@
                         <span class="bg-purple-600/20 text-purple-400 text-xs px-2 py-1 rounded-full">+</span>
                     </a>
                 </li>
+
+                {{-- Pending Articles Moderation Link (خاص بالمشرفين والمحرרים) --}}
+                @hasanyrole('super-admin|editor')
+                <li>
+                    <a href="{{ route('admin.articles.pending') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.articles.pending') 
+                                 ? 'bg-gradient-to-r from-amber-600/20 to-orange-600/20 text-white' 
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">Pending Articles</span>
+                        <span class="bg-amber-500/20 text-amber-400 text-xs px-2 py-0.5 rounded-full font-semibold">
+                            {{ \App\Models\Article::where('status', 'pending')->count() }}
+                        </span>
+                    </a>
+                </li>
+                @endhasanyrole
             </ul>
         </div>
 
@@ -197,7 +218,7 @@
         {{-- Divider --}}
         <div class="border-t border-slate-700 my-4"></div>
 
-        {{-- Series Section (قسم السلاسل الجديد) --}}
+        {{-- Series Section --}}
         <div class="mb-6">
             <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 px-3">
                 Series
@@ -262,7 +283,7 @@
                 <li>
                     <a href="{{ route('admin.users.index') }}" 
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 
-                              {{ request()->routeIs('admin.users.*') && !request()->routeIs('admin.users.index') 
+                              {{ request()->routeIs('admin.users.*') 
                                  ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-white' 
                                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">

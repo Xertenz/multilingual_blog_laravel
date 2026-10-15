@@ -135,6 +135,11 @@ Route::group([
         Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
         Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
+
+        // مسارات مراجعة المقالات المعلقة
+        Route::get('/articles/pending', [ArticleController::class, 'pending'])->name('admin.articles.pending');
+        Route::post('/articles/{id}/approve', [ArticleController::class, 'approve'])->name('admin.articles.approve');
+        Route::post('/articles/{id}/reject', [ArticleController::class, 'reject'])->name('admin.articles.reject');
     });
 
     // الصفحات العامة الثابتة
