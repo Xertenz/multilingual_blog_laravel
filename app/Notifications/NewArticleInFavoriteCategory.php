@@ -48,8 +48,10 @@ class NewArticleInFavoriteCategory extends Notification
         $locale = $notifiable->locale ?? App::getLocale();
 
         // جلب سطر الترجمة الخاص بهذه اللغة
+        /*
         $article_trans = $this->article->translations->where('language_code', $locale)->first()
             ?? $this->article->translations->first(); // fallback لأي لغة لو لم تتوفر لغته
+        */
 
 
         return [

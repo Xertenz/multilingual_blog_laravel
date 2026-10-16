@@ -43,19 +43,18 @@
                                 @forelse($categories as $cat)
                                     @php
                                         $cat_trans = $cat->translations->first();
-                                        $catName = $cat_trans ? $cat_trans->name : $cat->sign;
                                     @endphp
-                                    <a href="{{ $cat_trans ? route('categories.show', ['id' => $cat_trans->id]) : '#' }}" class="block px-3 py-2 text-xs text-gray-300 hover:bg-slate-800/80 hover:text-white rounded-lg transition truncate">
-                                        {{ $catName }}
-                                    </a>
+                                    @if($cat_trans)
+                                        <a href="{{ route('categories.show', ['id' => $cat_trans->id, 'slug' => $cat_trans->slug]) }}" class="block px-3 py-2 text-xs text-gray-300 hover:bg-slate-800/80 hover:text-white rounded-lg transition truncate">
+                                            {{ $cat_trans->name }}
+                                        </a>
+                                    @endif
                                 @empty
                                     <span class="block px-3 py-2 text-xs text-gray-500 text-center">{{ __('No categories found') }}</span>
                                 @endforelse
                             </div>
                         </div>
                     </div>
-
-
 
                 </div>
             </div>
@@ -85,11 +84,27 @@
                 <!-- 1. حالة المستخدم مسجل الدخول -->
                 @auth
                 <div class="user-actions flex items-center gap-2 md:gap-3">
+
                     
+
+
                     <!-- صندوق الإشعارات الذكي -->
+                    @php
+                        $user = Auth::user();
+                        // حساب عدد الإشعارات الجديدة التي أُنشئت بعد آخر مرة فتح فيها المستخدم القائمة
+                        $unreadCount = $user->notifications()
+                            ->where('created_at', '>', $user->notifications_last_read_at ?? '2000-01-01')
+                            ->count();
+                    @endphp
                     <div class="notifications relative" id="notifications">
                         <div class="notifications-icon bg-slate-900/80 border border-slate-800 hover:border-red-600/50 p-2 rounded-lg transition duration-200 cursor-pointer" id="notifications-icon">
                             <x-fas-bell class="w-3.5 h-3.5 text-gray-400 hover:text-white transition" id="notifications-icon-svg" />
+                            {{-- شارة الرقم الأحمر (Badge) --}}
+                            @if($unreadCount > 0)
+                                <span id="notifications-badge" class="absolute -top-1 -right-1 bg-red-600 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-md">
+                                    {{ $unreadCount > 9 ? '9+' : $unreadCount }}
+                                </span>
+                            @endif
                         </div>
                         
                         <div class="notifications-list-wrapper fixed md:absolute top-16 md:top-[calc(100%+12px)] left-4 right-4 md:left-auto md:right-0 md:rtl:left-0 md:rtl:right-auto bg-[#0f1526] border border-slate-800 rounded-xl shadow-2xl shadow-black/90 select-none md:w-80 overflow-hidden opacity-0 pointer-events-none transition-all duration-250 transform scale-95 z-50"
@@ -277,6 +292,27 @@
             e.stopPropagation();
             mobileMenu.classList.add('hidden'); 
             notifications_list_wrapper.classList.toggle('active');
+
+
+
+            // إذا أصبحت القائمة ظاهرة، نقوم بتصفير العداد وتحديث وقت القراءة في القاعدة
+            if (notifications_list_wrapper.classList.contains('active')) {
+                let badge = document.getElementById('notifications-badge');
+                if (badge) {
+                    badge.style.transition = 'opacity 0.3s ease';
+                    badge.style.opacity = '0';
+                    setTimeout(() => badge.remove(), 300);
+
+                    // إرسال طلب لخلفية النظام لتسجيل وقت فتح القائمة
+                    fetch("{{ route('notifications.markReadTime') }}", {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                        }
+                    }).catch(err => console.error('Error updating last read time', err));
+                }
+            }
         });
     }
 

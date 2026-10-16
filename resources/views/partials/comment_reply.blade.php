@@ -11,8 +11,46 @@
         </div>
 
         <div class="ms-2">
-            <p id="reply-text-{{$reply->id}}" class="text-slate-300 text-xs leading-relaxed" style="white-space: pre-wrap">{{$reply->body}}</p>
+            {{-- <p id="reply-text-{{$reply->id}}" class="text-slate-300 text-xs leading-relaxed" style="white-space: pre-wrap">{{$reply->body}}</p> --}}
+            <p id="reply-text-{{$reply->id}}" class="text-slate-300 text-xs leading-relaxed" style="white-space: pre-wrap">{!! $reply->formatted_body !!}</p>
             
+            {{-- شريط التفاعلات الجنائية للرد (بنفس منطق التعليق تماماً) --}}
+            <div class="flex flex-wrap items-center gap-1.5 my-2">
+                @php
+                    $reactionTypes = [
+                        'like' => ['icon' => '👍', 'label' => 'Like'],
+                        'dislike' => ['icon' => '👎', 'label' => 'Dislike'],
+                        'shocked' => ['icon' => '😲', 'label' => 'Shocked'],
+                        'confused' => ['icon' => '😕', 'label' => 'Confused'],
+                        'sad' => ['icon' => '😢', 'label' => 'Sad'],
+                        'angry' => ['icon' => '😡', 'label' => 'Angry'],
+                        'mind_blown' => ['icon' => '🤯', 'label' => 'Mind Blown'],
+                    ];
+                    
+                    // جلب تفاعل المستخدم الحالي على هذا الرد إن وجد
+                    $userReplyReaction = Auth::check() ? $reply->reactions->where('user_id', Auth::id())->first() : null;
+                @endphp
+
+                @foreach($reactionTypes as $key => $data)
+                    @php
+                        $count = $reply->reactions->where('type', $key)->count();
+                        $isActive = $userReplyReaction && $userReplyReaction->type === $key;
+                    @endphp
+                    <button type="button"
+                            id="comment-reaction-{{$reply->id}}-{{$key}}"
+                            onclick="toggleCommentReaction(event, {{$reply->id}}, '{{$key}}')"
+                            data-active="{{ $isActive ? 'true' : 'false' }}"
+                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium transition border
+                            {{ $isActive 
+                                ? 'bg-red-950/80 text-red-400 border-red-800/60 shadow-sm' 
+                                : 'bg-slate-800/60 text-gray-400 border-slate-700/50 hover:bg-slate-800 hover:text-gray-200' 
+                            }}">
+                        <span>{{ $data['icon'] }}</span>
+                        <span id="comment-reaction-count-{{$reply->id}}-{{$key}}" class="font-mono text-[9px] text-gray-300">{{ $count > 0 ? $count : '' }}</span>
+                    </button>
+                @endforeach
+            </div>
+
             @if (Auth::check() && Auth::id() == $reply->user_id)
             <div id="edit-reply-form-{{$reply->id}}" style="display: none;" class="mt-1.5 space-y-1.5">
                 <textarea

@@ -6,7 +6,7 @@
     <a href="{{ route('notifications.read', ['id' => $notification->id]) }}" class="block p-3">
         
         {{-- 1️⃣ الحالة الأولى: إشعار الرد على تعليق --}}
-        @if($notification->type === 'App\Notifications\NewCommentReply')
+        @if($notification->type === 'App\Notifications\NewCommentReplyNotification')
             <div class="flex items-start gap-2">
                 <div class="flex-1">
                     <p class="whitespace-nowrap max-w-[280px] overflow-hidden text-ellipsis text-sm text-gray-200">
@@ -19,7 +19,34 @@
                 </div>
             </div>
 
-        {{-- 2️⃣ الحالة الثانية: إشعار مقالة جديدة من الفئة المفضلة --}}
+        {{-- 2️⃣ الحالة الثانية: إشعار التفاعل على التعليق (الجديدة) --}}
+        @elseif($notification->type === 'App\Notifications\NewCommentReactionNotification')
+            @php
+                // خريطة الإيموجي المعبرة عن كل تفاعل جنائي
+                $reactionEmojis = [
+                    'like' => '👍',
+                    'dislike' => '👎',
+                    'shocked' => '😲',
+                    'confused' => '😕',
+                    'sad' => '😢',
+                    'angry' => '😡',
+                    'mind_blown' => '🤯',
+                ];
+                $reactionType = $data['reaction_type'] ?? 'like';
+                $emoji = $reactionEmojis[$reactionType] ?? '💬';
+            @endphp
+            <div class="flex items-start gap-2">
+                <div class="flex-1">
+                    <p class="whitespace-nowrap max-w-[280px] overflow-hidden text-ellipsis text-sm text-gray-200">
+                        <span class="font-bold text-red-400">{{ $data['user_name'] ?? 'Someone' }}</span>
+                        <span>{{ __('reacted with') }}</span>
+                        <span class="text-base mx-1">{{ $emoji }}</span>
+                        <span>{{ __('to your comment') }}</span>
+                    </p>
+                </div>
+            </div>
+
+        {{-- 3️⃣ الحالة الثالثة: إشعار مقالة جديدة من الفئة المفضلة --}}
         @elseif($notification->type === 'App\Notifications\NewArticleInFavoriteCategory')
             @php
                 // جلب المقالة مع ترجماتها لضمان الأداء الأفضل
@@ -48,7 +75,7 @@
                 </div>
             @endif
 
-        {{-- 3️⃣ حالة fallback عامة لأي إشعار مستقبلي قد تضيفه --}}
+        {{-- 4️⃣ حالة fallback عامة لأي إشعار مستقبلي قد تضيفه --}}
         @else
             <p class="text-sm text-gray-200">
                 {{ $data['message'] ?? __('You have a new notification') }}

@@ -143,8 +143,10 @@
                         @php
                             // فحص تفاعل المستخدم الحالي مع هذه المقالة
                             $userReaction = $article_trans->article->reactions->where('user_id', auth()->id())->first();
+
                             $hasLiked = $userReaction && $userReaction->type === 'like';
                             $hasDisliked = $userReaction && $userReaction->type === 'dislike';
+                        
                         @endphp
                     @else
                         @php $hasLiked = false; $hasDisliked = false; @endphp
@@ -162,6 +164,7 @@
                         <span class="uppercase">Like</span>
                         <span id="article-like-count-{{$article_trans->article->id}}" class="font-mono">
                             ({{$article_trans->article->reactions->where('type', 'like')->count()}})
+                            {{-- ({{$likesCount}}) --}}
                         </span>
                     </button>
                     
@@ -173,12 +176,13 @@
                             data-active="{{ $hasDisliked ? 'true' : 'false' }}"
                             class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition duration-200
                             {{ $hasDisliked 
-                                ? 'bg-rose-950/80 text-rose-400 border border-rose-800/60' 
-                                : 'text-gray-300 hover:text-rose-400 hover:bg-slate-700/60' 
+                                ? 'bg-rose-950/80 text-rose-400 border  border-rose-800/60' 
+                                : 'text-gray-300 hover:text-rose-400  hover:bg-slate-700/60' 
                             }}">
                         <span class="uppercase">Dislike</span>
                         <span id="article-dislike-count-{{$article_trans->article->id}}" class="font-mono">
                             ({{$article_trans->article->reactions->where('type', 'dislike')->count()}})
+                            {{-- ({{$dislikesCount}}) --}}
                         </span>
                     </button>
                 </div>
@@ -656,7 +660,7 @@
             });
             let data = await request.json();
             let comment_text = document.getElementById(`comment-text-${id}`);
-            comment_text.textContent = data.new_body;
+            comment_text.innerHTML = data.new_body;
             hideEditForm(id);
         } catch(err) {
             console.log('Error in updating a comment:', err);
@@ -842,6 +846,53 @@
     }
 
 
+    async function toggleCommentReaction(event, commentId, type) {
+        event.preventDefault();
+        let url = "{{ route('comments.reactions.toggle') }}";
+
+        try {
+            let response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ id: commentId, type: type })
+            });
+
+            if (!response.ok) throw new Error('Network response was not ok');
+            let data = await response.json();
+
+            // 1. إعادة ضبط كافة أزرار التفاعلات الخاصة بهذا التعليق إلى الوضع غير المفعيل
+            const reactionTypes = ['like', 'dislike', 'shocked', 'confused', 'sad', 'angry', 'mind_blown'];
+            
+            reactionTypes.forEach(t => {
+                let btn = document.getElementById(`comment-reaction-${commentId}-${t}`);
+                let countSpan = document.getElementById(`comment-reaction-count-${commentId}-${t}`);
+                
+                // تحديث الأعداد (إذا كان العدد صفر، نتركه فارغاً أو نعرضه)
+                let currentCount = data.counts[t] || 0;
+                countSpan.textContent = currentCount > 0 ? currentCount : '';
+
+                // إزالة الأسلوب النشط واعادته للوضع الافتراضي
+                btn.setAttribute('data-active', 'false');
+                btn.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium transition border bg-slate-800/60 text-gray-400 border-slate-700/50 hover:bg-slate-800 hover:text-gray-200";
+            });
+
+            // 2. إذا لم يتم إزالة التفاعل (أي تم إضافته أو تحديثه)، نقوم بتلوين الزر المحدد فقط
+            if (data.status !== 'removed') {
+                let activeBtn = document.getElementById(`comment-reaction-${commentId}-${type}`);
+                activeBtn.setAttribute('data-active', 'true');
+                activeBtn.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium transition border bg-red-950/80 text-red-400 border-red-800/60 shadow-sm";
+            }
+
+        } catch (error) {
+            console.error('Error toggling comment reaction:', error);
+        }
+    }
+
+
     // to make 'Enter' create a new comment of a new reply instead of making a new line
     document.addEventListener('keydown', function(event) {
     // التحقق مما إذا كان العنصر الحالي عبارة عن textarea داخل نظام التعليقات
@@ -875,6 +926,29 @@
                 updateReply(replyId);
             }
         }
+    }
+});
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    if (window.location.hash) {
+        // محاولة البحث عن العنصر مباشرة
+        let targetElement = document.querySelector(window.location.hash);
+        
+        // إذا لم يتم العثور عليه مباشرة، ننتظر قليلاً لضمان اكتمال تحميل عناصر الصفحة
+        setTimeout(() => {
+            targetElement = document.querySelector(window.location.hash);
+            
+            if (targetElement) {
+                targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // إضافة ومضة حمراء خفيفة للتعليق المستهدف لتمييزه
+                targetElement.classList.add('ring-2', 'ring-red-500', 'transition', 'duration-500');
+                setTimeout(() => {
+                    targetElement.classList.remove('ring-2', 'ring-red-500');
+                }, 2500);
+            }
+        }, 400);
     }
 });
 

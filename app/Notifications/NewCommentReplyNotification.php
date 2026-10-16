@@ -9,7 +9,7 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Auth;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
-class NewCommentReply extends Notification
+class NewCommentReplyNotification extends Notification
 {
     use Queueable;
 
@@ -52,6 +52,7 @@ class NewCommentReply extends Notification
      *
      * @return array<string, mixed>
      */
+    /*
     public function toArray(object $notifiable): array
     {
         //$article_trans = $this->reply_item->article->translations()->where('language_code', LaravelLocalization::getCurrentLocale())->first();
@@ -67,6 +68,17 @@ class NewCommentReply extends Notification
             'article_trans_id' => $article_trans->id,
             'article_trans_slug' => $article_trans->slug,
             'message' => 'replied on your comment in this article'
+        ];
+    }
+        */
+    public function toArray(object $notifiable): array
+    {
+        return [
+            'reply_author_name' => Auth::user()->name,
+            'comment_body'      => $this->reply_item->body,
+            'reply_id'          => $this->reply_item->id,
+            'sender_locale'     => $this->original_comment_locale, // لغة المرسل لتحديد الترجمة بذكاء
+            'message'           => 'replied on your comment in this article'
         ];
     }
 }

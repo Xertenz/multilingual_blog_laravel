@@ -12,4 +12,10 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    server: {
+        host: "0.0.0.0",
+        hmr: {
+            host: "192.168.10.110", // ⚠️ استبدل هذا برقم الـ IP الخاص بكمبيوترك
+        },
+    },
 });

@@ -36,6 +36,7 @@ Route::group([
         // الإشعارات
         Route::get('/notifications/fetch', [NotificationController::class, 'fetch'])->name('notifications.fetch');
         Route::get('/notifications/{id}/read', [NotificationController::class, 'read'])->name('notifications.read');
+        Route::post('/notifications/mark-read-time', [NotificationController::class, 'updateLastRead'])->name('notifications.markReadTime');
 
         // ⭐ التعديل الجديد: صفحة الفئات المفضلة الخاصة بالعضو العادي ⭐
         Route::get('/my-favorite-categories', [ProfileController::class, 'favoriteCategories'])->name('profile.favorites');
@@ -48,12 +49,18 @@ Route::group([
         Route::post('/articles/comments', [CommentController::class, 'store'])->name('comments.store');
         Route::put('/articles/comments', [CommentController::class, 'update'])->name('comments.update');
         Route::delete('/articles/comments', [CommentController::class, 'delete'])->name('comments.delete');
+
         Route::post('/articles/reactions/toggle', [ReactionController::class, 'toggleArticleReaction'])->name('articles.reactions.toggle');
+        Route::post('/comments/reactions/toggle', [ReactionController::class, 'toggleCommentReaction'])->name('comments.reactions.toggle');
 
         // رابط عرض صفحة المقالات المفضلة للعضو
         Route::get('/my-favorite-articles', [ProfileController::class, 'favoriteArticles'])->name('profile.favorite-articles');
         // رابط إجراء الـ toggle لحفظ المقالة
         Route::post('articles/{article}/favorite', [ArticleFavoriteController::class, 'toggle'])->name('articles.favorite');
+
+        Route::get('/user-profile', function () {
+            return "this is public user profile page";
+        })->name('profile.show');
     });
 
     // استدعاء ملف الـ routes الخاص بـ Breeze (الـ login والـ register)
@@ -127,6 +134,11 @@ Route::group([
             Route::get('/series/{series}/edit', [App\Http\Controllers\Admin\SeriesController::class, 'edit'])->name('admin.series.edit');
             Route::put('/series/{series}', [App\Http\Controllers\Admin\SeriesController::class, 'update'])->name('admin.series.update');
             Route::delete('/series/{series}', [App\Http\Controllers\Admin\SeriesController::class, 'destroy'])->name('admin.series.destroy');
+
+            // مسارات مراجعة المقالات المعلقة
+            Route::get('/articles/pending', [ArticleController::class, 'pending'])->name('admin.articles.pending');
+            Route::post('/articles/{id}/approve', [ArticleController::class, 'approve'])->name('admin.articles.approve');
+            Route::post('/articles/{id}/reject', [ArticleController::class, 'reject'])->name('admin.articles.reject');
         });
     });
 
@@ -135,11 +147,6 @@ Route::group([
         Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
         Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
-
-        // مسارات مراجعة المقالات المعلقة
-        Route::get('/articles/pending', [ArticleController::class, 'pending'])->name('admin.articles.pending');
-        Route::post('/articles/{id}/approve', [ArticleController::class, 'approve'])->name('admin.articles.approve');
-        Route::post('/articles/{id}/reject', [ArticleController::class, 'reject'])->name('admin.articles.reject');
     });
 
     // الصفحات العامة الثابتة

@@ -10,7 +10,45 @@
             <p class="text-slate-500 font-mono text-[11px]">{{$comment_item->created_at->diffForHumans(['parts' => 1, 'short' => true])}}</p>
         </div>
 
-        <p id="comment-text-{{$comment_item->id}}" class="ms-3 mb-1 text-slate-300 text-xs leading-relaxed" style="white-space: pre-wrap">{{ $comment_item->body }}</p>
+        {{-- <p id="comment-text-{{$comment_item->id}}" class="ms-3 mb-1 text-slate-300 text-xs leading-relaxed" style="white-space: pre-wrap">{{ $comment_item->body }}</p> --}}
+             <p id="comment-text-{{$comment_item->id}}" class="ms-3 mb-1 text-slate-300 text-xs leading-relaxed" style="white-space: pre-wrap">{!! $comment_item->formatted_body !!}</p>
+
+        {{-- شريط التفاعلات الجنائية للتعليق --}}
+        <div class="flex flex-wrap items-center gap-1.5 ms-3 my-2">
+            @php
+                $reactionTypes = [
+                    'like' => ['icon' => '👍', 'label' => 'Like'],
+                    'dislike' => ['icon' => '👎', 'label' => 'Dislike'],
+                    'shocked' => ['icon' => '😲', 'label' => 'Shocked'],
+                    'confused' => ['icon' => '😕', 'label' => 'Confused'],
+                    'sad' => ['icon' => '😢', 'label' => 'Sad'],
+                    'angry' => ['icon' => '😡', 'label' => 'Angry'],
+                    'mind_blown' => ['icon' => '🤯', 'label' => 'Mind Blown'],
+                ];
+                
+                // جلب تفاعل المستخدم الحالي على هذا التعليق إن وجد
+                $userCommentReaction = Auth::check() ? $comment_item->reactions->where('user_id', Auth::id())->first() : null;
+            @endphp
+
+            @foreach($reactionTypes as $key => $data)
+                @php
+                    $count = $comment_item->reactions->where('type', $key)->count();
+                    $isActive = $userCommentReaction && $userCommentReaction->type === $key;
+                @endphp
+                <button type="button"
+                        id="comment-reaction-{{$comment_item->id}}-{{$key}}"
+                        onclick="toggleCommentReaction(event, {{$comment_item->id}}, '{{$key}}')"
+                        data-active="{{ $isActive ? 'true' : 'false' }}"
+                        class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium transition border
+                        {{ $isActive 
+                            ? 'bg-red-950/80 text-red-400 border-red-800/60 shadow-sm' 
+                            : 'bg-slate-800/60 text-gray-400 border-slate-700/50 hover:bg-slate-800 hover:text-gray-200' 
+                        }}">
+                    <span>{{ $data['icon'] }}</span>
+                    <span id="comment-reaction-count-{{$comment_item->id}}-{{$key}}" class="font-mono text-[10px]">{{ $count > 0 ? $count : '' }}</span>
+                </button>
+            @endforeach
+        </div>
 
         <div id="comment-actions-{{$comment_item->id}}" class="actions my-1.5 ms-3 flex justify-start gap-3 text-[11px] text-slate-500 font-medium">
             @if(Auth::check())

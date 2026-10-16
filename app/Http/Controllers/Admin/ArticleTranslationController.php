@@ -89,19 +89,8 @@ class ArticleTranslationController extends Controller
             $article = $article_trans->article;
 
             if ($article && $article->status === 'published' && $article->category) {
-                // Sending Notification one time for users
-                if ($article->translations()->count() === 1) {
-                    /*
-                    $article->load(['category.followers', 'translations']);
-                    $usersToNotify = $article->category->followers;
-
-                    if ($usersToNotify->isNotEmpty()) {
-                        Notification::send($usersToNotify, new NewArticleInFavoriteCategory($article));
-                    }
-                    */
-                    //SendNewArticleNotificationJob::dispatch($article)->noQueue('default');
-                    \App\Jobs\SendNewArticleNotificationJob::dispatch($article)->onQueue('default');
-                }
+                \App\Jobs\SendNewArticleNotificationJob::dispatch($article_trans)->onQueue('default');
+                //}
             }
 
             Cache::forget("article_show_{$article_trans->id}_lang_{$article_trans->language_code}");

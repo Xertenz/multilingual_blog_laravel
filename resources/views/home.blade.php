@@ -36,7 +36,7 @@
                                 'alt'   => $featuredTrans->title,
                             ]) }}
                         @else
-                            <img src="{{ asset('assets/images/placeholder.jpg') }}" 
+                            <img src="{{ asset('images/default-category.jpg') }}" 
                                  alt="{{ $featuredTrans->title }}" 
                                  class="w-full h-full object-cover rounded-xl transform hover:scale-105 transition-transform duration-500">
                         @endif

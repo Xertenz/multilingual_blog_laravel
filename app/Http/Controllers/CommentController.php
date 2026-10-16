@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Article;
 use App\Models\ArticleTranslation;
 use App\Models\Comment;
-use App\Notifications\NewCommentReply;
+use App\Models\User;
+use App\Notifications\NewCommentReplyNotification;
+use App\Notifications\UserMentionedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -27,12 +29,12 @@ class CommentController extends Controller
             'locale' => Rule::in(LaravelLocalization::getSupportedLanguagesKeys())
         ]);
 
-        /*
-        if (Auth::id() !== (int) $request->user_id) {
-            return response()->json(["error" => 'Not allowed']);
-            //return response()->json(["html"=> $request->all()]);
-        }
-        */
+        $comment_body = $request->comment_body;
+        // 1. استخراج جميع الكلمات التي تبدأ بـ @ عبر Regular Expression
+        preg_match_all('/@([a-zA-Z0-9_]+)/', $comment_body, $matches);
+        $usernames = $matches[1]; // ['Ahmad']
+
+        $mentionedUserIds = User::whereIn('name', $usernames)->pluck('id')->toArray();
 
         // Create new comment
         $comment_item = Comment::create([
@@ -40,10 +42,12 @@ class CommentController extends Controller
             'article_id' => $request->article_id,
             'parent_id' => $request->parent_id,
             'body' => trim(strip_tags($request->comment_body)),
-            //'locale' => $request->locale,
+            //'mentioned_user_ids' => json_encode($mentionedUserIds),
             'locale' =>  LaravelLocalization::getCurrentLocale()
         ]);
-        //return response()->json($request->all());
+
+        $comment_item->mentionedUsers()->sync($mentionedUserIds);
+
 
         // جلب المقال مع جميع ترجماته لمسح الكاش لكل لغات المقال
         // ليظهر التعليق في صفحة المقالة المترجمة مباشرة بدون انتظار انتهاء الكاش
@@ -65,10 +69,19 @@ class CommentController extends Controller
             $receiver = $original_comment->user;
             $original_comment_locale = $original_comment->locale;
 
-            // don't send the notification if the notifiable is the current user
-            if ($receiver->id !== Auth::id()) {
-                //$receiver->notify(new NewCommentReply($comment_item->article_id, $article_trans->id, Auth::user()->name, $comment_item->body));
-                $receiver->notify(new NewCommentReply($comment_item, $original_comment_locale));
+            // لا تقم بإرسال إشعار الرد في حالتين:
+            // 1. إذا كان المستلم هو نفس الشخص الكاتب (Auth::id())
+            // 2. إذا كان المستلم نفسه سيصله إشعار Mention في نفس الرد (لتجنب التكرار وإرسال إشعار الإشارة فقط)
+            if ($receiver->id !== Auth::id() && !in_array($receiver->id, $mentionedUserIds)) {
+                $receiver->notify(new NewCommentReplyNotification($comment_item, $original_comment_locale));
+            }
+        }
+
+        // 4. إرسال إشعارات لكل شخص تم عمل Mention له
+        foreach ($mentionedUserIds as $userId) {
+            $user = User::find($userId);
+            if ($user->id !== Auth::id()) { // لا تُرسل إشعار لنفسك
+                $user->notify(new \App\Notifications\UserMentionedNotification($comment_item));
             }
         }
 
@@ -92,12 +105,37 @@ class CommentController extends Controller
 
         $comment_item = Comment::find($request->id);
         if (Auth::id() !== $comment_item->user_id) {
-            return response()->json(['error' => 'This comment is not yours']);
+            //return response()->json(['error' => 'This comment is not yours']);
+            return response()->json(['error' => 'Unauthorized'], 403);
         }
 
+        $newBody = $request->input('body');
+
+        // 1. استخراج أسماء المستخدمين الجدد من النص المعدل عبر Regular Expression
+        preg_match_all('/@([a-zA-Z0-9_]+)/', $newBody, $matches);
+        $usernames = $matches[1];
+
+        // 2. البحث عن الـ IDs الخاصة بالمستخدمين في قاعدة البيانات
+        $mentionedUserIds = User::whereIn('name', $usernames)->pluck('id')->toArray();
+
+        // 3. تحديث محتوى التعليق
         $comment_item->update([
-            'body' => trim(strip_tags($request->body)),
+            'body' => trim(strip_tags($newBody)),
         ]);
+
+        // 4. مزامنة جدول المنشنات الوسيط (يحذف القديم غير الموجود ويضيف الجديد تلقائياً)
+        // إذا كنت قد عرفت علاقة mentionedUsers في نموذج Comment
+        $comment_item->mentionedUsers()->sync($mentionedUserIds);
+
+        // 5. (اختياري) إرسال إشعارات لمن تم الإشارة إليهم حديثاً ولم يكونوا موجودين مسبقاً
+        foreach ($mentionedUserIds as $userId) {
+            $user = User::find($userId);
+            // نتحقق ألا يُرسل إشعار لنفسه، وألا يكون قد استلم إشعاراً مسبقاً لنفس التعليق
+            if ($user->id !== Auth::id()) {
+                // يمكنك هنا إرسال الإشعار بالطريقة التي تفضلها
+                $user->notify(new UserMentionedNotification($comment_item));
+            }
+        }
 
         // جلب المقال وترجماته المرتبطة بالتعليق ومسح الكاش ليظهر
         // التعليق في صفحة المقالة مباشرة بدون تأخير
@@ -110,7 +148,7 @@ class CommentController extends Controller
 
         return response()->json([
             'message' => 'Comment Updated Successfully',
-            'new_body' => $comment_item->body
+            'new_body' => $comment_item->formatted_body
         ]);
     }
 

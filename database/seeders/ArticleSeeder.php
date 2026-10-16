@@ -19,6 +19,7 @@ class ArticleSeeder extends Seeder
             'user_id' => 1,
             'sign' => 'a',
             'views' => 0,
+            'status' => 'published',
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
         ]);

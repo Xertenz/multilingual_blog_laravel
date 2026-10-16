@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Category;
 use App\Support\PathGenerator\CustomPathGenerator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -37,7 +38,12 @@ class AppServiceProvider extends ServiceProvider
             $categories = Cache::remember($cacheKey, 3600, function () use ($current_locale) {
                 return Category::with(['translations' => function ($query) use ($current_locale) {
                     $query->where('language_code', $current_locale);
-                }])->get();
+                }])
+                    ->whereHas('translations', function ($query) use ($current_locale) {
+                        $query->where('language_code', $current_locale);
+                    })
+                    ->orderBy('sign', 'asc')
+                    ->get();
             });
             $navbar_view->with('categories', $categories);
         });

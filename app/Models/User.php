@@ -23,7 +23,8 @@ class User extends AuthenticatableUser implements Authenticatable
         'name',
         'email',
         'password',
-        'is_admin'
+        'is_admin',
+        'locale'
     ];
 
     protected $hidden = [
@@ -76,5 +77,16 @@ class User extends AuthenticatableUser implements Authenticatable
                 return $role ? ucwords(str_replace('-', ' ', $role->name)) : 'User';
             }
         );
+    }
+
+    public function mentionedInComments(): BelongsToMany
+    {
+        // نحدد اسم الجدول الوسيط وعمود الـ foreign keys بدقة
+        return $this->belongsToMany(
+            Comment::class,            // النموذج المرتبط (التعليقات)
+            'comment_user_mentions',   // اسم الجدول الوسيط
+            'user_id',                 // المفتاح الأجنبي الخاص بالمستخدم في الجدول الوسيط
+            'comment_id'               // المفتاح الأجنبي الخاص بالتعليق في الجدول الوسيط
+        )->withTimestamps();
     }
 }
