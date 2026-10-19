@@ -47,7 +47,7 @@ class Comment extends Model
             $user = User::where('name', $username)->first();
 
             if ($user) {
-                return '<a href="' . route('profile.show', $username) . '" class="text-blue-500 font-semibold">@' . $username . '</a>';
+                return '<a href="' . route('profile.show', $user->id) . '" class="text-blue-500 font-semibold">@' . $username . '</a>';
             }
 
             return '@' . $username;

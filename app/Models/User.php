@@ -63,7 +63,7 @@ class User extends AuthenticatableUser implements Authenticatable
         return $this->belongsToMany(Category::class, 'category_user')->withTimestamps();
     }
 
-    public function favoriteArticles(): BelongsToMany
+    public function savedArticles(): BelongsToMany
     {
         return $this->belongsToMany(Article::class, 'article_user')->withTimestamps();
     }

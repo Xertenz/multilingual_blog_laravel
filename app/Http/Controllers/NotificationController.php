@@ -109,7 +109,7 @@ class NotificationController extends Controller
                             'slug' => $articleTrans->slug
                         ]));
 
-                        $targetUrl = $baseUrl . '#reply-item-' . $replyComment->id;
+                        $targetUrl = $baseUrl . '#comment-' . $replyComment->id;
                     }
                 } else {
                     // تراجع آمن (Fallback) في حال كان الإشعار قديماً جداً وتم حذفه أو تلفه
@@ -170,7 +170,8 @@ class NotificationController extends Controller
                     $comment = $targetId ? \App\Models\Comment::find($targetId) : null;
 
                     if ($comment) {
-                        $targetUrl = $baseUrl . (!empty($comment->parent_id) ? "#reply-item-{$targetId}" : "#comment-{$targetId}");
+                        //$targetUrl = $baseUrl . (!empty($comment->parent_id) ? "#reply-item-{$targetId}" : "#comment-{$targetId}");
+                        $targetUrl = $baseUrl .  "#comment-{$targetId}";
                     } else {
                         $targetUrl = $baseUrl;
                     }

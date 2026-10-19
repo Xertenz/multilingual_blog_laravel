@@ -14,9 +14,9 @@
                     </p>
                 </div>
 
-                <div class="p-6 sm:p-8" id="favorite-articles-grid-wrapper">
+                <div class="p-6 sm:p-8" id="saved-articles-grid-wrapper">
                     @php
-                        $savedArticles = isset($favoriteArticles) ?$favoriteArticles : collect();
+                        $savedArticles = isset($savedArticles) ?$savedArticles : collect();
                     @endphp
 
                     @forelse ($savedArticles as $article)
@@ -76,7 +76,7 @@
         async function removeArticleFromProfile(event, articleId) {
             event.preventDefault();
             
-            const baseUrl = "{{ route('articles.favorite', ':id') }}";
+            const baseUrl = "{{ route('articles.saved', ':id') }}";
             const url = baseUrl.replace(':id', articleId);
             const card = document.getElementById(`article-card-${articleId}`);
             
@@ -104,7 +104,7 @@
                         
                         const grid = document.getElementById('articles-grid');
                         if (grid && grid.children.length === 0) {
-                            document.getElementById('favorite-articles-grid-wrapper').innerHTML = `
+                            document.getElementById('saved-articles-grid-wrapper').innerHTML = `
                                 <div class="text-center py-12 bg-slate-900/40 rounded-xl border border-dashed border-slate-800">
                                     <span class="text-3xl mb-2 block">📚</span>
                                     <p class="text-sm font-medium text-slate-400">{{ __('Your reading list is empty.') }}</p>
@@ -115,12 +115,11 @@
                 }
 
                 if(typeof window.showToast == 'function') {
-                    showToast('success', "{{ __('Successfully removed from favorites!') }}");
+                    showToast('success', "{{ __('Successfully removed from saved!') }}");
                 }
             } catch (error) {
-                console.error('Error removing article from profile:', error);
                 if(typeof window.showToast == 'function') {
-                    showToast('error', "{{ __('Error in removing from favorites!') }}");
+                    showToast('error', "{{ __('Error in removing from saved!') }}");
                 }
             }
         }

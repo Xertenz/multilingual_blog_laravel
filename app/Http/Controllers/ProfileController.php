@@ -33,16 +33,16 @@ class ProfileController extends Controller
         ]);
     }
 
-    public function favoriteArticles(Request $request)
+    public function savedArticles(Request $request)
     {
         $lang_code = LaravelLocalization::getCurrentLocale();
         $user = $request->user()->load([
-            'favoriteArticles.translations' => function ($query) use ($lang_code) {
+            'savedArticles.translations' => function ($query) use ($lang_code) {
                 $query->where('language_code', $lang_code);
             }
         ]);
-        return view('profile.favorite-articles', [
-            'favoriteArticles' => $user->favoriteArticles,
+        return view('profile.saved-articles', [
+            'savedArticles' => $user->savedArticles,
         ]);
     }
 

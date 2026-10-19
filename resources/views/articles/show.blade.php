@@ -26,7 +26,7 @@
         @foreach($article_trans->article->translations as $translation)
             <link rel="alternate"
                 hreflang="{{ $translation->language_code }}" 
-                href="{{ route('articles.show', ['slug' => $translation->slug, 'id' => $translation->id]) }}">
+                href="{{ route('articles.show', ['slug' => $translation->slug, 'id' =>$translation->id]) }}">
         @endforeach
     @endif
 
@@ -92,15 +92,15 @@
                     </div>
                 </div>
 
-                <!-- زر حفظ المقالة في الأعلى (تم نقله هنا لجمال التصميم) -->
+                <!-- زر حفظ المقالة -->
                 @auth
                     @php
-                        $isArticleSaved = auth()->user()->favoriteArticles->contains($article_trans->article_id);
+                        $isArticleSaved = auth()->user()->savedArticles->contains($article_trans->article_id);
                     @endphp
 
                     <button type="button" 
                             id="save-article-btn-{{ $article_trans->article_id }}"
-                            onclick="toggleFavoriteArticle(event, {{ $article_trans->article_id }})"
+                            onclick="toggleSavedArticle(event, {{ $article_trans->article_id }})"
                             data-saved="{{ $isArticleSaved ? 'true' : 'false' }}"
                             class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 border
                             {{ $isArticleSaved 
@@ -137,16 +137,12 @@
             <!-- السطر الأول: الإعجابات وتفضيل الفئة -->
             <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800/60">
                 
-                <!-- أزرار الـ Reactions (Like / Dislike) مجمعة ومتفاعلة بصرياً -->
+                <!-- أزرار الـ Reactions (Like / Dislike) للمقال -->
                 <div class="flex items-center bg-slate-800/80 rounded-xl p-1 border border-slate-700/50">
                     @auth
                         @php
-                            // فحص تفاعل المستخدم الحالي مع هذه المقالة
-                            $userReaction = $article_trans->article->reactions->where('user_id', auth()->id())->first();
-
-                            $hasLiked = $userReaction && $userReaction->type === 'like';
-                            $hasDisliked = $userReaction && $userReaction->type === 'dislike';
-                        
+                            $userReaction =$article_trans->article->reactions->where('user_id', auth()->id())->first();
+                            $hasLiked =$userReaction && $userReaction->type === 'like';$hasDisliked = $userReaction &&$userReaction->type === 'dislike';
                         @endphp
                     @else
                         @php $hasLiked = false; $hasDisliked = false; @endphp
@@ -164,7 +160,6 @@
                         <span class="uppercase">Like</span>
                         <span id="article-like-count-{{$article_trans->article->id}}" class="font-mono">
                             ({{$article_trans->article->reactions->where('type', 'like')->count()}})
-                            {{-- ({{$likesCount}}) --}}
                         </span>
                     </button>
                     
@@ -176,31 +171,29 @@
                             data-active="{{ $hasDisliked ? 'true' : 'false' }}"
                             class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition duration-200
                             {{ $hasDisliked 
-                                ? 'bg-rose-950/80 text-rose-400 border  border-rose-800/60' 
-                                : 'text-gray-300 hover:text-rose-400  hover:bg-slate-700/60' 
+                                ? 'bg-rose-950/80 text-rose-400 border border-rose-800/60' 
+                                : 'text-gray-300 hover:text-rose-400 hover:bg-slate-700/60' 
                             }}">
                         <span class="uppercase">Dislike</span>
                         <span id="article-dislike-count-{{$article_trans->article->id}}" class="font-mono">
                             ({{$article_trans->article->reactions->where('type', 'dislike')->count()}})
-                            {{-- ({{$dislikesCount}}) --}}
                         </span>
                     </button>
                 </div>
 
-                <!-- قسم فئة المقال وزر الحفظ الخاص بها (بتنسيق موحد ومتناسق) -->
+                <!-- قسم فئة المقال وزر المتابعة الخاص بها -->
                 <div class="flex items-center flex-wrap gap-2">
                     <span class="text-gray-500 text-xs font-medium">More in:</span>
                     @php
-                        $current_locale = app()->getLocale(); 
-                        $category_translation = $article_trans->article->category->translations->where('language_code', $current_locale)->first();
-                        $categoryName = $category_translation ? $category_translation->name : $article_trans->article->category->sign;
-                        $categoryId = $article_trans->article->category->id;
+                        $current_locale = app()->getLocale();$category_translation = $article_trans->article->category->translations->where('language_code',$current_locale)->first();
+                        $categoryName =$category_translation ? $category_translation->name :$article_trans->article->category->sign;
+                        $categoryId =$article_trans->article->category->id;
                     @endphp
 
                     @if($category_translation)
                         <div class="inline-flex items-center bg-slate-800/80 rounded-xl p-1 border border-slate-700/50 gap-1">
                             <!-- رابط الفئة -->
-                            <a href="{{ route('categories.show', ['id' => $category_translation->id, 'slug' => $category_translation->slug]) }}" 
+                            <a href="{{ route('categories.show', ['id' => $category_translation->id, 'slug' =>$category_translation->slug]) }}" 
                                 class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-400 hover:text-red-300 hover:bg-slate-700/60 rounded-lg transition duration-200">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776"></path>
@@ -215,7 +208,7 @@
                                     $isCategoryFavorite = Auth::user()->favoriteCategories->contains($categoryId);
                                 @endphp
 
-                                <!-- زر متابعة/إلغاء متابعة الفئة بتنسيق متطابق -->
+                                <!-- زر متابعة/إلغاء متابعة الفئة -->
                                 <button type="button" 
                                         id="fav-category-btn-{{ $categoryId }}"
                                         onclick="toggleFavoriteCategory(event, {{ $categoryId }})"
@@ -239,17 +232,6 @@
                             @endauth
                         </div>
                     @endif
-
-                    {{--
-                    @guest
-                        @if($category_translation)
-                            <a href="{{ route('categories.show', ['id' => $category_translation->id, 'slug' => $category_translation->slug]) }}" 
-                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-slate-800/80 text-red-400 border border-slate-700/50 rounded-xl hover:bg-slate-700/60 transition">
-                                {{ $categoryName }}
-                            </a>
-                        @endif
-                    @endguest
-                    --}}
                 </div>
             </div>
 
@@ -260,9 +242,8 @@
                     
                     @foreach($article_trans->article->tags as $tag)
                         @php
-                            $current_locale = app()->getLocale(); 
-                            $tag_translation = $tag->translations->where('language_code', $current_locale)->first();
-                            $tagName = $tag_translation ? $tag_translation->name : $tag->sign;
+                            $current_locale = app()->getLocale();$tag_translation = $tag->translations->where('language_code',$current_locale)->first();
+                            $tagName =$tag_translation ? $tag_translation->name :$tag->sign;
                         @endphp
                         
                         @if ($tag_translation)
@@ -317,55 +298,9 @@
         </footer>
 
         <!-- ==================== -->
-        <!-- قسم التعليقات (Comments Section) -->
+        <!-- قسم التعليقات المباشر عبر Livewire -->
         <!-- ==================== -->
-        <section class="mt-16 pt-8 border-t border-gray-800">
-            
-            <!-- عنوان التعليقات وعددها الحالي -->
-            @if ($article_trans->article->comments->count() > 0)
-                <h2 class="text-xl font-bold text-white mb-6">Comments ({{$article_trans->article->comments->count()}})</h2>
-            @else
-                <h2 class="text-xl font-bold text-gray-400 mb-6 italic">No comments yet</h2>
-            @endif
-
-            <!-- نموذج إضافة تعليق جديد -->
-            <div class="comments-wrapper mb-8 bg-slate-900/40 p-4 rounded-xl border border-slate-850">
-                @auth
-                    <form action="" data-article-id="{{ $article_trans->article->id }}" method="POST" id="comment-form" class="space-y-3">
-                        @csrf
-                        <textarea 
-                            name="comment-body"
-                            id="comment-body"
-                            rows="4"
-                            placeholder="Write a public comment..."
-                            class="w-full text-slate-200 bg-slate-800 placeholder-slate-500 py-3 px-4 rounded-xl border border-slate-700 transition duration-200 focus:border-red-600 focus:outline-none focus:ring-0 text-sm"
-                            style="field-sizing: content;"
-                        ></textarea>
-                        <div class="flex justify-end">
-                            <button class="bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs py-2 px-4 rounded-lg transition duration-150" onclick="addComment(this)">
-                                Add Comment
-                            </button>
-                        </div>
-                    </form>
-                @else
-                    <div class="p-4 text-center rounded-lg bg-slate-900/80 border border-slate-800">
-                        <p class="text-sm text-gray-400 italic">
-                            Create an account to participate in the discussion: 
-                            <a href="{{route('register')}}" class="text-sky-400 hover:underline font-semibold not-italic ml-1">Register Now</a>
-                        </p>
-                    </div>
-                @endauth
-            </div>
-
-            <!-- حاوية عرض شجرة التعليقات -->
-            <div class="mt-6">
-                <ul id="comments-container" class="space-y-4">
-                @foreach ($article_trans->article->comments->where('parent_id', null) as $comment)
-                    @include('partials.comment_item', ['comment_item' => $comment])
-                @endforeach
-                </ul>
-            </div>
-        </section>
+        <livewire:article-comments :article-id="$article_trans->article->id" />
 
     </div>
 
@@ -401,20 +336,19 @@
     
     // 3. معرض الصور (Evidence Lightbox)
     function openLightbox(index) {
-        const images = @json($article_trans->article->getMedia('content_imgs')->map(fn($img) => $img->getUrl()));
+        const images = @json($article_trans->article->getMedia('content_imgs')->map(fn($img) =>$img->getUrl()));
         alert('Opening evidence image #' + (index + 1));
     }
 
-    // 4. نظام حفظ وتفضيل المقالات والفئات (Favorites System)
-    async function toggleFavoriteArticle(event, articleId) {
+    // 4. نظام حفظ المقالات وتفضيل الفئات (Favorites & Saved System)
+    async function toggleSavedArticle(event, articleId) {
         event.preventDefault();
-        const baseUrl = "{{ route('articles.favorite', ':id') }}";
+        const baseUrl = "{{ route('articles.saved', ':id') }}";
         const url = baseUrl.replace(':id', articleId);
-        
+
         const btn = document.getElementById(`save-article-btn-${articleId}`);
         const icon = document.getElementById(`save-icon-${articleId}`);
         const textSpan = document.getElementById(`save-text-${articleId}`);
-
 
         try {
             let response = await fetch(url, {
@@ -435,18 +369,18 @@
                 icon.classList.remove('fill-none');
                 icon.classList.add('fill-current', 'text-white');
                 textSpan.textContent = "{{ __('Saved') }}";
-                showToast('success', "Successfully added to favorites!");
+                showToast('success', "Successfully added to saved!");
             } else {
                 btn.setAttribute('data-saved', 'false');
                 btn.className = "inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 border bg-slate-800 text-gray-300 border-slate-700 hover:bg-slate-700 hover:text-white";
                 icon.classList.remove('fill-current', 'text-white');
                 icon.classList.add('fill-none');
                 textSpan.textContent = "{{ __('Save Article') }}";
-                showToast('success', "Successfully removed from favorites!");
+                showToast('success', "Successfully removed from saved!");
             }
         } catch (error) {
-            console.error('Error toggling favorite status:', error);
-            showToast('error', "Error in the operation with favorite articles!");
+            console.error('Error toggling saved status:', error);
+            showToast('error', "Error in the operation with saved articles!");
         }
     }
 
@@ -493,7 +427,7 @@
         }
     }
 
-    // 5. تفاعلات الإعجاب وعدم الإعجاب (Likes & Dislikes System)
+    // 5. تفاعلات إعجاب المقالة (Article Like / Dislike)
     async function articleLike(event, id) {
         let type = 'like';
         let url = "{{ route('articles.reactions.toggle') }}";
@@ -564,394 +498,22 @@
         }
     }
 
-    // 6. نظام التعليقات الأساسية (Comments System)
-    async function addComment(event) {
-        let commentForm = document.getElementById('comment-form');
-        commentForm.onsubmit = function(e) { e.preventDefault(); }
-        
-        let article_id = commentForm.dataset.articleId;
-        let comment_body = document.getElementById('comment-body');
-        let locale = "{{ LaravelLocalization::getCurrentLocale() }}";
-        let url = "{{ route('comments.store') }}";
-        let comment_item;
-
-        if (comment_body.value == '') { return; }
-
-        try {
-            let res = await fetch(url, {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({ article_id, parent_id: null, comment_body: comment_body.value, locale })
-            });
-            comment_item = await res.json();
+    // 6. التمرير والتمييز البصري فور فتح رابط يحتوي على هاش تعليق (#comment-123)
+    document.addEventListener("DOMContentLoaded", function() {
+        if (window.location.hash) {
+            let targetElement = document.querySelector(window.location.hash);
             
-            comment_body.value = '';
-            let comm_cont = document.getElementById('comments-container');
-            comm_cont.insertAdjacentHTML('afterbegin', comment_item.html);
-        } catch(err) {
-            alert('Error in adding a comment:', err);
-        }                 
-    }
-
-    /*
-    function showEditForm(id) {
-        hideReplyForm(id);
-        let comment_actions = document.getElementById(`comment-actions-${id}`);
-        let edit_form = document.getElementById(`edit-form-${id}`);
-        let edit_input = document.getElementById(`edit-input-${id}`);
-        edit_form.style.display = 'block';
-        comment_actions.style.display = 'none';
-        edit_input.focus();
-
-        let commentText = document.getElementById(`comment-text-${id}`);
-        commentText.style.display = 'none';
-    }
-        */
-    function showEditForm(id) {
-        hideReplyForm(id);
-        let comment_actions = document.getElementById(`comment-actions-${id}`);
-        let edit_form = document.getElementById(`edit-form-${id}`);
-        let edit_input = document.getElementById(`edit-input-${id}`);
-        if (edit_form) edit_form.style.display = 'block';
-        if (comment_actions) comment_actions.style.display = 'none';
-        if (edit_input) edit_input.focus();
-
-        let commentText = document.getElementById(`comment-text-${id}`);
-        if (commentText) commentText.style.display = 'none';
-    }
-
-    /*
-    function hideEditForm(id) {
-        let comment_actions = document.getElementById(`comment-actions-${id}`);
-        let edit_form = document.getElementById(`edit-form-${id}`);
-        if (edit_form) { edit_form.style.display = 'none'; }
-        comment_actions.style.display = 'flex';
-
-        let commentText = document.getElementById(`comment-text-${id}`);
-        commentText.style.display = 'block';
-    }
-    */
-    function hideEditForm(id) {
-        let comment_actions = document.getElementById(`comment-actions-${id}`);
-        let edit_form = document.getElementById(`edit-form-${id}`);
-        if (edit_form) { edit_form.style.display = 'none'; }
-        if (comment_actions) { comment_actions.style.display = 'flex'; }
-
-        let commentText = document.getElementById(`comment-text-${id}`);
-        if (commentText) { commentText.style.display = 'block'; }
-    }
-
-    async function updateComment(id) {
-        let new_body = document.getElementById(`edit-input-${id}`);
-        let url = "{{ route('comments.update') }}";
-
-        try {
-            let request = await fetch(url, {
-                method: "PUT",
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({ id, body: new_body.value })
-            });
-            let data = await request.json();
-            let comment_text = document.getElementById(`comment-text-${id}`);
-            comment_text.innerHTML = data.new_body;
-            hideEditForm(id);
-        } catch(err) {
-            console.log('Error in updating a comment:', err);
-        }            
-    }
-
-    async function deleteComment(id) {
-        if (!confirm('Are you sure?')) { return; }
-        let url = "{{ route('comments.delete') }}";
-
-        try {
-            let request = await fetch(url, {
-                method: "DELETE",
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({ id })
-            });
-            let data = await request.json();
-            let comment_item = document.getElementById(`comment-${id}`);
-            comment_item.style.transition = '0.5s';
-            comment_item.style.opacity = '0';
-            setTimeout(() => { comment_item.remove(); }, 500);
-        } catch(err) {
-            console.log('Error in deleting a comment:', err);
-        }
-    }
-
-    // 7. نظام الردود على التعليقات (Replies System)
-    /*
-    function showReplyForm(id) {
-        hideEditForm(id);
-        let comment_actions = document.getElementById(`comment-actions-${id}`);
-        let reply_form = document.getElementById(`reply-form-${id}`);
-        let reply_input = document.getElementById(`reply-input-${id}`);
-        reply_form.style.display = 'block';
-        comment_actions.style.display = 'none';
-        reply_input.focus();
-    }
-    */
-
-    function showReplyForm(id) {
-        hideEditForm(id);
-        // نتحقق من نوع العنصر (هل هو تعليق رئيسي أم رد فرعي) لإخفاء أزراره الصحيحة
-        let actions = document.getElementById(`comment-actions-${id}`) || document.getElementById(`reply-actions-${id}`);
-        let reply_form = document.getElementById(`reply-form-${id}`);
-        let reply_input = document.getElementById(`reply-input-${id}`);
-        
-        if (reply_form) reply_form.style.display = 'block';
-        if (actions) actions.style.display = 'none';
-        if (reply_input) reply_input.focus();
-    }
-
-    /*
-    function hideReplyForm(id) {
-        let comment_actions = document.getElementById(`comment-actions-${id}`);
-        let reply_form = document.getElementById(`reply-form-${id}`);
-        reply_form.style.display = 'none';
-        comment_actions.style.display = 'flex';
-    }
-    */
-   function hideReplyForm(id) {
-        let actions = document.getElementById(`comment-actions-${id}`) || document.getElementById(`reply-actions-${id}`);
-        let reply_form = document.getElementById(`reply-form-${id}`);
-        
-        if (reply_form) reply_form.style.display = 'none';
-        if (actions) actions.style.display = 'flex';
-    }
-
-    async function replyToComment(event, parent_id) {
-        let comment_reply_body = document.getElementById(`reply-input-${parent_id}`);
-        let article_id = comment_reply_body.dataset.articleId;
-        let url = "{{ route('comments.store') }}";
-
-        if (comment_reply_body.value == '') { return; }
-
-        try {
-            let res = await fetch(url, {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({ article_id, parent_id, comment_body: comment_reply_body.value })
-            });
-            let comment_reply_item = await res.json();
-            comment_reply_body.value = '';
-            let replies_cont = document.getElementById(`replies-container-${parent_id}`);
-            
-            replies_cont.insertAdjacentHTML('beforeend', comment_reply_item.html);
-            hideReplyForm(parent_id);
-        } catch(err) {
-            alert('Error in replying to a comment:', err);
-        }
-    }
-
-    // --- تم توحيد دوال تعديل وحذف الردود هنا بشكل نظيف ومتناسق 100% ---
-    
-    function showEditReplyForm(replyId) {
-        document.getElementById(`reply-text-${replyId}`).style.display = 'none';
-        document.getElementById(`reply-actions-${replyId}`).style.display = 'none';
-        document.getElementById(`edit-reply-form-${replyId}`).style.display = 'block';
-        
-        let reply_input = document.getElementById(`new-reply-input-${replyId}`);
-        if (reply_input) reply_input.focus();
-    }
-
-    function hideEditReplyForm(replyId) {
-        document.getElementById(`reply-text-${replyId}`).style.display = 'block';
-        document.getElementById(`reply-actions-${replyId}`).style.display = 'flex';
-        document.getElementById(`edit-reply-form-${replyId}`).style.display = 'none';
-    }
-
-    async function updateReply(replyId) {
-        const newBody = document.getElementById(`new-reply-input-${replyId}`).value;
-        const url = "{{ route('comments.update') }}";
-
-        try {
-            let response = await fetch(url, {
-                method: "PUT", // ميثود الـ POST لأن الـ Controller يستقبلها هكذا في الـ Route الخاص بك
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    id: replyId,
-                    body: newBody
-                })
-            });
-
-            let data = await response.json();
-
-            if (response.ok) {
-                document.getElementById(`reply-text-${replyId}`).textContent = data.new_body;
-                hideEditReplyForm(replyId);
-            } else {
-                alert(data.error || 'Error updating reply');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-        }
-    }
-
-    async function deleteReply(replyId) {
-        if (!confirm('Are you sure you want to delete this reply?')) return;
-        const url = "{{ route('comments.delete') }}";
-
-        try {
-            let response = await fetch(url, {
-                method: "DELETE",
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    id: replyId
-                })
-            });
-
-            let data = await response.json();
-
-            if (response.ok) {
-                const replyItem = document.getElementById(`reply-item-${replyId}`);
-                if (replyItem) {
-                    replyItem.style.opacity = '0';
-                    replyItem.style.transform = 'scale(0.95)';
-                    replyItem.style.transition = 'all 0.3s ease';
-                    
+            setTimeout(() => {
+                targetElement = document.querySelector(window.location.hash);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    targetElement.classList.add('ring-2', 'ring-red-500', 'transition', 'duration-500');
                     setTimeout(() => {
-                        replyItem.remove();
-                    }, 300);
+                        targetElement.classList.remove('ring-2', 'ring-red-500');
+                    }, 2500);
                 }
-            } else {
-                alert(data.error || 'Error deleting reply');
-            }
-        } catch (error) {
-            console.error('Error:', error);
+            }, 400);
         }
-    }
-
-
-    async function toggleCommentReaction(event, commentId, type) {
-        event.preventDefault();
-        let url = "{{ route('comments.reactions.toggle') }}";
-
-        try {
-            let response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ id: commentId, type: type })
-            });
-
-            if (!response.ok) throw new Error('Network response was not ok');
-            let data = await response.json();
-
-            // 1. إعادة ضبط كافة أزرار التفاعلات الخاصة بهذا التعليق إلى الوضع غير المفعيل
-            const reactionTypes = ['like', 'dislike', 'shocked', 'confused', 'sad', 'angry', 'mind_blown'];
-            
-            reactionTypes.forEach(t => {
-                let btn = document.getElementById(`comment-reaction-${commentId}-${t}`);
-                let countSpan = document.getElementById(`comment-reaction-count-${commentId}-${t}`);
-                
-                // تحديث الأعداد (إذا كان العدد صفر، نتركه فارغاً أو نعرضه)
-                let currentCount = data.counts[t] || 0;
-                countSpan.textContent = currentCount > 0 ? currentCount : '';
-
-                // إزالة الأسلوب النشط واعادته للوضع الافتراضي
-                btn.setAttribute('data-active', 'false');
-                btn.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium transition border bg-slate-800/60 text-gray-400 border-slate-700/50 hover:bg-slate-800 hover:text-gray-200";
-            });
-
-            // 2. إذا لم يتم إزالة التفاعل (أي تم إضافته أو تحديثه)، نقوم بتلوين الزر المحدد فقط
-            if (data.status !== 'removed') {
-                let activeBtn = document.getElementById(`comment-reaction-${commentId}-${type}`);
-                activeBtn.setAttribute('data-active', 'true');
-                activeBtn.className = "inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium transition border bg-red-950/80 text-red-400 border-red-800/60 shadow-sm";
-            }
-
-        } catch (error) {
-            console.error('Error toggling comment reaction:', error);
-        }
-    }
-
-
-    // to make 'Enter' create a new comment of a new reply instead of making a new line
-    document.addEventListener('keydown', function(event) {
-    // التحقق مما إذا كان العنصر الحالي عبارة عن textarea داخل نظام التعليقات
-    if (event.target && event.target.tagName === 'TEXTAREA') {
-        // إذا ضغط المستخدم على Enter بدون مفتاح Shift
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault(); // منع السلوك الافتراضي (النزول لسطر جديد)
-            
-            let textarea = event.target;
-            let id = textarea.id;
-
-            // 1. إذا كان حقل التعليق الأساسي الجديد
-            if (id === 'comment-body') {
-                let addBtn = textarea.closest('form').querySelector('button');
-                if (addBtn) addBtn.click();
-            }
-            // 2. إذا كان حقل رد على تعليق (يبدأ بـ reply-input-)
-            else if (id.startsWith('reply-input-')) {
-                let commentId = id.replace('reply-input-', '');
-                let replyBtn = textarea.closest('div').querySelector('button');
-                if (replyBtn) replyBtn.click();
-            }
-            // 3. إذا كان حقل تعديل تعليق (يبدأ بـ edit-input-)
-            else if (id.startsWith('edit-input-')) {
-                let commentId = id.replace('edit-input-', '');
-                updateComment(commentId);
-            }
-            // 4. إذا كان حقل تعديل رد (يبدأ بـ new-reply-input-)
-            else if (id.startsWith('new-reply-input-')) {
-                let replyId = id.replace('new-reply-input-', '');
-                updateReply(replyId);
-            }
-        }
-    }
-});
-
-
-document.addEventListener("DOMContentLoaded", function() {
-    if (window.location.hash) {
-        // محاولة البحث عن العنصر مباشرة
-        let targetElement = document.querySelector(window.location.hash);
-        
-        // إذا لم يتم العثور عليه مباشرة، ننتظر قليلاً لضمان اكتمال تحميل عناصر الصفحة
-        setTimeout(() => {
-            targetElement = document.querySelector(window.location.hash);
-            
-            if (targetElement) {
-                targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                
-                // إضافة ومضة حمراء خفيفة للتعليق المستهدف لتمييزه
-                targetElement.classList.add('ring-2', 'ring-red-500', 'transition', 'duration-500');
-                setTimeout(() => {
-                    targetElement.classList.remove('ring-2', 'ring-red-500');
-                }, 2500);
-            }
-        }, 400);
-    }
-});
-
+    });
 </script>
-
 @endpush

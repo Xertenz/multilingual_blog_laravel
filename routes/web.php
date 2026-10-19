@@ -11,12 +11,13 @@ use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\CategoryVisitorController;
 use App\Http\Controllers\CommentController;
-use App\Http\Controllers\Front\ArticleFavoriteController;
+use App\Http\Controllers\Front\ArticleSavedController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReactionController;
 use App\Http\Controllers\Front\CategoryFavoriteController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SearchController;
+use App\Livewire\UserProfile;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 Route::group([
@@ -45,22 +46,22 @@ Route::group([
         Route::post('categories/{category}/favorite', [CategoryFavoriteController::class, 'toggle'])
             ->name('categories.favorite');
 
+        /*
         // التعليقات والتفاعلات (تم نقلهم هنا داخل مجموعة الـ auth لتنظيف الكود بدلاً من كتابة middleware منفصل لكل سطر)
-        Route::post('/articles/comments', [CommentController::class, 'store'])->name('comments.store');
-        Route::put('/articles/comments', [CommentController::class, 'update'])->name('comments.update');
-        Route::delete('/articles/comments', [CommentController::class, 'delete'])->name('comments.delete');
+        //Route::post('/articles/comments', [CommentController::class, 'store'])->name('comments.store');
+        //Route::put('/articles/comments', [CommentController::class, 'update'])->name('comments.update');
+        //Route::delete('/articles/comments', [CommentController::class, 'delete'])->name('comments.delete');
+        //Route::post('/comments/reactions/toggle', [ReactionController::class, 'toggleCommentReaction'])->name('comments.reactions.toggle');
+        */
 
         Route::post('/articles/reactions/toggle', [ReactionController::class, 'toggleArticleReaction'])->name('articles.reactions.toggle');
-        Route::post('/comments/reactions/toggle', [ReactionController::class, 'toggleCommentReaction'])->name('comments.reactions.toggle');
 
         // رابط عرض صفحة المقالات المفضلة للعضو
-        Route::get('/my-favorite-articles', [ProfileController::class, 'favoriteArticles'])->name('profile.favorite-articles');
+        Route::get('/my-saved-articles', [ProfileController::class, 'savedArticles'])->name('profile.saved-articles');
         // رابط إجراء الـ toggle لحفظ المقالة
-        Route::post('articles/{article}/favorite', [ArticleFavoriteController::class, 'toggle'])->name('articles.favorite');
+        Route::post('articles/{article}/saved', [ArticleSavedController::class, 'toggle'])->name('articles.saved');
 
-        Route::get('/user-profile', function () {
-            return "this is public user profile page";
-        })->name('profile.show');
+        Route::get('/profile/{id}', UserProfile::class)->name('profile.show');
     });
 
     // استدعاء ملف الـ routes الخاص بـ Breeze (الـ login والـ register)
