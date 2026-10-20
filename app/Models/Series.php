@@ -13,7 +13,7 @@ class Series extends Model
 {
     protected $table = 'series';
 
-    protected $fillable = ['user_id', 'sign', 'status'];
+    protected $fillable = ['user_id', 'internal_title', 'status'];
 
     public function user(): BelongsTo
     {
@@ -28,7 +28,7 @@ class Series extends Model
     public function currentTranslation(): HasOne
     {
         $currentLocale = App::getLocale();
-        return $this->hasOne(SeriesTranslation::class)->where('language_code', $currentLocale);
+        return $this->hasOne(SeriesTranslation::class)->where('locale', $currentLocale);
     }
 
     public function articles(): BelongsToMany

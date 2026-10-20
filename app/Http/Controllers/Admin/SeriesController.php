@@ -43,8 +43,8 @@ class SeriesController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'sign' => 'required|string|unique:series,sign',
-            'status' => 'required|in:published,draft',
+            'internal_title' => 'required|string|unique:series,internal_title',
+            'status' => 'required|in:draft,pending,published',
 
             // التحقق من الحقول المترجمة (مثلاً للغة العربية ar والإنجليزية en)
             'translations.*.title' => 'required|string|max:255',
@@ -58,14 +58,14 @@ class SeriesController extends Controller
             // 1. إنشاء السلسلة الأساسية
             $series = Series::create([
                 'user_id' => Auth::id(),
-                'sign' => $request->sign,
+                'internal_title' => $request->internal_title,
                 'status' => $request->status,
             ]);
 
             // 2. إدخال الترجمات لكل لغة
             foreach ($request->translations as $locale => $data) {
                 $series->translations()->create([
-                    'language_code' => $locale,
+                    'locale' => $locale,
                     'title' => $data['title'],
                     'description' => $data['description'] ?? null,
                     'slug' => $data['slug'] ?? Str::slug($data['title']),
@@ -102,8 +102,8 @@ class SeriesController extends Controller
     public function update(Request $request, Series $series)
     {
         $request->validate([
-            'sign' => 'required|string|unique:series,sign,' . ($series->id ?? ''),
-            'status' => 'required|in:published,draft',
+            'internal_title' => 'required|string|unique:series,internal_title,' . ($series->id ?? ''),
+            'status' => 'required|in:draft,pending,published',
 
             'translations.*.title' => 'required|string|max:255',
             'translations.*.description' => 'nullable|string',
@@ -120,14 +120,14 @@ class SeriesController extends Controller
         DB::transaction(function () use ($request, $series) {
             // 1. تحديث الجدول الأساسي
             $series->update([
-                'sign' => $request->sign,
+                'internal_title' => $request->internal_title,
                 'status' => $request->status,
             ]);
 
             // 2. تحديث أو إنشـاء الترجمات لكل لغة
             foreach ($request->translations as $locale => $data) {
                 $series->translations()->updateOrCreate(
-                    ['language_code' => $locale],
+                    ['locale' => $locale],
                     [
                         'title' => $data['title'],
                         'description' => $data['description'] ?? null,

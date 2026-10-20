@@ -28,12 +28,12 @@ new class extends Component {
 
         $categories = Cache::remember($cacheKey, 3600, function () use ($current_locale) {
             return Category::with(['translations' => function ($query) use ($current_locale) {
-                $query->where('language_code', $current_locale);
+                $query->where('locale', $current_locale);
             }])
                 ->whereHas('translations', function ($query) use ($current_locale) {
-                    $query->where('language_code', $current_locale);
+                    $query->where('locale', $current_locale);
                 })
-                ->orderBy('sign', 'asc')
+                ->orderBy('label', 'asc')
                 ->get();
         });
 
@@ -156,7 +156,7 @@ new class extends Component {
                                 name="q" 
                                 value="{{ request('q') }}"
                                 placeholder="{{ __('Search articles...') }}" 
-                                class="w-full bg-slate-900/90 border border-slate-800 text-gray-200 placeholder-gray-500 text-xs rounded-lg ltr:pl-9 ltr:pr-3 rtl:pr-9 rtl:pl-3 py-2 focus:outline-none focus:border-red-600/60 focus:ring-1 focus:ring-red-600/50 transition duration-200"
+                                class="w-full bg-slate-900/90 border border-slate-800 text-gray-200 placeholder-gray-500 text-xs rounded-md ltr:pl-9 ltr:pr-3 rtl:pr-9 rtl:pl-3 py-2 focus:outline-none focus:border-red-600/60 focus:ring-1 focus:ring-red-600/50 transition duration-200"
                                 required
                             />
                             <button type="submit" class="absolute ltr:left-2.5 rtl:right-2.5 top-2.5 text-gray-500 hover:text-red-500 transition">
@@ -188,40 +188,40 @@ new class extends Component {
                                 </div>
                                 
                                 <div x-show="open"
-     x-transition:enter="transition ease-out duration-200"
-     x-transition:enter-start="opacity-0 scale-95"
-     x-transition:enter-end="opacity-100 scale-100"
-     x-transition:leave="transition ease-in duration-150"
-     x-transition:leave-start="opacity-100 scale-100"
-     x-transition:leave-end="opacity-0 scale-95"
-     class="notifications-list-wrapper absolute right-0 rtl:left-0 rtl:right-auto top-[calc(100%+12px)] w-80 bg-[#0f1526] border border-slate-800 rounded-xl shadow-2xl shadow-black/90 select-none overflow-hidden z-50" x-cloak>
-    
-    <!-- رأس الصندوق -->
-    <div class="px-4 py-2.5 bg-slate-900/80 border-b border-slate-800 flex justify-between items-center">
-        <span class="text-xs font-bold text-gray-300 uppercase tracking-wider">Case Updates</span>
-        <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-    </div>
+                                    x-transition:enter="transition ease-out duration-200"
+                                    x-transition:enter-start="opacity-0 scale-95"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    x-transition:leave="transition ease-in duration-150"
+                                    x-transition:leave-start="opacity-100 scale-100"
+                                    x-transition:leave-end="opacity-0 scale-95"
+                                    class="notifications-list-wrapper absolute right-0 rtl:left-0 rtl:right-auto top-[calc(100%+12px)] w-80 bg-[#0f1526] border border-slate-800 rounded-xl shadow-2xl shadow-black/90 select-none overflow-hidden z-50" x-cloak>
+                                    
+                                    <!-- رأس الصندوق -->
+                                    <div class="px-4 py-2.5 bg-slate-900/80 border-b border-slate-800 flex justify-between items-center">
+                                        <span class="text-xs font-bold text-gray-300 uppercase tracking-wider">Case Updates</span>
+                                        <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                                    </div>
 
-    <!-- الحاوي الرئيسي القابل للتمرير والذي يضم القائمة والزر معاً -->
-    <div class="notifications-scroll-container max-h-[280px] overflow-y-auto divide-y divide-slate-800">
-        <!-- القائمة -->
-        <ul class="notifications-list flex flex-col">
-            @forelse($notifications as $notification)
-                @include('partials.notification_item', ['notification' => $notification])
-            @empty
-                <li class="px-4 py-6 text-center text-xs text-gray-500">لا توجد إشعارات جديدة</li>
-            @endforelse
-        </ul>
-        
-        <!-- زر التحميل أصبح يظهر هنا بنهاية المحتوى تماماً -->
-        @if($hasMoreNotifications)
-            <button wire:click="loadMoreNotifications" 
-                    class="notifications-load-more bg-slate-900 hover:bg-red-900/25 text-gray-400 hover:text-red-400 text-xs uppercase w-full py-2.5 font-bold tracking-wider border-t border-slate-800 transition block">
-                Load More Cases
-            </button>
-        @endif
-    </div>
-</div>
+                                    <!-- الحاوي الرئيسي القابل للتمرير والذي يضم القائمة والزر معاً -->
+                                    <div class="notifications-scroll-container max-h-[280px] overflow-y-auto divide-y divide-slate-800">
+                                        <!-- القائمة -->
+                                        <ul class="notifications-list flex flex-col">
+                                            @forelse($notifications as $notification)
+                                                @include('partials.notification_item', ['notification' => $notification])
+                                            @empty
+                                                <li class="px-4 py-6 text-center text-xs text-gray-500">لا توجد إشعارات جديدة</li>
+                                            @endforelse
+                                        </ul>
+                                        
+                                        <!-- زر التحميل أصبح يظهر هنا بنهاية المحتوى تماماً -->
+                                        @if($hasMoreNotifications)
+                                            <button wire:click="loadMoreNotifications" 
+                                                    class="notifications-load-more bg-slate-900 hover:bg-red-900/25 text-gray-400 hover:text-red-400 text-xs uppercase w-full py-2.5 font-bold tracking-wider border-t border-slate-800 transition block">
+                                                Load More Cases
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- قائمة حساب المستخدم المنسدلة المستقلة -->
@@ -280,10 +280,10 @@ new class extends Component {
                         <!-- 2. حالة المستخدم زائر (Guest) -->
                         @guest
                         <div class="auth-buttons hidden sm:flex items-center gap-2">
-                            <a href="{{ route('login') }}" class="text-xs font-semibold text-gray-300 hover:text-white bg-slate-900 border border-slate-800 hover:border-slate-700 px-3 py-1.5 rounded-lg transition">
+                            <a href="{{ route('login') }}" class="text-xs font-semibold text-gray-300 hover:text-white bg-slate-900 border border-slate-800 hover:border-slate-700 px-3 py-1.5 rounded-md transition">
                                 Log In
                             </a>
-                            <a href="{{ route('register') }}" class="text-xs font-semibold text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg shadow-sm shadow-red-600/20 transition">
+                            <a href="{{ route('register') }}" class="text-xs font-semibold text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-md shadow-sm shadow-red-600/20 transition">
                                 Sign Up
                             </a>
                         </div>
@@ -291,7 +291,7 @@ new class extends Component {
 
                         <!-- محدد اللغة -->
                         <div class="relative flex-shrink-0 max-w-[110px] sm:max-w-none">
-                            <select id="lang-switcher" class="lang-switcher bg-slate-900 border border-slate-800 text-gray-300 hover:border-slate-700 text-xs font-medium rounded-lg pl-2.5 pr-7 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-600/50 cursor-pointer capitalize appearance-none rtl:pl-7 rtl:pr-2.5" onchange="location=this.value;">
+                            <select id="lang-switcher" class="lang-switcher bg-slate-900 border border-slate-800 text-gray-300 hover:border-slate-700 text-xs font-medium rounded-md pl-2.5 pr-7 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-600/50 cursor-pointer capitalize appearance-none rtl:pl-7 rtl:pr-2.5" onchange="location=this.value;">
                                 @foreach(LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
                                     <option value="{{ LaravelLocalization::getLocalizedURL($localeCode, null, [], true) }}" {{ app()->getLocale() == $localeCode ? 'selected' : '' }} class="bg-[#0a0f1f] text-gray-300">
                                         {{ $properties['native'] }}

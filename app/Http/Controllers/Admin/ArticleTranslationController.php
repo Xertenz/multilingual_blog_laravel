@@ -21,14 +21,14 @@ class ArticleTranslationController extends Controller
     // no need to dispaly all articles' translations
     /*
     public function index() {
-        $articles_trans = ArticleTranslation::all();//->where('language_code', 'ar');
+        $articles_trans = ArticleTranslation::all();//->where('locale', 'ar');
         return view('admin.articles.index-trans', compact('articles_trans'));
     }
     */
 
     public function create(int $article_id)
     {
-        //$cats = CategoryTranslation::all()->where('language_code', 'ar');
+        //$cats = CategoryTranslation::all()->where('locale', 'ar');
         $article = Article::find($article_id);
         $article_content_imgs = $article->getMedia('content_imgs');
         return view('admin.articles.create-trans', compact('article_id', 'article_content_imgs'));
@@ -52,10 +52,10 @@ class ArticleTranslationController extends Controller
         // 3. التحقق من البيانات
         $validated = $request->validate([
             'article_id' => 'required|numeric|exists:articles,id',
-            'language_code' => [
+            'locale' => [
                 'required',
                 'in:' . $supportedLocales, // 👈 التعديل الديناميكي
-                Rule::unique('article_translations', 'language_code')->where(function ($query) use ($request) {
+                Rule::unique('article_translations', 'locale')->where(function ($query) use ($request) {
                     return $query->where('article_id', (int)$request->article_id);
                 })
             ],
@@ -63,7 +63,7 @@ class ArticleTranslationController extends Controller
                 'required', // تم تغييرها إلى required لأن الـ slug تم دمجه مسبقاً في الخطوة 2
                 'string',
                 Rule::unique('article_translations', 'slug')->where(function ($query) use ($request) {
-                    return $query->where('language_code', $request->language_code);
+                    return $query->where('locale', $request->locale);
                 })
             ],
             'title' => "required|string|min:3",
@@ -77,12 +77,13 @@ class ArticleTranslationController extends Controller
             // 4. إضافة الترجمة
             $article_trans = ArticleTranslation::create([
                 'article_id'       => $request->article_id,
-                'language_code'    => $request->language_code,
+                'locale'           => $request->locale,
                 'slug'             => trim($request->slug),
                 'title'            => trim($request->title),
                 'description'      => trim($request->description),
                 'meta_title'       => trim($request->meta_title),
                 'meta_description' => trim($request->meta_description),
+                'views'            => 0,
             ]);
 
             // 5. إرسال الإشعارات
@@ -93,7 +94,7 @@ class ArticleTranslationController extends Controller
                 //}
             }
 
-            Cache::forget("article_show_{$article_trans->id}_lang_{$article_trans->language_code}");
+            Cache::forget("article_show_{$article_trans->id}_lang_{$article_trans->locale}");
             return to_route('admin.articles.index')->with('success', 'Article Translation Added Successfully.');
         } catch (\Exception $e) {
             return redirect()->back()
@@ -102,15 +103,13 @@ class ArticleTranslationController extends Controller
         }
     }
 
-
-
     public function show(int $article_trans_id, ?string $article_trans_slug = null)
     {
-        $lang_code = LaravelLocalization::getCurrentLocale();
-        $cacheKey = "article_show_{$article_trans_id}_lang_{$lang_code}";
+        $currentLocale = LaravelLocalization::getCurrentLocale();
+        $cacheKey = "article_show_{$article_trans_id}_lang_{$currentLocale}";
 
         // تخزين المقال ومعالجته في Redis لمدة ساعتين لضمان سرعة فائقة
-        $article_trans = Cache::remember($cacheKey, 7200, function () use ($article_trans_id, $lang_code) {
+        $article_trans = Cache::remember($cacheKey, 7200, function () use ($article_trans_id, $currentLocale) {
             $trans = ArticleTranslation::with([
                 'article.comments' => function ($query) {
                     $query->whereNull('parent_id')->with('replies');
@@ -118,11 +117,11 @@ class ArticleTranslationController extends Controller
                 'article.reactions' => function ($query) {
                     $query->whereIn('type', ['like', 'dislike']);
                 },
-                'article.tags.translations' => function ($query) use ($lang_code) {
-                    $query->where('language_code', $lang_code);
+                'article.tags.translations' => function ($query) use ($currentLocale) {
+                    $query->where('locale', $currentLocale);
                 },
-                'article.category.translations' => function ($query) use ($lang_code) {
-                    $query->where('language_code', $lang_code);
+                'article.category.translations' => function ($query) use ($currentLocale) {
+                    $query->where('locale', $currentLocale);
                 },
                 'article',
                 'article.translations',
@@ -161,9 +160,9 @@ class ArticleTranslationController extends Controller
         }
 
         // Redirect if there is no translation for the specified $lang_code
-        if ($article_trans->language_code !== $lang_code) {
+        if ($article_trans->locale !== $currentLocale) {
             $target_translation = $article_trans->article->translations
-                ->where('language_code', $lang_code)
+                ->where('locale', $currentLocale)
                 ->first();
 
             if ($target_translation) {
@@ -229,7 +228,7 @@ class ArticleTranslationController extends Controller
 
         $request->validate([
             'article_id' => 'required|numeric|exists:articles,id',
-            'language_code' => [
+            'locale' => [
                 'required',
                 'in:' . $supportedLocales,
                 Rule::unique('article_translations')->where(function ($query) use ($request) {
@@ -240,7 +239,7 @@ class ArticleTranslationController extends Controller
                 'required',
                 'string',
                 Rule::unique('article_translations')->where(function ($query) use ($request) {
-                    return $query->where('language_code', $request->language_code);
+                    return $query->where('locale', $request->locale);
                 })->ignore($article_trans_id)
             ],
             'title' => "required|string|min:3",
@@ -251,7 +250,7 @@ class ArticleTranslationController extends Controller
 
         try {
             $article_trans->update([
-                'language_code' => $request->language_code,
+                'locale' => $request->locale,
                 'slug' => trim($request->slug),
                 'title' => trim($request->title),
                 'description' => trim($request->description),
@@ -259,7 +258,7 @@ class ArticleTranslationController extends Controller
                 'meta_description' => trim($request->meta_description),
             ]);
 
-            Cache::forget("article_show_{$article_trans->id}_lang_{$article_trans->language_code}");
+            Cache::forget("article_show_{$article_trans->id}_lang_{$article_trans->locale}");
             return to_route('admin.articles.index')->with('success', 'Article Updated Successfully.');
         } catch (\Exception $e) {
             return redirect()->back()
@@ -272,7 +271,7 @@ class ArticleTranslationController extends Controller
     {
         $article_trans = ArticleTranslation::findOrFail($article_trans_id);
 
-        Cache::forget("article_show_{$article_trans->id}_lang_{$article_trans->language_code}");
+        Cache::forget("article_show_{$article_trans->id}_lang_{$article_trans->locale}");
 
         $article_trans->delete();
         return to_route('admin.articles.index')->with('success', 'Article Translation Deleted Successfully.');

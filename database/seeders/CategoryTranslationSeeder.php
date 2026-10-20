@@ -17,7 +17,7 @@ class CategoryTranslationSeeder extends Seeder
         //
         DB::table('category_translations')->insert([
             'category_id' => 1,
-            'language_code' => 'en',
+            'locale' => 'en',
             'slug' => 'general',
             'name' => 'General',
             'description' => 'General Cases',
@@ -29,7 +29,7 @@ class CategoryTranslationSeeder extends Seeder
 
         DB::table('category_translations')->insert([
             'category_id' => 1,
-            'language_code' => 'ar',
+            'locale' => 'ar',
             'slug' => 'منوعات',
             'name' => 'منوعات',
             'description' => 'معلومات عامة ومنوعات',
@@ -40,7 +40,7 @@ class CategoryTranslationSeeder extends Seeder
         ]);
         DB::table('category_translations')->insert([
             'category_id' => 2,
-            'language_code' => 'en',
+            'locale' => 'en',
             'slug' => 'crimes',
             'name' => 'Crimes',
             'description' => 'Crimes Cases',
@@ -51,7 +51,7 @@ class CategoryTranslationSeeder extends Seeder
         ]);
         DB::table('category_translations')->insert([
             'category_id' => 2,
-            'language_code' => 'ar',
+            'locale' => 'ar',
             'slug' => 'جرائم',
             'name' => 'جرائم',
             'description' => 'قضايا جرائم',

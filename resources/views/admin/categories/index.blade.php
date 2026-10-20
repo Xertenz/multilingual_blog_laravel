@@ -25,7 +25,7 @@
                     <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                         <th class="py-3 px-4">ID</th>
                         <th class="py-3 px-4">Featured Img</th>
-                        <th class="py-3 px-4">Name / Sign</th>
+                        <th class="py-3 px-4">Name / Label</th>
                         <th class="py-3 px-4">Slug</th>
                         <th class="py-3 px-4">Articles Count</th>
                         <th class="py-3 px-4 text-right">Actions</th>
@@ -54,9 +54,9 @@
                             </div>
                         </td>
 
-                        {{-- Name / Sign --}}
+                        {{-- Name / Label --}}
                         <td class="py-3.5 px-4 font-semibold text-slate-800">
-                            {{ $category->sign }}
+                            {{ $category->label }}
                         </td>
 
                         {{-- Slug --}}

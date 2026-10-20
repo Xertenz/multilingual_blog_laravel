@@ -37,12 +37,12 @@ class AppServiceProvider extends ServiceProvider
 
             $categories = Cache::remember($cacheKey, 3600, function () use ($current_locale) {
                 return Category::with(['translations' => function ($query) use ($current_locale) {
-                    $query->where('language_code', $current_locale);
+                    $query->where('locale', $current_locale);
                 }])
                     ->whereHas('translations', function ($query) use ($current_locale) {
-                        $query->where('language_code', $current_locale);
+                        $query->where('locale', $current_locale);
                     })
-                    ->orderBy('sign', 'asc')
+                    ->orderBy('label', 'asc')
                     ->get();
             });
             $navbar_view->with('categories', $categories);

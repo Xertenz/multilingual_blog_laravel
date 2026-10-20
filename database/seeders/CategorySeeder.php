@@ -16,13 +16,13 @@ class CategorySeeder extends Seeder
     {
         DB::table('categories')->insert([
             'user_id' => 1,
-            'sign' => 'general',
+            'label' => 'general',
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
         ]);
         DB::table('categories')->insert([
             'user_id' => 1,
-            'sign' => 'crimes',
+            'label' => 'crimes',
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
         ]);

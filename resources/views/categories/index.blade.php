@@ -18,9 +18,9 @@
         @forelse($categories as $cat)
             @php
                 $cat_trans = $cat->translations->first();
-                $catName = $cat_trans ? $cat_trans->name : $cat->sign;
+                $catName = $cat_trans ? $cat_trans->name : $cat->label;
                 $catDesc = $cat_trans ? $cat_trans->description : '';
-                $catSlug = $cat_trans ? $cat_trans->slug : $cat->sign;
+                $catSlug = $cat_trans ? $cat_trans->slug : $cat->label;
                 $catId = $cat_trans ? $cat_trans->id : $cat->id;
                 
                 // جلب صورة البانر من Spatie Media Library إن وجدت

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class TagTranslation extends Model
 {
     //
-    protected $fillable = ['tag_id', 'language_code', 'name', 'slug'];
+    protected $fillable = ['user_id', 'tag_id', 'locale', 'name', 'slug'];
     public function tag(): BelongsTo
     {
         return $this->belongsTo(Tag::class, 'tag_id');

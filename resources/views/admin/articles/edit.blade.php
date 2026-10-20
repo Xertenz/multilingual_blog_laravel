@@ -35,7 +35,7 @@
                             <option value="" disabled>-- Select a category --</option>
                             @foreach ($cats as $cat)
                                 <option value="{{ $cat['id'] }}" {{ $cat['id'] == $article->category_id ? 'selected' : '' }}>
-                                    {{ $cat['sign'] }}
+                                    {{ $cat['label'] }}
                                 </option>
                             @endforeach
                         </select>
@@ -55,19 +55,19 @@
                     @enderror
                 </div>
 
-                <!-- Article Sign Section -->
+                <!-- Article Internal Title Section -->
                 <div class="bg-white rounded-xl p-4 border border-slate-200">
-                    <label for="sign" class="block text-xs font-semibold text-slate-600 mb-1.5">
-                        Sign <span class="text-red-500">*</span>
+                    <label for="internal_title" class="block text-xs font-semibold text-slate-600 mb-1.5">
+                        Internal Title <span class="text-red-500">*</span>
                     </label>
                     <input type="text" 
-                           name="sign" 
-                           id="sign" 
-                           value="{{ old('sign', $article->sign) }}" 
-                           class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error('sign') border-red-500 bg-red-50/50 @enderror" 
+                           name="internal_title" 
+                           id="internal_title" 
+                           value="{{ old('internal_title', $article->internal_title) }}" 
+                           class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error('internal_title') border-red-500 bg-red-50/50 @enderror" 
                            placeholder="e.g., roswell-mystery" 
                            autocomplete="off">
-                    @error('sign')
+                    @error('internal_title')
                         <div class="text-red-500 text-xs mt-1 flex items-center gap-1">
                             <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
@@ -152,7 +152,7 @@
                             <option value="{{ $tag['id'] }}" 
                                 {{ is_array(old('tags')) && in_array($tag['id'], old('tags')) ? 'selected' : '' }}
                                 {{ !is_array(old('tags')) && in_array($tag['id'], $article->tags->pluck('id')->toArray()) ? 'selected' : '' }}>
-                                {{ $tag['sign'] }}
+                                {{ $tag['label'] }}
                             </option>
                         @endforeach
                     </select>

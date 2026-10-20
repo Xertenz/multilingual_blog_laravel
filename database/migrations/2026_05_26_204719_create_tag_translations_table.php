@@ -14,15 +14,15 @@ return new class extends Migration
         Schema::create('tag_translations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tag_id')->constrained('tags')->onDelete('cascade');
-            $table->string('language_code', 5); // ar, en, en-US
+            $table->string('locale', 5); // ar, en, en-US
             $table->string('name');
             $table->string('slug');
             $table->timestamps();
 
             // منع تكرار الترجمة لنفس الوسم باللغة نفسها
-            $table->unique(['tag_id', 'language_code']);
+            $table->unique(['tag_id', 'locale']);
             // ضمان فرادة السلوج داخل اللغة الواحدة لأجل الـ SEO
-            $table->unique(['slug', 'language_code']);
+            $table->unique(['slug', 'locale']);
         });
     }
 

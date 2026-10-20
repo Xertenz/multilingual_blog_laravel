@@ -46,7 +46,7 @@ class CategoryTranslationController extends Controller
 
         // 1. التحقق من البيانات (المصفوفة الجديدة والـ Sign العام)
         $request->validate([
-            'cat_sign' => 'required|string|unique:categories,sign|max:50',
+            'cat_label' => 'required|string|unique:categories,label|max:50',
             'cat_featured_img' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120', // حتى 5 ميجا كما بالفورم
 
             // التحقق من الحقول داخل مصفوفة اللغات
@@ -64,7 +64,7 @@ class CategoryTranslationController extends Controller
 
         // 2. إنشاء السجل الأساسي للقسم (تجميل الـ Sign كـ slug آمن)
         $cat = Category::create([
-            'sign'    => (string) Str::of($request->cat_sign)->slug('-'),
+            'label'    => (string) Str::of($request->cat_label)->slug('-'),
             'user_id' => Auth::id()
         ]);
 
@@ -101,7 +101,7 @@ class CategoryTranslationController extends Controller
 
             // إدخال الترجمة الحالية في قاعدة البيانات
             $cat->translations()->create([
-                'language_code'    => $localeCode,
+                'locale'    => $localeCode,
                 //'slug'             => trim($finalSlug),
                 'slug'             => trim($data['slug']),
                 'name'             => trim($data['name']),
@@ -133,7 +133,7 @@ class CategoryTranslationController extends Controller
 
         $current_locale = LaravelLocalization::getCurrentLocale();
 
-        if ($category_trans->language_code !== $current_locale) {
+        if ($category_trans->locale !== $current_locale) {
             $category_trans = $category_trans->category->translations->where('language_code', $current_locale)
                 ->first();
             if ($category_trans) {
@@ -182,7 +182,7 @@ class CategoryTranslationController extends Controller
     public function edit(int $id)
     {
         $cat = Category::with('translations')->find($id);
-        $translations = $cat->translations->keyBy('language_code');
+        $translations = $cat->translations->keyBy('locale');
         return view('admin.categories.edit', compact('cat', 'translations'));
     }
 
@@ -192,15 +192,15 @@ class CategoryTranslationController extends Controller
         $cat = Category::findOrFail($id);
 
         // 1. تجميل الـ sign القادم من الفورم ليكون بصيغة slug آمنة قبل الفحص
-        if ($request->has('cat_sign')) {
+        if ($request->has('cat_label')) {
             $request->merge([
-                'cat_sign' => (string) Str::of($request->cat_sign)->slug('-')
+                'cat_label' => (string) Str::of($request->cat_label)->slug('-')
             ]);
         }
 
         // 2. التحقق من البيانات العامة للمجموعة والأقسام
         $request->validate([
-            'cat_sign' => "required|string|max:50|unique:categories,sign,{$id}",
+            'cat_label' => "required|string|max:50|unique:categories,label,{$id}",
             'cat_featured_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
 
             // التحقق من الحقول داخل مصفوفة اللغات الفرعية
@@ -213,7 +213,7 @@ class CategoryTranslationController extends Controller
         // 3. التحقق الديناميكي من الـ unique لـ slug كل لغة على حدة باستثناء السجل الحالي للغة نفسها
         foreach ($request->translations as $localeCode => $data) {
             if (!empty($data['slug'])) {
-                $currentTransId = $cat->translations()->where('language_code', $localeCode)->value('id');
+                $currentTransId = $cat->translations()->where('locale', $localeCode)->value('id');
 
                 $request->validate([
                     "translations.{$localeCode}.slug" => "nullable|string|max:100|unique:category_translations,slug,{$currentTransId}",
@@ -223,7 +223,7 @@ class CategoryTranslationController extends Controller
 
         // 4. تحديث البيانات الأساسية للقسم
         $cat->update([
-            'sign'    => $request->cat_sign,
+            'label'    => $request->cat_label,
             'user_id' => Auth::id()
         ]);
 
@@ -258,7 +258,7 @@ class CategoryTranslationController extends Controller
             // استخدام updateOrCreate الذكية للتعامل مع الإضافة والتعديل تلقائياً في سطر واحد
             $cat->translations()->updateOrCreate(
                 [
-                    'language_code' => $localeCode, // شرط البحث والمطابقة
+                    'locale' => $localeCode, // شرط البحث والمطابقة
                 ],
                 [
                     'slug'             => trim($finalSlug),

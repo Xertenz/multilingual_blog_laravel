@@ -27,7 +27,7 @@
 
                         @php
                             $category_translation =$category->translations->first();
-                            $categoryName =$category_translation ? $category_translation->name :$category->sign;
+                            $categoryName =$category_translation ? $category_translation->name :$category->label;
                             // جلب الصورة باستخدام Spatie MediaLibrary
                             $categoryImage = $category->getFirstMediaUrl('featured_imgs', 'small') ?:$category->getFirstMediaUrl('featured_imgs');
                         @endphp

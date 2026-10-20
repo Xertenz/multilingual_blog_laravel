@@ -30,7 +30,7 @@ class ArticleController extends Controller
         if (!$request->user()->hasRole(['super-admin', 'editor', 'writer'])) {
             abort(403, 'غير مسموح لك بإنشاء مقالات.');
         }
-        $cats = Category::orderBy('sign', 'asc')->get();
+        $cats = Category::orderBy('label', 'asc')->get();
         $tags = Tag::all();
         return view('admin.articles.create', compact('cats', 'tags'));
     }
@@ -52,15 +52,15 @@ class ArticleController extends Controller
         $request->validate([
             'category_id' => 'required|numeric|exists:categories,id',
             'featured_img' => "required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120",
-            'sign' => 'required|string|unique:articles,sign',
-            'status' => 'required|in:published,draft',
+            'internal_title' => 'required|string|unique:articles,internal_title',
+            'status' => 'required|in:draft,pending,published',
         ]);
 
         //Create a new article
         $article = Article::create([
             'category_id' => (int)$request->category_id,
             'user_id' => Auth::id(),
-            'sign' => trim($request->sign),
+            'internal_title' => trim($request->internal_title),
             'views' => 0,
             //'status' => $request->status,
             'status' => $status
@@ -123,11 +123,11 @@ class ArticleController extends Controller
         $request->validate([
             'category_id' => 'required|numeric|exists:categories,id',
             'featured_img' => "nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120",
-            'sign' => [
+            'internal_title' => [
                 'string',
-                Rule::unique('articles', 'sign')->ignore($article_id),
+                Rule::unique('articles', 'internal_title')->ignore($article_id),
             ],
-            'status' => 'required|in:published,draft',
+            'status' => 'required|in:draft,pending,published',
         ]);
         try {
 
@@ -149,7 +149,7 @@ class ArticleController extends Controller
                     ->withResponsiveImages()
                     ->toMediaCollection("featured_imgs");
             }
-            $article->sign = trim($request->sign);
+            $article->internal_title = trim($request->internal_title);
             $article->status = $status;
             $article->save();
             //'views' => 0,

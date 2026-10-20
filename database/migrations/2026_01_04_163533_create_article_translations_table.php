@@ -14,15 +14,15 @@ return new class extends Migration
         Schema::create('article_translations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('article_id')->constrained('articles')->onUpdate('cascade')->onDelete('cascade');
-            //$table->enum('language_code', ['en', 'ar', 'de', 'es', 'fr', 'ru', 'pt', 'it', 'nl', 'sv', 'da', 'nb']);
-            $table->string('language_code', 5); // en-US
-            $table->unique(['article_id', 'language_code']);
+            $table->string('locale', 5); // en-US
+            $table->unique(['article_id', 'locale']);
             $table->string("slug"); //->unique();
-            $table->unique(['language_code', 'slug']);
+            $table->unique(['locale', 'slug']);
             $table->string('title');
             $table->longText('description');
             $table->string('meta_title');
             $table->text('meta_description');
+            $table->unsignedInteger('views')->default(0);
             $table->timestamps();
         });
     }

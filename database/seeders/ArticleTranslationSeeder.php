@@ -16,15 +16,15 @@ class ArticleTranslationSeeder extends Seeder
     {
         ArticleTranslation::create([
             'article_id' => 1,
-            'language_code' => 'en',
+            'locale' => 'en',
             'slug' => 'the-miyazawa-family-massacre',
             'meta_title' => 'meta title here',
             'meta_description' => 'meta descripion here',
             'title' => 'the miyazawa family massacre',
-
             'description' => <<<EOF
             <p>this is the article description here</p>
             EOF,
+            'views' => 0,
 
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()

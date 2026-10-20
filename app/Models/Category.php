@@ -14,7 +14,7 @@ class Category extends Model implements HasMedia
 {
     //
     use InteractsWithMedia;
-    protected $fillable = ['sign', 'user_id'];
+    protected $fillable = ['label', 'user_id'];
 
     //public $timestamps = false;
 

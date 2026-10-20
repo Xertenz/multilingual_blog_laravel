@@ -11,7 +11,7 @@ class SeriesTranslation extends Model
 
     protected $fillable = [
         'series_id',
-        'language_code',
+        'locale',
         'title',
         'description',
         'slug',

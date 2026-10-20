@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('articles', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('category_id')->nullable()->constrained('categories')->cascadeOnUpdate()->nullOnDelete();
+            $table->foreignId('category_id')->nullable()->index()->constrained('categories')->cascadeOnUpdate()->nullOnDelete();
             $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnUpdate()->nullOnDelete();
-            $table->string('sign')->unique();
+            $table->string('internal_title')->unique();
             $table->unsignedInteger('views')->default(0);
-            $table->enum('status', ['published', 'draft']);
+            $table->enum('status', ['draft', 'pending', 'published'])->index();
             $table->timestamps();
         });
     }

@@ -12,12 +12,13 @@ class ArticleTranslation extends Model implements HasMedia
     use InteractsWithMedia;
     protected $fillable = [
         'article_id',
-        'language_code',
+        'locale',
         'slug',
         'title',
         'description',
         'meta_title',
-        'meta_description'
+        'meta_description',
+        'views'
     ];
 
     //
@@ -25,5 +26,4 @@ class ArticleTranslation extends Model implements HasMedia
     {
         return $this->belongsTo(Article::class, 'article_id');
     }
-
 }

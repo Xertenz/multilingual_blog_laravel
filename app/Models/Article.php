@@ -14,7 +14,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class Article extends Model  implements HasMedia
 {
     use InteractsWithMedia;
-    protected $fillable = ['category_id', 'user_id', 'sign', 'views', 'status'];
+    protected $fillable = ['category_id', 'user_id', 'internal_title', 'views', 'status'];
     //public $timestamps = false;
     //
     public function translations(): HasMany
@@ -88,7 +88,7 @@ class Article extends Model  implements HasMedia
         $locale = App::getLocale();
 
         return $query->whereHas("translations", function ($q) use ($term, $locale) {
-            $q->where('language_code', $locale)
+            $q->where('locale', $locale)
                 ->where(function ($subQuery) use ($term) {
                     $subQuery->where('title', 'LIKE', "%{$term}%")
                         ->orWhere('description', 'LIKE', "%{$term}%");

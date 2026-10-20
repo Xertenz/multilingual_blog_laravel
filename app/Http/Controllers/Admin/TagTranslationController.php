@@ -22,13 +22,13 @@ class TagTranslationController extends Controller
     {
         // 1. التحقق من البيانات (Sign مطلوب والترجمات مصفوفة)
         $request->validate([
-            'sign' => 'required|string|unique:tags,sign|max:50',
+            'label' => 'required|string|unique:tags,label|max:50',
             'translations.*.name' => 'nullable|string|max:50', // جعلناها nullable لو أراد إضافة لغات معينة فقط وتأجيل الباقي
         ]);
 
         // 2. إضافة الـ Sign في جدول tags الأساسي
         $tag = Tag::create([
-            'sign' => Str::slug($request->sign, '-') // تجميل الـ Sign ليكون متناسقاً كرمز
+            'label' => Str::slug($request->label, '-') // تجميل الـ Sign ليكون متناسقاً كرمز
         ]);
 
         // 3. الدوران حول لغات الـ 12 الممررة من الحقول
@@ -39,7 +39,7 @@ class TagTranslationController extends Controller
 
                 TagTranslation::create([
                     'tag_id'        => $tag->id,
-                    'language_code' => $localeCode, // يُحفظ تلقائياً من الـ Key الخاص بالمصفوفة (ar, en, ja...)
+                    'locale' => $localeCode, // يُحفظ تلقائياً من الـ Key الخاص بالمصفوفة (ar, en, ja...)
                     'name'          => $data['name'],
                     // توليد السلوج تلقائياً بناءً على الاسم المكتوب باللغة نفسها
                     'slug'          => Str::slug($data['name'], '-', null)
@@ -59,12 +59,12 @@ class TagTranslationController extends Controller
             return to_route('home.index');
         }
 
-        $lang_code = LaravelLocalization::getCurrentLocale();
+        $currentLocale = LaravelLocalization::getCurrentLocale();
 
         // 2. التحقق من تطابق لغة التاك مع لغة الموقع الحالية (Fallback الذكي لمنع الـ Infinite Loop)
-        if ($tag_trans->language_code !== $lang_code) {
+        if ($tag_trans->locale !== $currentLocale) {
             $target_trans = $tag_trans->tag->translations
-                ->where('language_code', $lang_code)
+                ->where('locale', $currentLocale)
                 ->first();
 
             if ($target_trans) {
@@ -102,17 +102,16 @@ class TagTranslationController extends Controller
 
     public function update(Request $request, Tag $tag)
     {
-
         // 1. الآن نقوم بعمل الـ Validation على القيمة النظيفة والنهائية
         $request->validate([
-            'sign' => 'required|string|max:50|unique:tags,sign,' . $tag->id,
+            'label' => 'required|string|max:50|unique:tags,label,' . $tag->id,
             'translations.*.name' => 'nullable|string|max:50',
             'translations.*.slug' => 'nullable|string|max:50',
         ]);
 
         // 2. تحديث الـ Sign الأساسي بأمان تام وبدون تكرار الدالة
         $tag->update([
-            'sign' => Str::of($request->sign)->slug('-')
+            'label' => Str::of($request->label)->slug('-')
         ]);
 
         // 3. الدوران حول اللغات الـ 12
@@ -129,7 +128,7 @@ class TagTranslationController extends Controller
             TagTranslation::updateOrCreate(
                 [
                     'tag_id'        => $tag->id,
-                    'language_code' => $localeCode,
+                    'locale' => $localeCode,
                 ],
                 [
                     'name'          => $data['name'],

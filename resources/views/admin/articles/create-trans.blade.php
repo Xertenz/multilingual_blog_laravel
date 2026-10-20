@@ -1,5 +1,5 @@
 @extends("layouts.admin.master")
-@section('title', 'New Article Translation')
+@section('title', 'Create New Article Translation')
 
 @push('styles')
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -166,11 +166,11 @@
                 <!-- Language & Slug Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label for="language_code" class="input-label">
+                        <label for="locale" class="input-label">
                             Language <span class="required">*</span>
                         </label>
                         <div class="relative">
-                            <select name="language_code" id="language_code" class="input-field cursor-pointer pr-10">
+                            <select name="locale" id="locale" class="input-field cursor-pointer pr-10">
                                 <option value="en">🇬🇧 English</option>
                                 <option value="ar">🇸🇦 Arabic</option>
                                 <option value="de">🇩🇪 German</option>
@@ -190,7 +190,7 @@
                                 </svg>
                             </div>
                         </div>
-                        @error('language_code')
+                        @error('locale')
                             <div class="error-message">{{$message}}</div>
                         @enderror
                     </div>

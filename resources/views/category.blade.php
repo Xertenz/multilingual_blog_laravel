@@ -1,11 +1,11 @@
 @extends('layouts.main')
 
 {{-- 1️⃣ عنوان الصفحة والـ Meta Tags المترجمة للفئة --}}
-@section('title', $category_trans->meta_title ?? $category_trans->name ?? $category->sign)
+@section('title', $category_trans->meta_title ?? $category_trans->name ?? $category->label)
 
 @section('meta_tags')
     <meta name="description" content="{{ $category_trans->meta_description ?? Str::limit(strip_tags($category_trans->description ?? ''), 150) }}">
-    <meta property="og:title" content="{{ $category_trans->title ?? $category_trans->category->sign }}">
+    <meta property="og:title" content="{{ $category_trans->title ?? $category_trans->category->label }}">
     <meta property="og:description" content="{{ $category_trans->meta_description ?? '' }}">
     
     {{-- رابط الـ Canonical للـ SEO --}}
@@ -18,7 +18,7 @@
     {{-- 2️⃣ رأس الصفحة: اسم الفئة والوصف المترجمين --}}
     <div class="bg-[#1e293b]/60 border border-slate-800 rounded-2xl p-6 md:p-8 mb-8 text-center shadow-lg">
         <h1 class="text-3xl md:text-4xl font-extrabold text-white mb-3">
-            📂 {{ $category_trans->name ?? $category_trans->category->sign }}
+            📂 {{ $category_trans->name ?? $category_trans->category->label }}
         </h1>
         
         {{-- وصف الفئة المترجم (إذا كان متوفراً) --}}
@@ -38,7 +38,7 @@
         @forelse($articles as $article)
             @php
                 // جلب ترجمة المقالة المتوافقة مع لغة التصفح الحالية
-                $trans = $article->translations->where('language_code', app()->getLocale())->first() 
+                $trans = $article->translations->where('locale', app()->getLocale())->first() 
                         ?? $article->translations->first();
             @endphp
 

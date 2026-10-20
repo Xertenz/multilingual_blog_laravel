@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('category_id')->nullable()->constrained('categories')->cascadeOnUpdate()->cascadeOnDelete();
             //$table->enum('language_code', ['en', 'ar', 'de', 'es', 'fr', 'ru', 'pt', 'it', 'nl', 'sv', 'da', 'nb']);
-            $table->string('language_code', 5); // like: en-US
-            $table->unique(['category_id', 'language_code']);
+            $table->string('locale', 5); // like: en-US
+            $table->unique(['category_id', 'locale']);
             $table->string("slug"); //->unique();
-            $table->unique(['language_code', 'slug']);
+            $table->unique(['locale', 'slug']);
             $table->string('name');
             $table->text('description');
             $table->string('meta_title');

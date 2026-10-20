@@ -22,7 +22,7 @@
                 <thead>
                     <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                         <th class="py-3 px-6">ID</th>
-                        <th class="py-3 px-6">Sign</th>
+                        <th class="py-3 px-6">Internal Title</th>
                         <th class="py-3 px-6">Title</th>
                         <th class="py-3 px-6">Articles Count</th>
                         <th class="py-3 px-6">Status</th>
@@ -37,9 +37,9 @@
                             #{{ $item->id }}
                         </td>
 
-                        {{-- Sign --}}
+                        {{-- Internal Title --}}
                         <td class="py-3.5 px-6 font-semibold text-slate-800">
-                            <code>{{ $item->sign ?? '---' }}</code>
+                            <code>{{ $item->internal_title ?? '---' }}</code>
                         </td>
 
                         {{-- Title --}}

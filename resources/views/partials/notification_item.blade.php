@@ -55,7 +55,7 @@
                 if ($article) {
                     // جلب الترجمة للغة الحالية للمستخدم أو أول ترجمة متاحة
                     $currentLocale = app()->getLocale();
-                    $translation = $article->translations->where('language_code', $currentLocale)->first() 
+                    $translation = $article->translations->where('locale', $currentLocale)->first() 
                                 ?? $article->translations->first();
                 }
             @endphp
@@ -63,7 +63,7 @@
                 <div class="flex items-start gap-2">
                     <div class="flex-1">
                         <p class="text-xs font-semibold text-purple-400 uppercase tracking-wider mb-0.5">
-                            📁 {{ $data['category_sign'] ?? __('New Article') }}
+                            📁 {{ $data['category_label'] ?? __('New Article') }}
                         </p>
                         <p class="whitespace-nowrap max-w-[280px] overflow-hidden text-ellipsis text-sm font-medium text-gray-100">
                             {{ $translation->title }}

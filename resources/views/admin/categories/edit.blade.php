@@ -178,18 +178,18 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label for="cat_sign" class="input-label">
-                            Category Sign <span class="required">*</span>
+                        <label for="cat_label" class="input-label">
+                            Category Label <span class="required">*</span>
                         </label>
                         <input type="text" 
-                               name="cat_sign" 
-                               id="cat_sign" 
-                               value="{{ old('cat_sign', $cat->sign) }}" 
-                               class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error('cat_sign') border-red-500 bg-red-50/50 @enderror" 
+                               name="cat_label" 
+                               id="cat_label" 
+                               value="{{ old('cat_label', $cat->label) }}" 
+                               class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error('cat_label') border-red-500 bg-red-50/50 @enderror" 
                                placeholder="e.g., tech, news, sports" 
                                autocomplete="off">
                         <p class="input-hint">Unique identifier in English, only for admins.</p>
-                        @error('cat_sign')
+                        @error('cat_label')
                             <div class="error-message">{{ $message }}</div>
                         @enderror
                     </div>
@@ -223,7 +223,7 @@
                 
                 @foreach(LaravelLocalization::getSupportedLocales() as $localeCode =>$properties)
                     @php
-                        $translation = $cat->translations->where('language_code',$localeCode)->first();
+                        $translation = $cat->translations->where('locale',$localeCode)->first();
                     @endphp
                     
                     <div class="section-card">

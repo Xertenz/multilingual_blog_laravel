@@ -27,7 +27,7 @@
                     <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                         <th class="py-3 px-4">Category</th>
                         <th class="py-3 px-4">Featured Img</th>
-                        <th class="py-3 px-4">Sign</th>
+                        <th class="py-3 px-4">Internal Title</th>
                         <th class="py-3 px-4">Writer</th>
                         <th class="py-3 px-4">Status</th>
                         <th class="py-3 px-4">Views</th>
@@ -42,7 +42,7 @@
                         {{-- Category --}}
                         <td class="py-3.5 px-4 font-medium text-slate-700 whitespace-nowrap">
                             <span class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md text-xs font-semibold border border-slate-200">
-                                {{ $article->category->sign ?? '[Null]' }}
+                                {{ $article->category->label ?? '[Null]' }}
                             </span>
                         </td>
 
@@ -62,9 +62,9 @@
                             </div>
                         </td>
 
-                        {{-- Sign --}}
+                        {{-- Internal Title --}}
                         <td class="py-3.5 px-4 text-slate-600 font-mono text-xs">
-                            {{ $article->sign ?? "no sign" }}
+                            {{ $article->internal_title ?? "no internal title" }}
                         </td>
 
                         {{-- Writer --}}
@@ -98,11 +98,11 @@
                                             <a href="{{ route('admin.articles-trans.edit', $article_translation->id) }}" 
                                                class="px-2 py-0.5 text-xs font-semibold text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
                                                title="Edit Translation">
-                                                {{ strtoupper($article_translation->language_code) }}
+                                                {{ strtoupper($article_translation->locale) }}
                                             </a>
                                         @else
                                             <span class="px-2 py-0.5 text-xs font-semibold text-slate-400">
-                                                {{ strtoupper($article_translation->language_code) }}
+                                                {{ strtoupper($article_translation->locale) }}
                                             </span>
                                         @endif
 

@@ -24,7 +24,7 @@
                         <th class="py-3 px-6">ID</th>
                         <th class="py-3 px-6">Title</th>
                         <th class="py-3 px-6">Writer</th>
-                        <th class="py-3 px-6">Sign</th>
+                        <th class="py-3 px-6">Internal Title</th>
                         <th class="py-3 px-6 text-right">Actions</th>
                     </tr>
                 </thead>
@@ -46,9 +46,9 @@
                             {{ $article->user->name ?? 'Unknown' }}
                         </td>
 
-                        {{-- Sign --}}
+                        {{-- Internal Title --}}
                         <td class="py-3.5 px-6 font-mono text-xs text-slate-500">
-                            {{ $article->sign }}
+                            {{ $article->internal_title }}
                         </td>
 
                         {{-- Actions --}}

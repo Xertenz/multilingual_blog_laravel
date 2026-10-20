@@ -166,23 +166,23 @@
                 <!-- Language & Slug Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label for="language_code" class="input-label">
+                        <label for="locale" class="input-label">
                             Language <span class="required">*</span>
                         </label>
                         <div class="relative">
-                            <select name="language_code" id="language_code" class="input-field cursor-pointer pr-10">
-                                <option value="en" {{$article_trans->language_code == 'en' ? 'selected' : ''}}>🇬🇧 English</option>
-                                <option value="ar" {{$article_trans->language_code == 'ar' ? 'selected' : ''}}>🇸🇦 Arabic</option>
-                                <option value="de" {{$article_trans->language_code == 'de' ? 'selected' : ''}}>🇩🇪 German</option>
-                                <option value="es" {{$article_trans->language_code == 'es' ? 'selected' : ''}}>🇪🇸 Spanish</option>
-                                <option value="fr" {{$article_trans->language_code == 'fr' ? 'selected' : ''}}>🇫🇷 French</option>
-                                <option value="ru" {{$article_trans->language_code == 'ru' ? 'selected' : ''}}>🇷🇺 Russian</option>
-                                <option value="pt" {{$article_trans->language_code == 'pt' ? 'selected' : ''}}>🇵🇹 Portuguese</option>
-                                <option value="nl" {{$article_trans->language_code == 'nl' ? 'selected' : ''}}>🇳🇱 Dutch</option>
-                                <option value="it" {{$article_trans->language_code == 'it' ? 'selected' : ''}}>🇮🇹 Italian</option>
-                                <option value="sv" {{$article_trans->language_code == 'sv' ? 'selected' : ''}}>🇸🇪 Swedish</option>
-                                <option value="da" {{$article_trans->language_code == 'da' ? 'selected' : ''}}>🇩🇰 Danish</option>
-                                <option value="nb" {{$article_trans->language_code == 'nb' ? 'selected' : ''}}>🇳🇴 Norwegian (Bokmål)</option>
+                            <select name="locale" id="locale" class="input-field cursor-pointer pr-10">
+                                <option value="en" {{$article_trans->locale == 'en' ? 'selected' : ''}}>🇬🇧 English</option>
+                                <option value="ar" {{$article_trans->locale == 'ar' ? 'selected' : ''}}>🇸🇦 Arabic</option>
+                                <option value="de" {{$article_trans->locale == 'de' ? 'selected' : ''}}>🇩🇪 German</option>
+                                <option value="es" {{$article_trans->locale == 'es' ? 'selected' : ''}}>🇪🇸 Spanish</option>
+                                <option value="fr" {{$article_trans->locale == 'fr' ? 'selected' : ''}}>🇫🇷 French</option>
+                                <option value="ru" {{$article_trans->locale == 'ru' ? 'selected' : ''}}>🇷🇺 Russian</option>
+                                <option value="pt" {{$article_trans->locale == 'pt' ? 'selected' : ''}}>🇵🇹 Portuguese</option>
+                                <option value="nl" {{$article_trans->locale == 'nl' ? 'selected' : ''}}>🇳🇱 Dutch</option>
+                                <option value="it" {{$article_trans->locale == 'it' ? 'selected' : ''}}>🇮🇹 Italian</option>
+                                <option value="sv" {{$article_trans->locale == 'sv' ? 'selected' : ''}}>🇸🇪 Swedish</option>
+                                <option value="da" {{$article_trans->locale == 'da' ? 'selected' : ''}}>🇩🇰 Danish</option>
+                                <option value="nb" {{$article_trans->locale == 'nb' ? 'selected' : ''}}>🇳🇴 Norwegian (Bokmål)</option>
                             </select>
                             <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
                                 <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -190,7 +190,7 @@
                                 </svg>
                             </div>
                         </div>
-                        @error('language_code')
+                        @error('locale')
                             <div class="error-message">{{$message}}</div>
                         @enderror
                     </div>

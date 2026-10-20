@@ -11,16 +11,16 @@ return new class extends Migration
         Schema::create('series_translations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('series_id')->constrained('series')->cascadeOnDelete();
-            $table->string('language_code', 5);
+            $table->string('locale', 5);
             $table->string('title');
             $table->text('description')->nullable();
             $table->string('slug');
             $table->timestamps();
 
             // منع تكرار نفس اللغة لنفس السلسلة
-            $table->unique(['series_id', 'language_code']);
+            $table->unique(['series_id', 'locale']);
             // منع تكرار نفس الـ slug داخل نفس اللغة (لكي لا تتشابه روابط السلاسل لنفس اللغة)
-            $table->unique(['language_code', 'slug']);
+            $table->unique(['locale', 'slug']);
         });
     }
 

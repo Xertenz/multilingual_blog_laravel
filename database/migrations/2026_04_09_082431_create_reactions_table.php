@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('reactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->morphs('reactionable');
 
             //$table->enum('type', ['like', 'dislike', 'happy', 'sad', 'funny', 'love', 'angry']); // نوع التفاعل (like, dislike, funny, sad, etc.)

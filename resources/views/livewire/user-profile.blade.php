@@ -68,7 +68,7 @@
                             
                             <div class="space-y-1">
                                 <h4 class="text-sm font-bold text-white group-hover:text-red-400 transition">
-                                    {{ $this->getArticleTrans($article)->title ?? $article->sign }}
+                                    {{ $this->getArticleTrans($article)->title ?? $article->internal_title }}
                                 </h4>
                                 <p class="text-xs text-gray-400 line-clamp-1">
                                     {{ Str::limit(strip_tags($this->getArticleTrans($article)->description ?? ''), 80) }}
@@ -114,7 +114,7 @@
                             @endif
                             <div>
                                 <h4 class="text-xs font-bold text-white group-hover:text-red-400 transition uppercase tracking-wide">
-                                    {{ $this->getCatTrans($category)->name ?? $category->sign }}
+                                    {{ $this->getCatTrans($category)->name ?? $category->label }}
                                 </h4>
                                 <span class="text-[10px] text-gray-500 font-mono">Following Category</span>
                             </div>
@@ -146,7 +146,7 @@
                     <div class="p-4 bg-slate-800/40 border border-slate-800 rounded-xl text-xs space-y-1.5">
                         @if($comment->article)
                             <a href="{{ route('articles.show', [$this->getArticleTrans($comment->article)->id, $this->getArticleTrans($comment->article)->slug ]) }}" class="text-red-400 hover:text-red-300 font-semibold inline-flex items-center gap-1 transition">
-                                <span>On Case: {{ $this->getArticleTrans($comment->article)->title ?? $comment->article->sign }}</span>
+                                <span>On Case: {{ $this->getArticleTrans($comment->article)->title ?? $comment->article->internal_title }}</span>
                                 <svg class="w-3 h-3 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
                                 </svg>

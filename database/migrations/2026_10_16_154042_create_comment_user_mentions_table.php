@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('comment_user_mentions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('comment_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('comment_id')->constrained('comments')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
 
             // لضمان عدم تكرار المنشن لنفس الشخص في نفس التعليق مرتين

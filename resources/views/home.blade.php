@@ -17,11 +17,11 @@
     {{-- 1️⃣ Hero Section: المقالة البارزة (Featured Article) --}}
     @if(isset($featuredArticle) && $featuredArticle)
         @php
-            $featuredTrans = $featuredArticle->translations->where('language_code', app()->getLocale())->first() 
+            $featuredTrans = $featuredArticle->translations->where('locale', app()->getLocale())->first() 
                             ?? $featuredArticle->translations->first();
             
             // جلب ترجمة الفئة للمقالة البارزة
-            $featuredCatTrans = $featuredArticle->category?->translations->where('language_code', app()->getLocale())->first() 
+            $featuredCatTrans = $featuredArticle->category?->translations->where('locale', app()->getLocale())->first() 
                                ?? $featuredArticle->category?->translations->first();
         @endphp
 
@@ -50,7 +50,7 @@
                             @if($featuredArticle->category)
                                 <a href="{{ route('categories.show', ['id' => $featuredArticle->category->id, 'slug' => $featuredCatTrans->slug ?? '']) }}" 
                                    class="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-red-400 bg-red-500/10 border border-red-500/20 rounded-full hover:bg-red-500/20 transition-colors">
-                                    🔥 {{ $featuredCatTrans->title ?? $featuredArticle->category->sign }}
+                                    🔥 {{ $featuredCatTrans->title ?? $featuredArticle->category->label }}
                                 </a>
                             @else
                                 <span class="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-red-400 bg-red-500/10 border border-red-500/20 rounded-full">
@@ -105,11 +105,11 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 @forelse($articles as $article)
                     @php
-                        $trans = $article->translations->where('language_code', app()->getLocale())->first() 
+                        $trans = $article->translations->where('locale', app()->getLocale())->first() 
                                 ?? $article->translations->first();
 
                         // ترجمة الفئة للمقالة الحالية
-                        $catTrans = $article->category?->translations->where('language_code', app()->getLocale())->first() 
+                        $catTrans = $article->category?->translations->where('locale', app()->getLocale())->first() 
                                    ?? $article->category?->translations->first();
                     @endphp
 
@@ -135,7 +135,7 @@
                                     @if($article->category)
                                         <a href="{{ route('categories.show', ['id' => $catTrans->id, 'slug' => $catTrans->slug ?? '']) }}" 
                                            class="absolute top-3 left-3 rtl:left-auto rtl:right-3 px-2.5 py-1 text-xs font-medium text-white bg-slate-900/80 hover:bg-red-600/90 backdrop-blur-md rounded-lg border border-slate-700 transition-colors z-10">
-                                            {{ $catTrans->name ?? $article->category->sign }}
+                                            {{ $catTrans->name ?? $article->category->label }}
                                         </a>
                                     @endif
                                 </div>
@@ -195,14 +195,14 @@
                     @foreach($categories as $category)
                         @php
                             // جلب ترجمة الفئة بناءً على اللغة الحالية
-                            $catTrans = $category->translations->where('language_code', app()->getLocale())->first() 
+                            $catTrans = $category->translations->where('locale', app()->getLocale())->first() 
                                        ?? $category->translations->first();
                         @endphp
                         
                         {{-- تحديث رابط الفئة ليحتوي على الـ id والـ slug المترجم --}}
                         <a href="{{ route('categories.show', ['id' => $category->id, 'slug' => $catTrans->slug ?? '']) }}" 
                            class="px-3 py-1.5 text-xs font-medium bg-slate-800/80 hover:bg-red-600/20 hover:border-red-500/40 text-gray-300 hover:text-red-400 border border-slate-700/60 rounded-xl transition-all">
-                            {{ $catTrans->title ?? $category->sign }}
+                            {{ $catTrans->title ?? $category->label }}
                             <span class="text-slate-500 text-[10px] ml-1">({{ $category->articles_count ?? 0 }})</span>
                         </a>
                     @endforeach

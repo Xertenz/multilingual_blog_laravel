@@ -10,7 +10,7 @@
     <meta property="og:description" content="{{ $article_trans->meta_description ?? Str::limit(strip_tags($article_trans->meta_description), 160) }}">
     <meta property="og:type" content="article">
     <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:locale" content="{{ $article_trans->language_code ?? 'en' }}">
+    <meta property="og:locale" content="{{ $article_trans->locale ?? 'en' }}">
     <meta property="og:site_name" content="Crime Chronicles">
 
     <!-- Twitter Cards -->
@@ -25,7 +25,7 @@
     @if($article_trans->article->translations ?? false)
         @foreach($article_trans->article->translations as $translation)
             <link rel="alternate"
-                hreflang="{{ $translation->language_code }}" 
+                hreflang="{{ $translation->locale }}" 
                 href="{{ route('articles.show', ['slug' => $translation->slug, 'id' =>$translation->id]) }}">
         @endforeach
     @endif
@@ -185,8 +185,8 @@
                 <div class="flex items-center flex-wrap gap-2">
                     <span class="text-gray-500 text-xs font-medium">More in:</span>
                     @php
-                        $current_locale = app()->getLocale();$category_translation = $article_trans->article->category->translations->where('language_code',$current_locale)->first();
-                        $categoryName =$category_translation ? $category_translation->name :$article_trans->article->category->sign;
+                        $current_locale = app()->getLocale();$category_translation = $article_trans->article->category->translations->where('locale',$current_locale)->first();
+                        $categoryName =$category_translation ? $category_translation->name :$article_trans->article->category->label;
                         $categoryId =$article_trans->article->category->id;
                     @endphp
 
@@ -242,8 +242,8 @@
                     
                     @foreach($article_trans->article->tags as $tag)
                         @php
-                            $current_locale = app()->getLocale();$tag_translation = $tag->translations->where('language_code',$current_locale)->first();
-                            $tagName =$tag_translation ? $tag_translation->name :$tag->sign;
+                            $current_locale = app()->getLocale();$tag_translation = $tag->translations->where('locale',$current_locale)->first();
+                            $tagName =$tag_translation ? $tag_translation->name :$tag->label;
                         @endphp
                         
                         @if ($tag_translation)

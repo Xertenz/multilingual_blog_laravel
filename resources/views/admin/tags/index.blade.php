@@ -23,7 +23,7 @@
                 <thead>
                     <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                         <th class="py-3 px-6">ID</th>
-                        <th class="py-3 px-6">Sign</th>
+                        <th class="py-3 px-6">Label</th>
                         <th class="py-3 px-6 text-right">Actions</th>
                     </tr>
                 </thead>
@@ -35,9 +35,9 @@
                             #{{ $tag->id }}
                         </td>
 
-                        {{-- Sign --}}
+                        {{-- Label --}}
                         <td class="py-3.5 px-6 font-semibold text-slate-800">
-                            {{ $tag->sign }}
+                            {{ $tag->label }}
                         </td>
 
                         {{-- Actions --}}

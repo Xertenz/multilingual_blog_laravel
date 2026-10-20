@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\App;
 class Tag extends Model
 {
     //
-    protected $fillable = ['sign'];
+    protected $fillable = ['label'];
     public function articles()
     {
         return $this->belongsToMany(Article::class);
@@ -22,11 +22,11 @@ class Tag extends Model
     // دالة مساعدة لجلب ترجمة الوسم الحالية بناءً على لغة الموقع
     public function currentTranslation()
     {
-        return $this->hasOne(TagTranslation::class)->where('language_code', App::getLocale());
+        return $this->hasOne(TagTranslation::class)->where('locale', App::getLocale());
     }
 
     public function translate(string $localeCode)
     {
-        return $this->translations()->where('language_code', $localeCode)->first();
+        return $this->translations()->where('locale', $localeCode)->first();
     }
 }

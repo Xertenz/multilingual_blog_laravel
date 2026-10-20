@@ -13,7 +13,7 @@ class CategoryTranslation extends Model implements HasMedia
 
     protected $fillable = [
         'category_id',
-        'language_code',
+        'locale',
         'slug',
         'name',
         'description',
