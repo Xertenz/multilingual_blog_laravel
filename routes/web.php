@@ -140,6 +140,11 @@ Route::group([
             Route::get('/articles/pending', [ArticleController::class, 'pending'])->name('admin.articles.pending');
             Route::post('/articles/{id}/approve', [ArticleController::class, 'approve'])->name('admin.articles.approve');
             Route::post('/articles/{id}/reject', [ArticleController::class, 'reject'])->name('admin.articles.reject');
+
+            // الاقتراحات (Suggestions)
+            Route::get('/suggestions', [App\Http\Controllers\Admin\ArticleSuggestionController::class, 'index'])->name('admin.suggestions.index');
+            Route::patch('/suggestions/{suggestion}/status', [App\Http\Controllers\Admin\ArticleSuggestionController::class, 'updateStatus'])->name('admin.suggestions.status');
+            Route::delete('/suggestions/{suggestion}', [App\Http\Controllers\Admin\ArticleSuggestionController::class, 'destroy'])->name('admin.suggestions.destroy');
         });
     });
 
@@ -160,4 +165,6 @@ Route::group([
     Route::view('/contact', 'contact')->name('contact');
     Route::post('/contact', function () {})->name('contact.submit');
     Route::view('/about', 'about')->name('about');
+
+    Route::get('/suggestions', \App\Livewire\ArticleSuggestions::class)->name('suggestions.index');
 });

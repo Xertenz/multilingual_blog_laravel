@@ -27,7 +27,7 @@ class SendNewArticleNotificationJob implements ShouldQueue
         $usersToNotify = $article->category->followers;
 
         // 2. تصفية المستخدمين بحيث يتم إرسال الإشعار فقط لمن تتطابق لغته مع لغة هذه الترجمة
-        $targetLocale = $this->article_trans->language_code;
+        $targetLocale = $this->article_trans->locale;
 
         $filteredUsers = $usersToNotify->filter(function ($user) use ($targetLocale) {
             return $user->locale === $targetLocale;

@@ -26,7 +26,7 @@
                 <td>{{$article_trans['id']}}</td>
                 <td>{{$article_trans['article_id']}}</td>
                 <td>{{$article_trans['slug']}}</td>
-                <td>{{$article_trans['language_code']}}</td>
+                <td>{{$article_trans['locale']}}</td>
                 <td>{{$article_trans['title']}}</td>
                 <td>{{$article_trans['description']}}</td>
                 <td>{{$article_trans['meta_title']}}</td>

@@ -12,7 +12,7 @@ class CategoryController extends Controller
     //
     public function index()
     {
-        $cats = Category::with('media', 'articles')->paginate(10);
+        $cats = Category::with('media', 'articles')->withCount('articles')->paginate(10);
         return view('admin.categories.index', compact('cats'));
     }
 }

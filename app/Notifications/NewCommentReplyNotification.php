@@ -55,8 +55,8 @@ class NewCommentReplyNotification extends Notification
     /*
     public function toArray(object $notifiable): array
     {
-        //$article_trans = $this->reply_item->article->translations()->where('language_code', LaravelLocalization::getCurrentLocale())->first();
-        $article_trans = $this->reply_item->article->translations()->where('language_code', $this->original_comment_locale)->first();
+        //$article_trans = $this->reply_item->article->translations()->where('locale', LaravelLocalization::getCurrentLocale())->first();
+        $article_trans = $this->reply_item->article->translations()->where('locale', $this->original_comment_locale)->first();
         if (!$article_trans) {
             $article_trans = $this->reply_item->article->translations()->first();
         }

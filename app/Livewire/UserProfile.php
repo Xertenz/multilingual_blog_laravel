@@ -17,7 +17,8 @@ class UserProfile extends Component
         $this->user = User::with([
             'savedArticles.translations',
             'favoriteCategories.translations',
-            'comments.article.translations'
+            'comments.article.translations',
+            'votedSuggestions.votes'
         ])->findOrFail($id);
     }
 
@@ -33,7 +34,7 @@ class UserProfile extends Component
 
     public function getCatTrans(object $category)
     {
-        $cat_trans = $category->translations->where('language_code', App::getLocale())->first();
+        $cat_trans = $category->translations->where('locale', App::getLocale())->first();
         if ($cat_trans)
             return $cat_trans;
         else
@@ -42,7 +43,7 @@ class UserProfile extends Component
     public function getArticleTrans(object $article)
     {
 
-        $article_trans = $article->translations->where('language_code', App::getLocale())->first();
+        $article_trans = $article->translations->where('locale', App::getLocale())->first();
         if ($article_trans)
             return $article_trans;
         else

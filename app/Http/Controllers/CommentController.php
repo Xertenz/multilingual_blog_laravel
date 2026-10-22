@@ -54,11 +54,11 @@ class CommentController extends Controller
         $article = Article::with('translations')->find($request->article_id);
         if ($article) {
             foreach ($article->translations as $translation) {
-                Cache::forget("article_show_{$translation->id}_lang_{$translation->language_code}");
+                Cache::forget("article_show_{$translation->id}_lang_{$translation->locale}");
             }
         }
 
-        $article_trans = ArticleTranslation::where('article_id', (int) $request->article_id)->where('language_code', $comment_item->locale)->first();
+        $article_trans = ArticleTranslation::where('article_id', (int) $request->article_id)->where('locale', $comment_item->locale)->first();
         if (!$article_trans) {
             return;
         }
@@ -142,7 +142,7 @@ class CommentController extends Controller
         $article = Article::with('translations')->find($comment_item->article_id);
         if ($article) {
             foreach ($article->translations as $translation) {
-                Cache::forget("article_show_{$translation->id}_lang_{$translation->language_code}");
+                Cache::forget("article_show_{$translation->id}_lang_{$translation->locale}");
             }
         }
 
@@ -172,7 +172,7 @@ class CommentController extends Controller
         $article = Article::with('translations')->find($article_id);
         if ($article) {
             foreach ($article->translations as $translation) {
-                Cache::forget("article_show_{$translation->id}_lang_{$translation->language_code}");
+                Cache::forget("article_show_{$translation->id}_lang_{$translation->locale}");
             }
         }
 

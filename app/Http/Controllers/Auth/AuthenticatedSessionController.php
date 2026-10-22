@@ -30,16 +30,16 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = $request->user();
-        if ($user->hasRole(['super-admin', 'editor', 'writer'])) {
-            //return redirect()->intended(route('dashboard', absolute: false));
-            return redirect()->intended(route('admin.articles.index', absolute: false));
-        }
-
         // === تحديث لغة المستخدم لتطابق اللغة الحالية للموقع عند تسجيل الدخول ===
         if ($user) {
             $user->update([
                 'locale' => App::getLocale()
             ]);
+        }
+
+        if ($user->hasRole(['super-admin', 'editor', 'writer'])) {
+            //return redirect()->intended(route('dashboard', absolute: false));
+            return redirect()->intended(route('admin.articles.index', absolute: false));
         }
 
         return redirect()->intended(route('home.index'));

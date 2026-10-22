@@ -20,15 +20,15 @@ class TagTranslationController extends Controller
 
     public function store(Request $request)
     {
-        // 1. التحقق من البيانات (Sign مطلوب والترجمات مصفوفة)
+        // 1. التحقق من البيانات (Label مطلوب والترجمات مصفوفة)
         $request->validate([
             'label' => 'required|string|unique:tags,label|max:50',
             'translations.*.name' => 'nullable|string|max:50', // جعلناها nullable لو أراد إضافة لغات معينة فقط وتأجيل الباقي
         ]);
 
-        // 2. إضافة الـ Sign في جدول tags الأساسي
+        // 2. إضافة الـ Label في جدول tags الأساسي
         $tag = Tag::create([
-            'label' => Str::slug($request->label, '-') // تجميل الـ Sign ليكون متناسقاً كرمز
+            'label' => Str::slug($request->label, '-') // تجميل الـ Label ليكون متناسقاً كرمز
         ]);
 
         // 3. الدوران حول لغات الـ 12 الممررة من الحقول
@@ -109,7 +109,7 @@ class TagTranslationController extends Controller
             'translations.*.slug' => 'nullable|string|max:50',
         ]);
 
-        // 2. تحديث الـ Sign الأساسي بأمان تام وبدون تكرار الدالة
+        // 2. تحديث الـ Label الأساسي بأمان تام وبدون تكرار الدالة
         $tag->update([
             'label' => Str::of($request->label)->slug('-')
         ]);

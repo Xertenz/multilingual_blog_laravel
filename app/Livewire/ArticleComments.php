@@ -203,7 +203,7 @@ class ArticleComments extends Component
         $article = Article::with('translations')->find($this->articleId);
         if ($article) {
             foreach ($article->translations as $translation) {
-                Cache::forget("article_show_{$translation->id}_lang_{$translation->language_code}");
+                Cache::forget("article_show_{$translation->id}_lang_{$translation->locale}");
             }
         }
     }

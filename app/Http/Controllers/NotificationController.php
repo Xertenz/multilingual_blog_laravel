@@ -75,7 +75,8 @@ class NotificationController extends Controller
             */
 
             // 💬 حالة إشعار الرد على تعليق
-            case 'App\Notifications\NewCommentReplyNotification':
+            //case 'App\Notifications\NewCommentReplyNotification':
+            case \App\Notifications\NewCommentReplyNotification::class:
                 $replyId = $data['reply_id'] ?? null;
                 $replyComment = $replyId ? \App\Models\Comment::find($replyId) : null;
 
@@ -89,11 +90,11 @@ class NotificationController extends Controller
                     $senderLocale = $data['sender_locale'] ?? $replyComment->locale;
 
                     // أ. البحث عن ترجمة المقال بلغة المستلم أولاً
-                    $articleTrans = $article->translations()->where('language_code', $recipientLocale)->first();
+                    $articleTrans = $article->translations()->where('locale', $recipientLocale)->first();
 
                     // ب. إذا لم تتوفر، نبحث بلغة المُرسِل
                     if (!$articleTrans && $senderLocale) {
-                        $articleTrans = $article->translations()->where('language_code', $senderLocale)->first();
+                        $articleTrans = $article->translations()->where('locale', $senderLocale)->first();
                     }
 
                     // ج. كملجأ أخير، نأخذ أول ترجمة متاحة للمقالة
@@ -102,7 +103,7 @@ class NotificationController extends Controller
                     }
 
                     if ($articleTrans) {
-                        $targetLocale = $articleTrans->language_code;
+                        $targetLocale = $articleTrans->locale;
 
                         $baseUrl = LaravelLocalization::getLocalizedURL($targetLocale, route('articles.show', [
                             'id'   => $articleTrans->id,
@@ -123,13 +124,14 @@ class NotificationController extends Controller
 
 
             // 📰 حالة إشعار مقالة جديدة من الفئة المفضلة
-            case 'App\Notifications\NewArticleInFavoriteCategory':
+            //case 'App\Notifications\NewArticleInFavoriteCategory':
+            case \App\Notifications\NewArticleInFavoriteCategory::class:
                 if (isset($data['article_id'])) {
                     $article = Article::find($data['article_id']);
                     if ($article) {
                         // جلب الترجمة للغة الحالية للزائر أو أول ترجمة متاحة
                         $currentLocale = LaravelLocalization::getCurrentLocale();
-                        $articleTrans = $article->translations()->where('language_code', $currentLocale)->first()
+                        $articleTrans = $article->translations()->where('locale', $currentLocale)->first()
                             ?? $article->translations()->first();
 
                         if ($articleTrans) {
@@ -154,7 +156,8 @@ class NotificationController extends Controller
             */
 
             // ❤️ حالة إشعار التفاعل على التعليق أو الرد
-            case 'App\Notifications\NewCommentReactionNotification':
+            //case 'App\Notifications\NewCommentReactionNotification':
+            case \App\Notifications\NewCommentReactionNotification::class:
                 $transId = data_get($data, 'article_trans_id') ?? data_get($data, 'article_id');
 
                 if ($transId) {
@@ -179,13 +182,9 @@ class NotificationController extends Controller
                 break;
 
 
-
-
-
-
-
             // 🔔 حالة إشعار الـ Mention (الإشارة في تعليق أو رد)
-            case 'App\Notifications\UserMentionedNotification':
+            //case 'App\Notifications\UserMentionedNotification':
+            case \App\Notifications\UserMentionedNotification::class:
                 if (isset($data['comment_id'], $data['article_id'])) {
                     $comment = \App\Models\Comment::find($data['comment_id']);
                     $article = \App\Models\Article::find($data['article_id']);
@@ -198,11 +197,11 @@ class NotificationController extends Controller
                         $senderLocale = $data['sender_locale'] ?? $comment->locale;
 
                         // الخطوة أ: البحث عن ترجمة المقال بلغة المستلم أولاً
-                        $articleTrans = $article->translations()->where('language_code', $recipientLocale)->first();
+                        $articleTrans = $article->translations()->where('locale', $recipientLocale)->first();
 
                         // الخطوة ب: إذا لم تتوفر، نبحث بلغة المُرسِل (فكرتك العبقرية)
                         if (!$articleTrans && $senderLocale) {
-                            $articleTrans = $article->translations()->where('language_code', $senderLocale)->first();
+                            $articleTrans = $article->translations()->where('locale', $senderLocale)->first();
                         }
 
                         // الخطوة ج: كملجأ أخير، نأخذ أول ترجمة متاحة للمقالة
@@ -211,7 +210,7 @@ class NotificationController extends Controller
                         }
 
                         if ($articleTrans) {
-                            $targetLocale = $articleTrans->language_code;
+                            $targetLocale = $articleTrans->locale;
 
                             $baseUrl = LaravelLocalization::getLocalizedURL($targetLocale, route('articles.show', [
                                 'id'   => $articleTrans->id,

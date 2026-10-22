@@ -1,8 +1,27 @@
-{{-- resources/views/admin/categories/index.blade.php --}}
 @extends('layouts.admin.master')
 
 {{-- @section('page-title', 'All Categories') --}}
 @section('title', 'Categories')
+
+@push('styles')
+    <style>
+        /* تنسيق شريط التمرير الأفقي للجدول */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+@endpush
 
 @section('content')
     {{-- Header Actions --}}
@@ -19,28 +38,28 @@
     
     {{-- Categories Table Container --}}
     <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+        <div class="overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-collapse min-w-[850px]">
                 <thead>
                     <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                        <th class="py-3 px-4">ID</th>
-                        <th class="py-3 px-4">Featured Img</th>
+                        <th class="py-3 px-4 w-20">ID</th>
+                        <th class="py-3 px-4 w-28">Featured Img</th>
                         <th class="py-3 px-4">Name / Label</th>
-                        <th class="py-3 px-4">Slug</th>
-                        <th class="py-3 px-4">Articles Count</th>
-                        <th class="py-3 px-4 text-right">Actions</th>
+                        <th class="py-3 px-4 w-48">Slug</th>
+                        <th class="py-3 px-4 w-36">Articles Count</th>
+                        <th class="py-3 px-4 text-right w-44">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-sm">
                     @forelse($cats as $category)
                     <tr class="hover:bg-slate-50/70 transition-colors">
                         {{-- ID --}}
-                        <td class="py-3.5 px-4 font-mono text-xs text-slate-500">
+                        <td class="py-3.5 px-4 font-mono text-xs text-slate-500 whitespace-nowrap">
                             #{{ $category->id }}
                         </td>
 
                         {{-- Featured Image --}}
-                        <td class="py-3.5 px-4">
+                        <td class="py-3.5 px-4 whitespace-nowrap">
                             <div class="w-12 h-10 rounded-lg overflow-hidden bg-slate-100 border border-slate-200 shrink-0 flex items-center justify-center">
                                 @if($category->getFirstMediaUrl('featured_imgs', 'thumb'))
                                     <img 
@@ -60,19 +79,19 @@
                         </td>
 
                         {{-- Slug --}}
-                        <td class="py-3.5 px-4 text-slate-500 text-xs font-mono">
+                        <td class="py-3.5 px-4 text-slate-500 text-xs font-mono whitespace-nowrap">
                             {{ "[Inside Category Translation]" }}
                         </td>
 
                         {{-- Articles Count --}}
-                        <td class="py-3.5 px-4">
-                            <span class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md text-xs font-semibold border border-slate-200">
+                        <td class="py-3.5 px-4 whitespace-nowrap">
+                            <span class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md text-xs font-semibold border border-slate-200 inline-block">
                                 {{ $category->articles->count() ?? 0 }} articles
                             </span>
                         </td>
 
                         {{-- Actions --}}
-                        <td class="py-3.5 px-4 text-right">
+                        <td class="py-3.5 px-4 text-right whitespace-nowrap">
                             <div class="flex items-center justify-end gap-2">
                                 <a href="{{ route('admin.categories.edit', $category) }}"
                                    class="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors">

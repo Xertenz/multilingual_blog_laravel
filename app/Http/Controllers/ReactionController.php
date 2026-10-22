@@ -40,7 +40,7 @@ class ReactionController extends Controller
 
         // 🔥 مسح كاش جميع ترجمات هذا المقال بضمان تام
         foreach ($target->translations as $translation) {
-            Cache::forget("article_show_{$translation->id}_lang_{$translation->language_code}");
+            Cache::forget("article_show_{$translation->id}_lang_{$translation->locale}");
         }
 
         return response()->json([

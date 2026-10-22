@@ -18,12 +18,12 @@ class ProfileController extends Controller
 
     public function favoriteCategories(Request $request)
     {
-        $lang_code = LaravelLocalization::getCurrentLocale();
+        $currentLocale = LaravelLocalization::getCurrentLocale();
 
         // جلب المستخدم الحالي مع فئاته المفضلة وتراجمها باللغة الحالية لمنع N+1
         $user = $request->user()->load([
-            'favoriteCategories.translations' => function ($query) use ($lang_code) {
-                $query->where('language_code', $lang_code);
+            'favoriteCategories.translations' => function ($query) use ($currentLocale) {
+                $query->where('locale', $currentLocale);
             }
         ]);
 
@@ -35,10 +35,10 @@ class ProfileController extends Controller
 
     public function savedArticles(Request $request)
     {
-        $lang_code = LaravelLocalization::getCurrentLocale();
+        $currentLocale = LaravelLocalization::getCurrentLocale();
         $user = $request->user()->load([
-            'savedArticles.translations' => function ($query) use ($lang_code) {
-                $query->where('language_code', $lang_code);
+            'savedArticles.translations' => function ($query) use ($currentLocale) {
+                $query->where('locale', $currentLocale);
             }
         ]);
         return view('profile.saved-articles', [

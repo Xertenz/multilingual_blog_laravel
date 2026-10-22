@@ -17,7 +17,7 @@ class CategoryVisitorController extends Controller
             return Category::with([
                 'media',
                 'translations' => function ($query) use ($current_locale) {
-                    $query->where('language_code', $current_locale);
+                    $query->where('locale', $current_locale);
                 },
                 'articles' => function ($query) {
                     $query->where('status', 'published');

@@ -20,13 +20,13 @@ class SeriesController extends Controller
             'articles' => function ($query) use ($currentLocale) {
                 // جلب تراجم المقالات للغة الحالية إن أمكن
                 $query->with(['translations' => function ($q) use ($currentLocale) {
-                    $q->where('language_code', $currentLocale);
+                    $q->where('locale', $currentLocale);
                 }]);
             }
         ])->where('status', 'published')->findOrFail($id);
 
         // جلب ترجمة السلسلة الخاصة باللغة الحالية
-        $translation = $series->translations->where('language_code', $currentLocale)->first()
+        $translation = $series->translations->where('locale', $currentLocale)->first()
             ?? $series->translations->first();
 
         return view('front.series.show', compact('series', 'translation'));

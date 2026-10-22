@@ -59,7 +59,7 @@
             <h2 class="text-lg font-semibold text-slate-700 pb-2 border-b">Translations</h2>
             
             @php
-                $translations = $series->translations->keyBy('language_code');
+                $translations = $series->translations->keyBy('locale');
             @endphp
 
             <div class="space-y-6">

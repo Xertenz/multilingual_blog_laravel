@@ -49,7 +49,7 @@ class NewArticleInFavoriteCategory extends Notification
 
         // جلب سطر الترجمة الخاص بهذه اللغة
         /*
-        $article_trans = $this->article->translations->where('language_code', $locale)->first()
+        $article_trans = $this->article->translations->where('locale', $locale)->first()
             ?? $this->article->translations->first(); // fallback لأي لغة لو لم تتوفر لغته
         */
 

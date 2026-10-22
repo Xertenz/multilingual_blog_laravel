@@ -444,6 +444,8 @@
                 body: JSON.stringify({ id, type })
             });
             let data = await request.json();
+
+            console.log(data)
             
             document.getElementById(`article-like-count-${id}`).textContent = `(${data.likes})`;
             document.getElementById(`article-dislike-count-${id}`).textContent = `(${data.dislikes})`;
@@ -479,6 +481,8 @@
                 body: JSON.stringify({ id, type })
             });
             let data = await request.json();
+
+            console.log(data)
             
             document.getElementById(`article-like-count-${id}`).textContent = `(${data.likes})`;
             document.getElementById(`article-dislike-count-${id}`).textContent = `(${data.dislikes})`;

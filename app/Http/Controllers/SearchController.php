@@ -16,7 +16,7 @@ class SearchController extends Controller
         // جلب المقالات المكتملة والمطبقة للبحث مع العلاقات المطلوبة
         $articles = Article::with([
             'translations' => function ($q) {
-                $q->where('language_code', app()->getLocale());
+                $q->where('locale', app()->getLocale());
             },
             'media',
             'category.translations'

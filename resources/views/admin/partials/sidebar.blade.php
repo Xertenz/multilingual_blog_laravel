@@ -112,6 +112,30 @@
             </ul>
         </div>
 
+        {{-- Divider --}}
+        <div class="border-t border-slate-700 my-4"></div>
+
+        {{-- Article Suggestions Moderation Link (خاص بالمشرفين والمحرרים) --}}
+        @hasanyrole('super-admin|editor')
+        <li>
+            <a href="{{ route('admin.suggestions.index') }}" 
+            class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                    {{ request()->routeIs('admin.suggestions.*') 
+                        ? 'bg-gradient-to-r from-red-600/20 to-orange-600/25 text-white' 
+                        : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                    <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                    </svg>
+                </div>
+                <span class="flex-1 text-sm font-medium">Case Suggestions</span>
+                <span class="bg-red-500/20 text-red-400 text-xs px-2 py-0.5 rounded-full font-semibold">
+                    {{ \App\Models\ArticleSuggestion::where('status', 'pending')->count() }}
+                </span>
+            </a>
+        </li>
+        @endhasanyrole
+
         @hasanyrole('super-admin|editor')
         {{-- Divider --}}
         <div class="border-t border-slate-700 my-4"></div>

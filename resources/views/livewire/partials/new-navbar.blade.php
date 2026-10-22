@@ -146,7 +146,12 @@ new class extends Component {
                                 </div>
                             </div>
                         </div>
+
+                        <a href="{{ route('suggestions.index') }}" class="flex items-center gap-1 text-gray-400 hover:text-red-500 hover:bg-slate-900/50 px-3 py-1.5 rounded-lg transition-all text-sm font-medium">
+                            Suggestions
+                        </a>
                     </div>
+
 
                     <!-- حقل البحث للشاشات المتوسطة والكبيرة -->
                     <div class="hidden md:block flex-1 max-w-xs lg:max-w-sm">
@@ -166,6 +171,7 @@ new class extends Component {
                             </button>
                         </form>
                     </div>
+
                     
                     <!-- القسم الأيمن: أدوات المستخدم، أزرار الدخول، واللغة -->
                     <div class="right flex items-center gap-3 md:gap-4">

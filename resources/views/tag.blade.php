@@ -38,7 +38,7 @@
         @forelse($articles as $article)
             @php
                 // جلب ترجمة المقالة المتوافقة مع لغة التصفح الحالية
-                $trans = $article->translations->where('language_code', app()->getLocale())->first() 
+                $trans = $article->translations->where('locale', app()->getLocale())->first() 
                         ?? $article->translations->first();
             @endphp
 

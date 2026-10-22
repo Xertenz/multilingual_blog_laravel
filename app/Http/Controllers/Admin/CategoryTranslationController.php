@@ -134,7 +134,7 @@ class CategoryTranslationController extends Controller
         $current_locale = LaravelLocalization::getCurrentLocale();
 
         if ($category_trans->locale !== $current_locale) {
-            $category_trans = $category_trans->category->translations->where('language_code', $current_locale)
+            $category_trans = $category_trans->category->translations->where('locale', $current_locale)
                 ->first();
             if ($category_trans) {
                 return redirect()->route(

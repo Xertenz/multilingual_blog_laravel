@@ -91,4 +91,14 @@ class User extends AuthenticatableUser implements Authenticatable
             'comment_id'               // المفتاح الأجنبي الخاص بالتعليق في الجدول الوسيط
         )->withTimestamps();
     }
+
+    public function articleSuggestions(): HasMany
+    {
+        return $this->hasMany(ArticleSuggestion::class, 'user_id');
+    }
+
+    public function votedSuggestions(): BelongsToMany
+    {
+        return $this->belongsToMany(ArticleSuggestion::class, 'article_suggestion_votes', 'user_id', 'article_suggestion_id')->withTimestamps();
+    }
 }

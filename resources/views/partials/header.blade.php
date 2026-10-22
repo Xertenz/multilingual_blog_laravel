@@ -1,7 +1,7 @@
 {{-- resources/views/partials/header.blade.php --}}
 {{--
 <!DOCTYPE html>
-<html lang="{{ $article_trans->language_code ?? 'en' }}" dir="{{ LaravelLocalization::getCurrentLocaleDirection() }}">
+<html lang="{{ $article_trans->locale ?? 'en' }}" dir="{{ LaravelLocalization::getCurrentLocaleDirection() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
