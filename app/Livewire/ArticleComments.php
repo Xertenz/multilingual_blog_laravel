@@ -171,7 +171,8 @@ class ArticleComments extends Component
 
         $comment = Comment::create([
             'user_id' => Auth::id(),
-            'article_id' => $this->articleId,
+            'commentable_type' => Article::class,
+            'commentable_id' => $this->articleId,
             'parent_id' => $parentId,
             'body' => trim(strip_tags($body)),
             'locale' => LaravelLocalization::getCurrentLocale()
@@ -203,7 +204,7 @@ class ArticleComments extends Component
         $article = Article::with('translations')->find($this->articleId);
         if ($article) {
             foreach ($article->translations as $translation) {
-                Cache::forget("article_show_{$translation->id}_lang_{$translation->locale}");
+                //Cache::forget("article_show_{$translation->id}_lang_{$translation->locale}");
             }
         }
     }
@@ -211,7 +212,9 @@ class ArticleComments extends Component
     public function render()
     {
         $comments = Comment::with(['user', 'reactions', 'replies.user', 'replies.reactions'])
-            ->where('article_id', $this->articleId)
+            //->where('article_id', $this->articleId)
+            ->where('commentable_type', Article::class)
+            ->where('commentable_id', $this->articleId)
             ->whereNull('parent_id')
             ->latest()
             ->get();

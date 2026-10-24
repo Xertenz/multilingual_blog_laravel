@@ -188,23 +188,72 @@
         @endif
 
         <!-- تبويب التعليقات والنشاطات -->
+        <!-- تبويب التعليقات والنشاطات -->
         @if($activeTab === 'comments')
             <div class="space-y-3">
                 @forelse($user->comments as $comment)
-                    <div class="p-4 bg-slate-800/40 border border-slate-800 rounded-xl text-xs space-y-1.5">
-                        @if($comment->article)
-                            <a href="{{ route('articles.show', [$this->getArticleTrans($comment->article)->id, $this->getArticleTrans($comment->article)->slug ]) }}" class="text-red-400 hover:text-red-300 font-semibold inline-flex items-center gap-1 transition">
-                                <span>On Case: {{ $this->getArticleTrans($comment->article)->title ?? $comment->article->internal_title }}</span>
-                                <svg class="w-3 h-3 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
-                                </svg>
-                            </a>
+                    <div class="p-4 bg-slate-800/40 border border-slate-800 hover:border-slate-700 rounded-xl text-xs space-y-2 transition">
+                        
+                        {{-- التحقق من العنصر الأب المرتبط بالتعليق عبر الـ Morph --}}
+                        @if($comment->commentable)
+                            
+                            {{-- الحالة الأولى: إذا كان التعليق على مقال (Article) --}}
+                            @if($comment->commentable instanceof \App\Models\Article)
+                                @php
+                                    $article = $comment->commentable;
+                                    // جلب الترجمة حسب لغة الموقع الحالية أو كملجأ أول ترجمة
+                                    $articleTrans = $article->translations->where('locale', app()->getLocale())->first() 
+                                                 ?? $article->translations->first();
+                                @endphp
+
+                                @if($articleTrans)
+                                    <div class="flex items-center justify-between">
+                                        <a href="{{ route('articles.show', ['id' => $articleTrans->id, 'slug' => $articleTrans->slug]) }}#comment-{{ $comment->id }}" 
+                                           class="text-red-400 hover:text-red-300 font-semibold inline-flex items-center gap-1 transition">
+                                            <span>💬 On Article Case: {{ $articleTrans->title }}</span>
+                                            <svg class="w-3 h-3 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
+                                            </svg>
+                                        </a>
+                                        <span class="text-slate-500 font-mono text-[10px]">{{ $comment->created_at->diffForHumans() }}</span>
+                                    </div>
+                                @endif
+
+                            {{-- الحالة الثانية: إذا كان التعليق على قضية في لوحة المحققين (CommunityCase) --}}
+                            @elseif($comment->commentable instanceof \App\Models\CommunityCase)
+                                @php
+                                    $case = $comment->commentable;
+                                @endphp
+
+                                <div class="flex items-center justify-between">
+                                    <a href="{{ route('community.cases.show', $case->slug) }}#comment-{{ $comment->id }}" 
+                                       class="text-emerald-400 hover:text-emerald-300 font-semibold inline-flex items-center gap-1 transition">
+                                        <span>🔍 On Detective Board Case: {{ $case->title }}</span>
+                                        <svg class="w-3 h-3 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
+                                        </svg>
+                                    </a>
+                                    <span class="text-slate-500 font-mono text-[10px]">{{ $comment->created_at->diffForHumans() }}</span>
+                                </div>
+
+                            @endif
+
                         @endif
-                        <p class="text-gray-300 leading-relaxed">{{ $comment->body }}</p>
-                        <span class="text-gray-500 font-mono text-[10px] block pt-1">{{ $comment->created_at->diffForHumans() }}</span>
+
+                        {{-- نص التعليق --}}
+                        <p class="text-gray-300 leading-relaxed pl-2 border-l-2 border-slate-700">
+                            {!! $comment->formatted_body !!}
+                        </p>
+
+                        <div class="text-right">
+                            <span class="text-gray-500 font-mono text-[10px]">{{ $comment->created_at->format('F j, Y - H:i') }}</span>
+                        </div>
                     </div>
                 @empty
                     <div class="text-center py-12">
+                        <svg class="w-12 h-12 mx-auto text-slate-700 mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"></path>
+                        </svg>
                         <p class="text-gray-500 text-xs italic">No activity or comments recorded yet.</p>
                     </div>
                 @endforelse

@@ -62,6 +62,7 @@ class NewCommentReactionNotification extends Notification implements ShouldQueue
         ];
     }
         */
+    /*
     public function toArray(object $notifiable): array
     {
         $comment = $this->comment;
@@ -82,5 +83,40 @@ class NewCommentReactionNotification extends Notification implements ShouldQueue
             'reaction_type' => $this->reaction->type,
             'message' => "فاعل بـ ({$this->reaction->type}) على " . ($isReplyFlag ? 'ردك.' : 'تعليقك.'),
         ];
+    }
+    */
+
+    public function toArray(object $notifiable): array
+    {
+        $comment = $this->comment;
+        // جلب العنصر الأب المرتبط بالتعليق (مقال أو قضية عبر الـ Morph)
+        $commentable = $comment->commentable ?? null;
+
+        $isReplyFlag = !empty($comment->parent_id);
+
+        // بيانات أساسية سنخزنها في الإشعار
+        $data = [
+            'user_id' => $this->user->id,
+            'user_name' => $this->user->name,
+            'comment_id' => $isReplyFlag ? null : $comment->id,
+            'reply_id' => $isReplyFlag ? $comment->id : null,
+            'reaction_type' => $this->reaction->type,
+            'sender_locale' => $comment->locale, // تخزين لغة التعليق لتحديد الترجمة بدقة لاحقاً
+            'message' => "فاعل بـ ({$this->reaction->type}) على " . ($isReplyFlag ? 'ردك.' : 'تعليقك.'),
+        ];
+
+        // إذا كان العنصر المرتبط مقالاً (Article)، نقوم بتخزين معلومات الترجمة الخاصة به
+        if ($commentable instanceof \App\Models\Article) {
+            $translation = $commentable->translations()->first();
+            $data['article_id'] = $commentable->id;
+            $data['article_trans_id'] = $translation ? $translation->id : null;
+            $data['article_trans_slug'] = $translation ? $translation->slug : null;
+        }
+        // وإذا كان قضية في لوحة المحققين، نخزن الـ slug الخاص بها
+        elseif ($commentable instanceof \App\Models\CommunityCase) {
+            $data['community_case_slug'] = $commentable->slug;
+        }
+
+        return $data;
     }
 }

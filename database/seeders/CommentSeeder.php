@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Article;
 use App\Models\Comment;
 use Carbon\Carbon;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -16,7 +17,11 @@ class CommentSeeder extends Seeder
     {
         Comment::create([
             'user_id' => 1,
-            'article_id' => 1,
+            //'article_id' => 1,
+
+            'commentable_type' => Article::class, // مثال: App\Models\Article أو App\Models\CommunityCase
+            'commentable_id' => 1,
+
             'parent_id' => null,
             'body' => 'this is admin comment',
             'locale' => 'en',
@@ -25,7 +30,11 @@ class CommentSeeder extends Seeder
         ]);
         Comment::create([
             'user_id' => 3,
-            'article_id' => 1,
+            //'article_id' => 1,
+
+            'commentable_type' => Article::class, // مثال: App\Models\Article أو App\Models\CommunityCase
+            'commentable_id' => 1,
+
             'parent_id' => 1,
             'body' => 'this is a user reply',
             'locale' => 'en',
@@ -34,7 +43,11 @@ class CommentSeeder extends Seeder
         ]);
         Comment::create([
             'user_id' => 3,
-            'article_id' => 1,
+            //'article_id' => 1,
+
+            'commentable_type' => Article::class, // مثال: App\Models\Article أو App\Models\CommunityCase
+            'commentable_id' => 1,
+
             'parent_id' => null,
             'body' => 'this is a user comment',
             'locale' => 'en',

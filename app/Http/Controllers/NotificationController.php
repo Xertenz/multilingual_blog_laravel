@@ -80,8 +80,10 @@ class NotificationController extends Controller
                 $replyId = $data['reply_id'] ?? null;
                 $replyComment = $replyId ? \App\Models\Comment::find($replyId) : null;
 
-                if ($replyComment && $replyComment->article) {
-                    $article = $replyComment->article;
+                if ($replyComment && $replyComment->commentable) {
+
+
+                    $commentable = $replyComment->commentable;
 
                     // 1. لغة المستلم الحالية
                     $recipientLocale = $notification->notifiable->locale ?? LaravelLocalization::getCurrentLocale();
@@ -89,37 +91,36 @@ class NotificationController extends Controller
                     // 2. لغة المُرسِل المخزنة في الإشعار (أو نلجأ للغة الرد نفسه كبديل)
                     $senderLocale = $data['sender_locale'] ?? $replyComment->locale;
 
-                    // أ. البحث عن ترجمة المقال بلغة المستلم أولاً
-                    $articleTrans = $article->translations()->where('locale', $recipientLocale)->first();
+                    if ($commentable instanceof \App\Models\Article) {
+                        // أ. البحث عن ترجمة المقال بلغة المستلم أولاً
+                        $articleTrans = $commentable->translations()->where('locale', $recipientLocale)->first();
 
-                    // ب. إذا لم تتوفر، نبحث بلغة المُرسِل
-                    if (!$articleTrans && $senderLocale) {
-                        $articleTrans = $article->translations()->where('locale', $senderLocale)->first();
-                    }
+                        // ب. إذا لم تتوفر، نبحث بلغة المُرسِل
+                        if (!$articleTrans && $senderLocale) {
+                            $articleTrans = $commentable->translations()->where('locale', $senderLocale)->first();
+                        }
 
-                    // ج. كملجأ أخير، نأخذ أول ترجمة متاحة للمقالة
-                    if (!$articleTrans) {
-                        $articleTrans = $article->translations()->first();
-                    }
+                        // ج. كملجأ أخير، نأخذ أول ترجمة متاحة للمقالة
+                        if (!$articleTrans) {
+                            $articleTrans = $commentable->translations()->first();
+                        }
 
-                    if ($articleTrans) {
-                        $targetLocale = $articleTrans->locale;
+                        if ($articleTrans) {
+                            $targetLocale = $articleTrans->locale;
 
-                        $baseUrl = LaravelLocalization::getLocalizedURL($targetLocale, route('articles.show', [
-                            'id'   => $articleTrans->id,
-                            'slug' => $articleTrans->slug
-                        ]));
+                            $baseUrl = LaravelLocalization::getLocalizedURL($targetLocale, route('articles.show', [
+                                'id'   => $articleTrans->id,
+                                'slug' => $articleTrans->slug
+                            ]));
 
-                        $targetUrl = $baseUrl . '#comment-' . $replyComment->id;
+                            $targetUrl = $baseUrl . '#comment-' . $replyComment->id;
+                        }
                     }
                 } else {
                     // تراجع آمن (Fallback) في حال كان الإشعار قديماً جداً وتم حذفه أو تلفه
                     $targetUrl = route('home.index');
                 }
                 break;
-
-
-
 
 
 
@@ -143,82 +144,86 @@ class NotificationController extends Controller
                     }
                 }
                 break;
-            /*
-            // ❤️ حالة إشعار التفاعل على التعليق (الجديدة)
-            case 'App\Notifications\NewCommentReactionNotification':
-                if (isset($data['article_trans_id'], $data['article_trans_slug'])) {
-                    $targetUrl = route('articles.show', [
-                        'id'   => $data['article_trans_id'],
-                        'slug' => $data['article_trans_slug']
-                    ]) . (isset($data['comment_id']) ? '#comment-' . $data['comment_id'] : '');
-                }
-                break;
-            */
+
 
             // ❤️ حالة إشعار التفاعل على التعليق أو الرد
             //case 'App\Notifications\NewCommentReactionNotification':
             case \App\Notifications\NewCommentReactionNotification::class:
-                $transId = data_get($data, 'article_trans_id') ?? data_get($data, 'article_id');
+                $targetId = $data['reply_id'] ?? $data['comment_id'] ?? null;
+                $comment = $targetId ? \App\Models\Comment::find($targetId) : null;
 
-                if ($transId) {
-                    // تكوين الرابط بالاعتماد الأساسي على الـ ID (مع تمرير الـ slug إن وجد)
-                    $routeParams = ['id' => $transId];
-                    if ($transSlug = data_get($data, 'article_trans_slug')) {
-                        $routeParams['slug'] = $transSlug;
+                if ($comment && $comment->commentable) {
+                    $commentable = $comment->commentable;
+
+                    // 1. التوجيه الذكي إذا كان التفاعل على تعليق داخل مقال (Article)
+                    if ($commentable instanceof \App\Models\Article) {
+                        $recipientLocale = $notification->notifiable->locale ?? LaravelLocalization::getCurrentLocale();
+                        $senderLocale = $data['sender_locale'] ?? $comment->locale;
+
+                        // البحث عن الترجمة المناسبة (لغة المستلم -> لغة المرسل -> أول ترجمة)
+                        $articleTrans = $commentable->translations()->where('locale', $recipientLocale)->first()
+                            ?? $commentable->translations()->where('locale', $senderLocale)->first()
+                            ?? $commentable->translations()->first();
+
+                        if ($articleTrans) {
+                            $baseUrl = LaravelLocalization::getLocalizedURL($articleTrans->locale, route('articles.show', [
+                                'id'   => $articleTrans->id,
+                                'slug' => $articleTrans->slug
+                            ]));
+
+                            $targetUrl = $baseUrl . '#comment-' . $comment->id;
+                        }
                     }
-
-                    $baseUrl = route('articles.show', $routeParams);
-                    $targetId = $data['reply_id'] ?? $data['comment_id'] ?? null;
-
-                    $comment = $targetId ? \App\Models\Comment::find($targetId) : null;
-
-                    if ($comment) {
-                        //$targetUrl = $baseUrl . (!empty($comment->parent_id) ? "#reply-item-{$targetId}" : "#comment-{$targetId}");
-                        $targetUrl = $baseUrl .  "#comment-{$targetId}";
-                    } else {
-                        $targetUrl = $baseUrl;
+                    // 2. التوجيه الذكي إذا كان التفاعل على تعليق داخل قضية في لوحة المحققين (CommunityCase)
+                    elseif ($commentable instanceof \App\Models\CommunityCase) {
+                        $targetUrl = route('community.cases.show', $commentable->slug) . '#comment-' . $comment->id;
+                    }
+                } else {
+                    // Fallback احتياطي في حال الاعتماد على البيانات القديمة المخزنة في الـ JSON
+                    $transId = data_get($data, 'article_trans_id') ?? data_get($data, 'article_id');
+                    if ($transId) {
+                        $routeParams = ['id' => $transId];
+                        if ($transSlug = data_get($data, 'article_trans_slug')) {
+                            $routeParams['slug'] = $transSlug;
+                        }
+                        $targetUrl = route('articles.show', $routeParams) . ($targetId ? "#comment-{$targetId}" : '');
                     }
                 }
                 break;
+
 
 
             // 🔔 حالة إشعار الـ Mention (الإشارة في تعليق أو رد)
             //case 'App\Notifications\UserMentionedNotification':
             case \App\Notifications\UserMentionedNotification::class:
-                if (isset($data['comment_id'], $data['article_id'])) {
+                if (isset($data['comment_id'])) {
                     $comment = \App\Models\Comment::find($data['comment_id']);
-                    $article = \App\Models\Article::find($data['article_id']);
 
-                    if ($comment && $article) {
-                        // 1. لغة المستلم الحالية
-                        $recipientLocale = $notification->notifiable->locale ?? LaravelLocalization::getCurrentLocale();
+                    if ($comment && $comment->commentable) {
+                        $commentable = $comment->commentable;
+                        $anchor = '#comment-' . $comment->id;
 
-                        // 2. لغة المُرسِل المخزنة في الإشعار (مع وضع الكقاعدة بيانات احتياطية لغة التعليق نفسها)
-                        $senderLocale = $data['sender_locale'] ?? $comment->locale;
+                        // 1. إذا كان التعليق داخل مقال (Article)
+                        if ($commentable instanceof \App\Models\Article) {
+                            $recipientLocale = $notification->notifiable->locale ?? LaravelLocalization::getCurrentLocale();
+                            $senderLocale = $data['sender_locale'] ?? $comment->locale;
 
-                        // الخطوة أ: البحث عن ترجمة المقال بلغة المستلم أولاً
-                        $articleTrans = $article->translations()->where('locale', $recipientLocale)->first();
+                            $articleTrans = $commentable->translations()->where('locale', $recipientLocale)->first()
+                                ?? $commentable->translations()->where('locale', $senderLocale)->first()
+                                ?? $commentable->translations()->first();
 
-                        // الخطوة ب: إذا لم تتوفر، نبحث بلغة المُرسِل (فكرتك العبقرية)
-                        if (!$articleTrans && $senderLocale) {
-                            $articleTrans = $article->translations()->where('locale', $senderLocale)->first();
+                            if ($articleTrans) {
+                                $baseUrl = LaravelLocalization::getLocalizedURL($articleTrans->locale, route('articles.show', [
+                                    'id'   => $articleTrans->id,
+                                    'slug' => $articleTrans->slug
+                                ]));
+
+                                $targetUrl = $baseUrl . $anchor;
+                            }
                         }
-
-                        // الخطوة ج: كملجأ أخير، نأخذ أول ترجمة متاحة للمقالة
-                        if (!$articleTrans) {
-                            $articleTrans = $article->translations()->first();
-                        }
-
-                        if ($articleTrans) {
-                            $targetLocale = $articleTrans->locale;
-
-                            $baseUrl = LaravelLocalization::getLocalizedURL($targetLocale, route('articles.show', [
-                                'id'   => $articleTrans->id,
-                                'slug' => $articleTrans->slug
-                            ]));
-
-                            $anchor = $comment->parent_id !== null ? "#reply-item-{$comment->id}" : "#comment-{$comment->id}";
-                            $targetUrl = $baseUrl . $anchor;
+                        // 2. إذا كان التعليق داخل قضية في لوحة المحققين (CommunityCase)
+                        elseif ($commentable instanceof \App\Models\CommunityCase) {
+                            $targetUrl = route('community.cases.show', $commentable->slug) . $anchor;
                         }
                     }
                 }

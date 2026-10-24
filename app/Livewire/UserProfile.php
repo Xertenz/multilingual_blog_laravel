@@ -17,7 +17,13 @@ class UserProfile extends Component
         $this->user = User::with([
             'savedArticles.translations',
             'favoriteCategories.translations',
-            'comments.article.translations',
+            // استخدام morphWith لجلب علاقات الـ Morph حسب نوع الكلاس
+            'comments.commentable' => function ($morphTo) {
+                $morphTo->morphWith([
+                    \App\Models\Article::class => ['translations'],
+                    \App\Models\CommunityCase::class => [], // إذا كنت تريد جلب بيانات القضايا أيضاً إن وجدت
+                ]);
+            },
             'votedSuggestions.votes'
         ])->findOrFail($id);
     }

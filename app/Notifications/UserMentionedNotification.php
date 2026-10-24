@@ -25,29 +25,8 @@ class UserMentionedNotification extends Notification implements ShouldQueue
         return ['database'];
     }
 
-    // البيانات التي ستخزن في حقل الـ data في جدول notifications
+
     /*
-    public function toArray($notifiable): array
-    {
-        // التحقق: هل التعليق يحتوي على parent_id (أي أنه رد فرعي) أم تعليق رئيسي؟
-        $isReply = $this->comment->parent_id !== null;
-
-        // تحديد الـ Anchor الصحيح بناءً على نوع العنصر
-        $anchor = $isReply ? '#reply-item-' . $this->comment->id : '#comment-' . $this->comment->id;
-
-        return [
-            'comment_id' => $this->comment->id,
-            'article_id' => $this->comment->article_id,
-            'user_name' => $this->comment->user->name,
-            'message' => 'أشار إليك ' . $this->comment->user->name . ' في ' . ($isReply ? 'رد' : 'تعليق') . '.',
-            'url' => route('articles.show', [
-                'slug' => $this->comment->article->slug ?? 'article',
-                'id' => $this->comment->article_id
-            ]) . $anchor,
-        ];
-    }
-    */
-
     // نخزن فقط البيانات الأساسية النظيفة
     public function toArray($notifiable): array
     {
@@ -60,5 +39,34 @@ class UserMentionedNotification extends Notification implements ShouldQueue
             'sender_locale' => $this->comment->locale, // 💡 تخزين لغة المُرسِل (لغة التعليق) هنا
             'message'    => 'أشار إليك ' . $this->comment->user->name . ' في ' . ($isReply ? 'رد' : 'تعليق') . '.',
         ];
+    }
+    */
+
+    public function toArray($notifiable): array
+    {
+        $comment = $this->comment;
+        $commentable = $comment->commentable ?? null;
+        $isReply = $comment->parent_id !== null;
+
+        $data = [
+            'comment_id' => $comment->id,
+            'user_name'  => $comment->user->name,
+            'sender_locale' => $comment->locale,
+            'message'    => 'أشار إليك ' . $comment->user->name . ' في ' . ($isReply ? 'رد' : 'تعليق') . '.',
+        ];
+
+        // إذا كانت الإشارة داخل مقال (Article)
+        if ($commentable instanceof \App\Models\Article) {
+            $translation = $commentable->translations()->first();
+            $data['article_id'] = $commentable->id;
+            $data['article_trans_id'] = $translation ? $translation->id : null;
+            $data['article_trans_slug'] = $translation ? $translation->slug : null;
+        }
+        // إذا كانت الإشارة داخل قضية في لوحة المحققين (CommunityCase)
+        elseif ($commentable instanceof \App\Models\CommunityCase) {
+            $data['community_case_slug'] = $commentable->slug;
+        }
+
+        return $data;
     }
 }

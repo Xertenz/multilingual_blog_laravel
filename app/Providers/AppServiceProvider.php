@@ -33,18 +33,18 @@ class AppServiceProvider extends ServiceProvider
     {
         View::composer('partials.navbar', function ($navbar_view) {
             $current_locale = LaravelLocalization::getCurrentLocale();
-            $cacheKey = "navbar_categories_{$current_locale}";
+            //$cacheKey = "navbar_categories_{$current_locale}";
 
-            $categories = Cache::remember($cacheKey, 3600, function () use ($current_locale) {
-                return Category::with(['translations' => function ($query) use ($current_locale) {
+            //$categories = Cache::remember($cacheKey, 3600, function () use ($current_locale) {
+            $categories = Category::with(['translations' => function ($query) use ($current_locale) {
+                $query->where('locale', $current_locale);
+            }])
+                ->whereHas('translations', function ($query) use ($current_locale) {
                     $query->where('locale', $current_locale);
-                }])
-                    ->whereHas('translations', function ($query) use ($current_locale) {
-                        $query->where('locale', $current_locale);
-                    })
-                    ->orderBy('label', 'asc')
-                    ->get();
-            });
+                })
+                ->orderBy('label', 'asc')
+                ->get();
+            //});
             $navbar_view->with('categories', $categories);
         });
     }

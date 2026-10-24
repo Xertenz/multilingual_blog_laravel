@@ -78,6 +78,7 @@
                     <p class="text-[11px] text-slate-400 mt-1">Unique internal reference identifier (not shown to visitors).</p>
                 </div>
 
+                {{--
                 <!-- Status Switcher Section -->
                 <div class="bg-white rounded-xl p-4 border border-slate-200">
                     <label class="block text-xs font-semibold text-slate-600 mb-1.5">Publication Status</label>
@@ -109,6 +110,44 @@
                         </div>
                     @enderror
                 </div>
+                --}}
+
+
+
+
+                <!-- Publication Status Section -->
+<div class="bg-white rounded-xl p-4 border border-slate-200">
+    <label class="block text-xs font-semibold text-slate-600 mb-1.5">Publication Status</label>
+    
+    @can('publish-articles')
+        {{-- إذا كان المستخدم مشرفاً أو محرراً، يمكنه التحكم بالحالة وتغييرها بحرية --}}
+        <div class="relative">
+            <select name="status" id="status" 
+                    class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 pr-10 outline-none transition bg-white cursor-pointer">
+                <option value="draft" {{ old('status', $article->status) == 'draft' ? 'selected' : '' }}>Draft (مسودة)</option>
+                <option value="pending" {{ old('status', $article->status) == 'pending' ? 'selected' : '' }}>Pending (قيد المراجعة)</option>
+                <option value="published" {{ old('status', $article->status) == 'published' ? 'selected' : '' }}>Published (منشور)</option>
+            </select>
+        </div>
+    @else
+        {{-- إذا كان المستخدم كاتباً (Writer)، يتم إخباره بأن أي تعديل سيعيد المقال لقيد المراجعة تلقائياً --}}
+        <div class="flex items-center justify-between bg-amber-50 p-3 rounded-xl border border-amber-200">
+            <input type="hidden" name="status" value="pending">
+            <div class="flex items-center space-x-2">
+                <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+                <div>
+                    <span class="text-xs font-semibold text-amber-800 block">Status: Pending Review (قيد المراجعة)</span>
+                    <span class="text-[11px] text-amber-600">Current status is <strong class="uppercase">{{ $article->status }}</strong>. Updating this article will submit it for re-review.</span>
+                </div>
+            </div>
+        </div>
+    @endcan
+</div>
+
+
+
 
                 <!-- Featured Image Upload (Optional) -->
                 <div class="bg-white rounded-xl p-4 border border-slate-200">

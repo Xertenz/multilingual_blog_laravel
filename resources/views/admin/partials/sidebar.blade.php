@@ -18,7 +18,7 @@
                 </div>
             </div>
 
-            {{-- زر الانتقال للصفحة الرئيسية (تفتح في تبويب جديد) --}}
+            {{-- زر الانتقال للصفحة الرئيسية --}}
             <a href="{{ url('/') }}" target="_blank" title="View Website" 
                class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white p-2 rounded-xl transition-all border border-slate-700/60 flex items-center justify-center">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -34,7 +34,7 @@
             </div>
             <div class="flex-1">
                 <p class="text-sm font-medium">{{ auth()->user()->name ?? 'John Doe' }}</p>
-                <p class="text-xs text-slate-400">{{ auth()->user()->formatted_role }}</p>
+                <p class="text-xs text-slate-400">{{ auth()->user()->getRoleNames()->first() ?? 'User' }}</p>
             </div>
         </div>
     </div>
@@ -46,7 +46,7 @@
             Main Menu
         </div>
 
-        {{-- Articles Section --}}
+        {{-- Articles Section (متاحة للجميع: مشرف، محرر، كاتب) --}}
         <div class="mb-6">
             <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 px-3">
                 Articles
@@ -72,7 +72,8 @@
                     </a>
                 </li>
                 
-                {{-- Add Article Link --}}
+                {{-- 🔒 Write New Article Link (محصور حصراً للمشرف والمحرر فقط لأنه ينشئ المقال الأساسي) --}}
+                @hasanyrole('super-admin|editor')
                 <li>
                     <a href="{{ route('admin.articles.create') }}" 
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
@@ -88,6 +89,7 @@
                         <span class="bg-purple-600/20 text-purple-400 text-xs px-2 py-1 rounded-full">+</span>
                     </a>
                 </li>
+                @endhasanyrole
 
                 {{-- Pending Articles Moderation Link (خاص بالمشرفين والمحرרים) --}}
                 @hasanyrole('super-admin|editor')
@@ -112,33 +114,61 @@
             </ul>
         </div>
 
-        {{-- Divider --}}
-        <div class="border-t border-slate-700 my-4"></div>
-
-        {{-- Article Suggestions Moderation Link (خاص بالمشرفين والمحرרים) --}}
+        {{-- Case Suggestions Moderation Link --}}
         @hasanyrole('super-admin|editor')
-        <li>
-            <a href="{{ route('admin.suggestions.index') }}" 
-            class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
-                    {{ request()->routeIs('admin.suggestions.*') 
-                        ? 'bg-gradient-to-r from-red-600/20 to-orange-600/25 text-white' 
-                        : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
-                <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
-                    <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
-                    </svg>
-                </div>
-                <span class="flex-1 text-sm font-medium">Case Suggestions</span>
-                <span class="bg-red-500/20 text-red-400 text-xs px-2 py-0.5 rounded-full font-semibold">
-                    {{ \App\Models\ArticleSuggestion::where('status', 'pending')->count() }}
-                </span>
-            </a>
-        </li>
+        <div class="border-t border-slate-700 my-4"></div>
+        <div class="mb-6">
+            <ul class="space-y-1">
+                <li>
+                    <a href="{{ route('admin.suggestions.index') }}" 
+                    class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                            {{ request()->routeIs('admin.suggestions.*') 
+                                ? 'bg-gradient-to-r from-red-600/20 to-orange-600/25 text-white' 
+                                : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">Case Suggestions</span>
+                        <span class="bg-red-500/20 text-red-400 text-xs px-2 py-0.5 rounded-full font-semibold">
+                            {{ \App\Models\ArticleSuggestion::where('status', 'pending')->count() }}
+                        </span>
+                    </a>
+                </li>
+            </ul>
+        </div>
         @endhasanyrole
 
+        {{-- Detective Board Moderation Link (قسم منفصل للمشرفين والمحرרים تحت Case Suggestions) --}}
         @hasanyrole('super-admin|editor')
-        {{-- Divider --}}
         <div class="border-t border-slate-700 my-4"></div>
+        <div class="mb-6">
+            <ul class="space-y-1">
+                <li>
+                    <a href="{{ route('admin.cases.moderation') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.cases.moderation') 
+                                 ? 'bg-gradient-to-r from-rose-600/20 to-red-600/25 text-white' 
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">Case Moderation</span>
+                        <span class="bg-rose-500/20 text-rose-400 text-xs px-2 py-0.5 rounded-full font-semibold">
+                            {{ \App\Models\CommunityCase::where('moderation_status', 'pending')->count() }}
+                        </span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="border-t border-slate-700 my-4"></div>
+        @endhasanyrole
+
+        {{-- Categories, Tags, Series Sections (خاص بالمشرفين والمحرרים فقط) --}}
+        @hasanyrole('super-admin|editor')
         
         {{-- Categories Section --}}
         <div class="mb-6">
@@ -147,7 +177,6 @@
             </div>
             
             <ul class="space-y-1">
-                {{-- All Categories Link --}}
                 <li>
                     <a href="{{ route('admin.categories.index') }}" 
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 
@@ -166,7 +195,6 @@
                     </a>
                 </li>
                 
-                {{-- Add Category Link --}}
                 <li>
                     <a href="{{ route('admin.categories.create') }}" 
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
@@ -187,9 +215,7 @@
             </ul>
         </div>
         
-        {{-- Divider --}}
         <div class="border-t border-slate-700 my-4"></div>
-        
         {{-- Tags Section --}}
         <div class="mb-6">
             <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 px-3">
@@ -197,7 +223,6 @@
             </div>
             
             <ul class="space-y-1">
-                {{-- All Tags Link --}}
                 <li>
                     <a href="{{ route('admin.tags.index') }}" 
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 
@@ -216,7 +241,6 @@
                     </a>
                 </li>
                 
-                {{-- Add Tag Link --}}
                 <li>
                     <a href="{{ route('admin.tags.create') }}" 
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
@@ -239,9 +263,7 @@
             </ul>
         </div>
 
-        {{-- Divider --}}
         <div class="border-t border-slate-700 my-4"></div>
-
         {{-- Series Section --}}
         <div class="mb-6">
             <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 px-3">
@@ -249,7 +271,6 @@
             </div>
             
             <ul class="space-y-1">
-                {{-- All Series Link --}}
                 <li>
                     <a href="{{ route('admin.series.index') }}" 
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 
@@ -268,7 +289,6 @@
                     </a>
                 </li>
                 
-                {{-- Add Series Link --}}
                 <li>
                     <a href="{{ route('admin.series.create') }}" 
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
@@ -292,18 +312,15 @@
         </div>
         @endhasanyrole
 
+        {{-- Users Section (خاص بالمشرف العام فقط) --}}
         @role('super-admin')
-        {{-- Divider --}}
         <div class="border-t border-slate-700 my-4"></div>
-
-        {{-- Users Section --}}
         <div class="mb-6">
             <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 px-3">
                 Users
             </div>
             
             <ul class="space-y-1">
-                {{-- All Users Link --}}
                 <li>
                     <a href="{{ route('admin.users.index') }}" 
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 

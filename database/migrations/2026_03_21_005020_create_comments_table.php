@@ -14,10 +14,11 @@ return new class extends Migration
         Schema::create('comments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->foreignId('article_id')->constrained('articles')->cascadeOnDelete();
+            //$table->foreignId('article_id')->constrained('articles')->cascadeOnDelete();
+            $table->morphs('commentable');
             $table->foreignId('parent_id')->nullable()->constrained('comments')->nullOnDelete();
-            $table->text('body');
             $table->string('locale', 5)->default('en');
+            $table->text('body');
             $table->timestamps();
         });
     }

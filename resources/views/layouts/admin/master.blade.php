@@ -19,7 +19,7 @@
     
     {{-- Tailwind CSS via Vite --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    
+    @livewireStyles
     {{-- Additional Styles --}}
     @stack('styles')
 </head>
@@ -49,6 +49,10 @@
                     
                     {{-- Content Area --}}
                     @yield('content')
+
+                    @isset($slot)
+                        {{ $slot }}
+                    @endisset
                     
                 </div>
             </main>
@@ -60,5 +64,6 @@
     
     {{-- Scripts --}}
     @stack('scripts')
+    @livewireScripts
 </body>
 </html>

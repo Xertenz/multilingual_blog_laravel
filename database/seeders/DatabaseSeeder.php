@@ -25,12 +25,19 @@ class DatabaseSeeder extends Seeder
         */
         $this->call([
             UserSeeder::class,
+
             CategorySeeder::class,
             CategoryTranslationSeeder::class,
+
             ArticleSeeder::class,
             ArticleTranslationSeeder::class,
+
             CommentSeeder::class,
-            RolePermissionSeeder::class
+
+            RolePermissionSeeder::class,
+
+            CommunityCaseCategorySeeder::class,
+            CommunityCaseSeeder::class,
         ]);
     }
 }

@@ -1,5 +1,4 @@
 @extends("layouts.admin.master")
-{{-- @section('page-title', 'All Articles') --}}
 @section('title', 'Articles')
 
 @push('styles')
@@ -13,10 +12,14 @@
             <h2 class="text-xl font-bold text-slate-800">Articles Management</h2>
             <p class="text-sm text-slate-500">Manage, edit, translate, and organize your True Crime stories</p>
         </div>
+        
+        {{-- 🔒 زر إنشاء المقال الأساسي محصور حصراً بالمحرر والمدير --}}
+        @hasanyrole('super-admin|editor')
         <a href="{{ route('admin.articles.create') }}" 
            class="bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm hover:shadow transition-all flex items-center gap-2">
             <span>+ Create Article</span>
         </a>
+        @endhasanyrole
     </div>
 
     {{-- Table Container --}}
@@ -28,7 +31,7 @@
                         <th class="py-3 px-4">Category</th>
                         <th class="py-3 px-4">Featured Img</th>
                         <th class="py-3 px-4">Internal Title</th>
-                        <th class="py-3 px-4">Writer</th>
+                        <th class="py-3 px-4">Creator</th>
                         <th class="py-3 px-4">Status</th>
                         <th class="py-3 px-4">Views</th>
                         <th class="py-3 px-4">Translations</th>
@@ -67,7 +70,7 @@
                             {{ $article->internal_title ?? "no internal title" }}
                         </td>
 
-                        {{-- Writer --}}
+                        {{-- Creator --}}
                         <td class="py-3.5 px-4 text-slate-600 font-mono text-xs">
                             {{ $article->user->name ?? "no name" }}
                         </td>
@@ -88,26 +91,27 @@
                             {{ number_format($article->views) }}
                         </td>
 
-                        {{-- Translations --}}
+                        {{-- Translations (متاحة للكاتب، المحرر، والمدير) --}}
                         <td class="py-3.5 px-4">
                             <div class="flex items-center gap-2 flex-wrap">
                                 @foreach ($article->translations as $article_translation)
                                     <div class="inline-flex items-center bg-slate-50 border border-slate-200 rounded-lg p-0.5 shadow-2xs">
-                                        {{-- Edit Translation --}}
-                                        @if (Auth::user()->hasRole(['super-admin', 'editor']) || $article->user_id === Auth::id())
+                                        {{-- Edit Translation: الكاتب يعدل ترجمته، والمحرر/الأدمن يعدلون الكل --}}
+                                        @if (Auth::user()->hasRole(['super-admin', 'editor']) || $article_translation->user_id === Auth::id())
                                             <a href="{{ route('admin.articles-trans.edit', $article_translation->id) }}" 
                                                class="px-2 py-0.5 text-xs font-semibold text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
                                                title="Edit Translation">
-                                                {{ strtoupper($article_translation->locale) }}
+                                                {{ strtoupper($article_translation->locale) }} 
+                                                <span class="text-[10px] text-slate-400">({{ $article_translation->status }})</span>
                                             </a>
                                         @else
-                                            <span class="px-2 py-0.5 text-xs font-semibold text-slate-400">
+                                            <span class="px-2 py-0.5 text-xs font-semibold text-slate-400" title="Read-only translation">
                                                 {{ strtoupper($article_translation->locale) }}
                                             </span>
                                         @endif
 
-                                        {{-- Delete Translation --}}
-                                        @hasanyrole('super-admin|editor')
+                                        {{-- Delete Translation (للمحرر والمدير أو صاحب الترجمة) --}}
+                                        @if (Auth::user()->hasRole(['super-admin', 'editor']) || $article_translation->user_id === Auth::id())
                                             <form action="{{ route('admin.articles-trans.destroy', $article_translation->id) }}" 
                                                   method="POST" 
                                                   class="inline"
@@ -118,17 +122,17 @@
                                                     &times;
                                                 </button>
                                             </form>
-                                        @endhasanyrole
+                                        @endif
                                     </div>
                                 @endforeach
 
-                                {{-- Add Translation Button --}}
-                                @if (Auth::user()->hasRole(['super-admin', 'editor']) || $article->user_id === Auth::id())
+                                {{-- Add Translation Button (متاح للكاتب، المحرر، والمدير لإضافة محتوى وترجمات) --}}
+                                @hasanyrole('super-admin|editor|writer')
                                     <a href="{{ route('admin.articles-trans.create', $article->id) }}"
                                        class="inline-flex items-center gap-1 bg-amber-50 border border-amber-200 text-amber-700 hover:bg-amber-100 px-2 py-1 rounded-lg text-xs font-medium transition-colors">
                                         <span>+ Add Trans</span>
                                     </a>
-                                @endif
+                                @endhasanyrole
                             </div>
                         </td>
 
@@ -141,19 +145,15 @@
                             </button>
                         </td>
 
-                        {{-- Actions Column --}}
+                        {{-- Actions Column (المقال الأساسي يخص المححر والأدمن فقط) --}}
                         <td class="py-3.5 px-4 text-right">
                             <div class="flex items-center justify-end gap-2">
-                                @if (Auth::user()->hasRole(['super-admin', 'editor']) || $article->user_id === Auth::id())
+                                @hasanyrole('super-admin|editor')
                                     <a href="{{ route('admin.articles.edit', $article->id) }}" 
                                        class="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors">
-                                        Edit
+                                        Edit Main
                                     </a>
-                                @else
-                                    <span class="text-slate-400 italic text-xs">Read-only</span>
-                                @endif
-
-                                @hasanyrole('super-admin|editor')
+                                    
                                     <form action="{{ route('admin.articles.destroy', $article->id) }}" 
                                           method="POST" 
                                           class="inline"
@@ -164,6 +164,8 @@
                                             Delete
                                         </button>
                                     </form>
+                                @else
+                                    <span class="text-slate-400 italic text-xs">Translations Only</span>
                                 @endhasanyrole
                             </div>
                         </td>

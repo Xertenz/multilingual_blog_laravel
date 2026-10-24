@@ -4,20 +4,39 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Comment extends Model
 {
     //
 
-    protected $fillable = ['user_id', 'article_id', 'parent_id', 'body', 'locale', 'mentioned_user_ids'];
+    protected $fillable = [
+        'user_id',
+        'commentable_type',
+        'commentable_id',
+        //'article_id', 
+        'parent_id',
+        'body',
+        'locale',
+        'mentioned_user_ids'
+    ];
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /*
     public function article(): BelongsTo
     {
         return $this->belongsTo(Article::class);
+    }
+    */
+    /**
+     * العلاقة المرنة التي تربط التعليق بأي نموذج (Article, CommunityCase, etc.)
+     */
+    public function commentable(): MorphTo
+    {
+        return $this->morphTo();
     }
 
     public function replies()

@@ -22,12 +22,17 @@ class CommentController extends Controller
         //return response()->json(['all' => $request->all()]);
 
         $request->validate([
-            'article_id' => 'required|exists:articles,id',
-            //'user_id' => 'required|exists:users,id',
+            //'article_id' => 'required|exists:articles,id',
+            'commentable_type' => 'required|string', // مثال: App\Models\Article أو App\Models\CommunityCase
+            'commentable_id' => 'required|integer',
             'parent_id' => 'nullable|exists:comments,id',
             'comment_body' => 'required|string|max:1000',
             'locale' => Rule::in(LaravelLocalization::getSupportedLanguagesKeys())
         ]);
+
+        $commentableClass = $request->commentable_type;
+        $commentableModel = $commentableClass::findOrFail($request->commentable_id);
+
 
         $comment_body = $request->comment_body;
         // 1. استخراج جميع الكلمات التي تبدأ بـ @ عبر Regular Expression
@@ -37,6 +42,7 @@ class CommentController extends Controller
         $mentionedUserIds = User::whereIn('name', $usernames)->pluck('id')->toArray();
 
         // Create new comment
+        /*
         $comment_item = Comment::create([
             'user_id' => Auth::id(),
             'article_id' => $request->article_id,
@@ -45,6 +51,14 @@ class CommentController extends Controller
             //'mentioned_user_ids' => json_encode($mentionedUserIds),
             'locale' =>  LaravelLocalization::getCurrentLocale()
         ]);
+        */
+        $comment_item = $commentableModel->comments()->create([
+            'user_id' => Auth::id(),
+            'parent_id' => $request->parent_id,
+            'body' => trim(strip_tags($request->comment_body)),
+            'locale' => LaravelLocalization::getCurrentLocale()
+        ]);
+
 
         $comment_item->mentionedUsers()->sync($mentionedUserIds);
 
@@ -54,7 +68,7 @@ class CommentController extends Controller
         $article = Article::with('translations')->find($request->article_id);
         if ($article) {
             foreach ($article->translations as $translation) {
-                Cache::forget("article_show_{$translation->id}_lang_{$translation->locale}");
+                //Cache::forget("article_show_{$translation->id}_lang_{$translation->locale}");
             }
         }
 
@@ -78,13 +92,16 @@ class CommentController extends Controller
         }
 
         // 4. إرسال إشعارات لكل شخص تم عمل Mention له
+        /*
         foreach ($mentionedUserIds as $userId) {
             $user = User::find($userId);
             if ($user->id !== Auth::id()) { // لا تُرسل إشعار لنفسك
                 $user->notify(new \App\Notifications\UserMentionedNotification($comment_item));
             }
         }
+        */
 
+        /*
         if ($request->ajax()) {
             if ($request->parent_id == null)
                 $html = view('partials.comment_item', compact('comment_item'))->render();
@@ -92,6 +109,7 @@ class CommentController extends Controller
                 $html = view('partials.comment_reply', ['reply' => $comment_item])->render();
             return response()->json(['html' => $html]);
         }
+        */
         return back();
     }
 
@@ -142,7 +160,7 @@ class CommentController extends Controller
         $article = Article::with('translations')->find($comment_item->article_id);
         if ($article) {
             foreach ($article->translations as $translation) {
-                Cache::forget("article_show_{$translation->id}_lang_{$translation->locale}");
+                //Cache::forget("article_show_{$translation->id}_lang_{$translation->locale}");
             }
         }
 
@@ -172,7 +190,7 @@ class CommentController extends Controller
         $article = Article::with('translations')->find($article_id);
         if ($article) {
             foreach ($article->translations as $translation) {
-                Cache::forget("article_show_{$translation->id}_lang_{$translation->locale}");
+                //Cache::forget("article_show_{$translation->id}_lang_{$translation->locale}");
             }
         }
 

@@ -3,11 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-
 use App\Models\Article;
-use App\Models\ArticleTranslation;
 use App\Models\Category;
-use App\Models\CategoryTranslation;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +14,6 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class ArticleController extends Controller
 {
-    //
     public function index()
     {
         $articles = Article::with(['translations', 'user'])->paginate(10);
@@ -26,10 +22,10 @@ class ArticleController extends Controller
 
     public function create(Request $request)
     {
-        // 👈 التحقق الأمني: التأكد من أن المستخدم يملك رتبة تخوله إنشاء مقال
-        if (!$request->user()->hasRole(['super-admin', 'editor', 'writer'])) {
-            abort(403, 'غير مسموح لك بإنشاء مقالات.');
+        if (!$request->user()->hasRole(['super-admin', 'editor'])) {
+            abort(403, 'غير مسموح لك بإنشاء المقالات الأساسية.');
         }
+
         $cats = Category::orderBy('label', 'asc')->get();
         $tags = Tag::all();
         return view('admin.articles.create', compact('cats', 'tags'));
@@ -37,17 +33,12 @@ class ArticleController extends Controller
 
     public function store(Request $request)
     {
+        // 🔒 التحقق الأمني
+        if (!$request->user()->hasRole(['super-admin', 'editor'])) {
+            abort(403, 'غير مسموح لك بإنشاء المقالات الأساسية.');
+        }
 
-        // 👈 التحقق الأمني: التأكد من أن المستخدم يملك رتبة تخوله إنشاء مقال
-        if (!$request->user()->hasRole(['super-admin', 'editor', 'writer'])) {
-            abort(403, 'غير مسموح لك بإنشاء مقالات.');
-        }
-        // إذا لم يكن المستخدم يملك صلاحية النشر، نجبر الحالة تلقائياً على أن تكون draft (مسودة)
-        // حتى لو حاول التلاعب بالطلب وإرسال status = published
-        $status = 'draft';
-        if ($request->user()->can('publish-articles')) {
-            $status = $request->input('status', 'draft');
-        }
+        $status = $request->input('status', 'draft');
 
         $request->validate([
             'category_id' => 'required|numeric|exists:categories,id',
@@ -56,17 +47,14 @@ class ArticleController extends Controller
             'status' => 'required|in:draft,pending,published',
         ]);
 
-        //Create a new article
         $article = Article::create([
             'category_id' => (int)$request->category_id,
             'user_id' => Auth::id(),
             'internal_title' => trim($request->internal_title),
             'views' => 0,
-            //'status' => $request->status,
             'status' => $status
         ]);
 
-        // ربط الوسوم بالمقالة
         if ($request->has('tags')) {
             $article->tags()->sync($request->tags);
         }
@@ -74,11 +62,8 @@ class ArticleController extends Controller
         $file = $request->file('featured_img');
         $file_ext = strtolower($file->getClientOriginalExtension());
         $fileName = uniqid() . '.' . $file_ext;
-        //$fileName = Str::random(8) . '_' . time() . '.' . $file_ext;
 
-        $article
-            ->addMedia($file) // $article->addMediaFromRequest('content_img)
-            //->usingFileName(Str::random(32).'.'.$file_ext)
+        $article->addMedia($file)
             ->usingFileName($fileName)
             ->withResponsiveImages()
             ->toMediaCollection("featured_imgs");
@@ -88,18 +73,17 @@ class ArticleController extends Controller
 
     public function edit(Request $request, int $article_id)
     {
-        $article = Article::with('category', 'tags')->findOrFail($article_id);
-
         $user = $request->user();
-        // 👈 التحقق الأمني: الأدمن والمحرر يمكنهم تعديل أي مقال، أما الكاتب فيعدل مقاله فقط
-        if (!$user->hasRole(['super-admin', 'editor']) && $article->user_id !== $user->id) {
-            abort(403, 'غير مسموح لك بتعديل مقال لا تملكه.');
+
+        if (!$user->hasRole(['super-admin', 'editor'])) {
+            abort(403, 'غير مسموح لك بتعديل المقالات.');
         }
 
-        if (!$request->user()->hasRole(['super-admin', 'editor']) && Auth::id() !== $article->user_id) {
-            abort(403, 'غير مسموح لك بتعديل مقال لا تملكه.');
+        if (!$user->hasRole(['super-admin', 'editor'])) {
+            abort(403, 'غير مسموح لك بتعديل المقالات الأساسية.');
         }
 
+        $article = Article::with('category', 'tags')->findOrFail($article_id);
         $cats = Category::all();
         $tags = Tag::all();
         return view('admin.articles.edit', compact('article', 'cats', 'tags'));
@@ -107,18 +91,15 @@ class ArticleController extends Controller
 
     public function update(Request $request, int $article_id)
     {
+        $user = $request->user();
+
+        if (!$user->hasRole(['super-admin', 'editor'])) {
+            abort(403, 'غير مسموح لك بتحديث المقالات الأساسية.');
+        }
+
         $article = Article::findOrFail($article_id);
 
-        if (!$request->user()->hasRole(['super-admin', 'editor']) && $article->user_id !== Auth::id()) {
-            abort(403, 'غير مسموح لك بتعديل مقال لا تملكه.');
-        }
-
-
-        // تحديد الحالة بناءً على الصلاحيات
-        $status = $article->status; // افتراضياً نبقي الحالة القديمة كما هي إذا لم يكن يملك صلاحية النشر
-        if ($request->user()->can('publish-articles')) {
-            $status = $request->input('status', 'draft');
-        }
+        $status = $request->input('status', $article->status);
 
         $request->validate([
             'category_id' => 'required|numeric|exists:categories,id',
@@ -129,10 +110,12 @@ class ArticleController extends Controller
             ],
             'status' => 'required|in:draft,pending,published',
         ]);
-        try {
 
+        try {
             $article->category_id = (int)($request->category_id);
-            $article->user_id = Auth::id();
+            // ملاحظة: يُفضل عدم تغيير user_id عند التعديل ليبقى الكاتب الأصلي محفوظاً، إلا إذا رغبت بغير ذلك
+            // $article->user_id = Auth::id(); 
+
             if ($request->hasFile('featured_img')) {
                 if ($article->hasMedia('featured_imgs')) {
                     $article->clearMediaCollection('featured_imgs');
@@ -140,66 +123,39 @@ class ArticleController extends Controller
                 $file = $request->file('featured_img');
                 $file_ext = strtolower($file->getClientOriginalExtension());
                 $fileName = uniqid() . '.' . $file_ext;
-                //$fileName = Str::random(8) . '_' . time() . '.' . $file_ext;
 
-                $article
-                    ->addMedia($file) // $article->addMediaFromRequest('content_img)
-                    //->usingFileName(Str::random(32).'.'.$file_ext)
+                $article->addMedia($file)
                     ->usingFileName($fileName)
                     ->withResponsiveImages()
                     ->toMediaCollection("featured_imgs");
             }
+
             $article->internal_title = trim($request->internal_title);
             $article->status = $status;
             $article->save();
-            //'views' => 0,
-            //'status' => 'published',
 
-            // تحديث ومزامنة الأوسمة (Tags) في الجدول الوسيط
-            // إذا قام الأدمن بإلغاء اختيار كافة الأوسمة، نمرر مصفوفة فارغة لتصفية الارتباط
             $tags = $request->input('tags', []);
             $article->tags()->sync($tags);
-            //return redirect()->back()->with('success', 'Article Updated Successfully.');
+
             return to_route('admin.articles.index')->with('success', 'Article Updated Successfully.');
         } catch (\Exception $e) {
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Failed to update article. Please try again.');
         }
-
-        //return to_route('admin.articles.index');
     }
-
-
-    /*
-    public function destroy(int $article_id)
-    {
-        try {
-            $article = Article::findOrFail($article_id);
-            $article->delete();
-            return to_route('admin.articles.index')->with('success', 'Article Deleted Successfully.');
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Failed to delete article. Please try again.');
-        }
-    }
-    */
 
     public function destroy(Request $request, int $article_id)
     {
-        // 👈 التحقق الأمني: حصر الحذف حصراً بالمشرف والمحرر
+        // 🔒 حصر الحذف حصراً بالمشرف والمحرر
         if (!$request->user()->hasRole(['super-admin', 'editor'])) {
             abort(403, 'غير مسموح لك بحذف المقالات.');
         }
 
         try {
             $article = Article::findOrFail($article_id);
-
-            // (اختياري ولكن مفحسن): حذف الوسائط المرتبطة أولاً لتنظيف مساحة التخزين
             $article->clearMediaCollection('featured_imgs');
             $article->clearMediaCollection('content_imgs');
-
             $article->delete();
 
             return to_route('admin.articles.index')->with('success', 'Article Deleted Successfully.');
@@ -211,6 +167,11 @@ class ArticleController extends Controller
 
     public function uploadContentImg(Request $request)
     {
+        // 🔒 حماية رفع صور المحتوى لتكون مخصصة للكاتب/المحرر/الأدمن فقط
+        if (!$request->user()->hasRole(['super-admin', 'editor', 'writer'])) {
+            abort(403, 'غير مسموح لك برفع صور للمحتوى.');
+        }
+
         $request->validate([
             'article_id' => 'required|numeric|exists:articles,id',
             'content_img' => "required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048"
@@ -220,26 +181,18 @@ class ArticleController extends Controller
         if ($request->hasFile('content_img')) {
             $file = $request->file('content_img');
             $file_ext = strtolower($file->getClientOriginalExtension());
-            //$fileName = Str::random(8) . '_' . time() . '.' . $file_ext;
-            //$fileName = Str::uuid() . '_' . time() . '.' . $file_ext;
             $fileName = uniqid() . '.' . $file_ext;
 
-            $article
-                ->addMedia($file) // $article->addMediaFromRequest('content_img)
-                //->usingFileName(Str::random(32).'.'.$file_ext)
+            $article->addMedia($file)
                 ->usingFileName($fileName)
                 ->withResponsiveImages()
                 ->toMediaCollection("content_imgs");
         }
 
-        $article_media = Article::findOrFail($request->article_id)
-            ->getMedia('content_imgs');
+        //$article_media = Article::findOrFail($request->article_id)->getMedia('content_imgs');
+        $article_media = $article->getMedia('content_imgs');
 
-        return response()->json(
-            [
-                'content_imgs' => $article_media
-            ]
-        );
+        return response()->json(['content_imgs' => $article_media]);
     }
 
     public function getArticleContentImgs(Request $request)
@@ -248,14 +201,11 @@ class ArticleController extends Controller
         return response()->json($article_content_imgs);
     }
 
-
     public function deleteContentImg(Request $request)
     {
-        // getting the media
         $content_img_id = $request->content_img_id;
         $content_img = Media::find($content_img_id);
         if ($content_img) {
-            // deleting the media
             $content_img->delete();
             return response()->json(['message' => 'media deleted successfully']);
         } else {
@@ -270,13 +220,8 @@ class ArticleController extends Controller
         return response()->json($media);
     }
 
-
-    /**
-     * عرض قائمة المقالات المعلقة التي تنتظر موافقة المدير (Pending Articles)
-     */
     public function pending(Request $request)
     {
-        // التحقق الأمني: فقط السوبر أدمن أو المحرر يمكنه مراجعة المقالات
         if (!$request->user()->hasRole(['super-admin', 'editor'])) {
             abort(403, 'غير مسموح لك بمراجعة المقالات.');
         }
@@ -289,9 +234,6 @@ class ArticleController extends Controller
         return view('admin.articles.pending', compact('articles'));
     }
 
-    /**
-     * الموافقة على المقال ونشره
-     */
     public function approve(Request $request, int $article_id)
     {
         if (!$request->user()->hasRole(['super-admin', 'editor'])) {
@@ -304,9 +246,6 @@ class ArticleController extends Controller
         return redirect()->route('admin.articles.pending')->with('success', 'Article approved and published successfully.');
     }
 
-    /**
-     * رفض المقال أو إعادته كمسودة
-     */
     public function reject(Request $request, int $article_id)
     {
         if (!$request->user()->hasRole(['super-admin', 'editor'])) {

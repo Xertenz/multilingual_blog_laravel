@@ -1,6 +1,7 @@
 tinymce.init({
     selector: "#description",
     license_key: "gpl",
+    object_resizing: true,
     plugins: [
         "advlist",
         "autolink",
@@ -77,6 +78,7 @@ tinymce.init({
     },
 });
 
+/*
 window.addImage = function (src, content_img_id) {
     tinymce.activeEditor.insertContent(`
         <figure class="article-image-container my-4 text-center">
@@ -84,7 +86,7 @@ window.addImage = function (src, content_img_id) {
                  data-image-id="${content_img_id}"
                  decoding="async"
                  loading="lazy"
-                 class="content_img max-w-full h-auto rounded-lg shadow-sm"
+                 class="content_img rounded-lg shadow-sm"
                  alt="Article image"
             />
             <figcaption class="image-caption mt-2 text-sm text-gray-550 italic" contenteditable="true">
@@ -92,6 +94,30 @@ window.addImage = function (src, content_img_id) {
             </figcaption>
         </figure>
         <p>&nbsp;</p> `);
+
+    tinymce.activeEditor.windowManager.close();
+};
+*/
+
+window.addImage = function (src, content_img_id) {
+    tinymce.activeEditor.insertContent(`
+        <div class="article-image-wrapper my-4" style="text-align: center;">
+            <figure style="display: inline-block; max-width: 100%; margin: 0 auto; vertical-align: middle;">
+                <img src="${src}"
+                     data-image-id="${content_img_id}"
+                     decoding="async"
+                     loading="lazy"
+                     class="content_img rounded-lg shadow-sm"
+                     alt="Article image"
+                     style="display: block; margin: 0 auto; height: auto;"
+                />
+                <figcaption class="image-caption mt-2 text-sm text-gray-550 italic" contenteditable="true" style="margin-top: 8px; text-align: center;">
+                    اكتب وصف الصورة هنا...
+                </figcaption>
+            </figure>
+        </div>
+        <p>&nbsp;</p>
+    `);
 
     tinymce.activeEditor.windowManager.close();
 };

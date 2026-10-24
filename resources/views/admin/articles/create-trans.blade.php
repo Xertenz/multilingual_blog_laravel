@@ -207,6 +207,48 @@
                         @enderror
                     </div>
                 </div>
+
+                <!-- Translation Publication Status Section -->
+                <div class="section-card">
+                    <div class="section-title">
+                        <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span>Publication Status</span>
+                    </div>
+
+                    @can('publish-articles')
+                        <div>
+                            <label for="status" class="input-label">Translation Status <span class="required">*</span></label>
+                            <div class="relative">
+                                <select name="status" id="status" class="input-field cursor-pointer pr-10">
+                                    <option value="draft" {{ old('status', 'draft') == 'draft' ? 'selected' : '' }}>Draft (مسودة)</option>
+                                    <option value="pending" {{ old('status', 'pending') == 'pending' ? 'selected' : '' }}>Pending (قيد المراجعة)</option>
+                                    <option value="published" {{ old('status') == 'published' ? 'selected' : '' }}>Published (منشور)</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                            @error('status')
+                                <div class="error-message">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    @else
+                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center gap-3">
+                            <input type="hidden" name="status" value="pending">
+                            <svg class="w-5 h-5 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            <div>
+                                <span class="text-xs font-semibold text-amber-800 block">Status: Pending Review (قيد المراجعة)</span>
+                                <span class="text-[11px] text-amber-600">Your translation will be submitted for review by an editor before publishing.</span>
+                            </div>
+                        </div>
+                    @endcan
+                </div>
                 
                 <!-- SEO Meta Data Section -->
                 <div class="section-card">

@@ -12,8 +12,10 @@ class ArticleTranslation extends Model implements HasMedia
     use InteractsWithMedia;
     protected $fillable = [
         'article_id',
+        'user_id',
         'locale',
         'slug',
+        'status',
         'title',
         'description',
         'meta_title',

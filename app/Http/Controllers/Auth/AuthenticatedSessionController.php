@@ -37,7 +37,7 @@ class AuthenticatedSessionController extends Controller
             ]);
         }
 
-        if ($user->hasRole(['super-admin', 'editor', 'writer'])) {
+        if ($user->hasRole(['super-admin', 'editor', 'writer', 'translator'])) {
             //return redirect()->intended(route('dashboard', absolute: false));
             return redirect()->intended(route('admin.articles.index', absolute: false));
         }

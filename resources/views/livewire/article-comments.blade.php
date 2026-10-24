@@ -1,7 +1,10 @@
 <section class="mt-16 pt-8 border-t border-gray-800">
     
     @php
-        $totalComments = \App\Models\Comment::where('article_id', $articleId)->count();
+        $totalComments = \App\Models\Comment::where([
+            'commentable_type' => \App\Models\Article::class,
+            'commentable_id'=> $articleId
+        ])->count();
     @endphp
 
     @if ($totalComments > 0)

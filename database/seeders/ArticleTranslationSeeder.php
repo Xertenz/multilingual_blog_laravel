@@ -16,8 +16,10 @@ class ArticleTranslationSeeder extends Seeder
     {
         ArticleTranslation::create([
             'article_id' => 1,
+            'user_id' => 1,
             'locale' => 'en',
             'slug' => 'the-miyazawa-family-massacre',
+            'status' => 'published',
             'meta_title' => 'meta title here',
             'meta_description' => 'meta descripion here',
             'title' => 'the miyazawa family massacre',
