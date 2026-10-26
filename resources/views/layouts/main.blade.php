@@ -42,7 +42,7 @@
         <!-- استدعاء الهيدر والنافبار -->
         @include('partials.header')
         {{-- @include('partials.navbar') --}}
-        @livewire('partials.new-navbar')
+        @livewire('partials.navbar')
 
         <!-- ==================== -->
         <!-- Main Content -->

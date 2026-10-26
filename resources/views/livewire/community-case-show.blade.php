@@ -20,9 +20,9 @@
                     {{ $categoryTrans->name ?? 'General' }}
                 </span>
 
-                @if($communityCase->case_status === 'open')
+                @if($communityCase->case_status === App\Enums\CommunityCaseStatus::OPEN)
                     <span class="px-2.5 py-1 text-[11px] font-semibold bg-emerald-950/60 text-emerald-400 border border-emerald-800/40 rounded-lg">Active Investigation</span>
-                @elseif($communityCase->case_status === 'solved')
+                @elseif($communityCase->case_status === App\Enums\CommunityCaseStatus::SOLVED)
                     <span class="px-2.5 py-1 text-[11px] font-semibold bg-blue-950/60 text-blue-400 border border-blue-800/40 rounded-lg">Solved Case</span>
                 @else
                     <span class="px-2.5 py-1 text-[11px] font-semibold bg-slate-800 text-gray-400 border border-slate-700 rounded-lg">Closed</span>

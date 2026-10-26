@@ -220,6 +220,6 @@ class CommunityCaseShow extends Component
         return view('livewire.community-case-show', [
             'categoryTrans' => $categoryTrans,
             'comments' => $comments,
-        ])->layout('layouts.app');
+        ])->layout('layouts.main');
     }
 }

@@ -2,10 +2,12 @@
 
 namespace App\Livewire;
 
+use App\Enums\ModerationStatus;
 use App\Models\CommunityCase;
 use App\Models\CommunityCaseCategory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Enum;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -51,7 +53,8 @@ class CommunityBoard extends Component
             'title' => $this->title,
             'slug' => Str::slug($this->title) . '-' . uniqid(),
             'body' => $this->body,
-            'moderation_status' => 'pending', // بانتظار مراجعة الإدارة
+            //'moderation_status' => 'pending', // بانتظار مراجعة الإدارة
+            'moderation_status' => [new Enum(ModerationStatus::class)],
             'case_status' => 'open',
         ]);
 
@@ -85,6 +88,6 @@ class CommunityBoard extends Component
         return view('livewire.community-board', [
             'cases' => $cases,
             'categories' => $categories,
-        ])->layout('layouts.app');
+        ])->layout('layouts.main');
     }
 }

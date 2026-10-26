@@ -21,6 +21,7 @@ class NotificationController extends Controller
             ->paginate(10);
 
         */
+        /*
         $user_id = Auth::id();
         $userNotifications = DatabaseNotification::where('notifiable_type', User::class)
             ->where('notifiable_id', $user_id)
@@ -36,6 +37,7 @@ class NotificationController extends Controller
             'html' => $html,
             'hasMorePages' => $userNotifications->hasMorePages(),
         ]);
+        */
     }
 
     public function read(string $notification_id)
@@ -230,6 +232,13 @@ class NotificationController extends Controller
                 break;
 
 
+
+
+
+
+            case \App\Notifications\SuggestionStatusUpdated::class:
+                $targetUrl = route('suggestions.index');
+                break;
 
 
 

@@ -132,7 +132,7 @@
                         </div>
                         <span class="flex-1 text-sm font-medium">Case Suggestions</span>
                         <span class="bg-red-500/20 text-red-400 text-xs px-2 py-0.5 rounded-full font-semibold">
-                            {{ \App\Models\ArticleSuggestion::where('status', 'pending')->count() }}
+                            {{ \App\Models\Suggestion::where('status', 'pending')->count() }}
                         </span>
                     </a>
                 </li>

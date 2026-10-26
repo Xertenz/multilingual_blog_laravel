@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Enums\ModerationStatus;
 use App\Models\CommunityCase;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -19,7 +20,8 @@ class CaseModeration extends Component
     {
         $case = CommunityCase::findOrFail($caseId);
         $case->update([
-            'moderation_status' => 'approved',
+            //'moderation_status' => 'approved',
+            'moderation_status' => ModerationStatus::APPROVED,
         ]);
 
         session()->flash('message', __('تم قبول القضية ونشرها بنجاح.'));
@@ -32,7 +34,8 @@ class CaseModeration extends Component
     {
         $case = CommunityCase::findOrFail($caseId);
         $case->update([
-            'moderation_status' => 'rejected',
+            //'moderation_status' => 'rejected',
+            'moderation_status' => ModerationStatus::REJECTED,
         ]);
 
         session()->flash('message', __('تم رفض القضية.'));

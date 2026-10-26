@@ -43,7 +43,8 @@
         </button>
         @foreach($categories as $cat)
             @php
-                $trans = $cat->translations->first();
+                //$trans = $cat->translations->first();
+                $trans = $cat->translations->where('locale', App::getLocale())->first();
             @endphp
             @if($trans)
                 <button wire:click="$set('selectedCategory', '{{ $cat->id }}')" 

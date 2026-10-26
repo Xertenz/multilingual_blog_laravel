@@ -15,7 +15,7 @@ use App\Http\Controllers\Front\ArticleSavedController;
 use App\Http\Controllers\Front\CategoryFavoriteController;
 use App\Http\Controllers\Front\SeriesController as FrontSeriesController;
 use App\Livewire\UserProfile;
-use App\Livewire\ArticleSuggestions;
+use App\Livewire\Suggestions;
 
 // Admin Controllers
 use App\Http\Controllers\Admin\ArticleController;
@@ -25,7 +25,7 @@ use App\Http\Controllers\Admin\CategoryTranslationController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\TagTranslationController;
 use App\Http\Controllers\Admin\SeriesController as AdminSeriesController;
-use App\Http\Controllers\Admin\ArticleSuggestionController;
+use App\Http\Controllers\Admin\SuggestionController;
 use App\Http\Controllers\Admin\UserController;
 use App\Livewire\Admin\CaseModeration;
 use App\Livewire\CommunityBoard;
@@ -85,7 +85,7 @@ Route::group([
     Route::view('/contact', 'contact')->name('contact');
     Route::post('/contact', function () {})->name('contact.submit');
     Route::view('/about', 'about')->name('about');
-    Route::get('/suggestions', ArticleSuggestions::class)->name('suggestions.index');
+    Route::get('/suggestions', Suggestions::class)->name('suggestions.index');
 
     // =========================================================================
     // 3. لوحة التحكم (Admin Panel Structure)
@@ -162,9 +162,9 @@ Route::group([
             Route::delete('/series/{series}', [AdminSeriesController::class, 'destroy'])->name('admin.series.destroy');
 
             // اقتراحات المقالات (Suggestions)
-            Route::get('/suggestions', [ArticleSuggestionController::class, 'index'])->name('admin.suggestions.index');
-            Route::patch('/suggestions/{suggestion}/status', [ArticleSuggestionController::class, 'updateStatus'])->name('admin.suggestions.status');
-            Route::delete('/suggestions/{suggestion}', [ArticleSuggestionController::class, 'destroy'])->name('admin.suggestions.destroy');
+            Route::get('/suggestions', [SuggestionController::class, 'index'])->name('admin.suggestions.index');
+            Route::patch('/suggestions/{suggestion}/status', [SuggestionController::class, 'updateStatus'])->name('admin.suggestions.status');
+            Route::delete('/suggestions/{suggestion}', [SuggestionController::class, 'destroy'])->name('admin.suggestions.destroy');
         });
 
         // ---------------------------------------------------------------------

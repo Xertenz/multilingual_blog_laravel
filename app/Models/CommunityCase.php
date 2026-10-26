@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Enums\CommunityCaseStatus;
+use App\Enums\ModerationStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,6 +26,12 @@ class CommunityCase extends Model
         'rejection_reason',
         'views_count',
         'comments_count',
+    ];
+
+    // إضافة الـ Casts هنا
+    protected $casts = [
+        'moderation_status' => ModerationStatus::class,
+        'case_status' => CommunityCaseStatus::class,
     ];
 
     /**

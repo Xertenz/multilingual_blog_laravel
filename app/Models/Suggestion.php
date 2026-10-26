@@ -6,8 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
-class ArticleSuggestion extends Model
+class Suggestion extends Model
 {
     protected $guarded = [];
 
@@ -16,9 +17,10 @@ class ArticleSuggestion extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+
     public function votes(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'article_suggestion_votes')->withTimestamps();
+        return $this->belongsToMany(User::class, 'suggestion_votes', 'suggestion_id', 'user_id')->withTimestamps();
     }
 
     public function isVotedBy(?User $user)

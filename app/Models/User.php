@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as AuthenticatableUser; // هذا مهم
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -92,13 +93,20 @@ class User extends AuthenticatableUser implements Authenticatable
         )->withTimestamps();
     }
 
-    public function articleSuggestions(): HasMany
+    public function suggestions(): HasMany
     {
-        return $this->hasMany(ArticleSuggestion::class, 'user_id');
+        return $this->hasMany(Suggestion::class, 'user_id');
     }
 
+    /*
     public function votedSuggestions(): BelongsToMany
     {
-        return $this->belongsToMany(ArticleSuggestion::class, 'article_suggestion_votes', 'user_id', 'article_suggestion_id')->withTimestamps();
+        return $this->belongsToMany(Suggestion::class, 'suggestion_votes', 'user_id', 'suggestion_id')->withTimestamps();
+    }
+    */
+
+    public function votedSuggestions()
+    {
+        return $this->belongsToMany(Suggestion::class, 'suggestion_votes', 'user_id', 'suggestion_id')->withTimestamps();
     }
 }

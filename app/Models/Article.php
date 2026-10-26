@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Facades\App;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -106,5 +107,10 @@ class Article extends Model  implements HasMedia
         return $this->belongsToMany(Series::class, 'article_series', 'article_id', 'series_id')
             ->withPivot('sort_order')
             ->withTimestamps();
+    }
+
+    public function suggestions(): MorphMany
+    {
+        return $this->morphMany(Suggestion::class, 'suggestable');
     }
 }

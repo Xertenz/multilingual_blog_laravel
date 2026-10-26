@@ -3,14 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ArticleSuggestion;
+use App\Models\Suggestion;
+use App\Notifications\SuggestionStatusUpdated;
 use Illuminate\Http\Request;
 
-class ArticleSuggestionController extends Controller
+class SuggestionController extends Controller
 {
     public function index()
     {
-        $suggestions = ArticleSuggestion::with(['user', 'votes'])
+        $suggestions = Suggestion::with(['user', 'votes'])
             ->withCount('votes')
             ->latest()
             ->paginate(10);
@@ -18,7 +19,7 @@ class ArticleSuggestionController extends Controller
         return view('admin.suggestions.index', compact('suggestions'));
     }
 
-    public function updateStatus(Request $request, ArticleSuggestion $suggestion)
+    public function updateStatus(Request $request, Suggestion $suggestion)
     {
         $request->validate([
             'status' => 'required|in:pending,approved,written',
@@ -28,11 +29,13 @@ class ArticleSuggestionController extends Controller
             'status' => $request->status,
         ]);
 
+        $suggestion->user->notify(new SuggestionStatusUpdated($suggestion));
+
         return redirect()->route('admin.suggestions.index')
             ->with('success', 'Suggestion status updated successfully.');
     }
 
-    public function destroy(ArticleSuggestion $suggestion)
+    public function destroy(Suggestion $suggestion)
     {
         $suggestion->delete();
 

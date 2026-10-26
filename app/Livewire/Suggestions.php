@@ -2,16 +2,18 @@
 
 namespace App\Livewire;
 
+use App\Models\Article;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\ArticleSuggestion;
+use App\Models\Suggestion;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
-class ArticleSuggestions extends Component
+class Suggestions extends Component
 {
     use WithPagination;
+
 
     // حقول النموذج لإضافة اقتراح جديد
     public $title = '';
@@ -51,7 +53,7 @@ class ArticleSuggestions extends Component
             return redirect()->route('login');
         }
 
-        $suggestion = ArticleSuggestion::findOrFail($suggestionId);
+        $suggestion = Suggestion::findOrFail($suggestionId);
 
         // التبديل بين إضافة وإلغاء التصويت
         $suggestion->votes()->toggle(Auth::id());
@@ -65,11 +67,12 @@ class ArticleSuggestions extends Component
 
         $this->validate();
 
-        ArticleSuggestion::create([
+        Suggestion::create([
             'user_id' => Auth::id(),
+            'type' => 'article',
             'locale' => app()->getLocale(),
             'title' => $this->title,
-            'description' => $this->description,
+            'description' => $this->description ?? '',
             'status' => 'pending',
         ]);
 
@@ -79,7 +82,7 @@ class ArticleSuggestions extends Component
 
     public function render()
     {
-        $query = ArticleSuggestion::query()
+        $query = Suggestion::query()
             ->with(['user', 'votes'])
             ->withCount('votes');
 
@@ -102,7 +105,7 @@ class ArticleSuggestions extends Component
 
         $suggestions = $query->paginate(10);
 
-        return view('livewire.article-suggestions', [
+        return view('livewire.suggestions', [
             'suggestions' => $suggestions,
             'locales' => LaravelLocalization::getSupportedLocales()
         ]);

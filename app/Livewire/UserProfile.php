@@ -24,7 +24,7 @@ class UserProfile extends Component
                     \App\Models\CommunityCase::class => [], // إذا كنت تريد جلب بيانات القضايا أيضاً إن وجدت
                 ]);
             },
-            'votedSuggestions.votes'
+            'votedSuggestions'
         ])->findOrFail($id);
     }
 

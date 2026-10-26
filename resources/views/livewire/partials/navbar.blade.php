@@ -15,6 +15,35 @@ new class extends Component {
     public $notificationsPage = 1;
     public $unreadNotificationsCount = 0;
 
+    // 📌 أضف هذه المتغيرات للتحكم بالـ Modal الخاص بالإشعار
+    public $showSuggestionModal = false;
+    public $modalMessage = '';
+    public $activeNotificationId = null;
+
+    public function openSuggestionModal($message, $notificationId)
+    {
+        $this->modalMessage = $message;
+        $this->activeNotificationId = $notificationId;
+        $this->showSuggestionModal = true;
+    }
+
+    public function closeAndMarkAsRead()
+    {
+        if ($this->activeNotificationId) {
+            $notification = DatabaseNotification::find($this->activeNotificationId);
+            if ($notification) {
+                $notification->markAsRead();
+            }
+        }
+
+        $this->showSuggestionModal = false;
+        $this->modalMessage = '';
+        $this->activeNotificationId = null;
+        
+        // تحديث عداد الإشعارات والقائمة
+        $this->loadNotificationsData();
+    }
+
     public function mount()
     {
         $this->loadCategories();
@@ -358,6 +387,36 @@ new class extends Component {
                 @endguest
             </div>
         </nav>
+
+
+
+        <!-- نافذة الـ Modal المنبثقة لعرض رسالة إشعار الاقتراح -->
+    @if($showSuggestionModal)
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm" x-cloak>
+            <div class="bg-[#0f1526] border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative" @click.outside="$wire.set('showSuggestionModal', false)">
+                
+                <div class="flex justify-between items-center pb-3 border-b border-slate-800 mb-4">
+                    <h3 class="text-sm font-bold text-gray-200 flex items-center gap-2">
+                        <span>📢</span> Case Suggestion Update
+                    </h3>
+                    <button wire:click="$set('showSuggestionModal', false)" class="text-gray-500 hover:text-white text-base">&times;</button>
+                </div>
+
+                <div class="py-3 text-xs text-gray-300 leading-relaxed bg-slate-900/50 p-3 rounded-xl border border-slate-800/80">
+                    <p>{{ $modalMessage }}</p>
+                </div>
+
+                <div class="flex justify-end pt-3 border-t border-slate-800 mt-2">
+                    <button wire:click="closeAndMarkAsRead" class="px-4 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl transition shadow-lg shadow-red-900/20">
+                        Got it & Close
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    @endif
+
+
 
         <!-- شريط مسرح الجريمة التكتيكي -->
         <div class="crime-scene-tape left-0 z-30 h-[3px] bg-yellow-500"></div>
