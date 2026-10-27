@@ -16,10 +16,12 @@ use App\Http\Controllers\Front\CategoryFavoriteController;
 use App\Http\Controllers\Front\SeriesController as FrontSeriesController;
 use App\Livewire\UserProfile;
 use App\Livewire\Suggestions;
+use App\Http\Controllers\Front\BookController as FrontBookController;
 
 // Admin Controllers
 use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\ArticleTranslationController;
+use App\Http\Controllers\Admin\BookController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CategoryTranslationController;
 use App\Http\Controllers\Admin\TagController;
@@ -41,6 +43,9 @@ Route::group([
 
     Route::get('/detective-board', CommunityBoard::class)->name('community.cases.index');
     Route::get('/detective-board/cases/{slug}', CommunityCaseShow::class)->name('community.cases.show');
+
+    Route::get('/books', [FrontBookController::class, 'index'])->name('books.index');
+    Route::get('/books/{id}/{slug?}', [FrontBookController::class, 'show'])->where('id', '[0-9]+')->name('books.show');
 
 
     // =========================================================================
@@ -123,6 +128,15 @@ Route::group([
 
 
             Route::get('/cases/moderation', CaseModeration::class)->name('admin.cases.moderation');
+
+
+            //Route::resource('/books', BookController::class)->names('admin.books');
+            Route::get('/books', [BookController::class, 'index'])->name('admin.books.index');
+            Route::get('/books/create', [BookController::class, 'create'])->name('admin.books.create');
+            Route::post('/books/store', [BookController::class, 'store'])->name('admin.books.store');
+            Route::get('/books/{book}/edit', [BookController::class, 'edit'])->name('admin.books.edit');
+            Route::put('/books/{book}', [BookController::class, 'update'])->name('admin.books.update');
+            Route::delete('/books/{book}', [BookController::class, 'destroy'])->name('admin.books.destroy');
 
 
             // الهيكل الأساسي للمقالات

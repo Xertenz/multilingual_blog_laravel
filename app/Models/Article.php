@@ -109,8 +109,10 @@ class Article extends Model  implements HasMedia
             ->withTimestamps();
     }
 
+    /*
     public function suggestions(): MorphMany
     {
         return $this->morphMany(Suggestion::class, 'suggestable');
     }
+    */
 }

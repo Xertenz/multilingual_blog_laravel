@@ -182,6 +182,10 @@ new class extends Component {
                         <a href="{{ route('community.cases.index') }}" class="flex items-center gap-1 text-gray-400 hover:text-red-500 hover:bg-slate-900/50 px-3 py-1.5 rounded-lg transition-all text-sm font-medium">
                             Detective Board
                         </a>
+                        <a href="{{ route('books.index') }}" class="flex items-center gap-1 text-gray-400 hover:text-red-500 hover:bg-slate-900/50 px-3 py-1.5 rounded-lg transition-all text-sm font-medium">
+                            Book Summaries
+                        </a>
+
                     </div>
 
 
