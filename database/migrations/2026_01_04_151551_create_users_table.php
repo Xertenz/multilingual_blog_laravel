@@ -16,13 +16,18 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable(); // السماح لكلمة المرور ان تكون فارغة لاننا سمحنا بتسجيل الحساب عن طريق مواقع التواصل
+
             $table->boolean('is_admin')->default(false);
             $table->rememberToken();
 
             $table->string('locale')->default('en'); // اللغة الافتراضية
             $table->timestamp('notifications_last_read_at')->nullable();
             $table->integer('reputation')->default(0)->index();
+
+            $table->string('provider')->nullable();          // مثل: google, facebook
+            $table->string('provider_id')->nullable();       // معرف المستخدم الفريد لدى المزود
+            $table->string('provider_avatar')->nullable();   // صورة الحساب الشخصية (اختياري)
 
             $table->timestamps();
         });

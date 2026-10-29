@@ -5,10 +5,14 @@
         
         <div class="flex justify-between items-center mb-2">
             <p class="capitalize whitespace-normal text-slate-100 font-bold text-sm flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-red-500"></span>
-                <a href="{{route('profile.show', $comment->user->id)}}">
-                    {{ $comment->user->name }}
-                </a>
+                <span class="w-2 h-2 rounded-full {{ $comment->user ? 'bg-red-500' : 'bg-slate-600' }}"></span>
+                @if($comment->user)
+                    <a href="{{ route('profile.show', $comment->user->id) }}" class="hover:underline">
+                        {{ $comment->user->name }}
+                    </a>
+                @else
+                    <span class="text-slate-400 italic font-normal text-xs">Deleted Account</span>
+                @endif
             </p>
             <p class="text-slate-400 font-mono text-xs">{{ $comment->created_at->diffForHumans(['parts' => 1, 'short' => true]) }}</p>
         </div>
@@ -54,7 +58,7 @@
                 <button wire:click="showReplyForm({{ $comment->id }})" class="hover:text-sky-400 transition">reply</button>
             @endauth
             
-            @if (Auth::check() && Auth::id() == $comment->user_id)
+            @if (Auth::check() && $comment->user_id && Auth::id() == $comment->user_id)
                 <span class="text-slate-700">|</span>
                 <button wire:click="showEditForm({{ $comment->id }}, '{{ addslashes($comment->body) }}')" class="hover:text-amber-400 transition">edit</button>
                 <span class="text-slate-700">|</span>

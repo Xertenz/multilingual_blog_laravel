@@ -25,9 +25,16 @@ class User extends AuthenticatableUser implements Authenticatable
         'email',
         'password',
         'is_admin',
+
         'locale',
         'notifications_last_read_at',
-        'reputation'
+        'reputation',
+
+        'provider',
+        'provider_id',
+        'provider_avatar',
+
+        'email_verified_at'
     ];
 
     protected $hidden = [

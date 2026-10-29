@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Livewire\Admin\CaseModeration;
 use App\Livewire\CommunityBoard;
 use App\Livewire\CommunityCaseShow;
+use App\Http\Controllers\Auth\SocialController;
 
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),
@@ -46,6 +47,10 @@ Route::group([
 
     Route::get('/books', [FrontBookController::class, 'index'])->name('books.index');
     Route::get('/books/{id}/{slug?}', [FrontBookController::class, 'show'])->where('id', '[0-9]+')->name('books.show');
+
+
+    Route::get('auth/{provider}', [SocialController::class, 'redirect'])->name('social.redirect');
+    Route::get('auth/{provider}/callback', [SocialController::class, 'callback'])->name('social.callback');
 
 
     // =========================================================================

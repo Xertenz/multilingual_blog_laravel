@@ -32,6 +32,7 @@
             </label>
         </div>
 
+
         <div class="flex items-center justify-end mt-4">
             @if (Route::has('password.request'))
                 <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
@@ -43,5 +44,22 @@
                 {{ __('Log in') }}
             </x-primary-button>
         </div>
+
+        <div class="mt-6 flex flex-col gap-3">
+            <!-- Google Login Button -->
+            <a href="{{ route('social.redirect', 'google') }}" class="w-full flex items-center justify-center gap-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-xs py-2.5 px-4 rounded-xl transition shadow-2xs">
+                <svg class="w-4 h-4" viewBox="0 0 24 24"><!-- SVG icon for Google --></svg>
+                <span>Continue with Google</span>
+            </a>
+
+            {{--
+            <!-- Facebook Login Button -->
+            <a href="{{ route('social.redirect', 'facebook') }}" class="w-full flex items-center justify-center gap-3 bg-[#1877F2] hover:bg-[#166fe5] text-white font-semibold text-xs py-2.5 px-4 rounded-xl transition shadow-2xs">
+                <svg class="w-4 h-4 fill-current"><!-- SVG icon for Facebook --></svg>
+                <span>Continue with Facebook</span>
+            </a>
+            --}}
+        </div>
+
     </form>
 </x-guest-layout>

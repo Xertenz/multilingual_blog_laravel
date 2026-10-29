@@ -35,32 +35,23 @@ class BookController extends Controller
      */
     public function store(Request $request)
     {
-        $locales = LaravelLocalization::getSupportedLocales();
+        $validLocales = LaravelLocalization::getSupportedLanguagesKeys();
 
-        // 1. التجميع والتأكد من قواعد التحقق (Validation) لكل لغة
+        // 1. قواعد التحقق العامة والفرعية (جعل حقول الترجمة اختيارية nullable)
         $rules = [
-            'internal_title' => 'required|string|max:255|unique:books,internal_title,',
+            'internal_title' => 'required|string|max:255|unique:books,internal_title',
             'published_year' => 'nullable|integer|min:1500|max:' . (date('Y') + 1),
             'pages_count'    => 'nullable|integer|min:1',
             'cover_image'    => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+
+            'translations.*.title'         => 'nullable|string|max:255',
+            'translations.*.author'        => 'nullable|string|max:255',
+            'translations.*.summary'       => 'nullable|string',
+            'translations.*.affiliate_url' => 'nullable|url',
+            'translations.*.price'         => 'nullable|numeric|min:0',
+            'translations.*.currency'      => 'nullable|string|max:10',
+            'translations.*.slug'          => 'nullable|string|max:255|unique:book_translations,slug',
         ];
-
-        foreach ($locales as $localeCode => $properties) {
-            $rules["translations.{$localeCode}.title"]         = 'required|string|max:255';
-            $rules["translations.{$localeCode}.author"]        = 'required|string|max:255';
-            $rules["translations.{$localeCode}.summary"]       = 'nullable|string';
-            $rules["translations.{$localeCode}.affiliate_url"] = 'nullable|url';
-            $rules["translations.{$localeCode}.price"]         = 'nullable|numeric|min:0';
-            $rules["translations.{$localeCode}.currency"]      = 'nullable|string|max:10';
-
-            // تحقق من عدم تكرار الـ Slug لكل لغة
-            $rules["translations.{$localeCode}.slug"] = [
-                'nullable',
-                'string',
-                'max:255',
-                Rule::unique('book_translations', 'slug')->where('locale', $localeCode),
-            ];
-        }
 
         $request->validate($rules);
 
@@ -77,34 +68,33 @@ class BookController extends Controller
                 ->toMediaCollection('cover_imgs');
         }
 
-        // 4. حفظ الترجمات لكل لغة
-        foreach ($locales as $localeCode => $properties) {
-            $transData = $request->input("translations.{$localeCode}");
+        // 4. حفظ الترجمات للغات التي أدخلها المشرف فقط
+        if ($request->has('translations')) {
+            foreach ($request->translations as $localeCode => $transData) {
+                // إذا لم تكن اللغة مدعومة، أو ترك المشرف حقل العنوان (Title) فارغاً، نتخطى هذه اللغة
+                if (!in_array($localeCode, $validLocales) || empty($transData['title'])) {
+                    continue;
+                }
 
-            // توليد الـ Slug تلقائياً من العنوان إذا لم يُدخل يدويًا
-            $slug = !empty($transData['slug'])
-                ? Str::slug($transData['slug'])
-                : Str::slug($transData['title']);
+                // توليد الـ Slug بذكاء (إن وُجد مخصصاً أو يُستخرج من العنوان)
+                $slugSource = !empty($transData['slug']) ? $transData['slug'] : $transData['title'];
+                $slug = (string) Str::of($slugSource)->slug('-');
 
-            // حماية إضافية للغتين العربية/غير اللاتينية إذا أراد النظام دعمها في الـ Slug
-            if (empty($slug)) {
-                $slug = Str::slug($transData['title'], '-', null);
+                $book->translations()->create([
+                    'locale'        => $localeCode,
+                    'title'         => trim($transData['title']),
+                    'author'        => trim($transData['author'] ?? ''),
+                    'slug'          => trim($slug),
+                    'summary'       => $transData['summary'] ?? null,
+                    'affiliate_url' => $transData['affiliate_url'] ?? null,
+                    'price'         => $transData['price'] ?? null,
+                    'currency'      => $transData['currency'] ?? 'USD',
+                ]);
             }
-
-            $book->translations()->create([
-                'locale'        => $localeCode,
-                'title'         => $transData['title'],
-                'author'        => $transData['author'],
-                'slug'          => $slug,
-                'summary'       => $transData['summary'] ?? null,
-                'affiliate_url' => $transData['affiliate_url'] ?? null,
-                'price'         => $transData['price'] ?? null,
-                'currency'      => $transData['currency'] ?? 'USD',
-            ]);
         }
 
         return redirect()->route('admin.books.index')
-            ->with('success', __('Book created successfully with all translations.'));
+            ->with('success', __('Book created successfully.'));
     }
 
     /**
@@ -115,7 +105,10 @@ class BookController extends Controller
         $book->load(['translations', 'media']);
         $locales = LaravelLocalization::getSupportedLocales();
 
-        return view('admin.books.edit', compact('book', 'locales'));
+        // تجهيز الترجمات كمفتاح باللغة لتسهيل عرضها في الفورم (مثل الأقسام)
+        $translations = $book->translations->keyBy('locale');
+
+        return view('admin.books.edit', compact('book', 'locales', 'translations'));
     }
 
     /**
@@ -123,37 +116,35 @@ class BookController extends Controller
      */
     public function update(Request $request, Book $book)
     {
-        $locales = LaravelLocalization::getSupportedLocales();
+        $validLocales = LaravelLocalization::getSupportedLanguagesKeys();
 
         $rules = [
             'internal_title' => ['required', 'string', 'max:255', Rule::unique('books', 'internal_title')->ignore($book->id)],
             'published_year' => 'nullable|integer|min:1500|max:' . (date('Y') + 1),
             'pages_count'    => 'nullable|integer|min:1',
             'cover_image'    => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+
+            'translations.*.title'         => 'nullable|string|max:255',
+            'translations.*.author'        => 'nullable|string|max:255',
+            'translations.*.summary'       => 'nullable|string',
+            'translations.*.affiliate_url' => 'nullable|url',
+            'translations.*.price'         => 'nullable|numeric|min:0',
+            'translations.*.currency'      => 'nullable|string|max:10',
         ];
 
-        foreach ($locales as $localeCode => $properties) {
-            $existingTranslation = $book->translations->where('locale', $localeCode)->first();
-            $transId = $existingTranslation ? $existingTranslation->id : null;
-
-            $rules["translations.{$localeCode}.title"]         = 'required|string|max:255';
-            $rules["translations.{$localeCode}.author"]        = 'required|string|max:255';
-            $rules["translations.{$localeCode}.summary"]       = 'nullable|string';
-            $rules["translations.{$localeCode}.affiliate_url"] = 'nullable|url';
-            $rules["translations.{$localeCode}.price"]         = 'nullable|numeric|min:0';
-            $rules["translations.{$localeCode}.currency"]      = 'nullable|string|max:10';
-
-            $rules["translations.{$localeCode}.slug"] = [
-                'nullable',
-                'string',
-                'max:255',
-                Rule::unique('book_translations', 'slug')
-                    ->where('locale', $localeCode)
-                    ->ignore($transId),
-            ];
-        }
-
         $request->validate($rules);
+
+        // التحقق الديناميكي من عدم تكرار الـ slug لكل لغة أثناء التعديل
+        if ($request->has('translations')) {
+            foreach ($request->translations as $localeCode => $transData) {
+                if (!empty($transData['slug'])) {
+                    $currentTransId = $book->translations()->where('locale', $localeCode)->value('id');
+                    $request->validate([
+                        "translations.{$localeCode}.slug" => "nullable|string|max:255|unique:book_translations,slug,{$currentTransId}",
+                    ]);
+                }
+            }
+        }
 
         // 1. تحديث البيانات العامة
         $book->update([
@@ -169,26 +160,37 @@ class BookController extends Controller
                 ->toMediaCollection('cover_imgs');
         }
 
-        // 3. تحديث أو إنشاء الترجمات (updateOrCreate)
-        foreach ($locales as $localeCode => $properties) {
-            $transData = $request->input("translations.{$localeCode}");
+        // 3. تحديث أو إنشاء أو حذف الترجمات بناءً على إدخال المشرف
+        if ($request->has('translations')) {
+            foreach ($request->translations as $localeCode => $transData) {
+                if (!in_array($localeCode, $validLocales)) {
+                    continue;
+                }
 
-            $slug = !empty($transData['slug'])
-                ? Str::slug($transData['slug'])
-                : Str::slug($transData['title']);
+                // إذا قام المشرف بإفريغ حقل العنوان (Title)، نقوم بحذف الترجمة إن كانت موجودة مسبقاً
+                if (empty($transData['title'])) {
+                    $book->translations()->where('locale', $localeCode)->delete();
+                    continue;
+                }
 
-            $book->translations()->updateOrCreate(
-                ['locale' => $localeCode],
-                [
-                    'title'         => $transData['title'],
-                    'author'        => $transData['author'],
-                    'slug'          => $slug,
-                    'summary'       => $transData['summary'] ?? null,
-                    'affiliate_url' => $transData['affiliate_url'] ?? null,
-                    'price'         => $transData['price'] ?? null,
-                    'currency'      => $transData['currency'] ?? 'USD',
-                ]
-            );
+                // توليد الـ Slug بذكاء
+                $slugSource = !empty($transData['slug']) ? $transData['slug'] : $transData['title'];
+                $slug = (string) Str::of($slugSource)->slug('-');
+
+                // استخدام updateOrCreate للتعامل مع الإضافة والتعديل بمرونة
+                $book->translations()->updateOrCreate(
+                    ['locale' => $localeCode],
+                    [
+                        'title'         => trim($transData['title']),
+                        'author'        => trim($transData['author'] ?? ''),
+                        'slug'          => trim($slug),
+                        'summary'       => $transData['summary'] ?? null,
+                        'affiliate_url' => $transData['affiliate_url'] ?? null,
+                        'price'         => $transData['price'] ?? null,
+                        'currency'      => $transData['currency'] ?? 'USD',
+                    ]
+                );
+            }
         }
 
         return redirect()->route('admin.books.index')
