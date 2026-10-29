@@ -210,6 +210,61 @@
                 </li>
             </ul>
         </div>
+
+
+
+
+
+        {{-- Community Case Categories Section (فئات قضايا المجتمع) --}}
+        <div class="border-t border-slate-700 my-4"></div>
+        <div class="mb-6">
+            <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 px-3">
+                Community Categories
+            </div>
+            
+            <ul class="space-y-1">
+                {{-- All Community Categories --}}
+                <li>
+                    <a href="{{ route('admin.community-case-categories.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 
+                              {{ request()->routeIs('admin.community-case-categories.*') && !request()->routeIs('admin.community-case-categories.create') 
+                                 ? 'bg-gradient-to-r from-red-600/20 to-orange-600/20 text-white' 
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">Case Categories</span>
+                        <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
+                            {{ \App\Models\CommunityCaseCategory::count() }}
+                        </span>
+                    </a>
+                </li>
+                
+                {{-- Add New Community Category --}}
+                <li>
+                    <a href="{{ route('admin.community-case-categories.create') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.community-case-categories.create') 
+                                 ? 'bg-gradient-to-r from-orange-600/20 to-amber-600/20 text-white' 
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">Add New Category</span>
+                        @if(request()->routeIs('admin.community-case-categories.create'))
+                            <span class="bg-orange-500/20 text-orange-400 text-xs px-2 py-1 rounded-full">Now</span>
+                        @else
+                            <span class="bg-orange-600/20 text-orange-400 text-xs px-2 py-1 rounded-full">+</span>
+                        @endif
+                    </a>
+                </li>
+            </ul>
+        </div>
+        
         <div class="border-t border-slate-700 my-4"></div>
         @endhasanyrole
 

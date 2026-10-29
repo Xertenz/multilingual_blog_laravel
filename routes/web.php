@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\ArticleTranslationController;
 use App\Http\Controllers\Admin\BookController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CategoryTranslationController;
+use App\Http\Controllers\Admin\CommunityCaseCategoryController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\TagTranslationController;
 use App\Http\Controllers\Admin\SeriesController as AdminSeriesController;
@@ -142,6 +143,10 @@ Route::group([
             Route::get('/books/{book}/edit', [BookController::class, 'edit'])->name('admin.books.edit');
             Route::put('/books/{book}', [BookController::class, 'update'])->name('admin.books.update');
             Route::delete('/books/{book}', [BookController::class, 'destroy'])->name('admin.books.destroy');
+
+            Route::resource('community-case-categories', CommunityCaseCategoryController::class, [
+                'as' => 'admin'
+            ]);
 
 
             // الهيكل الأساسي للمقالات
