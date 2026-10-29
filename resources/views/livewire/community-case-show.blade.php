@@ -37,6 +37,14 @@
                 <span class="flex items-center gap-1">
                     👁️ {{ $communityCase->views_count }} Views
                 </span>
+                @auth
+                    @if($communityCase->user_id !== auth()->id())
+                        <span>•</span>
+                        <button onclick="openReportModal('{{ App\Models\CommunityCase::class }}', {{ $communityCase->id }})" class="text-rose-400 hover:text-rose-300 transition flex items-center gap-1">
+                            🚨 إبلاغ
+                        </button>
+                    @endif
+                @endauth
             </div>
         </div>
 

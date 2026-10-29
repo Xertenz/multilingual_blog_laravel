@@ -67,4 +67,9 @@ class CommunityCase extends Model
     {
         return $this->morphMany(Comment::class, 'commentable');
     }
+
+    public function reports(): MorphMany
+    {
+        return $this->morphMany(Report::class, 'reportable');
+    }
 }

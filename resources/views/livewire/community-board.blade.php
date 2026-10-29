@@ -13,14 +13,21 @@
         </div>
 
         @auth
-            <!-- زر فتح نافذة/مودال إضافة قضية -->
-            <button onclick="document.getElementById('new-case-modal').classList.remove('hidden')" 
-                    class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-lg shadow-red-600/20 flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
-                </svg>
-                إضافة قضية جديدة
-            </button>
+            @if(auth()->user()->isBanned())
+                @php $penalty = auth()->user()->activePenalty; @endphp
+                <div class="bg-rose-950/80 border border-rose-800 text-rose-300 px-4 py-2 rounded-xl text-xs flex items-center gap-2">
+                    <span>⚠️ حسابك مقيد مؤقتاً (السبب: {{ $penalty->reason }})</span>
+                </div>
+            @else
+                <!-- زر فتح نافذة/مودال إضافة قضية -->
+                <button @click="$dispatch('open-case-modal')" 
+                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition shadow-lg shadow-red-600/20 flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path>
+                    </svg>
+                    إضافة قضية جديدة
+                </button>
+            @endif
         @else
             <a href="{{ route('login') }}" class="text-sm text-gray-400 hover:text-white bg-slate-800 px-4 py-2 rounded-xl border border-slate-700">
                 تسجيل الدخول للمشاركة
@@ -87,6 +94,13 @@
                 <div class="pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-gray-500">
                     <span class="text-gray-300 font-medium">بواسطة: {{ $case->user->name ?? 'محقق مجهول' }}</span>
                     <div class="flex items-center gap-3">
+                        @auth
+                            @if($case->user_id !== auth()->id())
+                                <button onclick="openReportModal('{{ App\Models\CommunityCase::class }}', {{ $case->id }})" class="text-gray-400 hover:text-rose-400 transition" title="إبلاغ عن القضية">
+                                    🚨
+                                </button>
+                            @endif
+                        @endauth
                         <span class="flex items-center gap-1">
                             💬 {{ $case->comments_count }}
                         </span>
@@ -109,50 +123,66 @@
     </div>
 
     <!-- Modal إنشاء قضية جديدة -->
-    <div id="new-case-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-2xl p-6 shadow-2xl relative">
+    <div id="new-case-modal" 
+         x-data="{ open: false }" 
+         @open-case-modal.window="open = true" 
+         @close-case-modal.window="open = false"
+         x-show="open"
+         style="display: none;"
+         class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-2xl rounded-2xl p-6 shadow-2xl relative" @click.away="open = false">
             
             <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-800">
                 <h3 class="text-xl font-bold text-white">طرح قضية جديدة في لوحة المحققين</h3>
-                <button onclick="document.getElementById('new-case-modal').classList.add('hidden')" class="text-gray-400 hover:text-white">✕</button>
+                <button @click="open = false" class="text-gray-400 hover:text-white">✕</button>
             </div>
 
-            <form wire:submit.prevent="storeCase" class="space-y-4">
-                
-                <div>
-                    <label class="block text-xs font-semibold text-gray-400 mb-1">عنوان القضية</label>
-                    <input type="text" wire:model.defer="title" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-red-600">
-                    @error('title') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                </div>
+            @auth
+                @if(auth()->user()->isBanned())
+                    @php $penalty = auth()->user()->activePenalty; @endphp
+                    <div class="p-4 bg-rose-950/80 border border-rose-800 text-rose-300 rounded-xl text-sm space-y-2">
+                        <p class="font-bold">عذراً، لا يمكنك إضافة قضايا جديدة.</p>
+                        <p>حسابك يخضع لعقوبة نشطة. السبب: {{ $penalty->reason }}</p>
+                    </div>
+                @else
+                    <form wire:submit.prevent="storeCase" class="space-y-4">
+                        
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">عنوان القضية</label>
+                            <input type="text" wire:model.defer="title" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-red-600">
+                            @error('title') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                        </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-gray-400 mb-1">فئة القضية</label>
-                    <!-- تم التعديل ليطابق المتغير الجديد community_case_category_id وجلب الفئات المترجمة -->
-                    <select wire:model.defer="community_case_category_id" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-red-600">
-                        <option value="">اختر الفئة...</option>
-                        @foreach($categories as $cat)
-                            @php $t = $cat->translations->first(); @endphp
-                            @if($t)
-                                <option value="{{ $cat->id }}">{{ $t->name }}</option>
-                            @endif
-                        @endforeach
-                    </select>
-                    @error('community_case_category_id') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">فئة القضية</label>
+                            <select wire:model.defer="community_case_category_id" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-red-600">
+                                <option value="">اختر الفئة...</option>
+                                @foreach($categories as $cat)
+                                    @php $t = $cat->translations->first(); @endphp
+                                    @if($t)
+                                        <option value="{{ $cat->id }}">{{ $t->name }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                            @error('community_case_category_id') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                        </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-gray-400 mb-1">تفاصيل القضية والأدلة</label>
-                    <textarea wire:model.defer="body" rows="5" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-red-600" placeholder="اكتب تفاصيل وملابسات القضية هنا..."></textarea>
-                    @error('body') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1">تفاصيل القضية والأدلة</label>
+                            <textarea wire:model.defer="body" rows="5" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2 text-white text-sm focus:outline-none focus:border-red-600" placeholder="اكتب تفاصيل وملابسات القضية هنا..."></textarea>
+                            @error('body') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                        </div>
 
-                <div class="flex justify-end gap-3 pt-4 border-t border-slate-800">
-                    <button type="button" onclick="document.getElementById('new-case-modal').classList.add('hidden')" class="px-4 py-2 bg-slate-800 text-gray-300 rounded-xl text-sm font-semibold hover:bg-slate-700 transition">إلغاء</button>
-                    <button type="submit" onclick="document.getElementById('new-case-modal').classList.add('hidden')" class="px-6 py-2 bg-red-600 text-white rounded-xl text-sm font-semibold hover:bg-red-700 transition shadow-lg shadow-red-600/20">إرسال للمراجعة</button>
-                </div>
-            </form>
+                        <div class="flex justify-end gap-3 pt-4 border-t border-slate-800">
+                            <button type="button" @click="open = false" class="px-4 py-2 bg-slate-800 text-gray-300 rounded-xl text-sm font-semibold hover:bg-slate-700 transition">إلغاء</button>
+                            <!-- تم إزالة الكود القديم للاغلاق، والاعتماد على Livewire و Alpine.js -->
+                            <button type="submit" class="px-6 py-2 bg-red-600 text-white rounded-xl text-sm font-semibold hover:bg-red-700 transition shadow-lg shadow-red-600/20">إرسال للمراجعة</button>
+                        </div>
+                    </form>
+                @endif
+            @endauth
 
         </div>
     </div>
-
 </div>

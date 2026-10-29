@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\BookController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CategoryTranslationController;
 use App\Http\Controllers\Admin\CommunityCaseCategoryController;
+use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\TagTranslationController;
 use App\Http\Controllers\Admin\SeriesController as AdminSeriesController;
@@ -34,6 +35,7 @@ use App\Livewire\Admin\CaseModeration;
 use App\Livewire\CommunityBoard;
 use App\Livewire\CommunityCaseShow;
 use App\Http\Controllers\Auth\SocialController;
+use App\Http\Controllers\UserReportController;
 
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),
@@ -58,6 +60,10 @@ Route::group([
     // 1. حسابات الأعضاء والزوار المسجلين (Auth Users)
     // =========================================================================
     Route::middleware('auth')->group(function () {
+
+
+        Route::post('/reports', [UserReportController::class, 'store'])->name('reports.store');
+
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -77,6 +83,17 @@ Route::group([
     });
 
     require __DIR__ . '/auth.php';
+
+
+
+    /*
+    Route::middleware(['auth', 'banned'])->group(function () {
+        // المسارات التي تتطلب حساباً غير محظور (مثل إنشاء القضايا، كتابة التعليقات، إلخ)
+        Route::post('/community-cases', [CommunityBoard::class, 'storeCase'])->name('community-board.storeCase');
+        Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
+    });
+    */
+
 
     // =========================================================================
     // 2. الواجهة العامة للموقع (Public Visitors)
@@ -134,6 +151,11 @@ Route::group([
 
 
             Route::get('/cases/moderation', CaseModeration::class)->name('admin.cases.moderation');
+
+            // مسارات البلاغات
+            Route::get('/reports', [ReportController::class, 'index'])->name('admin.reports.index');
+            Route::patch('/reports/{report}/status', [ReportController::class, 'updateStatus'])->name('admin.reports.update-status');
+            Route::delete('/reports/{report}/content', [ReportController::class, 'destroyContent'])->name('admin.reports.destroy-content');
 
 
             //Route::resource('/books', BookController::class)->names('admin.books');

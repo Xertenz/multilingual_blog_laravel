@@ -38,6 +38,12 @@ class ArticleComments extends Component
     // --- 1. إضافة تعليق رئيسي جديد ---
     public function addComment()
     {
+        if (Auth::user()->isBanned()) {
+            $penalty = Auth::user()->activePenalty;
+            session()->flash('error', "Your account is temporary banned because: {$penalty->reason}");
+            return;
+        }
+
         $this->validate(['newCommentBody' => 'required|string|max:1000']);
 
         $this->saveComment($this->newCommentBody, null);

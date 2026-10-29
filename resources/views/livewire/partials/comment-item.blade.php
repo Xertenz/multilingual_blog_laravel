@@ -14,7 +14,16 @@
                     <span class="text-slate-400 italic font-normal text-xs">Deleted Account</span>
                 @endif
             </p>
-            <p class="text-slate-400 font-mono text-xs">{{ $comment->created_at->diffForHumans(['parts' => 1, 'short' => true]) }}</p>
+            <div class="flex items-center gap-3">
+                <p class="text-slate-400 font-mono text-xs">{{ $comment->created_at->diffForHumans(['parts' => 1, 'short' => true]) }}</p>
+                @auth
+                    @if($comment->user_id !== auth()->id())
+                        <button onclick="openReportModal('{{ App\Models\Comment::class }}', {{ $comment->id }})" class="text-xs text-gray-500 hover:text-rose-400 transition ml-2">
+                            🚨
+                        </button>
+                    @endif
+                @endauth
+            </div>
         </div>
 
         <p class="ms-4 mb-2 text-slate-200 text-sm leading-relaxed" style="white-space: pre-wrap">{!! $comment->formatted_body !!}</p>

@@ -78,4 +78,9 @@ class Comment extends Model
     {
         return $this->belongsToMany(User::class, 'comment_user_mentions', 'comment_id', 'user_id');
     }
+
+    public function reports()
+    {
+        return $this->morphMany(Report::class, 'reportable');
+    }
 }

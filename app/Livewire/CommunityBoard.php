@@ -43,6 +43,13 @@ class CommunityBoard extends Component
             return redirect()->route('login');
         }
 
+        // 1. التحقق مما إذا كان المستخدم محظوراً (عقوبة نشطة)
+        if (Auth::user()->isBanned()) {
+            $penalty = Auth::user()->activePenalty;
+            session()->flash('error', "Your account is temporarily banned because: {$penalty->reason}");
+            return;
+        }
+
         $this->validate();
 
         // إنشاء القضية بحالة معلقة للمراجعة مع الربط الفئة الصحيح
@@ -53,14 +60,17 @@ class CommunityBoard extends Component
             'title' => $this->title,
             'slug' => Str::slug($this->title) . '-' . uniqid(),
             'body' => $this->body,
-            //'moderation_status' => 'pending', // بانتظار مراجعة الإدارة
-            'moderation_status' => [new Enum(ModerationStatus::class)],
+            'moderation_status' => 'pending', // بانتظار مراجعة الإدارة
+            //'moderation_status' => [new Enum(ModerationStatus::class)],
             'case_status' => 'open',
         ]);
 
         // تصفير الحقول وإظهار رسالة نجاح
         $this->reset(['title', 'community_case_category_id', 'body']);
         session()->flash('message', __('Your case has been submitted successfully! It will appear on the detective board once reviewed by the administration.'));
+
+        // إرسال إشارة للواجهة لإغلاق الـ Modal فقط عند النجاح
+        $this->dispatch('close-case-modal');
     }
 
     public function render()

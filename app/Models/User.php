@@ -116,4 +116,36 @@ class User extends AuthenticatableUser implements Authenticatable
     {
         return $this->belongsToMany(Suggestion::class, 'suggestion_votes', 'user_id', 'suggestion_id')->withTimestamps();
     }
+
+
+    // داخل موديل User
+
+    public function penalties()
+    {
+        return $this->hasMany(Penalty::class);
+    }
+
+    public function profile()
+    {
+        return $this->hasOne(UserProfile::class);
+    }
+
+    public function activePenalty()
+    {
+        return $this->hasOne(Penalty::class)
+            ->where('is_active', true)
+            ->where(function ($q) {
+                $q->whereNull('expires_at') // حظر دائم (الدرجة 5)
+                    ->orWhere('expires_at', '>', now()); // حظر مؤقت لم ينتهِ بعد
+            })
+            ->latest();
+    }
+
+    /**
+     * فحص هل المستخدم محظور حالياً من النشر/التعليق
+     */
+    public function isBanned(): bool
+    {
+        return $this->activePenalty()->exists();
+    }
 }

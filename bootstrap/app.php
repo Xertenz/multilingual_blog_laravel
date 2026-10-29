@@ -34,6 +34,11 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\UpdateUserLocale::class,
         ]);
     })
+    ->withMiddleware(function (Middleware $middleware) {
+        $middleware->alias([
+            'banned' => \App\Http\Middleware\CheckBanned::class,
+        ]);
+    })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
