@@ -12,6 +12,9 @@
             <!-- معلومات العضو -->
             <div class="space-y-1.5 flex-1">
                 <h1 class="text-2xl font-bold text-white capitalize">{{ $user->name }}</h1>
+                <span class="px-2.5 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold rounded flex items-center gap-1">
+                    ⭐ Reputation: {{ $user->profile->reputation_points ?? 0 }}
+                </span>
                 <p class="text-gray-400 text-sm">{{ $user->email }}</p>
                 
                 <div class="flex flex-wrap justify-center md:justify-start gap-4 text-xs text-gray-500 pt-2">

@@ -115,4 +115,9 @@ class Article extends Model  implements HasMedia
         return $this->morphMany(Suggestion::class, 'suggestable');
     }
     */
+
+    public function locations(): HasMany
+    {
+        return $this->hasMany(ArticleLocation::class);
+    }
 }

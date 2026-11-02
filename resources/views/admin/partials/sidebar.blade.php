@@ -71,6 +71,23 @@
                         </span>
                     </a>
                 </li>
+
+
+                <li>
+                    <a href="{{ route('admin.article-locations.index') }}" 
+                        class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold rounded-lg transition-colors {{ request()->routeIs('admin.article-locations.*') ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        <span>Map Locations</span>
+                    </a>
+                </li>
+
+
+
+
+
                 
                 {{-- 🔒 Write New Article Link (محصور حصراً للمشرف والمحرر فقط لأنه ينشئ المقال الأساسي) --}}
                 @hasanyrole('super-admin|editor')

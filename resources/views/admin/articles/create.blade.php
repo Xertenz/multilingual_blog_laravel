@@ -111,52 +111,34 @@
                 </div>
                 --}}
 
-
-
-
-
-
-
                 <!-- Publication Status Section -->
-<div class="bg-white rounded-xl p-4 border border-slate-200">
-    <label class="block text-xs font-semibold text-slate-600 mb-1.5">Publication Status</label>
-    
-    @can('publish-articles')
-        {{-- إذا كان المستخدم مشرفاً أو محرراً، يمكنه التحكم بالحالة بشكل كامل --}}
-        <div class="relative">
-            <select name="status" id="status" 
-                    class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 pr-10 outline-none transition bg-white cursor-pointer">
-                <option value="draft" {{ old('status', $article->status ?? 'draft') == 'draft' ? 'selected' : '' }}>Draft (مسودة)</option>
-                <option value="pending" {{ old('status', $article->status ?? 'pending') == 'pending' ? 'selected' : '' }}>Pending (قيد Mراجعة)</option>
-                <option value="published" {{ old('status', $article->status ?? '') == 'published' ? 'selected' : '' }}>Published (منشور)</option>
-            </select>
-        </div>
-    @else
-        {{-- إذا كان المستخدم كاتباً (Writer)، يتم إخباره بأن المقال سيُرسل للمراجعة تلقائياً --}}
-        <div class="flex items-center justify-between bg-amber-50 p-3 rounded-xl border border-amber-200">
-            <input type="hidden" name="status" value="pending">
-            <div class="flex items-center space-x-2">
-                <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                </svg>
-                <span class="text-xs font-semibold text-amber-800">Status: Pending Review (قيد المراجعة)</span>
-            </div>
-            <span class="text-[11px] text-amber-600">Your article will be reviewed by an editor before publishing.</span>
-        </div>
-    @endcan
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
+                <div class="bg-white rounded-xl p-4 border border-slate-200">
+                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">Publication Status</label>
+                    
+                    @can('publish-articles')
+                        {{-- إذا كان المستخدم مشرفاً أو محرراً، يمكنه التحكم بالحالة بشكل كامل --}}
+                        <div class="relative">
+                            <select name="status" id="status" 
+                                    class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 pr-10 outline-none transition bg-white cursor-pointer">
+                                <option value="draft" {{ old('status', $article->status ?? 'draft') == 'draft' ? 'selected' : '' }}>Draft (مسودة)</option>
+                                <option value="pending" {{ old('status', $article->status ?? 'pending') == 'pending' ? 'selected' : '' }}>Pending (قيد Mراجعة)</option>
+                                <option value="published" {{ old('status', $article->status ?? '') == 'published' ? 'selected' : '' }}>Published (منشور)</option>
+                            </select>
+                        </div>
+                    @else
+                        {{-- إذا كان المستخدم كاتباً (Writer)، يتم إخباره بأن المقال سيُرسل للمراجعة تلقائياً --}}
+                        <div class="flex items-center justify-between bg-amber-50 p-3 rounded-xl border border-amber-200">
+                            <input type="hidden" name="status" value="pending">
+                            <div class="flex items-center space-x-2">
+                                <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                </svg>
+                                <span class="text-xs font-semibold text-amber-800">Status: Pending Review (قيد المراجعة)</span>
+                            </div>
+                            <span class="text-[11px] text-amber-600">Your article will be reviewed by an editor before publishing.</span>
+                        </div>
+                    @endcan
+                </div>
 
                 <!-- Featured Image Upload (Required) -->
                 <div class="bg-white rounded-xl p-4 border border-slate-200">
@@ -221,6 +203,7 @@
 </div>
 @endsection
 
+
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -283,5 +266,7 @@
             }
         });
     }
+
+
 </script>
 @endpush

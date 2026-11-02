@@ -20,11 +20,13 @@ use App\Http\Controllers\Front\BookController as FrontBookController;
 
 // Admin Controllers
 use App\Http\Controllers\Admin\ArticleController;
+use App\Http\Controllers\Admin\ArticleLocationController;
 use App\Http\Controllers\Admin\ArticleTranslationController;
 use App\Http\Controllers\Admin\BookController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CategoryTranslationController;
 use App\Http\Controllers\Admin\CommunityCaseCategoryController;
+use App\Http\Controllers\Admin\PenaltyController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\TagTranslationController;
@@ -35,6 +37,7 @@ use App\Livewire\Admin\CaseModeration;
 use App\Livewire\CommunityBoard;
 use App\Livewire\CommunityCaseShow;
 use App\Http\Controllers\Auth\SocialController;
+use App\Http\Controllers\Front\MapController;
 use App\Http\Controllers\UserReportController;
 
 Route::group([
@@ -114,6 +117,8 @@ Route::group([
     Route::post('/contact', function () {})->name('contact.submit');
     Route::view('/about', 'about')->name('about');
     Route::get('/suggestions', Suggestions::class)->name('suggestions.index');
+    //Route::get('/map', [MapController::class, 'index'])->name('map');
+    Route::get('/map', [MapController::class, 'index'])->name('map');
 
     // =========================================================================
     // 3. لوحة التحكم (Admin Panel Structure)
@@ -149,6 +154,10 @@ Route::group([
         Route::group(['middleware' => ['role:super-admin|editor']], function () {
 
 
+            Route::get('/article-locations', [ArticleLocationController::class, 'index'])->name('admin.article-locations.index');
+            Route::post('/articles/{article}/locations', [ArticleLocationController::class, 'store'])->name('admin.article-locations.store');
+            Route::put('/article-locations/{location}', [ArticleLocationController::class, 'update'])->name('admin.article-locations.update');
+            Route::delete('/article-locations/{location}', [ArticleLocationController::class, 'destroy'])->name('admin.article-locations.destroy');
 
             Route::get('/cases/moderation', CaseModeration::class)->name('admin.cases.moderation');
 
@@ -156,6 +165,9 @@ Route::group([
             Route::get('/reports', [ReportController::class, 'index'])->name('admin.reports.index');
             Route::patch('/reports/{report}/status', [ReportController::class, 'updateStatus'])->name('admin.reports.update-status');
             Route::delete('/reports/{report}/content', [ReportController::class, 'destroyContent'])->name('admin.reports.destroy-content');
+
+
+            Route::post('/users/{user}/penalties', [PenaltyController::class, 'store'])->name('admin.penalties.store');
 
 
             //Route::resource('/books', BookController::class)->names('admin.books');

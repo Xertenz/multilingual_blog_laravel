@@ -23,6 +23,7 @@
                     <th class="p-4">الحالة</th>
                     <th class="p-4">التاريخ</th>
                     <th class="p-4 text-center">الإجراءات</th>
+                    <th class="p-4">العقوبة</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-800 text-sm text-gray-300">
@@ -71,6 +72,31 @@
                                 </form>
                             @endif
                         </td>
+                        
+
+
+                        <td>
+                            @php
+                                $item = $report->reportable;
+                                $hasMethod = $item ? method_exists($item, 'user') : false;
+                                $hasUser = ($hasMethod && $item->user) ? true : false;
+                                
+                                // طبع القيم على الشاشة للاختبار فقط
+                                // echo "Item: " . get_class($item) . " | Has Method: " . ($hasMethod ? 'Yes' : 'No') . " | Has User: " . ($hasUser ? 'Yes' : 'No');
+                            @endphp
+
+                            @if($item && $hasUser)
+                                <button onclick="openPenaltyModal({{ $item->user->id }}, '{{ $item->user->name }}')" 
+                                        class="px-3 py-1 bg-amber-600/20 hover:bg-amber-600 text-amber-400 hover:text-white rounded-lg text-xs transition border border-amber-800/50">
+                                    فرض عقوبة
+                                </button>
+                            @else
+                                <span class="text-xs text-slate-500">لا يمكن فرض عقوبة</span>
+                            @endif
+                        </td>
+
+
+
                     </tr>
                 @empty
                     <tr>
@@ -85,4 +111,62 @@
         {{ $reports->links() }}
     </div>
 </div>
+
+
+
+<!-- Modal فرض العقوبة -->
+<div id="penalty-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-6 shadow-2xl relative text-right" dir="rtl">
+        <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-800">
+            <h3 class="text-lg font-bold text-white">فرض عقوبة على المستخدم: <span id="penalty-username" class="text-red-500"></span></h3>
+            <button onclick="closePenaltyModal()" class="text-gray-400 hover:text-white">✕</button>
+        </div>
+
+        <form id="penalty-form" method="POST" class="space-y-4">
+            @csrf
+
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 mb-1">درجة العقوبة (Penalty Level)</label>
+                <select name="level" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-red-600" required>
+                    <option value="1">الدرجة 1: تنبيه وتوجيه (Warning - بدون حظر زمني)</option>
+                    <option value="2">الدرجة 2: حظر مؤقت لمدة 24 ساعة</option>
+                    <option value="3">الدرجة 3: حظر مؤقت لمدة أسبوع</option>
+                    <option value="4">الدرجة 4: حظر مؤقت لمدة شهر</option>
+                    <option value="5">الدرجة 5: حظر نهائي دائم</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 mb-1">سبب العقوبة / المخالفة</label>
+                <textarea name="reason" rows="3" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-red-600" placeholder="اكتب سبب العقوبة بوضوح ليظهر للمستخدم..." required></textarea>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
+                <button type="button" onclick="closePenaltyModal()" class="px-4 py-2 bg-slate-800 text-gray-300 rounded-xl text-xs font-semibold hover:bg-slate-700">إلغاء</button>
+                <button type="submit" class="px-5 py-2 bg-red-600 text-white rounded-xl text-xs font-semibold hover:bg-red-700 shadow-lg shadow-red-600/20">تأكيد وفرض العقوبة</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+
 @endsection
+
+
+@push('scripts')
+    
+<script>
+function openPenaltyModal(userId, userName) {
+    document.getElementById('penalty-username').innerText = userName;
+    // توجيه الفورم تلقائياً إلى مسار العقوبات الخاص بهذا المستخدم
+    document.getElementById('penalty-form').action = `/admin/users/${userId}/penalties`;
+    document.getElementById('penalty-modal').classList.remove('hidden');
+}
+
+function closePenaltyModal() {
+    document.getElementById('penalty-modal').classList.add('hidden');
+}
+</script>
+@endpush

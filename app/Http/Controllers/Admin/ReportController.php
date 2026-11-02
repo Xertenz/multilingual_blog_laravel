@@ -14,7 +14,7 @@ class ReportController extends Controller
     public function index()
     {
         // جلب البلاغات مع معلومات المُبلغ والعنصر المبلغ عنه
-        $reports = Report::with(['reporter', 'reportable'])
+        $reports = Report::with(['reporter', 'reportable.user'])
             ->latest()
             ->paginate(15);
 

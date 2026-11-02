@@ -55,6 +55,29 @@ class ArticleController extends Controller
             'status' => $status
         ]);
 
+
+
+        // حفظ المواقع الجغرافية المتعددة
+        if ($request->has('locations') && is_array($request->locations)) {
+            foreach ($request->locations as $locData) {
+                if (!empty($locData['latitude']) && !empty($locData['longitude'])) {
+                    $location = $article->locations()->create([
+                        'latitude' => $locData['latitude'],
+                        'longitude' => $locData['longitude'],
+                    ]);
+
+                    // حفظ الترجمة الأساسية للموقع (حسب لغة التطبيق الحالية)
+                    $location->translations()->create([
+                        'locale' => app()->getLocale(),
+                        'title' => $locData['title'] ?? 'Crime Location',
+                        'description' => $locData['description'] ?? null,
+                    ]);
+                }
+            }
+        }
+
+
+
         if ($request->has('tags')) {
             $article->tags()->sync($request->tags);
         }
@@ -133,6 +156,36 @@ class ArticleController extends Controller
             $article->internal_title = trim($request->internal_title);
             $article->status = $status;
             $article->save();
+
+
+
+
+            // تحديث المواقع (حذف القديم وإضافة الجديد بكل مرونة)
+            $article->locations()->each(function ($location) {
+                $location->translations()->delete();
+                $location->delete();
+            });
+
+            if ($request->has('locations') && is_array($request->locations)) {
+                foreach ($request->locations as $locData) {
+                    if (!empty($locData['latitude']) && !empty($locData['longitude'])) {
+                        $location = $article->locations()->create([
+                            'latitude' => $locData['latitude'],
+                            'longitude' => $locData['longitude'],
+                        ]);
+
+                        $location->translations()->create([
+                            'locale' => app()->getLocale(),
+                            'title' => $locData['title'] ?? 'موقع الجريمة',
+                            'description' => $locData['description'] ?? null,
+                        ]);
+                    }
+                }
+            }
+
+
+
+
 
             $tags = $request->input('tags', []);
             $article->tags()->sync($tags);
