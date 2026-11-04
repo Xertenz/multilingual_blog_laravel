@@ -6,6 +6,7 @@ use App\Enums\ContentStatus;
 use App\Enums\MediaType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
@@ -44,5 +45,10 @@ class MediaSummary extends Model implements HasMedia
     public function location()
     {
         return $this->belongsTo(ArticleLocation::class, 'article_location_id');
+    }
+
+    public function comments(): MorphMany
+    {
+        return $this->morphMany(Comment::class, 'commentable');
     }
 }

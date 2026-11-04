@@ -26,7 +26,7 @@
         @foreach($article_trans->article->translations as $translation)
             <link rel="alternate"
                 hreflang="{{ $translation->locale }}" 
-                href="{{ route('articles.show', ['slug' => $translation->slug, 'id' =>$translation->id]) }}">
+                href="{{ route('articles.show', ['slug' => $translation->slug, 'id' => $translation->id]) }}">
         @endforeach
     @endif
 
@@ -141,8 +141,9 @@
                 <div class="flex items-center bg-slate-800/80 rounded-xl p-1 border border-slate-700/50">
                     @auth
                         @php
-                            $userReaction =$article_trans->article->reactions->where('user_id', auth()->id())->first();
-                            $hasLiked =$userReaction && $userReaction->type === 'like';$hasDisliked = $userReaction &&$userReaction->type === 'dislike';
+                            $userReaction = $article_trans->article->reactions->where('user_id', auth()->id())->first();
+                            $hasLiked = $userReaction && $userReaction->type === 'like';
+                            $hasDisliked = $userReaction && $userReaction->type === 'dislike';
                         @endphp
                     @else
                         @php $hasLiked = false; $hasDisliked = false; @endphp
@@ -185,15 +186,16 @@
                 <div class="flex items-center flex-wrap gap-2">
                     <span class="text-gray-500 text-xs font-medium">More in:</span>
                     @php
-                        $current_locale = app()->getLocale();$category_translation = $article_trans->article->category->translations->where('locale',$current_locale)->first();
-                        $categoryName =$category_translation ? $category_translation->name :$article_trans->article->category->label;
-                        $categoryId =$article_trans->article->category->id;
+                        $current_locale = app()->getLocale();
+                        $category_translation = $article_trans->article->category->translations->where('locale', $current_locale)->first();
+                        $categoryName = $category_translation ? $category_translation->name : $article_trans->article->category->label;
+                        $categoryId = $article_trans->article->category->id;
                     @endphp
 
                     @if($category_translation)
                         <div class="inline-flex items-center bg-slate-800/80 rounded-xl p-1 border border-slate-700/50 gap-1">
                             <!-- رابط الفئة -->
-                            <a href="{{ route('categories.show', ['id' => $category_translation->id, 'slug' =>$category_translation->slug]) }}" 
+                            <a href="{{ route('categories.show', ['id' => $category_translation->id, 'slug' => $category_translation->slug]) }}" 
                                 class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-400 hover:text-red-300 hover:bg-slate-700/60 rounded-lg transition duration-200">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776"></path>
@@ -242,12 +244,13 @@
                     
                     @foreach($article_trans->article->tags as $tag)
                         @php
-                            $current_locale = app()->getLocale();$tag_translation = $tag->translations->where('locale',$current_locale)->first();
-                            $tagName =$tag_translation ? $tag_translation->name :$tag->label;
+                            $current_locale = app()->getLocale();
+                            $tag_translation = $tag->translations->where('locale', $current_locale)->first();
+                            $tagName = $tag_translation ? $tag_translation->name : $tag->label;
                         @endphp
                         
                         @if ($tag_translation)
-                        <a href="{{route('tags.show', ['id' => $tag_translation->id])}}" class="flex items-center gap-1 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white px-2.5 py-1 rounded-md text-xs font-medium transition duration-200 border border-slate-700/40">
+                        <a href="{{ route('tags.show', ['id' => $tag_translation->id]) }}" class="flex items-center gap-1 bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white px-2.5 py-1 rounded-md text-xs font-medium transition duration-200 border border-slate-700/40">
                             <svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581a1.125 1.125 0 001.591 0l7.182-7.182a1.125 1.125 0 000-1.59l-9.581-9.581A2.25 2.25 0 009.568 3z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z"></path>
@@ -261,9 +264,9 @@
         </div>
 
         <!-- ==================== -->
-        <!-- تذييل المقالة وأدوات المشاركة والتنقل -->
+        <!-- أزرار المشاركة والتنقل (تم تعديل الوسم من footer إلى div لمنع التكرار) -->
         <!-- ==================== -->
-        <footer class="mt-8 pt-6 border-t border-slate-800">
+        <div class="mt-8 pt-6 border-t border-slate-800">
             <div class="flex flex-wrap items-center justify-between gap-6 bg-slate-900/20 p-4 rounded-xl">
                 
                 <!-- أزرار المشاركة السريعة -->
@@ -295,12 +298,12 @@
                     @endif
                 </div>
             </div>
-        </footer>
+        </div>
 
         <!-- ==================== -->
-        <!-- قسم التعليقات المباشر عبر Livewire -->
+        <!-- قسم التعليقات الموحد عبر Livewire -->
         <!-- ==================== -->
-        <livewire:article-comments :article-id="$article_trans->article->id" />
+        <livewire:comments-section :model="$article_trans->article" />
 
     </div>
 
@@ -336,7 +339,7 @@
     
     // 3. معرض الصور (Evidence Lightbox)
     function openLightbox(index) {
-        const images = @json($article_trans->article->getMedia('content_imgs')->map(fn($img) =>$img->getUrl()));
+        const images = @json($article_trans->article->getMedia('content_imgs')->map(fn($img) => $img->getUrl()));
         alert('Opening evidence image #' + (index + 1));
     }
 
@@ -444,8 +447,6 @@
                 body: JSON.stringify({ id, type })
             });
             let data = await request.json();
-
-            console.log(data)
             
             document.getElementById(`article-like-count-${id}`).textContent = `(${data.likes})`;
             document.getElementById(`article-dislike-count-${id}`).textContent = `(${data.dislikes})`;
@@ -481,8 +482,6 @@
                 body: JSON.stringify({ id, type })
             });
             let data = await request.json();
-
-            console.log(data)
             
             document.getElementById(`article-like-count-${id}`).textContent = `(${data.likes})`;
             document.getElementById(`article-dislike-count-${id}`).textContent = `(${data.dislikes})`;

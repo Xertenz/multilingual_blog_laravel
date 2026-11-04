@@ -1,5 +1,5 @@
 <?php
-
+/*
 namespace App\Livewire;
 
 use App\Models\CommunityCase;
@@ -220,6 +220,42 @@ class CommunityCaseShow extends Component
         return view('livewire.community-case-show', [
             'categoryTrans' => $categoryTrans,
             'comments' => $comments,
+        ])->layout('layouts.main');
+    }
+}
+
+*/
+
+
+
+namespace App\Livewire;
+
+use App\Models\CommunityCase;
+use Livewire\Component;
+
+class CommunityCaseShow extends Component
+{
+    public CommunityCase $communityCase;
+
+    public function mount(string $slug)
+    {
+        $this->communityCase = CommunityCase::where('slug', $slug)
+            ->where('moderation_status', 'approved')
+            ->with(['user', 'category.translations'])
+            ->firstOrFail();
+
+        $this->communityCase->increment('views_count');
+    }
+
+    public function render()
+    {
+        $categoryTrans = $this->communityCase->category->translations()
+            ->where('locale', app()->getLocale())
+            ->first() ?? $this->communityCase->category->translations()->first();
+
+        return view('livewire.community-case-show', [
+            'categoryTrans' => $categoryTrans,
+            //'communityCase' => $this->communityCase,
         ])->layout('layouts.main');
     }
 }

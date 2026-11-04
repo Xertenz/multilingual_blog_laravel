@@ -3,9 +3,7 @@
 @section('title', $media_trans->meta_title ?? $media_trans->title)
 
 @section('meta_tags')
-    <!-- Meta Tags للزوار ومحركات البحث -->
     <meta name="description" content="{{ $media_trans->meta_description ?? Str::limit(strip_tags($media_trans->synopsis), 160) }}">
-    <!-- Open Graph للشبكات الاجتماعية -->
     <meta property="og:title" content="{{ $media_trans->meta_title ?? $media_trans->title }}">
     <meta property="og:description" content="{{ $media_trans->meta_description ?? Str::limit(strip_tags($media_trans->synopsis), 160) }}">
     <meta property="og:type" content="video.movie">
@@ -13,15 +11,12 @@
     <meta property="og:locale" content="{{ $media_trans->locale ?? 'en' }}">
     <meta property="og:site_name" content="Crime Chronicles">
 
-    <!-- Twitter Cards -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ $media_trans->meta_title ?? $media_trans->title }}">
     <meta name="twitter:description" content="{{ $media_trans->meta_description ?? Str::limit(strip_tags($media_trans->synopsis), 160) }}">
 
-    <!-- Canonical URL -->
     <link rel="canonical" href="{{ url()->current() }}">
 
-    <!-- Alternate Languages -->
     @if($media_trans->mediaSummary->translations ?? false)
         @foreach($media_trans->mediaSummary->translations as $translation)
             <link rel="alternate"
@@ -35,40 +30,23 @@
 
 @push('styles')
 <style>
-    /* تطبيق Capitalize على العناوين فقط داخل حاوي المحتوى */
-    .article-body h1,
-    .article-body h2,
-    .article-body h3,
-    .article-body h4,
-    .article-body h5,
-    .article-body h6 {
+    .article-body h1, .article-body h2, .article-body h3, .article-body h4 {
         text-transform: capitalize;
     }
 </style>
 @endpush
 
 @section('content')
-
-    <!-- شريط تقدم القراءة -->
     <div class="reading-progress" id="readingProgress"></div>
     
-    <!-- ==================== -->
-    <!-- محتوى العمل الرئيسي -->
-    <!-- ==================== -->
     <div class="container mx-auto px-4 py-12 max-w-3xl">
-        
-        <!-- ==================== -->
-        <!-- رأس العمل (Header) -->
-        <!-- ==================== -->
-        <header class="mb-8 pb-6 border-b border-gray-800">
-            
-            <!-- معلومات العمل (نوع العمل، سنة الإصدار، تقييم IMDb) -->
+        <header class="mb-8 pb-6 border-b border-slate-800">
             <div class="flex items-center gap-2 mb-4">
                 <span class="bg-indigo-950 text-indigo-400 border border-indigo-800 px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider">
                     {{ $media_trans->mediaSummary->type }}
                 </span>
                 @if($media_trans->mediaSummary->release_year)
-                    <span class="text-gray-400 text-xs font-mono">• {{ $media_trans->mediaSummary->release_year }}</span>
+                    <span class="text-slate-400 text-xs font-mono">• {{ $media_trans->mediaSummary->release_year }}</span>
                 @endif
                 @if($media_trans->mediaSummary->imdb_rating)
                     <span class="text-amber-400 text-xs font-bold flex items-center gap-1">
@@ -77,12 +55,11 @@
                 @endif
             </div>
 
-            <!-- العنوان الرئيسي -->
             <h1 class="text-3xl capitalize md:text-4xl lg:text-5xl font-bold text-white mb-6 leading-tight">
                 {{ $media_trans->title }}
             </h1>
 
-            <!-- بوستر العمل الأساسي (مع دعم srcset إن وجد) -->
+            <!-- الصورة الرئيسية المميزة (featured_imgs) -->
             @if($media_trans->mediaSummary->hasMedia('featured_imgs'))
                 @php
                     $posterMedia = $media_trans->mediaSummary->getFirstMedia('featured_imgs');
@@ -97,8 +74,7 @@
                 </div>
             @endif
 
-            <!-- شريط معلومات العمل -->
-            <div class="flex flex-wrap items-center justify-between gap-4 text-gray-400 text-sm">
+            <div class="flex flex-wrap items-center justify-between gap-4 text-slate-400 text-sm">
                 <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
                     <div class="flex items-center">
                         <svg class="w-4 h-4 mr-1.5 text-red-600 rtl:ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -117,58 +93,50 @@
             </div>
         </header>
 
-        <!-- ==================== -->
-        <!-- ملخص القصة (Synopsis) -->
-        <!-- ==================== -->
         @if($media_trans->synopsis)
             <section class="mb-10">
                 <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-red-600"></span>
-                    Synopsis (ملخص القصة)
+                    Synopsis
                 </h2>
-                <div class="article-body text-gray-200 leading-relaxed space-y-4">
+                <div class="article-body text-slate-200 leading-relaxed space-y-4">
                     {!! $media_trans->synopsis !!}
                 </div>
             </section>
         @endif
 
-        <!-- ==================== -->
-        <!-- التحليل الجنائي (Review & Analysis) -->
-        <!-- ==================== -->
         @if($media_trans->review_analysis)
             <section class="mb-10 bg-slate-900/40 border border-slate-800/80 rounded-2xl p-6">
                 <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
-                    Review & Analysis (التحليل الجنائي والغموض)
+                    Review & Forensic Analysis
                 </h2>
-                <div class="article-body text-gray-200 leading-relaxed space-y-4">
+                <div class="article-body text-slate-200 leading-relaxed space-y-4">
                     {!! $media_trans->review_analysis !!}
                 </div>
             </section>
         @endif
 
-        <!-- ==================== -->
-        <!-- تذييل الصفحة وأدوات المشاركة -->
-        <!-- ==================== -->
         <footer class="mt-8 pt-6 border-t border-slate-800">
             <div class="flex flex-wrap items-center justify-between gap-6 bg-slate-900/20 p-4 rounded-xl">
-                <!-- أزرار المشاركة السريعة -->
                 <div class="flex items-center flex-wrap gap-2">
-                    <span class="text-gray-500 text-xs font-medium">Share:</span>
-                    <button onclick="shareOnTwitter()" class="px-2.5 py-1 text-xs rounded bg-slate-800 text-gray-400 hover:bg-slate-700 hover:text-white transition">Twitter</button>
-                    <button onclick="shareOnFacebook()" class="px-2.5 py-1 text-xs rounded bg-slate-800 text-gray-400 hover:bg-slate-700 hover:text-white transition">Facebook</button>
-                    <button onclick="copyLink()" class="px-2.5 py-1 text-xs rounded bg-slate-800 text-gray-400 hover:bg-slate-700 hover:text-white transition">Copy Link</button>
+                    <span class="text-slate-500 text-xs font-medium">Share:</span>
+                    <button onclick="shareOnTwitter()" class="px-2.5 py-1 text-xs rounded bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white transition">Twitter</button>
+                    <button onclick="shareOnFacebook()" class="px-2.5 py-1 text-xs rounded bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white transition">Facebook</button>
+                    <button onclick="copyLink()" class="px-2.5 py-1 text-xs rounded bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white transition">Copy Link</button>
                 </div>
             </div>
         </footer>
 
+        <!-- قسم التعليقات الموحد للوسائط -->
+        <div class="mt-12">
+            <livewire:comments-section :model="$media_trans->mediaSummary" />
+        </div>
     </div>
-
 @endsection
 
 @push('scripts')
 <script>
-    // 1. شريط تقدم القراءة (Reading Progress Bar)
     window.addEventListener('scroll', function() {
         const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
         const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
@@ -176,7 +144,6 @@
         document.getElementById('readingProgress').style.width = scrolled + '%';
     });
     
-    // 2. مشاركة العمل (Social Sharing)
     function shareOnTwitter() {
         const url = encodeURIComponent(window.location.href);
         const text = encodeURIComponent('{{ $media_trans->title }}');
@@ -316,7 +283,7 @@
             </section>
         @endif
 
-        <footer class="mt-8 pt-6 border-t border-slate-800">
+        <div class="mt-8 pt-6 border-t border-slate-800">
             <div class="flex flex-wrap items-center justify-between gap-6 bg-slate-900/20 p-4 rounded-xl">
                 <div class="flex items-center flex-wrap gap-2">
                     <span class="text-slate-500 text-xs font-medium">Share:</span>
@@ -325,7 +292,12 @@
                     <button onclick="copyLink()" class="px-2.5 py-1 text-xs rounded bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white transition">Copy Link</button>
                 </div>
             </div>
-        </footer>
+        </div>
+
+        <!-- قسم التعليقات الموحد للوسائط -->
+        <div class="mt-8">
+            <livewire:comments-section :model="$media_trans->mediaSummary" />
+        </div>
     </div>
 @endsection
 

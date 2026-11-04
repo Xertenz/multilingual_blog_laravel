@@ -81,7 +81,13 @@
             </div>
 
         </div>
+
     </div>
+
+
+    <!-- قسم التعليقات والنقاشات الموحد لملخص الكتاب -->
+    <livewire:comments-section :model="$book" />
+
 
 </div>
 @endsection
