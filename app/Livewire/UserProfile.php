@@ -12,8 +12,9 @@ class UserProfile extends Component
     public User $user;
     public string $activeTab = 'articles'; // التبويب الافتراضي
 
-    public function mount(int $id)
+    public function mount($id)
     {
+        $userId = (int) $id;
         $this->user = User::with([
             'savedArticles.translations',
             'favoriteCategories.translations',
@@ -25,7 +26,7 @@ class UserProfile extends Component
                 ]);
             },
             'votedSuggestions'
-        ])->findOrFail($id);
+        ])->findOrFail($userId);
     }
 
     public function switchTab(string $tab)

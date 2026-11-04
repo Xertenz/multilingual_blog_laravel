@@ -72,12 +72,27 @@
                 
                 <!-- البيانات الوصفية (Metadata) -->
                 <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+
+
+                    {{--
                     <div class="flex items-center">
                         <svg class="w-4 h-4 mr-1.5 text-red-600 rtl:ml-1.5" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                         </svg>
                         <span>Investigator Team</span>
                     </div>
+                    --}}
+
+                    <div class="flex items-center">
+    <svg class="w-4 h-4 mr-1.5 text-red-600 rtl:ml-1.5" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+    </svg>
+    <a href="{{ route('authors.show', $article_trans->user_id) }}" class="hover:text-red-400 transition font-semibold">
+        {{ $article_trans->user->name ?? 'Investigator Team' }}
+    </a>
+</div>
+
+
                     <div class="flex items-center">
                         <svg class="w-4 h-4 mr-1.5 text-red-600 rtl:ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -118,6 +133,29 @@
                             {{ $isArticleSaved ? __('Saved') : __('Save Article') }}
                         </span>
                     </button>
+                @endauth
+
+
+                <!-- author following button -->
+                @auth
+                    @if(auth()->id() !== $article_trans->user_id) <!-- نفترض أن المقالة مرتبطة بـ user_id للكاتب -->
+                        @php
+                            $isFollowingAuthor = auth()->user()->followingAuthors->contains($article_trans->user_id);
+                        @endphp
+
+                        <button type="button" 
+                                id="follow-author-btn-{{ $article_trans->user_id }}"
+                                onclick="toggleFollowAuthor(event, {{ $article_trans->user_id }})"
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition duration-200 border
+                                {{ $isFollowingAuthor 
+                                    ? 'bg-rose-950/80 text-rose-400 border-rose-800/60' 
+                                    : 'bg-slate-800 text-gray-300 border-slate-700 hover:text-white' 
+                                }}">
+                            <span id="follow-author-text-{{ $article_trans->user_id }}">
+                                {{ $isFollowingAuthor ? __('Following') : __('Follow Author') }}
+                            </span>
+                        </button>
+                    @endif
                 @endauth
             </div>
         </header>
@@ -518,5 +556,46 @@
             }, 400);
         }
     });
+
+
+
+
+
+    async function toggleFollowAuthor(event, authorId) {
+        event.preventDefault();
+        const baseUrl = "{{ route('authors.follow', ':id') }}";
+        const url = baseUrl.replace(':id', authorId);
+        
+        const btn = document.getElementById(`follow-author-btn-${authorId}`);
+        const textSpan = document.getElementById(`follow-author-text-${authorId}`);
+        
+        try {
+            let response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!response.ok) throw new Error('Network response was not ok');
+            let data = await response.json();
+            
+            if (data.is_following) {
+                btn.className = "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition duration-200 border bg-rose-950/80 text-rose-400 border-rose-800/60";
+                textSpan.textContent = "{{ __('Following') }}";
+                showToast('success', "Successfully followed the author!");
+            } else {
+                btn.className = "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition duration-200 border bg-slate-800 text-gray-300 border-slate-700 hover:text-white";
+                textSpan.textContent = "{{ __('Follow Author') }}";
+                showToast('success', "Successfully unfollowed the author!");
+            }
+        } catch (error) {
+            console.error('Error toggling author follow status:', error);
+        }
+    }
+
+
 </script>
 @endpush

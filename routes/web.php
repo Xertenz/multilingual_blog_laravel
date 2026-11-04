@@ -40,7 +40,9 @@ use App\Http\Controllers\Auth\SocialController;
 use App\Http\Controllers\Front\MapController;
 use App\Http\Controllers\Admin\MediaSummaryController;
 use App\Http\Controllers\Admin\MediaSummaryTranslationController;
+use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\UserReportController;
+use App\Livewire\AuthorProfile;
 
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),
@@ -62,31 +64,34 @@ Route::group([
     Route::get('auth/{provider}', [SocialController::class, 'redirect'])->name('social.redirect');
     Route::get('auth/{provider}/callback', [SocialController::class, 'callback'])->name('social.callback');
 
+    Route::get('/authors/{id}', AuthorProfile::class)->name('authors.show');
+
 
     // =========================================================================
     // 1. حسابات الأعضاء والزوار المسجلين (Auth Users)
     // =========================================================================
     Route::middleware('auth')->group(function () {
 
+        Route::post('/authors/{author}/follow', [AuthorController::class, 'toggleFollow'])->name('authors.follow');
 
         Route::post('/reports', [UserReportController::class, 'store'])->name('reports.store');
 
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+        Route::get('/profile/following-authors', [ProfileController::class, 'followingAuthors'])->name('profile.following-authors');
         Route::get('/profile/{id}', UserProfile::class)->name('profile.show');
-
-        // الإشعارات والتفاعلات
-        Route::get('/notifications/fetch', [NotificationController::class, 'fetch'])->name('notifications.fetch');
-        Route::get('/notifications/{id}/read', [NotificationController::class, 'read'])->name('notifications.read');
-        Route::post('/notifications/mark-read-time', [NotificationController::class, 'updateLastRead'])->name('notifications.markReadTime');
-
         // التفضيلات والمقالات المحفوظة
         Route::get('/my-favorite-categories', [ProfileController::class, 'favoriteCategories'])->name('profile.favorites');
         Route::post('/categories/{category}/favorite', [CategoryFavoriteController::class, 'toggle'])->name('categories.favorite');
         Route::post('/articles/reactions/toggle', [ReactionController::class, 'toggleArticleReaction'])->name('articles.reactions.toggle');
         Route::get('/my-saved-articles', [ProfileController::class, 'savedArticles'])->name('profile.saved-articles');
         Route::post('/articles/{article}/saved', [ArticleSavedController::class, 'toggle'])->name('articles.saved');
+
+        // الإشعارات والتفاعلات
+        Route::get('/notifications/fetch', [NotificationController::class, 'fetch'])->name('notifications.fetch');
+        Route::get('/notifications/{id}/read', [NotificationController::class, 'read'])->name('notifications.read');
+        Route::post('/notifications/mark-read-time', [NotificationController::class, 'updateLastRead'])->name('notifications.markReadTime');
     });
 
     require __DIR__ . '/auth.php';

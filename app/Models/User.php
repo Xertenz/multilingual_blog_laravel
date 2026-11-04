@@ -53,6 +53,11 @@ class User extends AuthenticatableUser implements Authenticatable
         return $this->hasMany(Article::class);
     }
 
+    public function articleTranslations(): HasMany
+    {
+        return $this->hasMany(ArticleTranslation::class);
+    }
+
     public function categories(): HasMany
     {
         return $this->hasMany(Category::class);
@@ -159,5 +164,21 @@ class User extends AuthenticatableUser implements Authenticatable
     public function deductReputation(int $points)
     {
         $this->decrement('reputation', max(0, $this->reputation - $points));
+    }
+
+    /**
+     * الكتاب الذين يتابعهم هذا المستخدم
+     */
+    public function followingAuthors()
+    {
+        return $this->belongsToMany(User::class, 'author_followers', 'user_id', 'author_id');
+    }
+
+    /**
+     * المتابعون الذين يتابعون هذا المستخدم (إذا كان كاتباً)
+     */
+    public function authorFollowers()
+    {
+        return $this->belongsToMany(User::class, 'author_followers', 'author_id', 'user_id');
     }
 }

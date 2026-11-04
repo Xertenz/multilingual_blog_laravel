@@ -46,6 +46,15 @@ class ProfileController extends Controller
         ]);
     }
 
+    public function followingAuthors(Request $request)
+    {
+        $user = $request->user()->load('followingAuthors');
+
+        return view('profile.following-authors', [
+            'followingAuthors' => $user->followingAuthors,
+        ]);
+    }
+
     public function edit(Request $request): View
     {
         return view('profile.edit', [
