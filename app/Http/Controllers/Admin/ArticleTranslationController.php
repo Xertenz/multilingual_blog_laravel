@@ -141,6 +141,10 @@ class ArticleTranslationController extends Controller
         }
 
 
+        $trans->increment('views');
+        $trans->article->increment('views');
+
+
         $doc = new DOMDocument();
         @$doc->loadHTML(
             mb_convert_encoding($trans->description, 'HTML-ENTITIES', 'UTF-8'),

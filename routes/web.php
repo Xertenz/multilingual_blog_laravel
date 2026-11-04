@@ -38,6 +38,8 @@ use App\Livewire\CommunityBoard;
 use App\Livewire\CommunityCaseShow;
 use App\Http\Controllers\Auth\SocialController;
 use App\Http\Controllers\Front\MapController;
+use App\Http\Controllers\Admin\MediaSummaryController;
+use App\Http\Controllers\Admin\MediaSummaryTranslationController;
 use App\Http\Controllers\UserReportController;
 
 Route::group([
@@ -46,6 +48,8 @@ Route::group([
 ], function () {
 
 
+    Route::get('/true-crime-media', [MediaSummaryTranslationController::class, 'index'])->name('media-summaries.index');
+    Route::get('/true-crime-media/{id}/{slug?}', [MediaSummaryTranslationController::class, 'show'])->name('media-summaries.show');
 
 
     Route::get('/detective-board', CommunityBoard::class)->name('community.cases.index');
@@ -125,12 +129,32 @@ Route::group([
     // =========================================================================
     Route::group(['prefix' => 'admin', 'middleware' => ['auth']], function () {
 
-
         // ---------------------------------------------------------------------
         // أ. المكونات المتاحة للجميع (Super-Admin, Editor & Writer)
         // ---------------------------------------------------------------------
         Route::group(['middleware' => ['role:super-admin|editor|writer']], function () {
             Route::view('/dashboard', 'admin.layout.dashboard')->name('dashboard');
+
+            // إدارة البيانات الأساسية لملخصات الوسائط
+            Route::resource('media-summaries', MediaSummaryController::class)->names([
+                'index' => 'admin.media-summaries.index',
+                'create' => 'admin.media-summaries.create',
+                'store' => 'admin.media-summaries.store',
+                'edit' => 'admin.media-summaries.edit',
+                'update' => 'admin.media-summaries.update',
+                'destroy' => 'admin.media-summaries.destroy',
+            ]);
+
+            // إدارة ترجمات ملخصات الوسائط بشكل منفصل (على غرار المقالات)
+            Route::get('/media-summaries-trans/create/{media_summary_id}', [MediaSummaryTranslationController::class, 'create'])->name('admin.media-summaries-trans.create');
+            Route::post('/media-summaries-trans', [MediaSummaryTranslationController::class, 'store'])->name('admin.media-summaries-trans.store');
+            Route::get('/media-summaries-trans/{id}/edit', [MediaSummaryTranslationController::class, 'edit'])->name('admin.media-summaries-trans.edit');
+            Route::put('/media-summaries-trans/{id}', [MediaSummaryTranslationController::class, 'update'])->name('admin.media-summaries-trans.update');
+            Route::delete('/media-summaries-trans/{id}', [MediaSummaryTranslationController::class, 'destroy'])->name('admin.media-summaries-trans.destroy');
+
+            Route::post('/media-summaries/upload-content-img', [MediaSummaryController::class, 'uploadContentImg'])->name('admin.media-summaries.upload.content');
+            Route::post('/media-summaries/get-content-imgs', [MediaSummaryController::class, 'getMediaContentImgs'])->name('admin.media-summaries.get.content');
+            Route::post('/media-summaries/delete-image', [MediaSummaryController::class, 'deleteContentImg'])->name('admin.media-summaries.delete.content_img');
 
             // الاطلاع على المقالات الأساسية
             Route::get('/articles', [ArticleController::class, 'index'])->name('admin.articles.index');
@@ -152,6 +176,7 @@ Route::group([
         // ب. إدارة الهيكل العام والمراجعة (Super-Admin & Editor Only)
         // ---------------------------------------------------------------------
         Route::group(['middleware' => ['role:super-admin|editor']], function () {
+
 
 
             Route::get('/article-locations', [ArticleLocationController::class, 'index'])->name('admin.article-locations.index');

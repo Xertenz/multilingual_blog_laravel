@@ -187,13 +187,17 @@ new class extends Component {
                             Books
                         </a>
 
+                        <a href="{{ route('media-summaries.index') }}" class="flex items-center gap-1 text-gray-400 hover:text-red-500 hover:bg-slate-900/50 px-3 py-1.5 rounded-lg transition-all text-sm font-medium">
+                            Media Summaries
+                        </a>
+
                         <a href="{{ route('map') }}" 
-   class="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl transition-colors {{ request()->routeIs('frontend.map') ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:text-indigo-600 hover:bg-slate-50' }}">
-    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
-    </svg>
-    <span>خريطة القضايا</span>
-</a>
+                            class="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl transition-colors {{ request()->routeIs('frontend.map') ? 'bg-indigo-50 text-indigo-600' : 'text-slate-600 hover:text-indigo-600 hover:bg-slate-50' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+                            </svg>
+                            <span>خريطة القضايا</span>
+                        </a>
 
                     </div>
 
@@ -385,6 +389,10 @@ new class extends Component {
                         <a href="{{ route('categories.show', ['id' => $cat_trans->id, 'slug' => $cat_trans->slug]) }}" class="block text-gray-400 hover:text-red-500 hover:bg-slate-900/60 px-3 py-2 rounded-lg text-xs font-medium">
                             {{ $cat_trans->name }}
                         </a>
+
+                        <a href="{{ route('media-summaries.index') }}" class="block text-gray-400 hover:text-red-500 hover:bg-slate-900/60 px-3 py-2 rounded-lg text-xs font-medium">
+                            Media Summaries
+                        </a>
                     @endforeach
                 </div>
 
@@ -404,30 +412,30 @@ new class extends Component {
 
 
         <!-- نافذة الـ Modal المنبثقة لعرض رسالة إشعار الاقتراح -->
-    @if($showSuggestionModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm" x-cloak>
-            <div class="bg-[#0f1526] border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative" @click.outside="$wire.set('showSuggestionModal', false)">
-                
-                <div class="flex justify-between items-center pb-3 border-b border-slate-800 mb-4">
-                    <h3 class="text-sm font-bold text-gray-200 flex items-center gap-2">
-                        <span>📢</span> Case Suggestion Update
-                    </h3>
-                    <button wire:click="$set('showSuggestionModal', false)" class="text-gray-500 hover:text-white text-base">&times;</button>
-                </div>
+        @if($showSuggestionModal)
+            <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm" x-cloak>
+                <div class="bg-[#0f1526] border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl relative" @click.outside="$wire.set('showSuggestionModal', false)">
+                    
+                    <div class="flex justify-between items-center pb-3 border-b border-slate-800 mb-4">
+                        <h3 class="text-sm font-bold text-gray-200 flex items-center gap-2">
+                            <span>📢</span> Case Suggestion Update
+                        </h3>
+                        <button wire:click="$set('showSuggestionModal', false)" class="text-gray-500 hover:text-white text-base">&times;</button>
+                    </div>
 
-                <div class="py-3 text-xs text-gray-300 leading-relaxed bg-slate-900/50 p-3 rounded-xl border border-slate-800/80">
-                    <p>{{ $modalMessage }}</p>
-                </div>
+                    <div class="py-3 text-xs text-gray-300 leading-relaxed bg-slate-900/50 p-3 rounded-xl border border-slate-800/80">
+                        <p>{{ $modalMessage }}</p>
+                    </div>
 
-                <div class="flex justify-end pt-3 border-t border-slate-800 mt-2">
-                    <button wire:click="closeAndMarkAsRead" class="px-4 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl transition shadow-lg shadow-red-900/20">
-                        Got it & Close
-                    </button>
-                </div>
+                    <div class="flex justify-end pt-3 border-t border-slate-800 mt-2">
+                        <button wire:click="closeAndMarkAsRead" class="px-4 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl transition shadow-lg shadow-red-900/20">
+                            Got it & Close
+                        </button>
+                    </div>
 
+                </div>
             </div>
-        </div>
-    @endif
+        @endif
 
 
 

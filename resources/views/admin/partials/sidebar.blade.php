@@ -73,6 +73,7 @@
                 </li>
 
 
+                {{-- Map Locations --}}
                 <li>
                     <a href="{{ route('admin.article-locations.index') }}" 
                         class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold rounded-lg transition-colors {{ request()->routeIs('admin.article-locations.*') ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
@@ -171,6 +172,54 @@
                         </div>
                         <span class="flex-1 text-sm font-medium">Add New Book</span>
                         <span class="bg-rose-600/20 text-rose-400 text-xs px-2 py-1 rounded-full">+</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        @endhasanyrole
+
+        {{-- Media Summaries Section (قسم ملخصات الوسائط - خاص بالمشرفين والمحررين) --}}
+        @hasanyrole('super-admin|editor|writer')
+        <div class="border-t border-slate-700 my-4"></div>
+        <div class="mb-6">
+            <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 px-3">
+                Media Summaries
+            </div>
+            
+            <ul class="space-y-1">
+                {{-- رابط استعراض كل الملخصات --}}
+                <li>
+                    <a href="{{ route('admin.media-summaries.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 
+                              {{ request()->routeIs('admin.media-summaries.*') && !request()->routeIs('admin.media-summaries.create') 
+                                 ? 'bg-gradient-to-r from-indigo-600/20 to-blue-600/20 text-white' 
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">All Media Summaries</span>
+                        <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
+                            {{ \App\Models\MediaSummary::count() }}
+                        </span>
+                    </a>
+                </li>
+                
+                {{-- رابط إضافة ملخص جديد --}}
+                <li>
+                    <a href="{{ route('admin.media-summaries.create') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.media-summaries.create') 
+                                 ? 'bg-gradient-to-r from-indigo-600/20 to-purple-600/20 text-white' 
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">Add New Media</span>
+                        <span class="bg-indigo-600/20 text-indigo-400 text-xs px-2 py-1 rounded-full">+</span>
                     </a>
                 </li>
             </ul>

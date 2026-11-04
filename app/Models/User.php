@@ -148,4 +148,16 @@ class User extends AuthenticatableUser implements Authenticatable
     {
         return $this->activePenalty()->exists();
     }
+
+
+    // For Reputation points
+    public function addReputation(int $points)
+    {
+        $this->increment('reputation', $points);
+    }
+
+    public function deductReputation(int $points)
+    {
+        $this->decrement('reputation', max(0, $this->reputation - $points));
+    }
 }
