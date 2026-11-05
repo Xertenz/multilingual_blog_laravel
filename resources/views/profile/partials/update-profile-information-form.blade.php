@@ -14,9 +14,31 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6" enctype="multipart/form-data">
         @csrf
         @method('patch')
+
+
+        <!-- معاينة الصورة الحالية + رفع صورة جديدة -->
+        <div class="flex items-center gap-4">
+            <div class="w-16 h-16 rounded-full overflow-hidden bg-slate-800 border border-slate-700 flex items-center justify-center text-red-500 font-bold uppercase shrink-0">
+                @if(auth()->user()->getFirstMediaUrl('avatar_imgs', 'medium'))
+                    <img src="{{ auth()->user()->getFirstMediaUrl('avatar_imgs', 'medium') }}" alt="{{ auth()->user()->name }}" class="w-full h-full object-cover">
+                @else
+                    {{ substr(auth()->user()->name, 0, 2) }}
+                @endif
+            </div>
+
+            <div class="flex-1">
+                <x-input-label for="avatar" :value="__('Profile Picture')" />
+                <input id="avatar" name="avatar" type="file" class="mt-1 block w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-red-400 hover:file:bg-slate-700 cursor-pointer" accept="image/*" />
+                <x-input-error class="mt-2" :messages="$errors->get('avatar')" />
+            </div>
+        </div>
+
+
+
+
 
         <div>
             <x-input-label for="name" :value="__('Name')" class="text-xs font-semibold text-slate-300 mb-1" />

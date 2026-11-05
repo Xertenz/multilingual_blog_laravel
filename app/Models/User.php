@@ -13,11 +13,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as AuthenticatableUser; // هذا مهم
 use Illuminate\Notifications\Notifiable;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\Permission\Traits\HasRoles;
+use Spatie\Image\Enums\Fit;
 
-class User extends AuthenticatableUser implements Authenticatable
+class User extends AuthenticatableUser implements Authenticatable, HasMedia
 {
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory, Notifiable, HasRoles, InteractsWithMedia;
 
 
     protected $fillable = [
@@ -180,5 +184,34 @@ class User extends AuthenticatableUser implements Authenticatable
     public function authorFollowers()
     {
         return $this->belongsToMany(User::class, 'author_followers', 'author_id', 'user_id');
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('avatar_imgs')
+            ->singleFile(); // لضمان احتفاظ المستخدم بصورة شخصية واحدة فقط
+    }
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        // حجم مصغر ومربع للتعليقات والقوائم الصغيرة (مثلاً 150x150 بكسل)
+        $this->addMediaConversion('thumb')
+            /*
+            ->square() // يضمن أن تكون الصورة مربعة
+            ->width(150)
+            ->height(150)
+            */
+            ->fit(Fit::Crop, 150, 150)
+            ->sharpen(10) // تحسين حِدّة الصورة
+            ->nonQueued(); // التنفيذ بشكل فوري (أو يمكنك تركها للـ Queue إذا كان لديك ضغط كبير)
+
+        // حجم متوسط لصفحة البروفايل (مثلاً 300x300 بكسل)
+        $this->addMediaConversion('medium')
+            /*
+            ->square()
+            ->width(300)
+            ->height(300)
+            */
+            ->fit(Fit::Crop, 300, 300)
+            ->nonQueued();
     }
 }

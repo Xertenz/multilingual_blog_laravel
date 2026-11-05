@@ -84,13 +84,13 @@
                     --}}
 
                     <div class="flex items-center">
-    <svg class="w-4 h-4 mr-1.5 text-red-600 rtl:ml-1.5" fill="currentColor" viewBox="0 0 20 20">
-        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-    </svg>
-    <a href="{{ route('authors.show', $article_trans->user_id) }}" class="hover:text-red-400 transition font-semibold">
-        {{ $article_trans->user->name ?? 'Investigator Team' }}
-    </a>
-</div>
+                        <svg class="w-4 h-4 mr-1.5 text-red-600 rtl:ml-1.5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                        </svg>
+                        <a href="{{ route('authors.show', $article_trans->user_id) }}" class="hover:text-red-400 transition font-semibold">
+                            {{ $article_trans->user->name ?? 'Investigator Team' }}
+                        </a>
+                    </div>
 
 
                     <div class="flex items-center">

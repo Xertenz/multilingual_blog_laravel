@@ -5,9 +5,15 @@
         
         <!-- صورة الصورة الشخصية / الصورة الرمزية -->
         <div class="relative">
+            @php
+                $authorAvatar = $author->hasMedia('avatar_imgs') 
+                    ? $author->getFirstMediaUrl('avatar_imgs', 'medium') 
+                    : asset('images/default-avatar-300x300.jpg');
+            @endphp
+
             <div class="w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden border-2 border-red-600/60 shadow-lg shadow-red-600/10 bg-slate-800 flex items-center justify-center text-3xl font-bold text-red-500 uppercase">
-                @if($author->profile_photo_url ?? false)
-                    <img src="{{ $author->profile_photo_url }}" alt="{{ $author->name }}" class="w-full h-full object-cover">
+                @if($authorAvatar)
+                    <img src="{{ $authorAvatar }}" alt="{{ $author->name }}" class="w-full h-full object-cover">
                 @else
                     {{ substr($author->name, 0, 2) }}
                 @endif

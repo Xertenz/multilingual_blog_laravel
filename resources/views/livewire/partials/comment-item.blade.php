@@ -4,16 +4,43 @@
          class="bg-slate-900/50 mb-4 p-4 rounded-xl border border-slate-800 text-sm transition-all duration-300 ease-in-out">
         
         <div class="flex justify-between items-center mb-2">
-            <p class="capitalize whitespace-normal text-slate-100 font-bold text-sm flex items-center gap-2">
+            <!-- تم تغيير <p> إلى <div> لأن وضع <div> داخل <p> ممنوع برمجياً ويخرب التنسيق -->
+            <div class="capitalize whitespace-normal text-slate-100 font-bold text-sm flex items-center gap-2.5">
+                <!-- النقطة الحمراء للدلالة على وجود مستخدم نشط -->
                 <span class="w-2 h-2 rounded-full {{ $comment->user ? 'bg-red-500' : 'bg-slate-600' }}"></span>
+                
                 @if($comment->user)
-                    <a href="{{ route('profile.show', $comment->user->id) }}" class="hover:underline">
-                        {{ $comment->user->name }}
+                    @php
+                        $avatarUrl = $comment->user->hasMedia('avatar_imgs') 
+                            ? $comment->user->getFirstMediaUrl('avatar_imgs', 'thumb') 
+                            : asset('images/default-avatar-150x150.jpg');
+                    @endphp
+
+                    <!-- جعل الرابط يحيط بالصورة والاسم معا، مع إضافة تأثير hover لطيف -->
+                    <a href="{{ route('profile.show', $comment->user->id) }}" class="flex items-center gap-2.5 group hover:opacity-95 transition">
+                        
+                        {{-- الحاوية الدائرية للصورة أو الحروف البديلة --}}
+                        <div class="w-8 h-8 rounded-full overflow-hidden bg-slate-800 border border-slate-700/80 flex items-center justify-center shrink-0 group-hover:border-red-500/50 transition">
+                            @if($avatarUrl)
+                                <img 
+                                    src="{{ $avatarUrl }}"
+                                    alt="{{ $comment->user->name }}"
+                                    class="w-full h-full object-cover">
+                            @else
+                                <span class="text-xs text-red-400 font-bold uppercase">{{ substr($comment->user->name, 0, 2) }}</span>
+                            @endif
+                        </div>
+
+                        <!-- الاسم مع خط تحتفل عند التمرير -->
+                        <span class="group-hover:underline">
+                            {{ $comment->user->name }}
+                        </span>
                     </a>
                 @else
                     <span class="text-slate-400 italic font-normal text-xs">Deleted Account</span>
                 @endif
-            </p>
+            </div>
+
             <div class="flex items-center gap-3">
                 <p class="text-slate-400 font-mono text-xs">{{ $comment->created_at->diffForHumans(['parts' => 1, 'short' => true]) }}</p>
                 @auth
@@ -75,7 +102,7 @@
             @endif
         </div>
 
-        <!-- نموذج التعديل (مع x-init لجعل الـ Focus يتم تلقائياً) -->
+        <!-- نموذج التعديل -->
         @if ($editingCommentId === $comment->id)
             <div wire:transition class="my-3 ms-4" wire:key="edit-box-{{ $comment->id }}">
                 <textarea
@@ -94,7 +121,7 @@
             </div>
         @endif
 
-        <!-- نموذج الرد (مع x-init لجعل الـ Focus يتم تلقائياً) -->
+        <!-- نموذج الرد -->
         @if ($replyToCommentId === $comment->id)
             <div wire:transition class="my-3 ms-4" wire:key="reply-box-{{ $comment->id }}">
                 <textarea
@@ -114,7 +141,7 @@
             </div>
         @endif
 
-        <!-- الردود المتداخلة (Recursive Replies) -->
+        <!-- الردود المتداخلة -->
         <div class="ms-4 mt-3 border-l border-slate-800/85 pl-4 rtl:border-l-0 rtl:border-r rtl:pl-0 rtl:pr-4 space-y-3">
             @if($comment->replies->count() > 0)
                 <ul class="space-y-3">

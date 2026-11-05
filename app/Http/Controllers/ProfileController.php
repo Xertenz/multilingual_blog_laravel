@@ -75,6 +75,12 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
+        // معالجة رفع الصورة الشخصية (Avatar) إن وجدت
+        if ($request->hasFile('avatar')) {
+            $request->user()->clearMediaCollection('avatar_imgs');
+            $request->user()->addMediaFromRequest('avatar')->toMediaCollection('avatar_imgs');
+        }
+
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
