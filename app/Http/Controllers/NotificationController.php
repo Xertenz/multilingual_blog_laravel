@@ -232,12 +232,33 @@ class NotificationController extends Controller
                 break;
 
 
-
-
-
-
             case \App\Notifications\SuggestionStatusUpdated::class:
                 $targetUrl = route('suggestions.index');
+                break;
+
+
+            // ✍️ حالة إشعار مقال جديد من كاتب تتابعه
+            case \App\Notifications\NewArticleFromFollowedAuthor::class:
+                $articleTransId = $data['article_trans_id'] ?? null;
+                $articleTrans = $articleTransId ? \App\Models\ArticleTranslation::find($articleTransId) : null;
+
+                if (!$articleTrans && isset($data['article_id'])) {
+                    $article = Article::find($data['article_id']);
+                    if ($article) {
+                        $recipientLocale = $notification->notifiable->locale ?? LaravelLocalization::getCurrentLocale();
+                        $articleTrans = $article->translations()->where('locale', $recipientLocale)->first()
+                            ?? $article->translations()->first();
+                    }
+                }
+
+                if ($articleTrans) {
+                    $targetUrl = LaravelLocalization::getLocalizedURL($articleTrans->locale, route('articles.show', [
+                        'id'   => $articleTrans->id,
+                        'slug' => $articleTrans->slug
+                    ]));
+                } else {
+                    $targetUrl = route('home.index');
+                }
                 break;
 
 

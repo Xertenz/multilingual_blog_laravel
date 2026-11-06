@@ -88,7 +88,23 @@
                     </div>
                 @endif
 
-            {{-- 4️⃣ حالة Fallback --}}
+            {{-- 4️⃣ إشعار مقالة جديدة من كاتب تتابعه (الجديد) --}}
+            @elseif($notification->type === 'App\Notifications\NewArticleFromFollowedAuthor')
+                <div class="flex items-start gap-2">
+                    <div class="flex-1">
+                        <p class="text-xs font-semibold text-rose-400 uppercase tracking-wider mb-0.5">
+                            ✍️ {{ __('New Author Article') }}
+                        </p>
+                        <p class="whitespace-nowrap max-w-[280px] overflow-hidden text-ellipsis text-sm font-medium text-gray-100">
+                            {{ $data['title'] ?? __('New Article') }}
+                        </p>
+                        <p class="text-xs text-gray-400 mt-1">
+                            {{ __('By') }} <span class="text-red-400 font-semibold">{{ $data['author_name'] ?? 'Author' }}</span>
+                        </p>
+                    </div>
+                </div>
+
+            {{-- 5️⃣ حالة Fallback --}}
             @else
                 <p class="text-sm text-gray-200">
                     {{ $data['message'] ?? __('You have a new notification') }}
