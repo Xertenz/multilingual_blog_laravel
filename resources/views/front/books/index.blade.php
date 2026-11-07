@@ -1,4 +1,4 @@
-@extends("layouts.main") {{-- أو قالب الواجهة العامة المعتمد في مشروعك --}}
+@extends("layouts.main")
 @section('title', 'Book Summaries')
 
 @section('content')
@@ -22,12 +22,23 @@
             @endphp
             <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col hover:shadow-md transition duration-200">
                 
-                <!-- Book Cover -->
+                <!-- Book Cover (محدث ليتبع الترجمة واللغة الحالية) -->
                 <div class="relative h-64 bg-slate-100 overflow-hidden">
-                    @if($book->hasMedia('cover_imgs'))
-                        <img src="{{ $book->getFirstMediaUrl('cover_imgs', 'medium') }}" alt="{{ $trans->title ?? 'Book Cover' }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+
+                    @php
+                        // تحديد الغلاف: غلاف الترجمة الحالية أولاً، ثم الغلاف العام للكتاب، ثم أول غلاف متاح
+                        $coverUrl = null;
+                        if ($trans && $trans->hasMedia('cover_imgs')) {
+                            $coverUrl = $trans->getFirstMediaUrl('cover_imgs', 'medium');
+                        } elseif ($book->hasMedia('cover_imgs')) {
+                            $coverUrl = $book->getFirstMediaUrl('cover_imgs', 'medium');
+                        }
+                    @endphp
+
+                    @if($coverUrl)
+                        <img src="{{ $coverUrl }}" alt="{{ $trans->title ?? 'Book Cover' }}" class="w-full h-full object-cover">
                     @else
-                        <div class="w-full h-full flex items-center justify-center text-slate-400 text-xs font-medium">No Cover Image</div>
+                        <div class="w-full h-full flex items-center justify-center text-slate-400 text-xs">No Cover Image</div>
                     @endif
                     
                     @if($trans && $trans->price)

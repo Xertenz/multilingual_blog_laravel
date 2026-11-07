@@ -8,7 +8,7 @@
     <div class="flex items-center justify-between mb-4">
         <div>
             <h1 class="text-xl font-bold text-slate-900">Add New Book Summary</h1>
-            <p class="text-xs text-slate-500">Create a multi-language book summary with affiliate support.</p>
+            <p class="text-xs text-slate-500">Create a multi-language book summary with affiliate support and language-specific covers.</p>
         </div>
         <a href="{{ route('admin.books.index') }}" class="text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-2xs">
             &larr; Back to Books
@@ -20,13 +20,12 @@
         <form action="{{ route('admin.books.store') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-8">
             @csrf
 
-            <!-- Global Book Attributes -->
+            <!-- Global Book Attributes (بدون غلاف عام) -->
             <div>
                 <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">General Information</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
 
-
-                    <div class="md:col-span-3">
+                    <div class="md:col-span-2">
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Internal Title <span class="text-red-500">*</span></label>
                         <input type="text" name="internal_title" value="{{ old('internal_title') }}" class="w-full rounded-lg border @error('internal_title') border-red-500 bg-red-50/50 @else border-slate-300 @enderror focus:border-indigo-500 text-sm py-2 px-3 outline-none transition bg-white" placeholder="e.g., atomic-habits-summary" autocomplete="off">
                         @error('internal_title')
@@ -34,7 +33,6 @@
                         @enderror
                         <p class="text-[11px] text-slate-400 mt-1">Unique internal reference identifier (not shown to visitors).</p>
                     </div>
-
 
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Published Year</label>
@@ -50,12 +48,15 @@
                             <p class="text-red-500 text-[11px] mt-1">{{ $message }}</p>
                         @enderror
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Cover Image</label>
+
+                    <!-- 🖼️ حقل الغلاف العام المضاف -->
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Main Cover Image (Fallback)</label>
                         <input type="file" name="cover_image" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-200 file:text-slate-700 hover:file:bg-slate-300 cursor-pointer">
                         @error('cover_image')
                             <p class="text-red-500 text-[11px] mt-1">{{ $message }}</p>
                         @enderror
+                        <p class="text-[11px] text-slate-400 mt-1">Used if a language-specific cover is not provided.</p>
                     </div>
                 </div>
             </div>
@@ -90,6 +91,15 @@
                                     <p class="text-red-500 text-[11px] mt-1">{{ $message }}</p>
                                 @enderror
                             </div>
+                        </div>
+
+                        <!-- Cover Image for this specific language -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Cover Image ({{ strtoupper($localeCode) }})</label>
+                            <input type="file" name="translations[{{ $localeCode }}][cover_image]" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-200 file:text-slate-700 hover:file:bg-slate-300 cursor-pointer">
+                            @error("translations.{$localeCode}.cover_image")
+                                <p class="text-red-500 text-[11px] mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         <!-- Affiliate URL & Pricing -->

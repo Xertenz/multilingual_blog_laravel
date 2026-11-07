@@ -8,7 +8,7 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <h1 class="text-xl font-bold text-slate-900">Manage Books & Summaries</h1>
-            <p class="text-xs text-slate-500">Explore, add, and manage book summaries and affiliate links.</p>
+            <p class="text-xs text-slate-500">Explore, add, and manage book summaries, translations, and affiliate links.</p>
         </div>
         <a href="{{ route('admin.books.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shadow-2xs">
             + Add New Book
@@ -40,11 +40,14 @@
                     @forelse($books as $book)
                         @php
                             $trans = $book->translate(app()->getLocale());
+                            if (!$trans) {
+                                $trans = $book->translations->first();
+                            }
                         @endphp
                         <tr class="hover:bg-slate-50/60 transition">
                             <td class="p-4">
-                                @if($book->hasMedia('cover_imgs'))
-                                    <img src="{{ $book->getFirstMediaUrl('cover_imgs', 'thumb') ?: $book->getFirstMediaUrl('covers') }}" alt="Cover" class="w-10 h-14 object-cover rounded-lg border border-slate-200 shadow-2xs">
+                                @if($book && $book->hasMedia('cover_imgs'))
+                                    <img src="{{ $book->getFirstMediaUrl('cover_imgs', 'thumb') }}" alt="Cover" class="w-10 h-14 object-cover rounded-lg border border-slate-200 shadow-2xs">
                                 @else
                                     <div class="w-10 h-14 bg-slate-100 rounded-lg flex items-center justify-center text-[10px] text-slate-400 font-medium">No Image</div>
                                 @endif

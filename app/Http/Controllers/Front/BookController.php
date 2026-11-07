@@ -13,8 +13,13 @@ class BookController extends Controller
      */
     public function index()
     {
+        $currentLocale = app()->getLocale();
         // جلب الكتب مع الترجمات والصور مرتبة من الأحدث
-        $books = Book::with(['translations', 'media'])->latest()->paginate(9);
+        $books = Book::whereHas('translations', function ($query) use ($currentLocale) {
+            $query->where('locale', $currentLocale);
+        })->with(['translations' => function ($query) use ($currentLocale) {
+            $query->where('locale', $currentLocale);
+        }, 'media'])->latest()->paginate(10);
 
         return view('front.books.index', compact('books'));
     }
@@ -22,12 +27,20 @@ class BookController extends Controller
     /**
      * عرض تفاصيل كتاب معين مع ملخصه ورابط الشراء
      */
-    public function show($id, $slug = null)
+    public function show(int $id, $slug = null)
     {
-        $book = Book::with(['translations', 'media'])->findOrFail($id);
 
-        // جلب ترجمة الكتاب بناءً على اللغة الحالية للموقع
-        $translation = $book->translate(app()->getLocale());
+        $currentLocale = app()->getLocale();
+
+        $book = Book::with(['media'])->findOrFail($id);
+
+        // جلب الترجمة الخاصة باللغة الحالية فقط
+        $translation = $book->translations()->where('locale', $currentLocale)->first();
+
+        if (!$translation) {
+            //abort(404); // إذا لم تكن الترجمة بهذه اللغة موجودة، اعرض صفحة غير موجود
+            return response()->redirectToRoute('books.index');
+        }
 
         return view('front.books.show', compact('book', 'translation'));
     }

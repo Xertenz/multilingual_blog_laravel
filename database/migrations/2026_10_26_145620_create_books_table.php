@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('books', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnUpdate()->nullOnDelete();
             $table->string('internal_title')->unique();
             $table->integer('published_year')->nullable(); // سنة النشر
             $table->integer('pages_count')->nullable(); // عدد الصفحات
@@ -23,6 +24,7 @@ return new class extends Migration
         Schema::create('book_translations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('book_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnUpdate()->nullOnDelete();
             $table->string('locale', 5); // ar, en, de...
 
             // البيانات النصية
@@ -49,7 +51,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('books');
         Schema::dropIfExists('book_translations');
+        Schema::dropIfExists('books');
     }
 };

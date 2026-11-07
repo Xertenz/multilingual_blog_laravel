@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Book;
 use App\Models\BookTranslation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
@@ -57,6 +58,7 @@ class BookController extends Controller
 
         // 2. إنشاء السجل العام للكتاب
         $book = Book::create([
+            'user_id' => Auth::id(),
             'internal_title' => $request->internal_title,
             'published_year' => $request->published_year,
             'pages_count'    => $request->pages_count,
@@ -71,16 +73,15 @@ class BookController extends Controller
         // 4. حفظ الترجمات للغات التي أدخلها المشرف فقط
         if ($request->has('translations')) {
             foreach ($request->translations as $localeCode => $transData) {
-                // إذا لم تكن اللغة مدعومة، أو ترك المشرف حقل العنوان (Title) فارغاً، نتخطى هذه اللغة
                 if (!in_array($localeCode, $validLocales) || empty($transData['title'])) {
                     continue;
                 }
 
-                // توليد الـ Slug بذكاء (إن وُجد مخصصاً أو يُستخرج من العنوان)
                 $slugSource = !empty($transData['slug']) ? $transData['slug'] : $transData['title'];
                 $slug = (string) Str::of($slugSource)->slug('-');
 
-                $book->translations()->create([
+                $translation = $book->translations()->create([
+                    'user_id'       => Auth::id(),
                     'locale'        => $localeCode,
                     'title'         => trim($transData['title']),
                     'author'        => trim($transData['author'] ?? ''),
@@ -90,6 +91,13 @@ class BookController extends Controller
                     'price'         => $transData['price'] ?? null,
                     'currency'      => $transData['currency'] ?? 'USD',
                 ]);
+
+                // رفع غلاف خاص لهذه الترجمة
+                if ($request->hasFile("translations.{$localeCode}.cover_image")) {
+                    $translation->clearMediaCollection('cover_imgs');
+                    $translation->addMediaFromRequest("translations.{$localeCode}.cover_image")
+                        ->toMediaCollection('cover_imgs');
+                }
             }
         }
 
@@ -167,18 +175,17 @@ class BookController extends Controller
                     continue;
                 }
 
-                // إذا قام المشرف بإفريغ حقل العنوان (Title)، نقوم بحذف الترجمة إن كانت موجودة مسبقاً
+                // إذا قام المشرف بإفريغ حقل العنوان (Title)، نقوم بحذف الترجمة
                 if (empty($transData['title'])) {
                     $book->translations()->where('locale', $localeCode)->delete();
                     continue;
                 }
 
-                // توليد الـ Slug بذكاء
                 $slugSource = !empty($transData['slug']) ? $transData['slug'] : $transData['title'];
                 $slug = (string) Str::of($slugSource)->slug('-');
 
-                // استخدام updateOrCreate للتعامل مع الإضافة والتعديل بمرونة
-                $book->translations()->updateOrCreate(
+                // استخدام updateOrCreate وتخزين الكائن الناتج في متغير ($translation)
+                $translation = $book->translations()->updateOrCreate(
                     ['locale' => $localeCode],
                     [
                         'title'         => trim($transData['title']),
@@ -190,6 +197,13 @@ class BookController extends Controller
                         'currency'      => $transData['currency'] ?? 'USD',
                     ]
                 );
+
+                // 🖼️ معالجة رفع أو تحديث صورة الغلاف الخاصة بهذه الترجمة أثناء التعديل
+                if ($request->hasFile("translations.{$localeCode}.cover_image")) {
+                    $translation->clearMediaCollection('cover_imgs'); // مسح الغلاف القديم للترجمة
+                    $translation->addMediaFromRequest("translations.{$localeCode}.cover_image")
+                        ->toMediaCollection('cover_imgs');
+                }
             }
         }
 

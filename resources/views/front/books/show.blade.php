@@ -18,11 +18,23 @@
             <!-- Cover Image & Buy Button Column -->
             <div class="space-y-4">
                 <div class="relative h-80 md:h-96 bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 shadow-xs">
-                    @if($book->hasMedia('cover_imgs'))
-                        <img src="{{ $book->getFirstMediaUrl('cover_imgs', 'large') }}" alt="{{ $translation->title }}" class="w-full h-full object-cover">
+
+                    @php
+                        // تحديد الغلاف: غلاف الترجمة الحالية أولاً، ثم الغلاف العام للكتاب، ثم أول غلاف متاح
+                        $coverUrl = null;
+                        if ($translation && $translation->hasMedia('cover_imgs')) {
+                            $coverUrl = $translation->getFirstMediaUrl('cover_imgs', 'large');
+                        } elseif ($book->hasMedia('cover_imgs')) {
+                            $coverUrl = $book->getFirstMediaUrl('cover_imgs', 'large');
+                        }
+                    @endphp
+
+                    @if($coverUrl)
+                        <img src="{{ $coverUrl }}" alt="{{ $translation->title ?? 'Book Cover' }}" class="w-full h-full object-cover">
                     @else
                         <div class="w-full h-full flex items-center justify-center text-slate-400 text-xs">No Cover Image</div>
                     @endif
+
                 </div>
 
                 @if($translation->affiliate_url)
@@ -84,10 +96,8 @@
 
     </div>
 
-
     <!-- قسم التعليقات والنقاشات الموحد لملخص الكتاب -->
     <livewire:comments-section :model="$book" />
-
 
 </div>
 @endsection

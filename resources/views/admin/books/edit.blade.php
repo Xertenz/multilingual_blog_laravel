@@ -8,7 +8,7 @@
     <div class="flex items-center justify-between mb-4">
         <div>
             <h1 class="text-xl font-bold text-slate-900">Edit Book Summary</h1>
-            <p class="text-xs text-slate-500">Update book translations, pricing, and affiliate links.</p>
+            <p class="text-xs text-slate-500">Update book translations, pricing, affiliate links, and language-specific covers.</p>
         </div>
         <a href="{{ route('admin.books.index') }}" class="text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-2xs">
             &larr; Back to Books
@@ -24,9 +24,9 @@
             <!-- Global Book Attributes -->
             <div>
                 <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">General Information</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200 items-center">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200 items-center">
 
-                    <div class="md:col-span-3">
+                    <div class="md:col-span-2">
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Internal Title <span class="text-red-500">*</span></label>
                         <input type="text" name="internal_title" value="{{ old('internal_title', $book->internal_title ?? '') }}" class="w-full rounded-lg border @error('internal_title') border-red-500 bg-red-50/50 @else border-slate-300 @enderror focus:border-indigo-500 text-sm py-2 px-3 outline-none transition bg-white" placeholder="e.g., atomic-habits-summary" autocomplete="off">
                         @error('internal_title')
@@ -49,11 +49,13 @@
                             <p class="text-red-500 text-[11px] mt-1">{{ $message }}</p>
                         @enderror
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Cover Image</label>
+
+                    <!-- 🖼️ حقل الغلاف العام للتعديل مع المعاينة -->
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Main Cover Image (Fallback)</label>
                         <div class="flex items-center gap-3">
-                            @if($book->hasMedia('covers'))
-                                <img src="{{ $book->getFirstMediaUrl('covers') }}" alt="Cover" class="w-8 h-10 object-cover rounded border border-slate-200">
+                            @if($book->hasMedia('cover_imgs'))
+                                <img src="{{ $book->getFirstMediaUrl('cover_imgs', 'thumb') }}" alt="Main Cover" class="w-10 h-14 object-cover rounded border border-slate-200">
                             @endif
                             <input type="file" name="cover_image" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-200 file:text-slate-700 hover:file:bg-slate-300 cursor-pointer">
                         </div>
@@ -99,6 +101,20 @@
                             </div>
                         </div>
 
+                        <!-- Cover Image for this translation -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Cover Image ({{ strtoupper($localeCode) }})</label>
+                            <div class="flex items-center gap-3">
+                                @if($translation && $translation->hasMedia('cover_imgs'))
+                                    <img src="{{ $translation->getFirstMediaUrl('cover_imgs', 'thumb') }}" alt="Cover" class="w-10 h-14 object-cover rounded border border-slate-200">
+                                @endif
+                                <input type="file" name="translations[{{ $localeCode }}][cover_image]" class="w-full text-xs text-slate-500 file:mr-2 file:py-1.5 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-slate-200 file:text-slate-700 hover:file:bg-slate-300 cursor-pointer">
+                            </div>
+                            @error("translations.{$localeCode}.cover_image")
+                                <p class="text-red-500 text-[11px] mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                         <!-- Affiliate URL & Pricing -->
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div class="md:col-span-2">
@@ -112,14 +128,14 @@
                                 <div class="grid grid-cols-2 gap-2">
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-600 mb-1">Price</label>
-                                        <input type="number" step="0.01" name="translations[{{ $localeCode }}][price]" value="{{ old("translations.{$localeCode}.price", $translation->price ?? '') }}" class="w-full rounded-lg border @error("translations.{$localeCode}.price") border-red-500 bg-red-50/50 @else border-slate-300 @enderror focus:border-indigo-500 text-sm py-2 px-3 outline-none transition bg-white">
+                                        <input type="number" step="0.01" name="translations[{{ $localeCode }}][price]" value="{{ old("translations.{$localeCode}.price", $translation->price ?? '') }}" class="w-full rounded-lg border @error("translations.{$localeCode}.price") border-red-500 bg-red-50/50 @else border-slate-300 @enderror focus:border-indigo-500 text-sm py-2 px-3 outline-none transition bg-white" placeholder="19.99">
                                         @error("translations.{$localeCode}.price")
                                             <p class="text-red-500 text-[11px] mt-1">{{ $message }}</p>
                                         @enderror
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold text-slate-600 mb-1">Currency</label>
-                                        <input type="text" name="translations[{{ $localeCode }}][currency]" value="{{ old("translations.{$localeCode}.currency", $translation->currency ?? 'USD') }}" class="w-full rounded-lg border @error("translations.{$localeCode}.currency") border-red-500 bg-red-50/50 @else border-slate-300 @enderror focus:border-indigo-500 text-sm py-2 px-3 outline-none transition bg-white">
+                                        <input type="text" name="translations[{{ $localeCode }}][currency]" value="{{ old("translations.{$localeCode}.currency", $translation->currency ?? 'USD') }}" class="w-full rounded-lg border @error("translations.{$localeCode}.currency") border-red-500 bg-red-50/50 @else border-slate-300 @enderror focus:border-indigo-500 text-sm py-2 px-3 outline-none transition bg-white" placeholder="USD">
                                         @error("translations.{$localeCode}.currency")
                                             <p class="text-red-500 text-[11px] mt-1">{{ $message }}</p>
                                         @enderror

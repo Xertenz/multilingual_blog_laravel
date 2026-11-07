@@ -15,6 +15,12 @@ class Book extends Model implements HasMedia
 
     protected $guarded = [];
 
+    // علاقة مالك الكتاب
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     // علاقة الترجمات
     public function translations(): HasMany
     {
@@ -25,8 +31,8 @@ class Book extends Model implements HasMedia
     public function translate($locale = null)
     {
         $locale = $locale ?? app()->getLocale();
-        return $this->translations->where('locale', $locale)->first()
-            ?? $this->translations->first();
+        return $this->translations->where('locale', $locale)->first();
+        //?? $this->translations->first();
     }
 
 
