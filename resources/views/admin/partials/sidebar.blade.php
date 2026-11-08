@@ -133,6 +133,7 @@
         </div>
 
         {{-- Books Section (قسم ملخصات الكتب - خاص بالمشرفين والمحررين) --}}
+{{-- Books Section (قسم ملخصات الكتب - خاص بالمشرفين والمحررين) --}}
         @hasanyrole('super-admin|editor')
         <div class="border-t border-slate-700 my-4"></div>
         <div class="mb-6">
@@ -141,10 +142,11 @@
             </div>
             
             <ul class="space-y-1">
+                {{-- All Books --}}
                 <li>
                     <a href="{{ route('admin.books.index') }}" 
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 
-                              {{ request()->routeIs('admin.books.*') && !request()->routeIs('admin.books.create') 
+                              {{ request()->routeIs('admin.books.*') && !request()->routeIs('admin.books.create') && !request()->routeIs('admin.book-categories.*') && !request()->routeIs('admin.book-tags.*')
                                  ? 'bg-gradient-to-r from-red-600/20 to-rose-600/20 text-white' 
                                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
@@ -159,6 +161,7 @@
                     </a>
                 </li>
                 
+                {{-- Add New Book --}}
                 <li>
                     <a href="{{ route('admin.books.create') }}" 
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
@@ -172,6 +175,44 @@
                         </div>
                         <span class="flex-1 text-sm font-medium">Add New Book</span>
                         <span class="bg-rose-600/20 text-rose-400 text-xs px-2 py-1 rounded-full">+</span>
+                    </a>
+                </li>
+
+                {{-- Book Categories --}}
+                <li>
+                    <a href="{{ route('admin.book-categories.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.book-categories.*') 
+                                 ? 'bg-gradient-to-r from-rose-600/20 to-pink-600/20 text-white' 
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">Book Categories</span>
+                        <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
+                            {{ \App\Models\BookCategory::count() }}
+                        </span>
+                    </a>
+                </li>
+
+                {{-- Book Tags --}}
+                <li>
+                    <a href="{{ route('admin.book-tags.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.book-tags.*') 
+                                 ? 'bg-gradient-to-r from-rose-600/20 to-pink-600/20 text-white' 
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M6 20l6.5-6.5A2.5 2.5 0 0012 10a2.5 2.5 0 00-3.5 0L2 16.5V20h4zM21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">Book Tags</span>
+                        <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
+                            {{ \App\Models\BookTag::count() }}
+                        </span>
                     </a>
                 </li>
             </ul>

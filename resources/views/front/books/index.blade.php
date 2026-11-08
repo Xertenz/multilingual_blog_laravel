@@ -51,6 +51,16 @@
                 <!-- Book Info -->
                 <div class="p-5 flex-1 flex flex-col justify-between">
                     <div>
+
+                        <!-- 🏷️ شارة الفئة المضافة -->
+                        @if($book->bookCategory)
+                            @php
+                                $catTrans = $book->bookCategory->translations->where('locale', app()->getLocale())->first() ?? $book->bookCategory->translations->first();
+                            @endphp
+                            <span class="inline-block bg-indigo-50 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-md mb-2 border border-indigo-100">
+                                {{ $catTrans->name ?? $book->bookCategory->label }}
+                            </span>
+                        @endif
                         <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1">
                             <span>{{ $book->published_year ?? '-' }}</span>
                             <span>{{ $book->pages_count ? $book->pages_count . ' Pages' : '' }}</span>

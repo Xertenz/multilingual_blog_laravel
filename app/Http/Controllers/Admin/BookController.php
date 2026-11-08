@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Book;
+use App\Models\BookCategory;
+use App\Models\BookTag;
 use App\Models\BookTranslation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -18,7 +20,7 @@ class BookController extends Controller
      */
     public function index()
     {
-        $books = Book::with(['translations', 'media'])->latest()->paginate(10);
+        $books = Book::with(['translations', 'media', 'bookCategory.translations', 'bookTags.translations'])->latest()->paginate(10);
         return view('admin.books.index', compact('books'));
     }
 
@@ -28,7 +30,9 @@ class BookController extends Controller
     public function create()
     {
         $locales = LaravelLocalization::getSupportedLocales();
-        return view('admin.books.create', compact('locales'));
+        $bookCategories = BookCategory::with('translations')->get();
+        $bookTags = BookTag::with('translations')->get();
+        return view('admin.books.create', compact('locales', 'bookCategories', 'bookTags'));
     }
 
     /**
@@ -40,10 +44,13 @@ class BookController extends Controller
 
         // 1. قواعد التحقق العامة والفرعية (جعل حقول الترجمة اختيارية nullable)
         $rules = [
-            'internal_title' => 'required|string|max:255|unique:books,internal_title',
-            'published_year' => 'nullable|integer|min:1500|max:' . (date('Y') + 1),
-            'pages_count'    => 'nullable|integer|min:1',
-            'cover_image'    => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'internal_title'   => 'required|string|max:255|unique:books,internal_title',
+            'book_category_id' => 'required|exists:book_categories,id',
+            'tags'             => 'nullable|array',
+            'tags.*'           => 'exists:book_tags,id',
+            'published_year'   => 'nullable|integer|min:1500|max:' . (date('Y') + 1),
+            'pages_count'      => 'nullable|integer|min:1',
+            'cover_image'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
 
             'translations.*.title'         => 'nullable|string|max:255',
             'translations.*.author'        => 'nullable|string|max:255',
@@ -59,10 +66,16 @@ class BookController extends Controller
         // 2. إنشاء السجل العام للكتاب
         $book = Book::create([
             'user_id' => Auth::id(),
-            'internal_title' => $request->internal_title,
-            'published_year' => $request->published_year,
-            'pages_count'    => $request->pages_count,
+            'book_category_id' => (int) $request->book_category_id,
+            'internal_title'   => $request->internal_title,
+            'published_year'   => $request->published_year,
+            'pages_count'      => (int) $request->pages_count,
         ]);
+
+        // ربط الوسوم (Many-to-Many)
+        if ($request->has('tags')) {
+            $book->bookTags()->sync($request->tags);
+        }
 
         // 3. رفع غلاف الكتاب باستخدام Spatie Media Library
         if ($request->hasFile('cover_image')) {
@@ -110,13 +123,14 @@ class BookController extends Controller
      */
     public function edit(Book $book)
     {
-        $book->load(['translations', 'media']);
+        $book->load(['translations', 'media', 'bookTags']);
         $locales = LaravelLocalization::getSupportedLocales();
-
+        $bookCategories = BookCategory::with('translations')->get();
+        $bookTags = BookTag::with('translations')->get();
         // تجهيز الترجمات كمفتاح باللغة لتسهيل عرضها في الفورم (مثل الأقسام)
         $translations = $book->translations->keyBy('locale');
 
-        return view('admin.books.edit', compact('book', 'locales', 'translations'));
+        return view('admin.books.edit', compact('book', 'locales', 'translations', 'bookCategories', 'bookTags'));
     }
 
     /**
@@ -127,10 +141,13 @@ class BookController extends Controller
         $validLocales = LaravelLocalization::getSupportedLanguagesKeys();
 
         $rules = [
-            'internal_title' => ['required', 'string', 'max:255', Rule::unique('books', 'internal_title')->ignore($book->id)],
-            'published_year' => 'nullable|integer|min:1500|max:' . (date('Y') + 1),
-            'pages_count'    => 'nullable|integer|min:1',
-            'cover_image'    => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'internal_title'   => ['required', 'string', 'max:255', Rule::unique('books', 'internal_title')->ignore($book->id)],
+            'book_category_id' => 'required|exists:book_categories,id',
+            'tags'             => 'nullable|array',
+            'tags.*'           => 'exists:book_tags,id',
+            'published_year'   => 'nullable|integer|min:1500|max:' . (date('Y') + 1),
+            'pages_count'      => 'nullable|integer|min:1',
+            'cover_image'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
 
             'translations.*.title'         => 'nullable|string|max:255',
             'translations.*.author'        => 'nullable|string|max:255',
@@ -156,10 +173,13 @@ class BookController extends Controller
 
         // 1. تحديث البيانات العامة
         $book->update([
-            'internal_title' => $request->internal_title,
-            'published_year' => $request->published_year,
-            'pages_count'    => $request->pages_count,
+            'book_category_id' => (int) $request->book_category_id,
+            'internal_title'   => $request->internal_title,
+            'published_year'   => $request->published_year,
+            'pages_count'      => (int) $request->pages_count,
         ]);
+        // تحديث الوسوم
+        $book->bookTags()->sync($request->tags ?? []);
 
         // 2. تحديث صورة الغلاف إن وُجدت
         if ($request->hasFile('cover_image')) {

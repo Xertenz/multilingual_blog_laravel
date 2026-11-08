@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('books', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('book_category_id')->nullable()->constrained('book_categories')->nullOnDelete();
             $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnUpdate()->nullOnDelete();
             $table->string('internal_title')->unique();
             $table->integer('published_year')->nullable(); // سنة النشر

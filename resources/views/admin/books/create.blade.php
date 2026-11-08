@@ -21,6 +21,54 @@
             @csrf
 
             <!-- Global Book Attributes (بدون غلاف عام) -->
+
+
+
+            <!-- Book Category Selection -->
+            <div class="md:col-span-2">
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Book Category</label>
+                <select name="book_category_id" class="w-full rounded-lg border @error('book_category_id') border-red-500 bg-red-50/50 @else border-slate-300 @enderror focus:border-indigo-500 text-sm py-2 px-3 outline-none transition bg-white">
+                    <option value="" disabled selected>-- Select Category --</option>
+                    @foreach($bookCategories as $cat)
+                        @php
+                            $catTrans = $cat->translations->where('locale', app()->getLocale())->first() ?? $cat->translations->first();
+                        @endphp
+                        <option value="{{ $cat->id }}" {{ old('book_category_id') == $cat->id ? 'selected' : '' }}>
+                            {{ $catTrans->name ?? $cat->label }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('book_category_id')
+                    <p class="text-red-500 text-[11px] mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <!-- Book Tags Checkboxes -->
+            <div class="md:col-span-2">
+                <label class="block text-xs font-semibold text-slate-600 mb-1">Book Tags</label>
+                <div class="flex flex-wrap gap-2 p-3 bg-white rounded-lg border border-slate-200">
+                    @forelse($bookTags as $tag)
+                        @php
+                            $tagTrans = $tag->translations->where('locale', app()->getLocale())->first() ?? $tag->translations->first();
+                            $tagName = $tagTrans->name ?? $tag->label;
+                        @endphp
+                        <label class="inline-flex items-center gap-2 text-xs text-slate-700 cursor-pointer bg-slate-50 px-2.5 py-1.5 rounded-md border border-slate-200 hover:bg-slate-100 transition">
+                            <input type="checkbox" name="tags[]" value="{{ $tag->id }}" {{ in_array($tag->id, old('tags', [])) ? 'checked' : '' }} class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                            <span>{{ $tagName }}</span>
+                        </label>
+                    @empty
+                        <span class="text-xs text-slate-400">No tags available.</span>
+                    @endforelse
+                </div>
+                @error('tags')
+                    <p class="text-red-500 text-[11px] mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+
+
+
+
             <div>
                 <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">General Information</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200">

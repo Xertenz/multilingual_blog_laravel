@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Spatie\MediaLibrary\HasMedia;
@@ -60,5 +62,15 @@ class Book extends Model implements HasMedia
     public function comments(): MorphMany
     {
         return $this->morphMany(Comment::class, 'commentable');
+    }
+
+    public function bookCategory(): BelongsTo
+    {
+        return $this->belongsTo(BookCategory::class);
+    }
+
+    public function bookTags(): BelongsToMany
+    {
+        return $this->belongsToMany(BookTag::class, 'book_tag', 'book_id', 'book_tag_id'); //->withTimestamps();
     }
 }

@@ -81,6 +81,7 @@ class ArticleTranslationController extends Controller
             // 4. إضافة الترجمة مع تسجيل user_id وحالة الـ status المستقلة لكل لغة
             $article_trans = ArticleTranslation::create([
                 'article_id'       => $request->article_id,
+                'user_id'          => $request->user()->id, // 👈 ربط الترجمة بالمستخدم الحالي (الكاتب أو المحرر)
                 'locale'           => $request->locale,
                 'slug'             => trim($request->slug),
                 'title'            => trim($request->title),
@@ -88,7 +89,6 @@ class ArticleTranslationController extends Controller
                 'meta_title'       => trim($request->meta_title),
                 'meta_description' => trim($request->meta_description),
                 'views'            => 0,
-                'user_id'          => $request->user()->id, // 👈 ربط الترجمة بالمستخدم الحالي (الكاتب أو المحرر)
                 'status'           => $status,              // 👈 حالة الترجمة المستقلة
             ]);
 

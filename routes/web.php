@@ -43,6 +43,8 @@ use App\Http\Controllers\Admin\MediaSummaryTranslationController;
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\UserReportController;
 use App\Livewire\AuthorProfile;
+use App\Http\Controllers\Admin\BookCategoryController;
+use App\Http\Controllers\Admin\BookTagController;
 
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),
@@ -182,6 +184,26 @@ Route::group([
         // ---------------------------------------------------------------------
         Route::group(['middleware' => ['role:super-admin|editor']], function () {
 
+
+            // -----------------------------------------------------------------
+            // إدارة فئات الكتب (Book Categories)
+            // -----------------------------------------------------------------
+            Route::get('/book-categories', [BookCategoryController::class, 'index'])->name('admin.book-categories.index');
+            Route::get('/book-categories/create', [BookCategoryController::class, 'create'])->name('admin.book-categories.create');
+            Route::post('/book-categories', [BookCategoryController::class, 'store'])->name('admin.book-categories.store');
+            Route::get('/book-categories/{cat_id}/edit', [BookCategoryController::class, 'edit'])->name('admin.book-categories.edit');
+            Route::put('/book-categories/{cat_id}', [BookCategoryController::class, 'update'])->name('admin.book-categories.update');
+            Route::delete('/book-categories/{cat_id}', [BookCategoryController::class, 'destroy'])->name('admin.book-categories.destroy');
+
+            // -----------------------------------------------------------------
+            // إدارة وسوم الكتب (Book Tags)
+            // -----------------------------------------------------------------
+            Route::get('/book-tags', [BookTagController::class, 'index'])->name('admin.book-tags.index');
+            Route::get('/book-tags/create', [BookTagController::class, 'create'])->name('admin.book-tags.create');
+            Route::post('/book-tags', [BookTagController::class, 'store'])->name('admin.book-tags.store');
+            Route::get('/book-tags/{tag}/edit', [BookTagController::class, 'edit'])->name('admin.book-tags.edit');
+            Route::put('/book-tags/{tag}', [BookTagController::class, 'update'])->name('admin.book-tags.update');
+            Route::delete('/book-tags/{tag}', [BookTagController::class, 'destroy'])->name('admin.book-tags.destroy');
 
 
             Route::get('/article-locations', [ArticleLocationController::class, 'index'])->name('admin.article-locations.index');

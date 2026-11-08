@@ -62,6 +62,19 @@
 
                 <!-- Meta Badges -->
                 <div class="flex flex-wrap gap-3 py-3 border-y border-slate-100 text-xs text-slate-600">
+
+
+                    @if($book->bookCategory)
+                        @php
+                            $catTrans = $book->bookCategory->translations->where('locale', app()->getLocale())->first() ?? $book->bookCategory->translations->first();
+                        @endphp
+                        <div class="bg-indigo-50/60 px-3 py-1.5 rounded-lg border border-indigo-100">
+                            <span class="text-indigo-400 block text-[10px]">Category</span>
+                            <span class="font-semibold text-indigo-900">{{ $catTrans->name ?? $book->bookCategory->label }}</span>
+                        </div>
+                    @endif
+
+
                     @if($book->published_year)
                         <div class="bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
                             <span class="text-slate-400 block text-[10px]">Published Year</span>
@@ -89,6 +102,25 @@
                         {!! $translation->summary ?? 'No summary provided for this language yet.' !!}
                     </div>
                 </div>
+
+
+                <!-- 🏷️ قسم وسوم الكتاب (Book Tags) يضاف هنا تحت الملخص -->
+                @if($book->bookTags->count() > 0)
+                    <div class="pt-4 border-t border-slate-100">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Book Tags</h3>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach($book->bookTags as $tag)
+                                @php
+                                    $tagTrans = $tag->translations->where('locale', app()->getLocale())->first() ?? $tag->translations->first();
+                                    $tagName = $tagTrans->name ?? $tag->label;
+                                @endphp
+                                <span class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs px-3 py-1 rounded-full transition font-medium">
+                                    # {{ $tagName }}
+                                </span>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
 
             </div>
 
