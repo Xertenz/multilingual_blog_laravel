@@ -29,18 +29,21 @@ class BookController extends Controller
      */
     public function show(int $id, $slug = null)
     {
-
         $currentLocale = app()->getLocale();
 
-        $book = Book::with(['media'])->findOrFail($id);
+        // جلب الكتاب مع الفئات، الوسوم، والوسائط
+        $book = Book::with(['bookCategory.translations', 'bookTags.translations', 'media'])->findOrFail($id);
 
         // جلب الترجمة الخاصة باللغة الحالية فقط
         $translation = $book->translations()->where('locale', $currentLocale)->first();
 
         if (!$translation) {
-            //abort(404); // إذا لم تكن الترجمة بهذه اللغة موجودة، اعرض صفحة غير موجود
             return response()->redirectToRoute('books.index');
         }
+
+        // 📈 زيادة عدد المشاهدات لكل من الترجمة والكتاب الأساسي معاً
+        $translation->increment('views');
+        $book->increment('views');
 
         return view('front.books.show', compact('book', 'translation'));
     }

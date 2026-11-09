@@ -29,16 +29,31 @@ class BookTranslation extends Model implements HasMedia
         $this->addMediaConversion('thumb')
             ->width(100)
             ->height(150)
-            ->sharpen(10)
-            ->queued();
+            ->optimize()
+            ->sharpen(5)
+            ->quality(80)
+            ->format('webp')
+            ->queued(); // لتعمل في الخلفية إذا كان نظام Queues مفعلاً (اختياري)
+
+
+
 
         $this->addMediaConversion('medium')
             ->width(300)
             ->height(450)
-            ->sharpen(10);
+            ->optimize()
+            ->sharpen(5)
+            ->quality(80)
+            ->format('webp')
+            ->queued(); // لتعمل في الخلفية إذا كان نظام Queues مفعلاً (اختياري)
 
         $this->addMediaConversion('large')
             ->width(600)
-            ->height(900);
+            ->height(900)
+            ->optimize()
+            ->sharpen(5)
+            ->quality(80)
+            ->format('webp')
+            ->queued(); // لتعمل في الخلفية إذا كان نظام Queues مفعلاً (اختياري)
     }
 }

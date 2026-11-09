@@ -267,6 +267,95 @@
         </div>
         @endhasanyrole
 
+
+        {{-- Games Section (قسم ملخصات الألعاب - متاح للمشرف، المحرر، والكاتب) --}}
+        @hasanyrole('super-admin|editor|writer')
+        <div class="border-t border-slate-700 my-4"></div>
+        <div class="mb-6">
+            <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 px-3">
+                Games
+            </div>
+            
+            <ul class="space-y-1">
+                {{-- رابط استعراض كل الألعاب --}}
+                <li>
+                    <a href="{{ route('admin.games.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 
+                              {{ request()->routeIs('admin.games.*') && !request()->routeIs('admin.games.create') 
+                                 ? 'bg-gradient-to-r from-emerald-600/20 to-teal-600/20 text-white' 
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">All Games</span>
+                        <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
+                            {{ \App\Models\Game::count() }}
+                        </span>
+                    </a>
+                </li>
+                
+                {{-- رابط إضافة لعبة جديدة --}}
+                <li>
+                    <a href="{{ route('admin.games.create') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.games.create') 
+                                 ? 'bg-gradient-to-r from-emerald-600/20 to-green-600/20 text-white' 
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">Add New Game</span>
+                        <span class="bg-emerald-600/20 text-emerald-400 text-xs px-2 py-1 rounded-full">+</span>
+                    </a>
+                </li>
+
+                {{-- رابط فئات وتصنيفات الألعاب --}}
+                <li>
+                    <a href="{{ route('admin.game-categories.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.game-categories.*') 
+                                 ? 'bg-gradient-to-r from-emerald-600/20 to-teal-600/20 text-white' 
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">Game Categories</span>
+                        <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
+                            {{ \App\Models\GameCategory::count() }}
+                        </span>
+                    </a>
+                </li>
+
+                {{-- رابط وسوم الألعاب --}}
+                <li>
+                    <a href="{{ route('admin.game-tags.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.game-tags.*') 
+                                 ? 'bg-gradient-to-r from-emerald-600/20 to-teal-600/20 text-white' 
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M6 20l6.5-6.5A2.5 2.5 0 0012 10a2.5 2.5 0 00-3.5 0L2 16.5V20h4zM21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">Game Tags</span>
+                        <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
+                            {{ \App\Models\GameTag::count() }}
+                        </span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        @endhasanyrole
+
+
         {{-- Case Suggestions Moderation Link --}}
         @hasanyrole('super-admin|editor')
         <div class="border-t border-slate-700 my-4"></div>

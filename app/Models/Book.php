@@ -44,19 +44,41 @@ class Book extends Model implements HasMedia
         $this->addMediaConversion('thumb')
             ->width(100)
             ->height(150)
-            ->sharpen(10)
+            ->optimize()
+            ->sharpen(5)
+            ->quality(80)
+            ->format('webp')
             ->queued(); // لتعمل في الخلفية إذا كان نظام Queues مفعلاً (اختياري)
+
+        /*
+        $this->addMediaConversion('thumb')
+            ->performOnCollections('featured_imgs')
+            ->width(150)->optimize()
+            ->sharpen(5)
+            ->quality(80)
+            ->format('webp')
+            ->queued();
+        */
 
         // 2. حجم متوسط ( لعرض البطاقات في صفحة القائمة الرئيسية index )
         $this->addMediaConversion('medium')
             ->width(300)
             ->height(450)
-            ->sharpen(10);
+            ->optimize()
+            ->sharpen(5)
+            ->quality(80)
+            ->format('webp')
+            ->queued(); // لتعمل في الخلفية إذا كان نظام Queues مفعلاً (اختياري)
 
         // 3. حجم كبير ( لصفحة التفاصيل show )
         $this->addMediaConversion('large')
             ->width(600)
-            ->height(900);
+            ->height(900)
+            ->optimize()
+            ->sharpen(5)
+            ->quality(80)
+            ->format('webp')
+            ->queued(); // لتعمل في الخلفية إذا كان نظام Queues مفعلاً (اختياري)
     }
 
     public function comments(): MorphMany

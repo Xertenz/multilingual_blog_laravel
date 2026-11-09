@@ -20,7 +20,6 @@
                 <div class="relative h-80 md:h-96 bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 shadow-xs">
 
                     @php
-                        // تحديد الغلاف: غلاف الترجمة الحالية أولاً، ثم الغلاف العام للكتاب، ثم أول غلاف متاح
                         $coverUrl = null;
                         if ($translation && $translation->hasMedia('cover_imgs')) {
                             $coverUrl = $translation->getFirstMediaUrl('cover_imgs', 'large');
@@ -60,9 +59,8 @@
                     <p class="text-sm text-slate-500">Author: <span class="font-bold text-slate-800">{{ $translation->author ?? 'N/A' }}</span></p>
                 </div>
 
-                <!-- Meta Badges -->
+                <!-- Meta Badges (محدثة لتشمل عرض عدد المشاهدات) -->
                 <div class="flex flex-wrap gap-3 py-3 border-y border-slate-100 text-xs text-slate-600">
-
 
                     @if($book->bookCategory)
                         @php
@@ -74,25 +72,33 @@
                         </div>
                     @endif
 
-
                     @if($book->published_year)
                         <div class="bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
                             <span class="text-slate-400 block text-[10px]">Published Year</span>
                             <span class="font-semibold text-slate-800">{{ $book->published_year }}</span>
                         </div>
                     @endif
+
                     @if($book->pages_count)
                         <div class="bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
                             <span class="text-slate-400 block text-[10px]">Pages</span>
                             <span class="font-semibold text-slate-800">{{ $book->pages_count }} Pages</span>
                         </div>
                     @endif
+
                     @if($translation->price)
                         <div class="bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
                             <span class="text-slate-400 block text-[10px]">Price</span>
                             <span class="font-semibold text-emerald-600">{{ $translation->currency ?? 'USD' }} {{ $translation->price }}</span>
                         </div>
                     @endif
+
+                    <!-- 👁️ شارة عرض المشاهدات للترجمة الحالية -->
+                    <div class="bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
+                        <span class="text-slate-400 block text-[10px]">Views</span>
+                        <span class="font-semibold text-slate-800">{{ number_format($translation->views) }}</span>
+                    </div>
+
                 </div>
 
                 <!-- Summary / Review Text -->
@@ -103,8 +109,7 @@
                     </div>
                 </div>
 
-
-                <!-- 🏷️ قسم وسوم الكتاب (Book Tags) يضاف هنا تحت الملخص -->
+                <!-- Book Tags -->
                 @if($book->bookTags->count() > 0)
                     <div class="pt-4 border-t border-slate-100">
                         <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Book Tags</h3>

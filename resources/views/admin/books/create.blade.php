@@ -21,9 +21,6 @@
             @csrf
 
             <!-- Global Book Attributes (بدون غلاف عام) -->
-
-
-
             <!-- Book Category Selection -->
             <div class="md:col-span-2">
                 <label class="block text-xs font-semibold text-slate-600 mb-1">Book Category</label>
@@ -64,10 +61,6 @@
                     <p class="text-red-500 text-[11px] mt-1">{{ $message }}</p>
                 @enderror
             </div>
-
-
-
-
 
             <div>
                 <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">General Information</h3>

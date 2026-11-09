@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('internal_title')->unique();
             $table->integer('published_year')->nullable(); // سنة النشر
             $table->integer('pages_count')->nullable(); // عدد الصفحات
+            $table->unsignedBigInteger('views')->default(0);
             $table->timestamps();
         });
 
@@ -33,6 +34,7 @@ return new class extends Migration
             $table->string('author'); // اسم المؤلف حسب اللغة
             $table->string('slug'); // الرابط الصديق
             $table->text('summary')->nullable(); // ملخص الكتاب
+            $table->unsignedBigInteger('views')->default(0);
 
             // البيانات المالية والتسويقية حسب اللغة
             $table->string('affiliate_url')->nullable(); // رابط الأفلييت المخصص لكل منطقة/لغة

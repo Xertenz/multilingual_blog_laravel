@@ -45,11 +45,20 @@ use App\Http\Controllers\UserReportController;
 use App\Livewire\AuthorProfile;
 use App\Http\Controllers\Admin\BookCategoryController;
 use App\Http\Controllers\Admin\BookTagController;
+use App\Http\Controllers\Admin\GameCategoryController;
+use App\Http\Controllers\Admin\GameController;
+use App\Http\Controllers\Admin\GameTagController;
+use App\Http\Controllers\Admin\GameTranslationController;
+use App\Http\Controllers\Front\GameController as FrontGameController;
 
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),
     'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath']
 ], function () {
+
+    // مسارات ملخصات ومراجعات الألعاب (Frontend)
+    Route::get('/games', [FrontGameController::class, 'index'])->name('games.index');
+    Route::get('/games/{id}/{slug?}', [FrontGameController::class, 'show'])->where('id', '[0-9]+')->name('games.show');
 
 
     Route::get('/true-crime-media', [MediaSummaryTranslationController::class, 'index'])->name('media-summaries.index');
@@ -183,6 +192,50 @@ Route::group([
         // ب. إدارة الهيكل العام والمراجعة (Super-Admin & Editor Only)
         // ---------------------------------------------------------------------
         Route::group(['middleware' => ['role:super-admin|editor']], function () {
+
+
+            // -----------------------------------------------------------------
+            // إدارة فئات الألعاب (Game Categories)
+            // -----------------------------------------------------------------
+            Route::get('/game-categories', [GameCategoryController::class, 'index'])->name('admin.game-categories.index');
+            Route::get('/game-categories/create', [GameCategoryController::class, 'create'])->name('admin.game-categories.create');
+            Route::post('/game-categories', [GameCategoryController::class, 'store'])->name('admin.game-categories.store');
+            Route::get('/game-categories/{cat_id}/edit', [GameCategoryController::class, 'edit'])->name('admin.game-categories.edit');
+            Route::put('/game-categories/{cat_id}', [GameCategoryController::class, 'update'])->name('admin.game-categories.update');
+            Route::delete('/game-categories/{cat_id}', [GameCategoryController::class, 'destroy'])->name('admin.game-categories.destroy');
+
+            // -----------------------------------------------------------------
+            // إدارة وسوم الألعاب (Game Tags)
+            // -----------------------------------------------------------------
+            Route::get('/game-tags', [GameTagController::class, 'index'])->name('admin.game-tags.index');
+            Route::get('/game-tags/create', [GameTagController::class, 'create'])->name('admin.game-tags.create');
+            Route::post('/game-tags', [GameTagController::class, 'store'])->name('admin.game-tags.store');
+            Route::get('/game-tags/{tag}/edit', [GameTagController::class, 'edit'])->name('admin.game-tags.edit');
+            Route::put('/game-tags/{tag}', [GameTagController::class, 'update'])->name('admin.game-tags.update');
+            Route::delete('/game-tags/{tag}', [GameTagController::class, 'destroy'])->name('admin.game-tags.destroy');
+
+            // -----------------------------------------------------------------
+            // إدارة ملخصات ومراجعات الألعاب (Games)
+            // -----------------------------------------------------------------
+            // داخل مجموعة الأدمن المسموحة للكاتب/المحرر/الأدمن
+            Route::get('/games', [GameController::class, 'index'])->name('admin.games.index');
+            Route::get('/games/create', [GameController::class, 'create'])->name('admin.games.create');
+            Route::post('/games', [GameController::class, 'store'])->name('admin.games.store');
+            Route::get('/games/{id}/edit', [GameController::class, 'edit'])->name('admin.games.edit');
+            Route::put('/games/{id}', [GameController::class, 'update'])->name('admin.games.update');
+            Route::delete('/games/{id}', [GameController::class, 'destroy'])->name('admin.games.destroy');
+
+            // مسارات ترجمة الألعاب المنفصلة (على غرار articles-trans)
+            Route::get('/games-trans/create/{game_id}', [GameTranslationController::class, 'create'])->name('admin.games-trans.create');
+            Route::post('/games-trans', [GameTranslationController::class, 'store'])->name('admin.games-trans.store');
+            Route::get('/games-trans/{id}/edit', [GameTranslationController::class, 'edit'])->name('admin.games-trans.edit');
+            Route::put('/games-trans/{id}', [GameTranslationController::class, 'update'])->name('admin.games-trans.update');
+            Route::delete('/games-trans/{id}', [GameTranslationController::class, 'destroy'])->name('admin.games-trans.destroy');
+
+            // رفع وإدارة صور المحتوى التفاعلي داخل TinyMCE
+            Route::post('/games/upload-content-img', [GameController::class, 'uploadContentImg'])->name('admin.games.upload.content');
+            Route::post('/games/get-content-imgs', [GameController::class, 'getGameContentImgs'])->name('admin.games.get.content');
+            Route::post('/games/delete-image', [GameController::class, 'deleteContentImg'])->name('admin.games.delete.content_img');
 
 
             // -----------------------------------------------------------------
