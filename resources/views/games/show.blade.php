@@ -80,6 +80,51 @@
         </div>
     </div>
 
+
+    <!-- 👤 بطاقة معلومات الكاتب وزر المتابعة المنظم -->
+    {{--
+    @if($game_trans->user)
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-5 mb-8 shadow-sm flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-full bg-red-950/80 border border-red-800/60 flex items-center justify-center text-red-400 font-bold text-sm">
+                    {{ strtoupper(substr($game_trans->user->name, 0, 1)) }}
+                </div>
+                <div>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block">{{ __('Written & Reviewed By') }}</span>
+                    <a href="{{ route('authors.show', $game_trans->user->id) }}" class="text-xs sm:text-sm font-bold text-slate-800 dark:text-white hover:text-red-500 transition">
+                        {{ $game_trans->user->name }}
+                    </a>
+                </div>
+            </div>
+
+            <!-- author following button -->
+            @auth
+                @if(auth()->id() !== $game_trans->user_id) 
+                    @php
+                        $isFollowingAuthor = auth()->user()->followingAuthors->contains($game_trans->user_id);
+                    @endphp
+
+                    <button type="button" 
+                            id="follow-author-btn-{{ $game_trans->user_id }}"
+                            onclick="toggleFollowAuthor(event, {{ $game_trans->user_id }})"
+                            class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl transition duration-200 border
+                            {{ $isFollowingAuthor 
+                                ? 'bg-rose-950/80 text-rose-400 border-rose-800/60' 
+                                : 'bg-slate-800 text-gray-300 border-slate-700 hover:text-white' 
+                            }}">
+                        <span id="follow-author-text-{{ $game_trans->user_id }}">
+                            {{ $isFollowingAuthor ? __('Following') : __('Follow Author') }}
+                        </span>
+                    </button>
+                @endif
+            @endauth
+        </div>
+    @endif
+    --}}
+    <!-- author card include here -->
+    @include('partials.author-card', ['user' => $game_trans->user, 'label' => __('Written & Reviewed By')])
+
+
     <!-- Main Content Review Body -->
     <div class="bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 sm:p-10 shadow-sm mb-8">
         <div class="prose dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 leading-relaxed">
@@ -107,3 +152,43 @@
 
 </div>
 @endsection
+
+
+@push('scripts')
+<script>
+    async function toggleFollowAuthor(event, authorId) {
+        event.preventDefault();
+        const baseUrl = "{{ route('authors.follow', ':id') }}";
+        const url = baseUrl.replace(':id', authorId);
+        
+        const btn = document.getElementById(`follow-author-btn-${authorId}`);
+        const textSpan = document.getElementById(`follow-author-text-${authorId}`);
+        
+        try {
+            let response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!response.ok) throw new Error('Network response was not ok');
+            let data = await response.json();
+            
+            if (data.is_following) {
+                btn.className = "inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl transition duration-200 border bg-rose-950/80 text-rose-400 border-rose-800/60";
+                textSpan.textContent = "{{ __('Following') }}";
+                showToast('success', "Successfully followed the author!");
+            } else {
+                btn.className = "inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl transition duration-200 border bg-slate-800 text-gray-300 border-slate-700 hover:text-white";
+                textSpan.textContent = "{{ __('Follow Author') }}";
+                showToast('success', "Successfully unfollowed the author!");
+            }
+        } catch (error) {
+            console.error('Error toggling author follow status:', error);
+        }
+    }
+</script>
+@endpush

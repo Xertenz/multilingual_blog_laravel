@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\App;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Spatie\Image\Enums\Fit;
 
 class Article extends Model  implements HasMedia
 {
@@ -58,9 +59,9 @@ class Article extends Model  implements HasMedia
         return $this->belongsToMany(User::class, 'article_user')->withTimestamps();
     }
 
+    /*
     public function registerMediaConversions(?Media $media = null): void
     {
-        /*
         // 1. thumbnail صغير (للقوائم)
         $this->addMediaConversion('thumb')->performOnCollections('featured_imgs')->width(150)->optimize() ->sharpen(5)->quality(80)->format('webp')->nonQueued();
         // 2. صغير (للمعاينات)
@@ -82,8 +83,42 @@ class Article extends Model  implements HasMedia
         $this->addMediaConversion('content_1200w')->performOnCollections('content_imgs')->width(1200)->optimize()->sharpen(5)->quality(90)->format('webp')->nonQueued();
         // 🖥️ Large Screens
         $this->addMediaConversion('content_1600w')->performOnCollections('content_imgs')->width(1600)->optimize()->sharpen(5)->quality(90)->format('webp')->nonQueued();
-        */
     }
+    */
+
+    // 🖼️ تسجيل تحويلات صور المقالات للجودة والنقاء المتوافق مع باقي الموديولات
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        // 1. thumbnail صغير
+        $this->addMediaConversion('thumb')
+            ->performOnCollections('featured_imgs')
+            ->fit(Fit::Contain, 150, 225)
+            ->quality(90)
+            ->format('webp')
+            ->nonQueued();
+
+        // 2. متوسط (للقوائم وصفحة الكاتب)
+        $this->addMediaConversion('medium')
+            ->performOnCollections('featured_imgs')
+            ->fit(Fit::Contain, 400, 600)
+            ->quality(92)
+            ->format('webp')
+            ->nonQueued();
+
+        // 3. كبير (لصفحة المقال الرئيسي)
+        $this->addMediaConversion('large')
+            ->performOnCollections('featured_imgs')
+            ->fit(Fit::Contain, 800, 1200)
+            ->quality(95)
+            ->format('webp')
+            ->nonQueued();
+
+        // 📱 أحجام صور المحتوى الداخلي (Content Images)
+        $this->addMediaConversion('content_375w')->performOnCollections('content_imgs')->width(375)->quality(90)->format('webp')->nonQueued();
+        $this->addMediaConversion('content_768w')->performOnCollections('content_imgs')->width(768)->quality(90)->format('webp')->nonQueued();
+        $this->addMediaConversion('content_1200w')->performOnCollections('content_imgs')->width(1200)->quality(90)->format('webp')->nonQueued();
+    }
+
 
     public function scopeSearch($query, ?string $term)
     {

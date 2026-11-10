@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Spatie\Image\Enums\Fit;
 
 class Book extends Model implements HasMedia
 {
@@ -38,6 +39,7 @@ class Book extends Model implements HasMedia
     }
 
 
+    /*
     public function registerMediaConversions(?Media $media = null): void
     {
         // 1. حجم مصغر جداً ( للقوائم الجانبية أو الأيقونات المصغرة )
@@ -48,17 +50,8 @@ class Book extends Model implements HasMedia
             ->sharpen(5)
             ->quality(80)
             ->format('webp')
-            ->queued(); // لتعمل في الخلفية إذا كان نظام Queues مفعلاً (اختياري)
-
-        /*
-        $this->addMediaConversion('thumb')
-            ->performOnCollections('featured_imgs')
-            ->width(150)->optimize()
-            ->sharpen(5)
-            ->quality(80)
-            ->format('webp')
-            ->queued();
-        */
+            //->queued(); // لتعمل في الخلفية إذا كان نظام Queues مفعلاً (اختياري)
+            ->nonQueued();
 
         // 2. حجم متوسط ( لعرض البطاقات في صفحة القائمة الرئيسية index )
         $this->addMediaConversion('medium')
@@ -68,7 +61,8 @@ class Book extends Model implements HasMedia
             ->sharpen(5)
             ->quality(80)
             ->format('webp')
-            ->queued(); // لتعمل في الخلفية إذا كان نظام Queues مفعلاً (اختياري)
+            //->queued(); // لتعمل في الخلفية إذا كان نظام Queues مفعلاً (اختياري)
+            ->nonQueued();
 
         // 3. حجم كبير ( لصفحة التفاصيل show )
         $this->addMediaConversion('large')
@@ -78,7 +72,33 @@ class Book extends Model implements HasMedia
             ->sharpen(5)
             ->quality(80)
             ->format('webp')
-            ->queued(); // لتعمل في الخلفية إذا كان نظام Queues مفعلاً (اختياري)
+            //->queued(); // لتعمل في الخلفية إذا كان نظام Queues مفعلاً (اختياري)
+            ->nonQueued();
+    }
+    */
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        // 1. الحجم المصغر (Thumb)
+        $this->addMediaConversion('thumb')
+            ->fit(Fit::Contain, 150, 225) // استخدام Contain يحافظ على الأبعاد الأصلية بدون تشويش
+            ->quality(90)
+            ->format('webp')
+            ->nonQueued();
+
+        // 2. الحجم المتوسط (Medium) - لصفحة القائمة الرئيسية index
+        $this->addMediaConversion('medium')
+            ->fit(Fit::Contain, 400, 600) // يحافظ على النسبة والتفاصيل الحادة
+            ->quality(92)
+            ->format('webp')
+            ->nonQueued();
+
+        // 3. الحجم الكبير (Large) - لصفحة التفاصيل show
+        $this->addMediaConversion('large')
+            ->fit(Fit::Contain, 800, 1200) // يعطي مساحة كافية لتفاصيل الغلاف على الشاشات الكبيرة
+            ->quality(95)                  // جودة عالية جداً تمنع أي ضغط مرئي أو تشويش
+            ->format('webp')
+            ->nonQueued();
     }
 
     public function comments(): MorphMany

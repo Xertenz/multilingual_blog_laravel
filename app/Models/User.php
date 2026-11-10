@@ -170,6 +170,16 @@ class User extends AuthenticatableUser implements Authenticatable, HasMedia
         $this->decrement('reputation', max(0, $this->reputation - $points));
     }
 
+    public function mediaSummeries(): HasMany
+    {
+        return $this->hasMany(MediaSummary::class, 'user_id');
+    }
+
+    public function mediaSummeryTranslations(): HasMany
+    {
+        return $this->hasMany(MediaSummaryTranslation::class, 'user_id');
+    }
+
     /**
      * الكتاب الذين يتابعهم هذا المستخدم
      */

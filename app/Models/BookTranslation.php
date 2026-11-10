@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Spatie\Image\Enums\Fit;
 
 class BookTranslation extends Model implements HasMedia
 {
@@ -24,6 +25,7 @@ class BookTranslation extends Model implements HasMedia
         return $this->belongsTo(Book::class);
     }
 
+    /*
     public function registerMediaConversions(?Media $media = null): void
     {
         $this->addMediaConversion('thumb')
@@ -55,5 +57,29 @@ class BookTranslation extends Model implements HasMedia
             ->quality(80)
             ->format('webp')
             ->queued(); // لتعمل في الخلفية إذا كان نظام Queues مفعلاً (اختياري)
+    }
+    */
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        // 1. الحجم المصغر (Thumb)
+        $this->addMediaConversion('thumb')
+            ->fit(Fit::Contain, 150, 225) // استخدام Contain يحافظ على الأبعاد الأصلية بدون تشويش
+            ->quality(90)
+            ->format('webp')
+            ->nonQueued();
+
+        // 2. الحجم المتوسط (Medium) - لصفحة القائمة الرئيسية index
+        $this->addMediaConversion('medium')
+            ->fit(Fit::Contain, 400, 600) // يحافظ على النسبة والتفاصيل الحادة
+            ->quality(92)
+            ->format('webp')
+            ->nonQueued();
+
+        // 3. الحجم الكبير (Large) - لصفحة التفاصيل show
+        $this->addMediaConversion('large')
+            ->fit(Fit::Contain, 800, 1200) // يعطي مساحة كافية لتفاصيل الغلاف على الشاشات الكبيرة
+            ->quality(95)                  // جودة عالية جداً تمنع أي ضغط مرئي أو تشويش
+            ->format('webp')
+            ->nonQueued();
     }
 }

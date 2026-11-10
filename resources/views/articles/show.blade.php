@@ -67,22 +67,11 @@
                 {{ $article_trans->title }}
             </h1>
 
-            <!-- شريط معلومات المقال + زر حفظ المقال الذكي -->
-            <div class="flex flex-wrap items-center justify-between gap-4 text-gray-400 text-sm">
+            <!-- شريط معلومات المقال والإجراءات (مقسم ومنظم بشكل احترافي) -->
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-gray-400 text-sm">
                 
-                <!-- البيانات الوصفية (Metadata) -->
+                <!-- البيانات الوصفية (Metadata: الكاتب، التاريخ، وقت القراءة) -->
                 <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-
-
-                    {{--
-                    <div class="flex items-center">
-                        <svg class="w-4 h-4 mr-1.5 text-red-600 rtl:ml-1.5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-                        </svg>
-                        <span>Investigator Team</span>
-                    </div>
-                    --}}
-
                     <div class="flex items-center">
                         <svg class="w-4 h-4 mr-1.5 text-red-600 rtl:ml-1.5" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
@@ -92,13 +81,13 @@
                         </a>
                     </div>
 
-
                     <div class="flex items-center">
                         <svg class="w-4 h-4 mr-1.5 text-red-600 rtl:ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
                         <span>{{ $article_trans->created_at->format('F j, Y') }}</span>
                     </div>
+                    
                     <div class="flex items-center">
                         <svg class="w-4 h-4 mr-1.5 text-red-600 rtl:ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -107,56 +96,63 @@
                     </div>
                 </div>
 
-                <!-- زر حفظ المقالة -->
-                @auth
-                    @php
-                        $isArticleSaved = auth()->user()->savedArticles->contains($article_trans->article_id);
-                    @endphp
-
-                    <button type="button" 
-                            id="save-article-btn-{{ $article_trans->article_id }}"
-                            onclick="toggleSavedArticle(event, {{ $article_trans->article_id }})"
-                            data-saved="{{ $isArticleSaved ? 'true' : 'false' }}"
-                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 border
-                            {{ $isArticleSaved 
-                                ? 'bg-indigo-600 text-white border-indigo-500 hover:bg-indigo-700 shadow-sm shadow-indigo-600/20' 
-                                : 'bg-slate-800 text-gray-300 border-slate-700 hover:bg-slate-700 hover:text-white' 
-                            }}">
-                        
-                        <svg id="save-icon-{{ $article_trans->article_id }}" 
-                            class="w-4 h-4 transition-colors duration-200 {{ $isArticleSaved ? 'fill-current text-white' : 'fill-none' }}" 
-                            stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"></path>
-                        </svg>
-
-                        <span id="save-text-{{ $article_trans->article_id }}">
-                            {{ $isArticleSaved ? __('Saved') : __('Save Article') }}
-                        </span>
-                    </button>
-                @endauth
-
-
-                <!-- author following button -->
-                @auth
-                    @if(auth()->id() !== $article_trans->user_id) <!-- نفترض أن المقالة مرتبطة بـ user_id للكاتب -->
+                <!-- مجموعة أزرار الإجراءات السريعة (حفظ المقال + متابعة الكاتب) -->
+                <div class="flex items-center gap-2.5 pt-2 md:pt-0 border-t md:border-t-0 border-slate-800">
+                    
+                    <!-- زر حفظ المقالة -->
+                    @auth
                         @php
-                            $isFollowingAuthor = auth()->user()->followingAuthors->contains($article_trans->user_id);
+                            $isArticleSaved = auth()->user()->savedArticles->contains($article_trans->article_id);
                         @endphp
 
                         <button type="button" 
-                                id="follow-author-btn-{{ $article_trans->user_id }}"
-                                onclick="toggleFollowAuthor(event, {{ $article_trans->user_id }})"
-                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition duration-200 border
-                                {{ $isFollowingAuthor 
-                                    ? 'bg-rose-950/80 text-rose-400 border-rose-800/60' 
-                                    : 'bg-slate-800 text-gray-300 border-slate-700 hover:text-white' 
+                                id="save-article-btn-{{ $article_trans->article_id }}"
+                                onclick="toggleSavedArticle(event, {{ $article_trans->article_id }})"
+                                data-saved="{{ $isArticleSaved ? 'true' : 'false' }}"
+                                class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 border
+                                {{ $isArticleSaved 
+                                    ? 'bg-indigo-600 text-white border-indigo-500 hover:bg-indigo-700 shadow-sm shadow-indigo-600/20' 
+                                    : 'bg-slate-800 text-gray-300 border-slate-700 hover:bg-slate-700 hover:text-white' 
                                 }}">
-                            <span id="follow-author-text-{{ $article_trans->user_id }}">
-                                {{ $isFollowingAuthor ? __('Following') : __('Follow Author') }}
+                            
+                            <svg id="save-icon-{{ $article_trans->article_id }}" 
+                                class="w-4 h-4 transition-colors duration-200 {{ $isArticleSaved ? 'fill-current text-white' : 'fill-none' }}" 
+                                stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"></path>
+                            </svg>
+
+                            <span id="save-text-{{ $article_trans->article_id }}">
+                                {{ $isArticleSaved ? __('Saved') : __('Save Article') }}
                             </span>
                         </button>
-                    @endif
-                @endauth
+                    @endauth
+
+                    <!-- زر متابعة الكاتب (المعطل مؤقتاً للتذكر) -->
+                    @auth
+                        @if(auth()->id() !== $article_trans->user_id && $article_trans->user_id) 
+                            @php
+                                $isFollowingAuthor = auth()->user()->followingAuthors->contains($article_trans->user_id);
+                            @endphp
+
+                            <button type="button" 
+                                    id="follow-author-btn-{{ $article_trans->user_id }}"
+                                    onclick="toggleFollowAuthor(event, {{ $article_trans->user_id }})"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition duration-200 border
+                                    {{ $isFollowingAuthor 
+                                        ? 'bg-rose-950/80 text-rose-400 border-rose-800/60' 
+                                        : 'bg-slate-800 text-gray-300 border-slate-700 hover:text-white' 
+                                    }}">
+                                <span id="follow-author-text-{{ $article_trans->user_id }}">
+                                    {{ $isFollowingAuthor ? __('Following') : __('Follow Author') }}
+                                </span>
+                            </button>
+                        @endif
+                    @endauth
+                    {{--
+                    <!-- Author card -->
+                    @include('partials.author-card', ['user' => $article_trans->user, 'label' => __('Investigator')])
+                    --}}
+                </div>
             </div>
         </header>
 

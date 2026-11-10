@@ -2,25 +2,21 @@
     
     <!-- بطاقة معلومات الكاتب الرئيسية -->
     <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl mb-12 flex flex-col md:flex-row items-center gap-6 md:gap-8">
-        
-        <!-- صورة الصورة الشخصية / الصورة الرمزية -->
         <div class="relative">
             @php
                 $authorAvatar = $author->hasMedia('avatar_imgs') 
                     ? $author->getFirstMediaUrl('avatar_imgs', 'medium') 
                     : asset('images/default-avatar-300x300.jpg');
             @endphp
-
             <div class="w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden border-2 border-red-600/60 shadow-lg shadow-red-600/10 bg-slate-800 flex items-center justify-center text-3xl font-bold text-red-500 uppercase">
-                @if($authorAvatar)
+                @if($author->hasMedia('avatar_imgs'))
                     <img src="{{ $authorAvatar }}" alt="{{ $author->name }}" class="w-full h-full object-cover">
                 @else
-                    {{ substr($author->name, 0, 2) }}
+                    <span class="text-2xl text-red-400 font-extrabold">{{ strtoupper(substr($author->name, 0, 2)) }}</span>
                 @endif
             </div>
         </div>
 
-        <!-- تفاصيل الكاتب والإحصائيات -->
         <div class="flex-1 text-center md:text-left rtl:md:text-right space-y-3">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
@@ -32,13 +28,11 @@
                     </p>
                 </div>
 
-                <!-- زر المتابعة التفاعلي -->
                 @auth
                     @if(auth()->id() !== $author->id)
                         @php
                             $isFollowingAuthor = auth()->user()->followingAuthors->contains($author->id);
                         @endphp
-
                         <button type="button" 
                                 id="follow-author-btn-{{ $author->id }}"
                                 onclick="toggleFollowAuthor(event, {{ $author->id }})"
@@ -55,7 +49,6 @@
                 @endauth
             </div>
 
-            <!-- إحصائيات الكاتب -->
             <div class="flex items-center justify-center md:justify-start gap-6 pt-2 text-xs text-slate-400 border-t border-slate-800/80">
                 <div>
                     <span class="font-bold text-white text-sm block" id="author-followers-count-{{ $author->id }}">{{ $author->author_followers_count }}</span>
@@ -63,105 +56,269 @@
                 </div>
                 <div class="h-6 w-px bg-slate-800"></div>
                 <div>
-                    <span class="font-bold text-white text-sm block">{{ $articles->total() }}</span>
-                    <span>Articles</span>
+                    <span class="font-bold text-white text-sm block">{{ $totalContributions }}</span>
+                    <span>Total Contributions</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- شبكة مقالات الكاتب -->
-    <div class="space-y-6">
-        <h2 class="text-xl font-bold text-white flex items-center gap-2 pb-4 border-b border-slate-800">
-            <span class="w-2.5 h-2.5 rounded-full bg-red-600"></span>
-            Articles by {{ $author->name }}
-        </h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            @forelse($articles as $artTrans)
-                @php
-                    $catTrans = $artTrans->article->category?->translations->where('locale', app()->getLocale())->first();
-                @endphp
-                <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between hover:border-slate-700 transition space-y-4">
-                    <div>
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-md bg-slate-800 text-red-400 border border-slate-700/50">
-                                {{ $catTrans->name ?? 'General' }}
-                            </span>
-                            <span class="text-[11px] text-slate-500 font-mono">{{ $artTrans->created_at->format('M j, Y') }}</span>
-                        </div>
-
-                        <h3 class="text-base font-bold text-white line-clamp-2 hover:text-red-400 transition mb-2">
-                            <a href="{{ route('articles.show', ['slug' => $artTrans->slug, 'id' => $artTrans->id]) }}">
-                                {{ $artTrans->title }}
-                            </a>
-                        </h3>
-
-                        <p class="text-slate-400 text-xs line-clamp-3 leading-relaxed">
-                            {{ Str::limit(strip_tags($artTrans->description), 110) }}
-                        </p>
-                    </div>
-
-                    <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
-                        <span>📖 {{ ceil(str_word_count(strip_tags($artTrans->description)) / 200) }} min read</span>
-                        <a href="{{ route('articles.show', ['slug' => $artTrans->slug, 'id' => $artTrans->id]) }}" class="text-red-400 hover:underline font-semibold">Read Article &rarr;</a>
-                    </div>
-                </div>
-            @empty
-                <div class="col-span-full py-16 text-center text-slate-500 text-sm italic">
-                    No articles published by this author in the current language yet.
-                </div>
-            @endforelse
-        </div>
-
-        <!-- التصفح Pagination -->
-        <div class="mt-8">
-            {{ $articles->links() }}
-        </div>
+    <!-- أزرار التبديل (Tabs) -->
+    <div class="flex items-center gap-3 border-b border-slate-800 pb-4 mb-8 overflow-x-auto">
+        <button wire:click="setTab('articles')" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 {{ $tab === 'articles' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800' }}">
+            📜 Articles <span class="bg-slate-950/50 px-2 py-0.5 rounded-md text-[10px]">{{ $articles->total() }}</span>
+        </button>
+        <button wire:click="setTab('books')" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 {{ $tab === 'books' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800' }}">
+            📚 Book Summaries <span class="bg-slate-950/50 px-2 py-0.5 rounded-md text-[10px]">{{ $books->total() }}</span>
+        </button>
+        <button wire:click="setTab('games')" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 {{ $tab === 'games' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800' }}">
+            🎮 Game Reviews <span class="bg-slate-950/50 px-2 py-0.5 rounded-md text-[10px]">{{ $games->total() }}</span>
+        </button>
+        <button wire:click="setTab('media')" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 {{ $tab === 'media' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800' }}">
+            🎬 Films & Docs <span class="bg-slate-950/50 px-2 py-0.5 rounded-md text-[10px]">{{ $mediaItems->total() }}</span>
+        </button>
     </div>
 
+    <!-- 1. المقالات -->
+    @if($tab === 'articles')
+        <div class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @forelse($articles as $artTrans)
+                    @php
+                        $article = $artTrans->article;
+                        $catTrans = $article?->category?->translations->where('locale', app()->getLocale())->first();
+                        $media = $article && $article->hasMedia('featured_imgs') ? $article->getFirstMedia('featured_imgs') : null;
+                    @endphp
+                    <div class="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-slate-700 transition group">
+                        <div class="relative h-48 bg-slate-950">
+                            <a href="{{ route('articles.show', ['slug' => $artTrans->slug, 'id' => $artTrans->id]) }}" class="block w-full h-full">
+                                @if($media)
+                                    <img src="{{ $media->getUrl('medium') }}" srcset="{{ $media->srcset }}" alt="{{ $artTrans->title }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                @else
+                                    <div class="w-full h-full flex items-center justify-center text-slate-600 text-xs">No Image</div>
+                                @endif
+                            </a>
+                            @if($catTrans)
+                                <span class="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-red-400 text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-slate-800 pointer-events-none">
+                                    {{ $catTrans->name }}
+                                </span>
+                            @endif
+                        </div>
+                        <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+                            <div>
+                                <div class="flex items-center gap-2 text-slate-500 text-xs mb-2 font-mono">
+                                    <span>{{ $artTrans->created_at->format('M j, Y') }}</span>
+                                    <span>•</span>
+                                    <span>{{ number_format($artTrans->views ?? 0) }} views</span>
+                                </div>
+                                <h3 class="text-base font-bold text-white line-clamp-2 hover:text-red-400 transition mb-2">
+                                    <a href="{{ route('articles.show', ['slug' => $artTrans->slug, 'id' => $artTrans->id]) }}">
+                                        {{ $artTrans->title }}
+                                    </a>
+                                </h3>
+                                <p class="text-slate-400 text-xs line-clamp-2 leading-relaxed">
+                                    {{ Str::limit(strip_tags($artTrans->description), 90) }}
+                                </p>
+                            </div>
+                            <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500">
+                                <span>Read Article</span>
+                                <a href="{{ route('articles.show', ['slug' => $artTrans->slug, 'id' => $artTrans->id]) }}" class="text-red-400 hover:underline font-semibold">Read &rarr;</a>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-span-full py-16 text-center text-slate-500 text-sm italic">No articles published yet.</div>
+                @endforelse
+            </div>
+            <div class="mt-8">{{ $articles->links() }}</div>
+        </div>
+    @endif
+
+    <!-- 2. الكتب (محَدث ليفحص غلاف الترجمة أولاً) -->
+    @if($tab === 'books')
+        <div class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @forelse($books as $bookTrans)
+                    @php
+                        $book = $bookTrans->book;
+                        
+                        // 🔍 فحص الغلاف المترجم أولاً، وإذا لم يوجد نأخذ غلاف الكتاب الأساسي
+                        $media = null;
+                        if ($bookTrans->hasMedia('cover_imgs')) {
+                            $media = $bookTrans->getFirstMedia('cover_imgs');
+                        } elseif ($book && $book->hasMedia('cover_imgs')) {
+                            $media = $book->getFirstMedia('cover_imgs');
+                        }
+
+                        $catTrans = $book->bookCategory?->translations->where('locale', app()->getLocale())->first() ?? $book->bookCategory?->translations->first();
+                    @endphp
+                    <div class="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-slate-700 transition group">
+                        <div class="relative h-48 bg-slate-950">
+                            <a href="{{ route('books.show', ['id' => $book->id, 'slug' => $bookTrans->slug]) }}" class="block w-full h-full">
+                                @if($media)
+                                    <img src="{{ $media->getUrl('medium') }}" 
+                                        srcset="{{ $media->getUrl('medium') }} 400w, {{ $media->getUrl('large') }} 800w" 
+                                        sizes="(max-width: 640px) 100vw, 300px"
+                                        alt="{{ $bookTrans->title }}" 
+                                        class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                                        loading="lazy">
+                                @else
+                                    <div class="w-full h-full flex items-center justify-center text-slate-600 text-xs">No Cover</div>
+                                @endif
+                            </a>
+                            @if($catTrans)
+                                <span class="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-indigo-400 border border-indigo-900/40 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider pointer-events-none">
+                                    {{ $catTrans->name ?? $book->bookCategory->label }}
+                                </span>
+                            @endif
+                        </div>
+                        <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+                            <div>
+                                <div class="flex items-center gap-2 text-slate-500 text-xs mb-2 font-mono">
+                                    <span>{{ $book->published_year ? 'Published: ' . $book->published_year : '-' }}</span>
+                                    <span>•</span>
+                                    <span>{{ number_format($bookTrans->views ?? 0) }} views</span>
+                                </div>
+                                <h3 class="text-base font-bold text-white line-clamp-1 mb-1">
+                                    <a href="{{ route('books.show', ['id' => $book->id, 'slug' => $bookTrans->slug]) }}" class="hover:text-red-400 transition">
+                                        {{ $bookTrans->title }}
+                                    </a>
+                                </h3>
+                                <p class="text-xs text-slate-400 mb-2">By <span class="text-slate-300 font-semibold">{{ $bookTrans->author ?? 'Unknown' }}</span></p>
+                                <p class="text-xs text-slate-400 line-clamp-2">
+                                    {{ Str::limit(strip_tags($bookTrans->summary), 90) }}
+                                </p>
+                            </div>
+                            <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+                                <span class="text-emerald-400 font-bold">{{ $bookTrans->price ? $bookTrans->price . ' ' . ($bookTrans->currency ?? 'USD') : 'Free' }}</span>
+                                <a href="{{ route('books.show', ['id' => $book->id, 'slug' => $bookTrans->slug]) }}" class="text-red-400 font-semibold hover:underline">Read Summary &rarr;</a>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-span-full py-16 text-center text-slate-500 text-sm italic">No book summaries published yet.</div>
+                @endforelse
+            </div>
+            <div class="mt-8">{{ $books->links() }}</div>
+        </div>
+    @endif
+
+    <!-- 3. الألعاب -->
+    @if($tab === 'games')
+        <div class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @forelse($games as $gameTrans)
+                    @php
+                        $game = $gameTrans->game;
+                        $media = $game->hasMedia('cover_imgs') ? $game->getFirstMedia('cover_imgs') : null;
+                        $catTrans = $game->gameCategory?->translations->where('locale', app()->getLocale())->first() ?? $game->gameCategory?->translations->first();
+                    @endphp
+                    <div class="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-slate-700 transition group">
+                        <div class="relative h-48 bg-slate-950">
+                            <a href="{{ route('games.show', ['id' => $game->id, 'slug' => $gameTrans->slug]) }}" class="block w-full h-full">
+                                @if($media)
+                                    <img src="{{ $media->getUrl('medium') }}" alt="{{ $gameTrans->title }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                @else
+                                    <div class="w-full h-full flex items-center justify-center text-slate-600 text-xs">No Cover</div>
+                                @endif
+                            </a>
+                            @if($catTrans)
+                                <span class="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-indigo-400 border border-indigo-900/40 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider pointer-events-none">
+                                    {{ $catTrans->name ?? $game->gameCategory->label }}
+                                </span>
+                            @endif
+                        </div>
+                        <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+                            <div>
+                                <div class="flex items-center gap-2 text-slate-500 text-xs mb-2 font-mono">
+                                    <span>{{ $game->published_year ? 'Released: ' . $game->published_year : '-' }}</span>
+                                    <span>•</span>
+                                    <span>{{ number_format($gameTrans->views ?? 0) }} views</span>
+                                </div>
+                                <h3 class="text-base font-bold text-white line-clamp-1 mb-1">
+                                    <a href="{{ route('games.show', ['id' => $game->id, 'slug' => $gameTrans->slug]) }}" class="hover:text-red-400 transition">
+                                        {{ $gameTrans->title }}
+                                    </a>
+                                </h3>
+                                <p class="text-xs text-indigo-400 font-medium mb-2">{{ $game->developer ?? 'Studio' }}</p>
+                                <p class="text-xs text-slate-400 line-clamp-2">
+                                    {{ Str::limit(strip_tags($gameTrans->content), 90) }}
+                                </p>
+                            </div>
+                            <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+                                <span class="text-emerald-400 font-bold">{{ $gameTrans->price ? $gameTrans->price . ' ' . ($gameTrans->currency ?? 'USD') : 'Free' }}</span>
+                                <a href="{{ route('games.show', ['id' => $game->id, 'slug' => $gameTrans->slug]) }}" class="text-red-400 font-semibold hover:underline">Read Review &rarr;</a>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-span-full py-16 text-center text-slate-500 text-sm italic">No game reviews published yet.</div>
+                @endforelse
+            </div>
+            <div class="mt-8">{{ $games->links() }}</div>
+        </div>
+    @endif
+
+    <!-- 4. الميديا -->
+    @if($tab === 'media')
+        <div class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @forelse($mediaItems as $item)
+                    @php
+                        $mediaObj = $item->mediaSummary;
+                        $featuredImg = $mediaObj ? $mediaObj->getFirstMedia('featured_imgs') : null;
+                    @endphp
+                    <div class="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-slate-700 transition group">
+                        <a href="{{ route('media-summaries.show', ['id' => $item->media_summary_id, 'slug' => $item->slug]) }}" class="relative block h-48 overflow-hidden bg-slate-950">
+                            @if($featuredImg)
+                                <img src="{{ $featuredImg->getUrl() }}" srcset="{{ $featuredImg->getSrcset() }}" sizes="(max-width: 640px) 100vw, 300px" alt="{{ $item->title }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy">
+                            @else
+                                <div class="w-full h-full flex items-center justify-center text-slate-600 text-xs font-medium">No Poster Available</div>
+                            @endif
+                            @if($mediaObj && $mediaObj->type)
+                                <span class="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-red-400 border border-red-900/40 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider">
+                                    {{ $mediaObj->type }}
+                                </span>
+                            @endif
+                            @if($mediaObj && $mediaObj->imdb_rating)
+                                <span class="absolute top-3 right-3 bg-slate-950/80 backdrop-blur-md text-amber-400 border border-amber-900/40 px-2 py-1 rounded-md text-[11px] font-bold">
+                                    ★ {{ $mediaObj->imdb_rating }}
+                                </span>
+                            @endif
+                        </a>
+
+                        <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+                            <div>
+                                <div class="flex items-center gap-2 text-slate-500 text-xs mb-2 font-mono">
+                                    @if($mediaObj && $mediaObj->release_year)
+                                        <span>Released: {{ $mediaObj->release_year }}</span>
+                                        <span>•</span>
+                                    @endif
+                                    <span>{{ number_format($item->views) }} views</span>
+                                </div>
+                                <h3 class="text-base font-bold text-white group-hover:text-red-400 transition line-clamp-2 mb-2 leading-snug">
+                                    <a href="{{ route('media-summaries.show', ['id' => $item->media_summary_id, 'slug' => $item->slug]) }}">
+                                        {{ $item->title }}
+                                    </a>
+                                </h3>
+                                @if($item->synopsis)
+                                    <p class="text-xs text-slate-400 line-clamp-2 leading-relaxed">
+                                        {{ Str::limit(strip_tags($item->synopsis), 90) }}
+                                    </p>
+                                @endif
+                            </div>
+                            <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+                                <span class="text-slate-500">🎬 Media Analysis</span>
+                                <a href="{{ route('media-summaries.show', ['id' => $item->media_summary_id, 'slug' => $item->slug]) }}" class="text-red-400 font-semibold hover:underline">Read Analysis &rarr;</a>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-span-full py-16 text-center text-slate-500 text-sm italic">No films or documentaries published yet.</div>
+                @endforelse
+            </div>
+            <div class="mt-8">{{ $mediaItems->links() }}</div>
+        </div>
+    @endif
+
 </div>
-
-@push('scripts')
-<script>
-    async function toggleFollowAuthor(event, authorId) {
-        event.preventDefault();
-        const baseUrl = "{{ route('authors.follow', ':id') }}";
-        const url = baseUrl.replace(':id', authorId);
-        
-        const btn = document.getElementById(`follow-author-btn-${authorId}`);
-        const textSpan = document.getElementById(`follow-author-text-${authorId}`);
-        const countSpan = document.getElementById(`author-followers-count-${authorId}`);
-        
-        try {
-            let response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Accept': 'application/json'
-                }
-            });
-
-            if (!response.ok) throw new Error('Network response was not ok');
-            let data = await response.json();
-            
-            if (data.is_following) {
-                btn.className = "inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-bold rounded-xl transition duration-200 border shadow-md bg-rose-950/80 text-rose-400 border-rose-800/60 hover:bg-rose-900/60";
-                textSpan.textContent = "{{ __('Following') }}";
-                showToast('success', "Successfully followed the author!");
-            } else {
-                btn.className = "inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-bold rounded-xl transition duration-200 border shadow-md bg-red-600 text-white border-red-500 hover:bg-red-700 shadow-red-600/20";
-                textSpan.textContent = "{{ __('Follow Author') }}";
-                showToast('success', "Successfully unfollowed the author!");
-            }
-
-            if (countSpan && data.followers_count !== undefined) {
-                countSpan.textContent = data.followers_count;
-            }
-        } catch (error) {
-            console.error('Error toggling author follow status:', error);
-        }
-    }
-</script>
-@endpush

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Spatie\Image\Enums\Fit;
 
 class Game extends Model implements HasMedia
 {
@@ -45,6 +46,7 @@ class Game extends Model implements HasMedia
             ?? $this->translations->first();
     }
 
+    /*
     public function registerMediaConversions(?Media $media = null): void
     {
         // 1. أحجام لصور الغلاف (Cover Images)
@@ -62,6 +64,34 @@ class Game extends Model implements HasMedia
             ->width(600)
             ->height(900)
             ->sharpen(10);
+    }
+    */
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        // 1. الحجم المصغر (Thumb)
+        $this->addMediaConversion('thumb')
+            //->fit(Fit::Contain, 100, 150) // استخدام Contain يحافظ على الأبعاد الأصلية بدون تشويش
+            ->fit(Fit::Contain, 150, 225)
+            ->quality(90)
+            ->format('webp')
+            ->nonQueued();
+
+        // 2. الحجم المتوسط (Medium) - لصفحة القائمة الرئيسية index
+        $this->addMediaConversion('medium')
+            //->fit(Fit::Contain, 300, 450) // يحافظ على النسبة والتفاصيل الحادة
+            ->fit(Fit::Contain, 400, 600)
+            ->quality(92)
+            ->format('webp')
+            ->nonQueued();
+
+        // 3. الحجم الكبير (Large) - لصفحة التفاصيل show
+        $this->addMediaConversion('large')
+            //->fit(Fit::Contain, 600, 900) // يعطي مساحة كافية لتفاصيل الغلاف على الشاشات الكبيرة
+            ->fit(Fit::Contain, 800, 1200)
+            ->quality(95)                  // جودة عالية جداً تمنع أي ضغط مرئي أو تشويش
+            ->format('webp')
+            ->nonQueued();
     }
 
     // ربط التعليقات بنظام الـ Polymorphic Comments الموحد في المنصة

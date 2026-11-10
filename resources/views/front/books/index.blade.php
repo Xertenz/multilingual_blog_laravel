@@ -6,8 +6,8 @@
     
     <!-- Page Header -->
     <div class="text-center max-w-2xl mx-auto mb-12">
-        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Book Summaries & Reviews</h1>
-        <p class="text-slate-500 mt-2 text-sm">Explore our curated collection of book summaries, key insights, and recommendations.</p>
+        <h1 class="text-3xl font-extrabold text-white tracking-tight">Book Summaries & Reviews</h1>
+        <p class="text-slate-400 mt-2 text-sm">Explore our curated collection of book summaries, key insights, and recommendations.</p>
     </div>
 
     <!-- Books Grid -->
@@ -15,34 +15,36 @@
         @forelse($books as $book)
             @php
                 $trans = $book->translate(app()->getLocale());
-                // Fallback للغة الإنجليزية أو الأولى إذا لم توجد ترجمة للغة الحالية
                 if (!$trans || !$trans->title) {
                     $trans = $book->translations->first();
                 }
             @endphp
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col hover:shadow-md transition duration-200">
+            <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-xs overflow-hidden flex flex-col hover:border-slate-700 transition duration-200">
                 
-                <!-- Book Cover (محدث ليتبع الترجمة واللغة الحالية) -->
-                <div class="relative h-64 bg-slate-100 overflow-hidden">
-
+                <!-- Book Cover with Responsive srcset -->
+                <div class="relative h-64 bg-slate-950 overflow-hidden">
                     @php
-                        // تحديد الغلاف: غلاف الترجمة الحالية أولاً، ثم الغلاف العام للكتاب، ثم أول غلاف متاح
-                        $coverUrl = null;
+                        $media = null;
                         if ($trans && $trans->hasMedia('cover_imgs')) {
-                            $coverUrl = $trans->getFirstMediaUrl('cover_imgs', 'medium');
+                            $media = $trans->getFirstMedia('cover_imgs');
                         } elseif ($book->hasMedia('cover_imgs')) {
-                            $coverUrl = $book->getFirstMediaUrl('cover_imgs', 'medium');
+                            $media = $book->getFirstMedia('cover_imgs');
                         }
                     @endphp
 
-                    @if($coverUrl)
-                        <img src="{{ $coverUrl }}" alt="{{ $trans->title ?? 'Book Cover' }}" class="w-full h-full object-cover">
+                    @if($media)
+                        <img src="{{ $media->getUrl('medium') }}" 
+                             srcset="{{ $media->getUrl('medium') }} 400w, {{ $media->getUrl('large') }} 800w" 
+                             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 300px"
+                             alt="{{ $trans->title ?? 'Book Cover' }}" 
+                             loading="lazy"
+                             class="w-full h-full object-cover">
                     @else
-                        <div class="w-full h-full flex items-center justify-center text-slate-400 text-xs">No Cover Image</div>
+                        <div class="w-full h-full flex items-center justify-center text-slate-500 text-xs">No Cover Image</div>
                     @endif
                     
                     @if($trans && $trans->price)
-                        <span class="absolute top-3 right-3 bg-slate-900/80 backdrop-blur-xs text-white text-xs font-bold px-2.5 py-1 rounded-full">
+                        <span class="absolute top-3 right-3 bg-slate-950/80 backdrop-blur-xs text-white text-xs font-bold px-2.5 py-1 rounded-full border border-slate-800">
                             {{ $trans->currency ?? 'USD' }} {{ $trans->price }}
                         </span>
                     @endif
@@ -51,26 +53,26 @@
                 <!-- Book Info -->
                 <div class="p-5 flex-1 flex flex-col justify-between">
                     <div>
-
-                        <!-- 🏷️ شارة الفئة المضافة -->
+                        <!-- Category Badge -->
                         @if($book->bookCategory)
                             @php
                                 $catTrans = $book->bookCategory->translations->where('locale', app()->getLocale())->first() ?? $book->bookCategory->translations->first();
                             @endphp
-                            <span class="inline-block bg-indigo-50 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-md mb-2 border border-indigo-100">
+                            <span class="inline-block bg-slate-800 text-indigo-400 text-[10px] font-bold px-2 py-0.5 rounded-md mb-2 border border-slate-700">
                                 {{ $catTrans->name ?? $book->bookCategory->label }}
                             </span>
                         @endif
-                        <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+
+                        <div class="flex items-center justify-between text-[11px] text-slate-500 mb-1">
                             <span>{{ $book->published_year ?? '-' }}</span>
                             <span>{{ $book->pages_count ? $book->pages_count . ' Pages' : '' }}</span>
                         </div>
-                        <h3 class="text-base font-bold text-slate-900 line-clamp-1 mb-1">
+                        <h3 class="text-base font-bold text-white line-clamp-1 mb-1">
                             {{ $trans->title ?? 'Untitled' }}
                         </h3>
-                        <p class="text-xs text-slate-500 mb-3">By <span class="font-medium text-slate-700">{{ $trans->author ?? 'Unknown' }}</span></p>
+                        <p class="text-xs text-slate-400 mb-3">By <span class="font-medium text-slate-300">{{ $trans->author ?? 'Unknown' }}</span></p>
                         
-                        <p class="text-xs text-slate-600 line-clamp-2 mb-4">
+                        <p class="text-xs text-slate-400 line-clamp-2 mb-4">
                             {{ Str::limit(strip_tags($trans->summary ?? ''), 90) }}
                         </p>
                     </div>
@@ -78,7 +80,7 @@
                     <!-- Action Button -->
                     <div>
                         <a href="{{ route('books.show', ['id' => $book->id, 'slug' => $trans->slug ?? 'book']) }}" 
-                           class="w-full block text-center bg-indigo-50 hover:bg-indigo-600 text-indigo-600 hover:text-white font-semibold text-xs py-2.5 rounded-xl transition duration-200">
+                           class="w-full block text-center bg-slate-800 hover:bg-indigo-600 text-slate-300 hover:text-white font-semibold text-xs py-2.5 rounded-xl transition duration-200 border border-slate-700/60 hover:border-indigo-600">
                             Read Summary &rarr;
                         </a>
                     </div>
@@ -86,7 +88,7 @@
 
             </div>
         @empty
-            <div class="col-span-full py-16 text-center text-slate-400 text-sm">
+            <div class="col-span-full py-16 text-center text-slate-500 text-sm">
                 No book summaries available at the moment. Please check back later!
             </div>
         @endforelse
