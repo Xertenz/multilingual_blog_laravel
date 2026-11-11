@@ -120,30 +120,29 @@ new class extends Component {
 ?>
 
 <div>
-    <!-- رفعنا نطاق x-data هنا لكي يشمل النافبار وقائمة الجوال معاً -->
     <div class="sticky top-0 z-40 w-full" x-data="{ mobileMenuOpen: false }">
         <nav class="bg-[#0a0f1f]/90 backdrop-blur-md border-b border-gray-800 transition-all duration-300">
-            <div class="container mx-auto px-4">
-                <div class="flex justify-between items-center h-16 gap-3">
+            <div class="container mx-auto px-2 min-[375px]:px-4">
+                <div class="flex justify-between items-center h-16 gap-1 min-[375px]:gap-2 sm:gap-3">
                     
                     <!-- القسم الأيسر: الشعار والقائمة الأساسية -->
-                    <div class="left flex items-center gap-2 lg:gap-4">
-                        <!-- زر القائمة للجوال (Hamburger Menu) -->
-                        <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden flex items-center justify-center p-2 rounded-lg bg-slate-950 border border-slate-800 text-gray-400 hover:text-white transition">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <div class="left flex items-center gap-1.5 min-[375px]:gap-2 lg:gap-4 flex-shrink-0">
+                        <!-- زر القائمة المنسدلة للجوال والأجهزة اللوحية -->
+                        <button @click="mobileMenuOpen = !mobileMenuOpen" class="lg:hidden flex items-center justify-center p-1.5 min-[375px]:p-2 rounded-lg bg-slate-950 border border-slate-800 text-gray-400 hover:text-white transition flex-shrink-0">
+                            <svg class="w-4 h-4 min-[375px]:w-5 min-[375px]:h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
                             </svg>
                         </button>
 
                         <!-- Logo -->
-                        <a href="/" class="flex items-center space-x-2 group flex-shrink-0">
-                            <span class="text-lg md:text-xl font-black tracking-wider transition duration-300">
+                        <a href="/" class="flex items-center group flex-shrink-0">
+                            <span class="text-xs min-[375px]:text-sm sm:text-base md:text-lg font-black tracking-wider transition duration-300 whitespace-nowrap">
                                 <span class="text-red-600 drop-shadow-[0_0_10px_rgba(220,38,38,0.3)] group-hover:text-red-500">CRIME</span>
-                                <span class="text-gray-300 font-light group-hover:text-white transition duration-300 text-sm md:text-base ml-1">CHRONICLES</span>
+                                <span class="text-gray-300 font-light group-hover:text-white transition duration-300 text-[10px] min-[375px]:text-xs sm:text-sm md:text-base ml-1 hidden min-[420px]:inline">CHRONICLES</span>
                             </span>
                         </a>
 
-                        <!-- القائمة الرئيسية للشاشات الكبيرة (أصبحت مدمجة ومنسدلة لتوفير مساحة واسعة) -->
+                        <!-- القائمة الرئيسية للشاشات الكبيرة فقط (lg فما فوق) -->
                         <div class="hidden lg:flex items-center space-x-1 rtl:space-x-reverse">
                             
                             <!-- 1. قائمة التصنيفات (Categories) -->
@@ -172,10 +171,16 @@ new class extends Component {
                                             <span class="block px-3 py-2 text-xs text-gray-500 text-center">{{ __('No categories found') }}</span>
                                         @endforelse
                                     </div>
+                                    <div class="p-2 border-t border-slate-800 bg-slate-950/40">
+                                        <a href="{{ route('categories.index') }}" class="flex items-center justify-center gap-1.5 w-full py-2 px-3 bg-slate-900 hover:bg-red-950/40 text-red-400 hover:text-red-300 border border-slate-800 hover:border-red-900/50 rounded-lg text-xs font-semibold transition">
+                                            <span>{{ __('View All Categories') }}</span>
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- 2. قائمة استكشاف الأقسام الأخرى (Explore Dropdown) لتوفير المساحة -->
+                            <!-- 2. قائمة استكشاف الأقسام الأخرى (Explore Dropdown) -->
                             <div class="relative" x-data="{ open: false }" @mouseleave="open = false">
                                 <button @mouseenter="open = true" @click="open = !open" class="flex items-center gap-1 text-gray-300 hover:text-red-500 hover:bg-slate-900/50 px-2.5 py-1.5 rounded-lg transition-all text-xs font-medium">
                                     <span>Explore</span>
@@ -224,14 +229,14 @@ new class extends Component {
                     </div>
 
 
-                    <!-- حقل البحث للشاشات المتوسطة والكبيرة (بحجم مرن ومتناسق) -->
-                    <div class="hidden md:block flex-1 max-w-[200px] lg:max-w-xs mx-2">
+                    <!-- حقل البحث للشاشات المتوسطة والكبيرة -->
+                    <div class="hidden sm:block flex-1 max-w-[160px] md:max-w-[200px] lg:max-w-xs mx-2">
                         <form action="{{ route('search') }}" method="GET" class="relative">
                             <input 
                                 type="text" 
                                 name="q" 
                                 value="{{ request('q') }}"
-                                placeholder="{{ __('Search articles...') }}" 
+                                placeholder="{{ __('Search...') }}" 
                                 class="w-full bg-slate-900/90 border border-slate-800 text-gray-200 placeholder-gray-500 text-xs rounded-md ltr:pl-8 ltr:pr-3 rtl:pr-8 rtl:pl-3 py-1.5 focus:outline-none focus:border-red-600/60 focus:ring-1 focus:ring-red-600/50 transition duration-200"
                                 required
                             />
@@ -245,17 +250,17 @@ new class extends Component {
 
                     
                     <!-- القسم الأيمن: أدوات المستخدم، أزرار الدخول، واللغة -->
-                    <div class="right flex items-center gap-2 md:gap-3">
+                    <div class="right flex items-center gap-1 min-[375px]:gap-1.5 sm:gap-2 md:gap-3 flex-shrink-0">
 
                         <!-- 1. حالة المستخدم مسجل الدخول -->
                         @auth
-                        <div class="user-actions flex items-center gap-2">
+                        <div class="user-actions flex items-center gap-1 min-[375px]:gap-1.5 sm:gap-2">
 
                             <!-- صندوق الإشعارات الذكي المستقل -->
                             <div class="notifications relative" x-data="{ open: false }" @click.outside="open = false">
                                 <div @click="open = !open; if(open) { $wire.markNotificationsAsRead(); }" 
-                                     class="notifications-icon bg-slate-900/80 border border-slate-800 hover:border-red-600/50 p-2 rounded-lg transition duration-200 cursor-pointer relative">
-                                    <x-fas-bell class="w-3.5 h-3.5 text-gray-400 hover:text-white transition pointer-events-none" />
+                                     class="notifications-icon bg-slate-900/80 border border-slate-800 hover:border-red-600/50 p-1.5 min-[375px]:p-2 rounded-lg transition duration-200 cursor-pointer relative">
+                                    <x-fas-bell class="w-3 h-3 min-[375px]:w-3.5 min-[375px]:h-3.5 text-gray-400 hover:text-white transition pointer-events-none" />
                                     
                                     @if($unreadNotificationsCount > 0)
                                         <span class="absolute -top-1 -right-1 bg-red-600 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-md pointer-events-none">
@@ -271,7 +276,7 @@ new class extends Component {
                                     x-transition:leave="transition ease-in duration-150"
                                     x-transition:leave-start="opacity-100 scale-100"
                                     x-transition:leave-end="opacity-0 scale-95"
-                                    class="notifications-list-wrapper absolute right-0 rtl:left-0 rtl:right-auto top-[calc(100%+12px)] w-80 bg-[#0f1526] border border-slate-800 rounded-xl shadow-2xl shadow-black/90 select-none overflow-hidden z-50" x-cloak>
+                                    class="notifications-list-wrapper absolute right-0 rtl:left-0 rtl:right-auto top-[calc(100%+12px)] w-[calc(100vw-1rem)] max-w-xs sm:w-80 bg-[#0f1526] border border-slate-800 rounded-xl shadow-2xl shadow-black/90 select-none overflow-hidden z-50" x-cloak>
                                     
                                     <div class="px-4 py-2.5 bg-slate-900/80 border-b border-slate-800 flex justify-between items-center">
                                         <span class="text-xs font-bold text-gray-300 uppercase tracking-wider">Case Updates</span>
@@ -299,12 +304,12 @@ new class extends Component {
 
                             <!-- قائمة حساب المستخدم المنسدلة المستقلة -->
                             <div class="user-menu-dropdown relative" x-data="{ open: false }" @click.outside="open = false">
-                                <button @click="open = !open" class="flex items-center gap-1.5 bg-slate-900/80 border border-slate-800 hover:border-red-600/50 py-1.5 px-2 rounded-lg transition duration-200 cursor-pointer">
-                                    <div class="w-5 h-5 rounded-full bg-red-950/80 border border-red-800/60 flex items-center justify-center text-red-400 font-bold text-[10px] pointer-events-none">
+                                <button @click="open = !open" class="flex items-center gap-1 min-[375px]:gap-1.5 bg-slate-900/80 border border-slate-800 hover:border-red-600/50 py-1 min-[375px]:py-1.5 px-1.5 min-[375px]:px-2 rounded-lg transition duration-200 cursor-pointer">
+                                    <div class="w-4 h-4 min-[375px]:w-5 min-[375px]:h-5 rounded-full bg-red-950/80 border border-red-800/60 flex items-center justify-center text-red-400 font-bold text-[9px] min-[375px]:text-[10px] pointer-events-none">
                                         {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                                     </div>
                                     <span class="text-xs font-medium text-gray-300 hidden sm:inline-block max-w-[80px] truncate pointer-events-none">{{ Auth::user()->name }}</span>
-                                    <svg class="w-3 h-3 text-gray-400 transition-transform duration-200 pointer-events-none" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-2.5 h-2.5 min-[375px]:w-3 min-[375px]:h-3 text-gray-400 transition-transform duration-200 pointer-events-none" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                     </svg>
                                 </button>
@@ -352,7 +357,7 @@ new class extends Component {
 
                         <!-- 2. حالة المستخدم زائر (Guest) -->
                         @guest
-                        <div class="auth-buttons hidden sm:flex items-center gap-2">
+                        <div class="auth-buttons hidden sm:flex items-center gap-1.5 sm:gap-2">
                             <a href="{{ route('login') }}" class="text-xs font-semibold text-gray-300 hover:text-white bg-slate-900 border border-slate-800 px-2.5 py-1.5 rounded-md transition">
                                 Log In
                             </a>
@@ -362,8 +367,7 @@ new class extends Component {
                         </div>
                         @endguest
 
-                        <!-- محدد اللغة -->
-                        <div class="relative flex-shrink-0">
+                        <div class="relative flex-shrink-0 hidden min-[375px]:block">
                             <select id="lang-switcher" class="lang-switcher bg-slate-900 border border-slate-800 text-gray-300 hover:border-slate-700 text-xs font-medium rounded-md pl-2 pr-6 py-1.5 focus:outline-none focus:ring-1 focus:ring-red-600/50 cursor-pointer capitalize appearance-none rtl:pl-6 rtl:pr-2" onchange="location=this.value;">
                                 @foreach(LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
                                     <option value="{{ LaravelLocalization::getLocalizedURL($localeCode, null, [], true) }}" {{ app()->getLocale() == $localeCode ? 'selected' : '' }} class="bg-[#0a0f1f] text-gray-300">
@@ -382,16 +386,18 @@ new class extends Component {
                 </div>
             </div>
 
-            <!-- قائمة الجوال المنسدلة (Mobile Dropdown Menu) -->
+            <!-- قائمة الجوال والأجهزة اللوحية المنسدلة -->
             <div x-show="mobileMenuOpen" 
                  x-transition 
-                 class="md:hidden border-t border-slate-800 bg-[#0a0f1f]/95 backdrop-blur-md px-4 py-3 space-y-3" x-cloak>
-                <form action="{{ route('search') }}" method="GET" class="relative">
+                 class="lg:hidden border-t border-slate-800 bg-[#0a0f1f]/95 backdrop-blur-md px-4 py-3 space-y-3" x-cloak>
+                
+                <!-- حقل البحث يظهر هنا للشاشات الصغيرة جداً -->
+                <form action="{{ route('search') }}" method="GET" class="relative sm:hidden">
                     <input 
                         type="text" 
                         name="q" 
                         value="{{ request('q') }}"
-                        placeholder="{{ __('Search articles...') }}" 
+                        placeholder="{{ __('Search...') }}" 
                         class="w-full bg-slate-900 border border-slate-800 text-gray-200 placeholder-gray-500 text-xs rounded-lg ltr:pl-9 ltr:pr-3 rtl:pr-9 rtl:pl-3 py-2 focus:outline-none focus:border-red-600/60 transition"
                         required
                     />
@@ -402,29 +408,9 @@ new class extends Component {
                     </button>
                 </form>
 
-                <div class="space-y-1 pt-2">
-                    <a href="{{ route('games.index') }}" class="block text-gray-300 hover:text-red-500 hover:bg-slate-900/60 px-3 py-2 rounded-lg text-xs font-medium">
-                        🎮 Games
-                    </a>
-                    <a href="{{ route('suggestions.index') }}" class="block text-gray-300 hover:text-red-500 hover:bg-slate-900/60 px-3 py-2 rounded-lg text-xs font-medium">
-                        Suggestions
-                    </a>
-                    <a href="{{ route('community.cases.index') }}" class="block text-gray-300 hover:text-red-500 hover:bg-slate-900/60 px-3 py-2 rounded-lg text-xs font-medium">
-                        Detectives
-                    </a>
-                    <a href="{{ route('books.index') }}" class="block text-gray-300 hover:text-red-500 hover:bg-slate-900/60 px-3 py-2 rounded-lg text-xs font-medium">
-                        Books
-                    </a>
-                    <a href="{{ route('media-summaries.index') }}" class="block text-gray-300 hover:text-red-500 hover:bg-slate-900/60 px-3 py-2 rounded-lg text-xs font-medium">
-                        Media Summaries
-                    </a>
-                    <a href="{{ route('map') }}" class="block text-gray-300 hover:text-red-500 hover:bg-slate-900/60 px-3 py-2 rounded-lg text-xs font-medium">
-                        🗺️ Map
-                    </a>
-                </div>
-
+                <!-- أزرار الدخول والتسجيل للموبايل إذا كان زائر -->
                 @guest
-                <div class="pt-2 border-t border-slate-800 flex gap-2">
+                <div class="flex sm:hidden gap-2 pb-2 border-b border-slate-800">
                     <a href="{{ route('login') }}" class="flex-1 text-center text-xs font-semibold text-gray-300 bg-slate-900 border border-slate-800 py-2 rounded-lg">
                         Log In
                     </a>
@@ -433,6 +419,44 @@ new class extends Component {
                     </a>
                 </div>
                 @endguest
+
+                <!-- محدد اللغة — يظهر هنا فقط على < 375px لتعويض إخفائه من الشريط العلوي -->
+                <div class="min-[375px]:hidden pb-2 border-b border-slate-800">
+                    <label class="block text-[10px] text-gray-400 font-medium mb-1">{{ __('Language') ?? 'اللغة' }}:</label>
+                    <select class="lang-switcher w-full bg-slate-900 border border-slate-800 text-gray-300 text-xs rounded-lg px-2 py-2 focus:outline-none focus:border-red-600/60 cursor-pointer capitalize" onchange="location=this.value;">
+                        @foreach(LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
+                            <option value="{{ LaravelLocalization::getLocalizedURL($localeCode, null, [], true) }}" {{ app()->getLocale() == $localeCode ? 'selected' : '' }} class="bg-[#0a0f1f] text-gray-300">
+                                {{ $properties['native'] }} ({{ strtoupper($localeCode) }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- روابط التنقل الشاملة في قائمة الجوال -->
+                <div class="space-y-1">
+                    <a href="{{ route('categories.index') }}" class="flex items-center gap-2 text-red-400 hover:text-red-300 bg-red-950/20 hover:bg-red-950/40 px-3 py-2 rounded-lg text-xs font-bold border border-red-900/30 transition">
+                        <span>📁</span> {{ __('View All Categories') }}
+                    </a>
+                    <a href="{{ route('games.index') }}" class="block text-gray-300 hover:text-red-500 hover:bg-slate-900/60 px-3 py-2 rounded-lg text-xs font-medium transition">
+                        🎮 Games
+                    </a>
+                    <a href="{{ route('suggestions.index') }}" class="block text-gray-300 hover:text-red-500 hover:bg-slate-900/60 px-3 py-2 rounded-lg text-xs font-medium transition">
+                        Suggestions
+                    </a>
+                    <a href="{{ route('community.cases.index') }}" class="block text-gray-300 hover:text-red-500 hover:bg-slate-900/60 px-3 py-2 rounded-lg text-xs font-medium transition">
+                        Detectives
+                    </a>
+                    <a href="{{ route('books.index') }}" class="block text-gray-300 hover:text-red-500 hover:bg-slate-900/60 px-3 py-2 rounded-lg text-xs font-medium transition">
+                        Books
+                    </a>
+                    <a href="{{ route('media-summaries.index') }}" class="block text-gray-300 hover:text-red-500 hover:bg-slate-900/60 px-3 py-2 rounded-lg text-xs font-medium transition">
+                        Media Summaries
+                    </a>
+                    <a href="{{ route('map') }}" class="block text-gray-300 hover:text-red-500 hover:bg-slate-900/60 px-3 py-2 rounded-lg text-xs font-medium transition">
+                        🗺️ Map
+                    </a>
+                </div>
+
             </div>
         </nav>
 

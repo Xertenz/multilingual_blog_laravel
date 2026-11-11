@@ -20,13 +20,13 @@ class ProfileController extends Controller
     {
         $currentLocale = LaravelLocalization::getCurrentLocale();
 
-        // جلب المستخدم الحالي مع فئاته المفضلة وتراجمها باللغة الحالية لمنع N+1
+        // جلب المستخدم الحالي مع فئاته المفضلة، تراجعمها باللغة الحالية، وصورها البارزة لمنع N+1
         $user = $request->user()->load([
             'favoriteCategories.translations' => function ($query) use ($currentLocale) {
                 $query->where('locale', $currentLocale);
-            }
+            },
+            'favoriteCategories.media' // 👈 جلب وسائط الفئات (featured_imgs)
         ]);
-
 
         return view('profile.favorite-categories', [
             'favoriteCategories' => $user->favoriteCategories,
@@ -36,11 +36,17 @@ class ProfileController extends Controller
     public function savedArticles(Request $request)
     {
         $currentLocale = LaravelLocalization::getCurrentLocale();
+
         $user = $request->user()->load([
             'savedArticles.translations' => function ($query) use ($currentLocale) {
                 $query->where('locale', $currentLocale);
+            },
+            'savedArticles.media',                  // 👈 الصور البارزة للمقال (featured_imgs)
+            'savedArticles.category.translations' => function ($query) use ($currentLocale) {
+                $query->where('locale', $currentLocale);
             }
         ]);
+
         return view('profile.saved-articles', [
             'savedArticles' => $user->savedArticles,
         ]);
@@ -48,7 +54,8 @@ class ProfileController extends Controller
 
     public function followingAuthors(Request $request)
     {
-        $user = $request->user()->load('followingAuthors');
+        // جلب الكتّاب المتابَعين مع صور الـ Avatar الخاصة بهم لمنع N+1
+        $user = $request->user()->load('followingAuthors.media');
 
         return view('profile.following-authors', [
             'followingAuthors' => $user->followingAuthors,

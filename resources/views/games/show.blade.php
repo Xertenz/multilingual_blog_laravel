@@ -73,7 +73,7 @@
             <!-- Store / Affiliate Button -->
             @if($game_trans->affiliate_url)
                 <a href="{{ $game_trans->affiliate_url }}" target="_blank" rel="nofollow noopener" 
-                   class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-5 py-2.5 rounded-xl shadow-sm transition-colors flex items-center gap-2">
+                   class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-5 py-2.5 rounded-md shadow-sm transition-colors flex items-center gap-2">
                     <span>🛒 {{ __('Get / Buy Game') }}</span>
                 </a>
             @endif
@@ -81,46 +81,6 @@
     </div>
 
 
-    <!-- 👤 بطاقة معلومات الكاتب وزر المتابعة المنظم -->
-    {{--
-    @if($game_trans->user)
-        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-4 sm:p-5 mb-8 shadow-sm flex items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <div class="w-11 h-11 rounded-full bg-red-950/80 border border-red-800/60 flex items-center justify-center text-red-400 font-bold text-sm">
-                    {{ strtoupper(substr($game_trans->user->name, 0, 1)) }}
-                </div>
-                <div>
-                    <span class="text-[10px] uppercase font-bold text-slate-400 block">{{ __('Written & Reviewed By') }}</span>
-                    <a href="{{ route('authors.show', $game_trans->user->id) }}" class="text-xs sm:text-sm font-bold text-slate-800 dark:text-white hover:text-red-500 transition">
-                        {{ $game_trans->user->name }}
-                    </a>
-                </div>
-            </div>
-
-            <!-- author following button -->
-            @auth
-                @if(auth()->id() !== $game_trans->user_id) 
-                    @php
-                        $isFollowingAuthor = auth()->user()->followingAuthors->contains($game_trans->user_id);
-                    @endphp
-
-                    <button type="button" 
-                            id="follow-author-btn-{{ $game_trans->user_id }}"
-                            onclick="toggleFollowAuthor(event, {{ $game_trans->user_id }})"
-                            class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl transition duration-200 border
-                            {{ $isFollowingAuthor 
-                                ? 'bg-rose-950/80 text-rose-400 border-rose-800/60' 
-                                : 'bg-slate-800 text-gray-300 border-slate-700 hover:text-white' 
-                            }}">
-                        <span id="follow-author-text-{{ $game_trans->user_id }}">
-                            {{ $isFollowingAuthor ? __('Following') : __('Follow Author') }}
-                        </span>
-                    </button>
-                @endif
-            @endauth
-        </div>
-    @endif
-    --}}
     <!-- author card include here -->
     @include('partials.author-card', ['user' => $game_trans->user, 'label' => __('Written & Reviewed By')])
 

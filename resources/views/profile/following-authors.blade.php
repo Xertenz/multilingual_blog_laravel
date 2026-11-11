@@ -26,14 +26,27 @@
                         
                         <div id="author-card-{{ $author->id }}" class="flex flex-col justify-between p-5 bg-slate-900/50 border border-slate-800 rounded-xl shadow-sm hover:border-slate-700 transition-all duration-200 group">
                             <div class="flex items-center gap-3">
-                                <div class="w-12 h-12 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-red-500 font-bold text-lg uppercase shrink-0">
-                                    {{ substr($author->name, 0, 2) }}
+                                
+                                <!-- 🖼️ فحص وعرض صورة الـ Avatar الخاصة بالكاتب تماماً مثل صفحة البروفايل -->
+                                @php
+                                    $authorAvatar = $author->hasMedia('avatar_imgs') 
+                                        ? $author->getFirstMediaUrl('avatar_imgs', 'thumb') 
+                                        : null;
+                                @endphp
+
+                                <div class="w-12 h-12 rounded-full overflow-hidden border border-slate-700 bg-slate-800 flex items-center justify-center text-red-500 font-bold text-lg uppercase shrink-0 group-hover:border-red-500/50 transition">
+                                    @if($authorAvatar)
+                                        <img src="{{ $authorAvatar }}" alt="{{ $author->name }}" class="w-full h-full object-cover">
+                                    @else
+                                        <span class="text-sm font-extrabold text-red-400">{{ strtoupper(substr($author->name, 0, 2)) }}</span>
+                                    @endif
                                 </div>
+
                                 <div class="overflow-hidden">
                                     <a href="{{ route('authors.show', $author->id) }}" class="text-sm font-bold text-slate-200 group-hover:text-red-500 transition-colors truncate block">
                                         {{ $author->name }}
                                     </a>
-                                    <p class="text-xs text-slate-400 mt-0.5">
+                                    <p class="text-xs text-slate-400 mt-0.5 font-mono">
                                         {{ $author->authorFollowers()->count() }} {{ __('Followers') }}
                                     </p>
                                 </div>

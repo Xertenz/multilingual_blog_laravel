@@ -29,7 +29,7 @@
                     style="field-sizing: content;"
                 ></textarea>
                 <div class="flex justify-end">
-                    <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs py-2 px-4 rounded-lg transition duration-150">
+                    <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white font-semibold text-xs py-2 px-4 rounded-md transition duration-150">
                         Add Comment
                     </button>
                 </div>

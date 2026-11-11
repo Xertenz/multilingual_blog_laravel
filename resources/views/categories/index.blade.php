@@ -2,17 +2,19 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
-    <!-- عنوان الصفحة -->
-    <div class="mb-8 border-b border-slate-800 pb-4">
-        <h1 class="text-2xl md:text-3xl font-black text-white tracking-wider flex items-center gap-3">
-            <span class="w-3 h-3 bg-red-600 rounded-sm"></span>
-            {{ __('nav.categories') }}
-        </h1>
-        <p class="text-xs md:text-sm text-gray-400 mt-1">
+    <!-- عنوان الصفحة (تم تعديله ليصبح مدمجاً، أصغر حجماً، وبمحاذاة اليسار/البداية) -->
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800 pb-4 gap-2">
+        <div class="flex items-center gap-2.5">
+            <span class="w-2.5 h-2.5 bg-red-600 rounded-sm shrink-0"></span>
+            <h1 class="text-xl md:text-2xl font-extrabold text-white tracking-wide">
+                {{ __('nav.categories') }}
+            </h1>
+        </div>
+        <p class="text-xs text-slate-400">
             {{ __('Explore all case categories and investigative archives.') }}
         </p>
     </div>
-
+    
     <!-- شبكة التصنيفات -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         @forelse($categories as $cat)
@@ -34,7 +36,7 @@
                 <!-- صورة التصنيف -->
                 <div class="relative h-40 w-full overflow-hidden bg-slate-950">
                     <img src="{{ $imageUrl }}" alt="{{ $catName }}" 
-                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100">
+                         class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500 opacity-80 group-hover:opacity-100">
                     <div class="absolute inset-0 bg-gradient-to-t from-[#0f1526] via-transparent to-transparent"></div>
                     
                     <!-- عداد المقالات -->

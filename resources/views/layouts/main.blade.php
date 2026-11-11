@@ -172,6 +172,8 @@
         <!-- ==================== -->
         @include('partials.footer')
 
+        <x-partials.scroll-to-top />
+
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         @stack('scripts')
         
@@ -225,5 +227,6 @@
             document.getElementById('report-modal').classList.add('hidden');
         }
         </script>
+
     </body>
 </html>

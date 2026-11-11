@@ -1,26 +1,38 @@
-<div class="max-w-5xl mx-auto px-4 py-8">
-    
-    <!-- الهيدر والتوجيه -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-slate-800 pb-6">
-        <div>
-            <h1 class="text-2xl md:text-3xl font-black text-gray-100 flex items-center gap-2">
-                <span class="text-red-600">#</span> {{ __('Case File Suggestions') ?? 'اقتراحات القضايا' }}
-            </h1>
-            <p class="text-xs md:text-sm text-gray-400 mt-1">
+<div class="container mx-auto px-4 py-8">
+
+    <!-- الهيدر الموحّد — مطابق لصفحات الكتب والألعاب والفئات -->
+    <div class="bg-[#0f1526] border border-slate-800 rounded-xl px-5 py-4 mb-6 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="space-y-1">
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-red-600 rounded-sm shrink-0"></span>
+                <h1 class="text-lg md:text-xl font-bold text-white tracking-wide">
+                    {{ __('Case File Suggestions') ?? 'اقتراحات القضايا' }}
+                </h1>
+            </div>
+            <p class="text-gray-400 text-xs max-w-2xl leading-relaxed">
                 {{ __('Suggest cold cases or mysteries you want us to investigate and write about.') ?? 'اقترح قضايا أو جرائم غامضة ترغب في أن يحقق فيها فريقنا ويكتب عنها.' }}
             </p>
         </div>
 
-        @auth
-            <button @click="$wire.set('showModal', true)" class="bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase px-4 py-2.5 rounded-lg shadow-lg shadow-red-900/30 transition flex items-center justify-center gap-2 self-start md:self-auto">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                <span>{{ __('Suggest a Case') ?? 'اقترح قضية جديدة' }}</span>
-            </button>
-        @else
-            <a href="{{ route('login') }}" class="bg-slate-800 hover:bg-slate-700 text-gray-300 font-bold text-xs px-4 py-2.5 rounded-lg border border-slate-700 transition text-center">
-                {{ __('Log in to suggest cases') ?? 'سجل الدخول لإضافة اقتراح' }}
-            </a>
-        @endauth
+        <!-- يمين الصندوق: عدّاد + زر الإجراء -->
+        <div class="shrink-0 self-start sm:self-center flex items-center gap-2">
+            <span class="inline-block px-2.5 py-1 bg-slate-900 text-gray-300 text-[11px] font-mono rounded-md border border-slate-800">
+                {{ $suggestions->total() }} {{ __('Suggestions') ?? 'اقتراح' }}
+            </span>
+
+            @auth
+                <button @click="$wire.set('showModal', true)"
+                        class="bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase px-4 py-2 rounded-lg shadow-lg shadow-red-900/30 transition flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    <span>{{ __('Suggest a Case') ?? 'اقترح قضية' }}</span>
+                </button>
+            @else
+                <a href="{{ route('login') }}"
+                   class="bg-slate-800 hover:bg-slate-700 text-gray-300 font-bold text-xs px-4 py-2 rounded-lg border border-slate-700 transition text-center">
+                    {{ __('Log in to suggest') ?? 'سجل الدخول' }}
+                </a>
+            @endauth
+        </div>
     </div>
 
     <!-- رسالة النجاح -->
@@ -30,9 +42,11 @@
         </div>
     @endif
 
-    <!-- شريط التصفية والفرز -->
-    <div class="flex justify-between items-center mb-6">
-        <div class="flex items-center gap-2">
+    <!-- شريط التصفية والفرز — متجاوب -->
+    <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-between gap-3 mb-6">
+
+        <!-- أزرار التصفية (الأكثر طلباً / الأحدث) -->
+        <div class="flex items-center gap-2 flex-shrink-0">
             <button wire:click="$set('filter', 'popular')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition {{ $filter === 'popular' ? 'bg-red-950/80 text-red-400 border border-red-800/60' : 'bg-slate-900 text-gray-400 hover:text-white border border-slate-800' }}">
                 {{ __('Most Wanted') ?? 'الأكثر طلباً' }}
             </button>
@@ -43,15 +57,15 @@
 
         <!-- فلتر مقترحاتي فقط (يظهر للمسجلين فقط) -->
         @auth
-        <label class="flex items-center gap-2 cursor-pointer text-xs font-medium text-gray-300 hover:text-white select-none">
+        <label class="flex items-center gap-2 cursor-pointer text-xs font-medium text-gray-300 hover:text-white select-none whitespace-nowrap">
             <input type="checkbox" wire:model.live="mySuggestionsOnly" class="w-4 h-4 rounded bg-slate-900 border-slate-800 text-red-600 focus:ring-red-600/50 focus:ring-offset-0 cursor-pointer">
             <span>{{ __('My Suggestions Only') ?? 'مقترحاتي فقط' }}</span>
         </label>
         @endauth
 
         <!-- قائمة اختيار اللغة -->
-        <div class="flex items-center gap-2">
-            <label class="text-xs text-gray-400 font-medium">{{ __('Language') ?? 'اللغة' }}:</label>
+        <div class="flex items-center gap-2 flex-shrink-0">
+            <label class="text-xs text-gray-400 font-medium whitespace-nowrap">{{ __('Language') ?? 'اللغة' }}:</label>
             <select wire:model.live="selectedLocale" class="bg-slate-900 border border-slate-800 text-gray-300 text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-red-600/60 capitalize cursor-pointer">
                 <option value="all">{{ __('All Languages') ?? 'جميع اللغات' }}</option>
                 @foreach($locales as $code => $properties)
@@ -65,29 +79,29 @@
     <div class="space-y-4">
         @forelse($suggestions as $suggestion)
             @php $isVoted = $suggestion->isVotedBy(auth()->user()); @endphp
-            <div class="bg-[#0f1526] border border-slate-800 hover:border-slate-700 rounded-xl p-4 transition flex items-start gap-4 shadow-lg">
-                
+            <div class="bg-[#0f1526] border border-slate-800 hover:border-slate-700 rounded-xl p-4 transition flex items-start gap-3 sm:gap-4 shadow-lg">
+
                 <!-- زر التصويت -->
-                <button wire:click="toggleVote({{ $suggestion->id }})" 
-                        class="flex flex-col items-center justify-center p-2.5 rounded-xl border transition min-w-[54px] {{ $isVoted ? 'bg-red-600/20 border-red-600/60 text-red-500' : 'bg-slate-900 border-slate-800 text-gray-400 hover:border-slate-700 hover:text-white' }}">
-                    <svg class="w-5 h-5 transition-transform group-hover:-translate-y-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button wire:click="toggleVote({{ $suggestion->id }})"
+                        class="flex flex-col items-center justify-center p-2 sm:p-2.5 rounded-xl border transition min-w-[46px] sm:min-w-[54px] flex-shrink-0 {{ $isVoted ? 'bg-red-600/20 border-red-600/60 text-red-500' : 'bg-slate-900 border-slate-800 text-gray-400 hover:border-slate-700 hover:text-white' }}">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:-translate-y-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"></path>
                     </svg>
-                    <span class="text-xs font-black mt-1">{{ $suggestion->votes_count }}</span>
+                    <span class="text-[11px] sm:text-xs font-black mt-1">{{ $suggestion->votes_count }}</span>
                 </button>
 
                 <!-- تفاصيل الاقتراح -->
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 flex-wrap mb-1">
-                        <h2 class="text-sm md:text-base font-bold text-gray-200 truncate">{{ $suggestion->title }}</h2>
-                        
+                        <h2 class="text-sm md:text-base font-bold text-gray-200 break-words">{{ $suggestion->title }}</h2>
+
                         <!-- بادج الحالة -->
                         @if($suggestion->status === 'pending')
-                            <span class="px-2 py-0.5 text-[10px] font-semibold bg-amber-950/60 text-amber-400 border border-amber-800/40 rounded-md">{{ __('Pending') ?? 'قيد المراجعة' }}</span>
+                            <span class="px-2 py-0.5 text-[10px] font-semibold bg-amber-950/60 text-amber-400 border border-amber-800/40 rounded-md whitespace-nowrap">{{ __('Pending') ?? 'قيد المراجعة' }}</span>
                         @elseif($suggestion->status === 'approved')
-                            <span class="px-2 py-0.5 text-[10px] font-semibold bg-blue-950/60 text-blue-400 border border-blue-800/40 rounded-md">{{ __('In Research') ?? 'قيد البحث' }}</span>
+                            <span class="px-2 py-0.5 text-[10px] font-semibold bg-blue-950/60 text-blue-400 border border-blue-800/40 rounded-md whitespace-nowrap">{{ __('In Research') ?? 'قيد البحث' }}</span>
                         @elseif($suggestion->status === 'written')
-                            <span class="px-2 py-0.5 text-[10px] font-semibold bg-emerald-950/60 text-emerald-400 border border-emerald-800/40 rounded-md">{{ __('Investigated') ?? 'تمت كتابتها' }}</span>
+                            <span class="px-2 py-0.5 text-[10px] font-semibold bg-emerald-950/60 text-emerald-400 border border-emerald-800/40 rounded-md whitespace-nowrap">{{ __('Investigated') ?? 'تمت كتابتها' }}</span>
                         @endif
                     </div>
 
@@ -95,9 +109,9 @@
                         <p class="text-xs text-gray-400 line-clamp-2 mb-2">{{ $suggestion->description }}</p>
                     @endif
 
-                    <div class="flex items-center gap-3 text-[11px] text-gray-500">
+                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-gray-500">
                         <span>{{ __('Suggested by') ?? 'مقترح بواسطة' }}: <strong class="text-gray-400"><a href="{{route('profile.show', ['id' => $suggestion->user->id])}}">{{ $suggestion->user->name }}</a></strong></span>
-                        <span>•</span>
+                        <span class="hidden sm:inline">•</span>
                         <span>{{ $suggestion->created_at->diffForHumans() }}</span>
                     </div>
                 </div>
