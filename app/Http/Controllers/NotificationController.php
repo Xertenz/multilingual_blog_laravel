@@ -262,7 +262,55 @@ class NotificationController extends Controller
                 break;
 
 
+            case \App\Notifications\AuthorNewContentNotification::class:
+                $contentType = $data['content_type'] ?? null;
+                $contentId = $data['content_id'] ?? null;
 
+                // 🛡️ استخدام لغة المستخدم المستلم للإشعار حصرياً لكي لا تتغير لغته رغماً عنه
+                $recipientLocale = $notification->notifiable->locale ?? LaravelLocalization::getCurrentLocale();
+
+                if ($contentType && $contentId) {
+                    switch ($contentType) {
+                        case 'article':
+                            $articleTrans = \App\Models\ArticleTranslation::find($contentId);
+                            if ($articleTrans) {
+                                // توليد الرابط بالاعتماد على لغة المستخدم المستلم للإشعار
+                                $targetUrl = LaravelLocalization::getLocalizedURL($recipientLocale, route('articles.show', [
+                                    'id'   => $articleTrans->id,
+                                    'slug' => $articleTrans->slug
+                                ]));
+                            }
+                            break;
+
+                        case 'book':
+                            $book_trans = \App\Models\BookTranslation::find($contentId);
+                            if ($book_trans) {
+                                //$trans = $book->translate($recipientLocale) ?? $book->translations->first();
+                                $targetUrl = LaravelLocalization::getLocalizedURL($recipientLocale, route('books.show', [
+                                    'id' => $book_trans->id,
+                                    'slug' => $book_trans->slug
+                                ]));
+                            }
+                            break;
+
+                        case 'game':
+                            $game = \App\Models\Game::find($contentId);
+                            if ($game) {
+                                $targetUrl = LaravelLocalization::getLocalizedURL($recipientLocale, route('games.show', $game->id));
+                            }
+                            break;
+
+                        case 'media':
+                            $mediaSummary = \App\Models\MediaSummary::find($contentId);
+                            if ($mediaSummary) {
+                                $targetUrl = LaravelLocalization::getLocalizedURL($recipientLocale, route('media-summaries.show', $mediaSummary->id));
+                            }
+                            break;
+                    }
+                }
+
+                $targetUrl = $targetUrl ?? LaravelLocalization::getLocalizedURL($recipientLocale, route('home.index'));
+                break;
 
             // 🔮 لأي أنواع إشعارات مستقبلية
             default:

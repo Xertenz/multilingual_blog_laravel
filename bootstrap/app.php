@@ -29,11 +29,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         ]);
     })
+    /*
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->web(append: [
             \App\Http\Middleware\UpdateUserLocale::class,
         ]);
     })
+    */
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'banned' => \App\Http\Middleware\CheckBanned::class,

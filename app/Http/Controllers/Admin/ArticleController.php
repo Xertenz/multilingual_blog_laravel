@@ -16,8 +16,16 @@ class ArticleController extends Controller
 {
     public function index()
     {
-        $articles = Article::with(['translations', 'user'])->paginate(10);
-        return view("admin.articles.index", compact('articles'));
+        /*
+        $articles = Article::with(['translations', 'user', 'category'])->paginate(10);
+        */
+        $articles = Article::with(['translations', 'user', 'category'])
+            ->withCount(['media as content_imgs_count' => function ($q) {
+                $q->where('collection_name', 'content_imgs');
+            }])
+            ->paginate(10);
+        $supportedLocales = \Mcamara\LaravelLocalization\Facades\LaravelLocalization::getSupportedLocales();
+        return view("admin.articles.index", compact('articles', 'supportedLocales'));
     }
 
     public function create(Request $request)

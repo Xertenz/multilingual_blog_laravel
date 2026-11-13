@@ -53,7 +53,12 @@ use App\Http\Controllers\Front\GameController as FrontGameController;
 
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),
-    'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath']
+    'middleware' => [
+        'localeSessionRedirect',
+        'localizationRedirect',
+        'localeViewPath',
+        \App\Http\Middleware\UpdateUserLocale::class
+    ]
 ], function () {
 
     // مسارات ملخصات ومراجعات الألعاب (Frontend)

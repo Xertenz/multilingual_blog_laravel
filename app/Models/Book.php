@@ -19,7 +19,7 @@ class Book extends Model implements HasMedia
     protected $guarded = [];
 
     // علاقة مالك الكتاب
-    public function user()
+    public function uploader()
     {
         return $this->belongsTo(User::class);
     }

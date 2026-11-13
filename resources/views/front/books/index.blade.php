@@ -4,7 +4,7 @@
 @section('content')
 <div class="container mx-auto px-4 py-8">
 
-    <!-- Page Header — موحّد مع صفحتي الألعاب والفئات -->
+    <!-- Page Header -->
     <div class="bg-[#0f1526] border border-slate-800 rounded-xl px-5 py-4 mb-6 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div class="space-y-1">
             <div class="flex items-center gap-2">
@@ -20,39 +20,37 @@
 
         <div class="shrink-0 self-start sm:self-center">
             <span class="inline-block px-2.5 py-1 bg-slate-900 text-gray-300 text-[11px] font-mono rounded-md border border-slate-800">
-                {{ $books->total() }} {{ __('Books') }}
+                {{ $translations->total() }} {{ __('Books') }}
             </span>
         </div>
     </div>
 
     <!-- Books Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        @forelse($books as $book)
+        @forelse($translations as $trans)
             @php
-                $trans = $book->translate(app()->getLocale());
-                if (!$trans || !$trans->title) {
-                    $trans = $book->translations->first();
-                }
+                $book = $trans->book;
 
-                // صورة الغلاف
+                // صورة الغلاف (أولوية لغلاف الترجمة ثم الغلاف العام للكتاب)
                 $media = null;
-                if ($trans && $trans->hasMedia('cover_imgs')) {
+                if ($trans->hasMedia('cover_imgs')) {
                     $media = $trans->getFirstMedia('cover_imgs');
-                } elseif ($book->hasMedia('cover_imgs')) {
+                } elseif ($book && $book->hasMedia('cover_imgs')) {
                     $media = $book->getFirstMedia('cover_imgs');
                 }
                 $imageUrl = $media ? $media->getUrl('medium') : asset('images/default-book.jpg');
 
                 // اسم الفئة المترجم
                 $catName = null;
-                if ($book->bookCategory) {
+                if ($book && $book->bookCategory) {
                     $catTrans = $book->bookCategory->translations->where('locale', app()->getLocale())->first()
                              ?? $book->bookCategory->translations->first();
                     $catName = $catTrans->name ?? $book->bookCategory->label;
                 }
             @endphp
 
-            <a href="{{ route('books.show', ['id' => $book->id, 'slug' => $trans->slug ?? 'book']) }}"
+            {{-- 🔗 هنا الرابط يحتوي على id الترجمة ($trans->id) بدل id الكتاب الأساسي --}}
+            <a href="{{ route('books.show', ['id' => $trans->id, 'slug' => $trans->slug ?? 'book']) }}"
                class="group relative bg-[#0f1526] border border-slate-800 hover:border-red-600/60 rounded-xl overflow-hidden shadow-lg transition-all duration-300 flex flex-col justify-between">
 
                 <div>
@@ -77,14 +75,14 @@
                         @endif
 
                         <!-- سنة النشر أعلى اليمين -->
-                        @if($book->published_year)
+                        @if($book && $book->published_year)
                             <span class="absolute top-3 right-3 bg-slate-950/80 backdrop-blur-md border border-slate-800 text-gray-300 text-[10px] font-mono px-2.5 py-1 rounded-lg">
                                 {{ $book->published_year }}
                             </span>
                         @endif
 
                         <!-- شارة السعر أسفل اليمين -->
-                        @if($trans && $trans->price)
+                        @if($trans->price)
                             <span class="absolute bottom-3 right-3 bg-red-600/90 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-lg shadow-lg">
                                 {{ $trans->currency ?? 'USD' }} {{ $trans->price }}
                             </span>
@@ -111,7 +109,7 @@
                 <div class="p-4 pt-3 border-t border-slate-850 flex items-center justify-between text-xs text-slate-400">
                     <span class="font-mono truncate max-w-[120px]">
                         📖
-                        {{ $book->pages_count ? $book->pages_count . ' ' . __('Pages') : __('Book') }}
+                        {{ ($book && $book->pages_count) ? $book->pages_count . ' ' . __('Pages') : __('Book') }}
                     </span>
 
                     <span class="text-red-500 font-semibold flex items-center gap-1 shrink-0">
@@ -130,9 +128,9 @@
     </div>
 
     <!-- Pagination -->
-    @if($books->hasPages())
+    @if($translations->hasPages())
         <div class="mt-10">
-            {{ $books->links() }}
+            {{ $translations->links() }}
         </div>
     @endif
 

@@ -59,7 +59,7 @@
                                         {{ $trans->title }}
                                     </h2>
                                     <p class="text-xs text-gray-400 mt-1.5 line-clamp-2 leading-relaxed">
-                                        {!! strip_tags($trans->description) !!}
+                                        {{ Str::limit(strip_tags($trans->description)) }}
                                     </p>
                                 </div>
                             </div>

@@ -295,7 +295,7 @@ new class extends Component {
                                         @if($hasMoreNotifications)
                                             <button wire:click="loadMoreNotifications" 
                                                     class="notifications-load-more bg-slate-900 hover:bg-red-900/25 text-gray-400 hover:text-red-400 text-xs uppercase w-full py-2.5 font-bold tracking-wider border-t border-slate-800 transition block">
-                                                Load More Cases
+                                                Load More
                                             </button>
                                         @endif
                                     </div>

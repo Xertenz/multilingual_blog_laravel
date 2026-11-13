@@ -12,4 +12,10 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    server: {
+        host: "0.0.0.0",
+        hmr: {
+            host: "192.168.10.103", // ضع هنا عنوان IP جهاز الكمبيوتر
+        },
+    },
 });

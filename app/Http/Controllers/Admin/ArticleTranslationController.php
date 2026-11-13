@@ -17,14 +17,17 @@ class ArticleTranslationController extends Controller
 {
     public function create(Request $request, int $article_id)
     {
-        // 🔒 التحقق الأمني: مسموح للكاتب، المحرر، والمدير بإنشاء التراجم والمحتوى
         if (!$request->user() || !$request->user()->hasRole(['super-admin', 'editor', 'writer'])) {
             abort(403, 'غير مسموح لك بالوصول إلى هذه الصفحة.');
         }
 
-        $article = Article::findOrFail($article_id);
+        $article = Article::with('translations')->findOrFail($article_id);
         $article_content_imgs = $article->getMedia('content_imgs');
-        return view('admin.articles.create-trans', compact('article_id', 'article_content_imgs'));
+
+        // 🌐 اللغة المختارة مسبقاً من رابط ?locale=xx
+        $selectedLocale = $request->query('locale');
+
+        return view('admin.articles.create-trans', compact('article', 'article_content_imgs', 'selectedLocale'));
     }
 
     public function store(Request $request)
@@ -95,7 +98,8 @@ class ArticleTranslationController extends Controller
             // 5. إرسال الإشعارات إذا كانت الترجمة والمقال منشرين بالفعل
             $article = $article_trans->article;
             if ($article && $article->status === 'published' && $article_trans->status === 'published' && $article->category) {
-                \App\Jobs\SendNewArticleNotificationJob::dispatch($article_trans)->onQueue('default');
+                //\App\Jobs\SendNewArticleNotificationJob::dispatch($article_trans)->onQueue('default');
+                \App\Jobs\SendAuthorNewContentJob::dispatch($article_trans, 'article')->onQueue('default');
             }
 
             //Cache::forget("article_show_{$article_trans->id}_lang_{$article_trans->locale}");
@@ -137,7 +141,7 @@ class ArticleTranslationController extends Controller
 
         // 🔍 شرط العرض المزدوج: يجب أن يكون المقال الأساسي منشوراً، والترجمة الخاصة بهذه اللفة منشورة أيضاً
         if (!$trans || $trans->article->status != "published" || $trans->status != "published") {
-            return null;
+            return to_route('home.index')->with('info', __('This article is not available at the moment.'));
         }
 
 
@@ -282,7 +286,7 @@ class ArticleTranslationController extends Controller
             ]);
             // التحقق مما إذا كانت الترجمة أصبحت منشورة حديثاً بعد التحديث
             if ($article_trans->article && $article_trans->article->status === 'published' && $article_trans->status === 'published' && $article_trans->article->category) {
-                \App\Jobs\SendNewArticleNotificationJob::dispatch($article_trans)->onQueue('default');
+                //\App\Jobs\SendNewArticleNotificationJob::dispatch($article_trans)->onQueue('default');
             }
 
             //Cache::forget("article_show_{$article_trans->id}_lang_{$article_trans->locale}");

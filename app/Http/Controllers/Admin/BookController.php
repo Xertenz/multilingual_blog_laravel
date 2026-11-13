@@ -111,6 +111,10 @@ class BookController extends Controller
                     $translation->addMediaFromRequest("translations.{$localeCode}.cover_image")
                         ->toMediaCollection('cover_imgs');
                 }
+
+
+
+                \App\Jobs\SendAuthorNewContentJob::dispatch($translation, 'book')->onQueue('default');
             }
         }
 

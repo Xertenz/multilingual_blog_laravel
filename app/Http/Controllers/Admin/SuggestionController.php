@@ -25,11 +25,11 @@ class SuggestionController extends Controller
             'status' => 'required|in:pending,approved,written',
         ]);
 
-        $suggestion->update([
-            'status' => $request->status,
-        ]);
+        $user = $suggestion->user;
 
-        $suggestion->user->notify(new SuggestionStatusUpdated($suggestion));
+        if ($user) {
+            $user->notify(new SuggestionStatusUpdated($suggestion));
+        }
 
         return redirect()->route('admin.suggestions.index')
             ->with('success', 'Suggestion status updated successfully.');

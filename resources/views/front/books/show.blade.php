@@ -64,7 +64,7 @@
                 </div>
 
                 <!-- Author card here -->
-                @include('partials.author-card', ['user' => $translation->user, 'label' => __('Translated & Summarized By'), 'bgClass' => 'bg-slate-800/80 border border-slate-700/60 text-slate-200'])
+                @include('partials.author-card', ['uploader' => $translation->uploader, 'label' => __('Translated & Summarized By'), 'bgClass' => 'bg-slate-800/80 border border-slate-700/60 text-slate-200'])
 
                 <!-- Meta Badges -->
                 <div class="flex flex-wrap gap-3 py-3 border-y border-slate-800 text-xs text-slate-300">

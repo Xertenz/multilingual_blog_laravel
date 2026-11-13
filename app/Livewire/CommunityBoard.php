@@ -98,6 +98,6 @@ class CommunityBoard extends Component
         return view('livewire.community-board', [
             'cases' => $cases,
             'categories' => $categories,
-        ])->layout('layouts.main');
+        ]); //->layout('layouts.main');
     }
 }
