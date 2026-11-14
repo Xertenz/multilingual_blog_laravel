@@ -17,21 +17,37 @@
 
         <hr class="my-6">
 
-        <h3 class="text-xl font-semibold mb-4 text-gray-700">Translations (Multi-Language)</h3>
+        <h3 class="text-xl font-semibold mb-4 text-gray-700">Translations & SEO (Multi-Language)</h3>
 
         <div class="space-y-4">
             @foreach($supportedLocales as $localeCode => $properties)
-                <div class="border border-gray-200 p-4 rounded-lg bg-gray-50">
-                    <h4 class="font-bold text-blue-600 mb-2 uppercase">{{ $properties['native'] }} ({{ $localeCode }})</h4>
+                <div class="border border-gray-200 p-4 rounded-lg bg-gray-50 space-y-3">
+                    <h4 class="font-bold text-blue-600 uppercase">{{ $properties['native'] }} ({{ $localeCode }})</h4>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Tag Name</label>
-                            <input type="text" name="translations[{{ $localeCode }}][name]" value="{{ old("translations.{$localeCode}.name") }}" class="w-full border border-gray-300 rounded p-2">
+                            <input type="text" name="translations[{{ $localeCode }}][name]" value="{{ old("translations.{$localeCode}.name") }}" dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}" class="w-full border border-gray-300 rounded p-2 bg-white">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Slug (Optional)</label>
-                            <input type="text" name="translations[{{ $localeCode }}][slug]" value="{{ old("translations.{$localeCode}.slug") }}" class="w-full border border-gray-300 rounded p-2">
+                            <input type="text" name="translations[{{ $localeCode }}][slug]" value="{{ old("translations.{$localeCode}.slug") }}" dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}" class="w-full border border-gray-300 rounded p-2 bg-white">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Description (SEO / Header)</label>
+                        <textarea name="translations[{{ $localeCode }}][description]" rows="2" dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}" class="w-full border border-gray-300 rounded p-2 bg-white" placeholder="Brief description of this game tag...">{{ old("translations.{$localeCode}.description") }}</textarea>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Meta Title</label>
+                            <input type="text" name="translations[{{ $localeCode }}][meta_title]" value="{{ old("translations.{$localeCode}.meta_title") }}" dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}" class="w-full border border-gray-300 rounded p-2 bg-white" placeholder="SEO Title">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Meta Description</label>
+                            <input type="text" name="translations[{{ $localeCode }}][meta_description]" value="{{ old("translations.{$localeCode}.meta_description") }}" dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}" class="w-full border border-gray-300 rounded p-2 bg-white" placeholder="SEO Description">
                         </div>
                     </div>
                 </div>

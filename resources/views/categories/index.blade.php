@@ -36,7 +36,7 @@
 
                 // جلب صورة البانر من Spatie Media Library إن وجدت
                 $imageUrl = $cat->getFirstMediaUrl('featured_imgs', 'medium') ?: asset('images/default-category.jpg');
-                $articlesCount = $cat->articles->count();
+                $articlesCount = $cat->published_articles_count;
             @endphp
 
             <a href="{{ route('article-categories.show', ['id' => $catId, 'slug' => $catSlug]) }}"

@@ -18,11 +18,10 @@
         <hr class="border-slate-200">
 
         <!-- Translations -->
-        <h3 class="text-sm font-bold text-slate-800 uppercase">Tag Translations</h3>
+        <h3 class="text-sm font-bold text-slate-800 uppercase">Tag Translations & SEO</h3>
 
-        <div class="space-y-3">
+        <div class="space-y-4">
             @php
-                // تجهيز الترجمات الحالية بربطها مع رمز اللغة لتسهيل استرجاعها
                 $translations = $tag->translations->keyBy('locale');
             @endphp
 
@@ -30,9 +29,34 @@
                 @php
                     $trans = $translations[$localeCode] ?? null;
                 @endphp
-                <div class="flex items-center gap-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
-                    <span class="w-24 text-xs font-bold text-indigo-700">{{ $properties['native'] }} ({{ $localeCode }})</span>
-                    <input type="text" name="translations[{{ $localeCode }}][name]" placeholder="Tag Name in {{ $properties['name'] }}" value="{{ old("translations.{$localeCode}.name", $trans->name ?? '') }}" class="flex-1 rounded-lg border border-slate-300 text-sm py-1.5 px-3 bg-white">
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-indigo-700 uppercase">{{ $properties['native'] }} ({{ $localeCode }})</span>
+                    </div>
+
+                    <!-- Name -->
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tag Name</label>
+                        <input type="text" name="translations[{{ $localeCode }}][name]" placeholder="Tag Name in {{ $properties['name'] }}" value="{{ old("translations.{$localeCode}.name", $trans->name ?? '') }}" class="w-full rounded-lg border border-slate-300 text-sm py-1.5 px-3 bg-white">
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <label class="block text-[11px] font-semibold text-slate-600 mb-1">Description (SEO / Header)</label>
+                        <textarea name="translations[{{ $localeCode }}][description]" rows="2" placeholder="Brief description..." class="w-full rounded-lg border border-slate-300 text-sm py-1.5 px-3 bg-white">{{ old("translations.{$localeCode}.description", $trans->description ?? '') }}</textarea>
+                    </div>
+
+                    <!-- Meta Inputs -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Meta Title</label>
+                            <input type="text" name="translations[{{ $localeCode }}][meta_title]" value="{{ old("translations.{$localeCode}.meta_title", $trans->meta_title ?? '') }}" class="w-full rounded-lg border border-slate-300 text-sm py-1.5 px-3 bg-white" placeholder="SEO Title">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Meta Description</label>
+                            <input type="text" name="translations[{{ $localeCode }}][meta_description]" value="{{ old("translations.{$localeCode}.meta_description", $trans->meta_description ?? '') }}" class="w-full rounded-lg border border-slate-300 text-sm py-1.5 px-3 bg-white" placeholder="SEO Description">
+                        </div>
+                    </div>
                 </div>
             @endforeach
         </div>

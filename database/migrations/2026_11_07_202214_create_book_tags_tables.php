@@ -16,13 +16,19 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // 2. جدول ترجمات وسوم الكتب
+        // 2. جدول ترجمات وسوم الكتب (مُحدّث بحقول الـ SEO)
         Schema::create('book_tag_translations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('book_tag_id')->constrained('book_tags')->cascadeOnDelete();
             $table->string('locale', 5);
             $table->string('name');
             $table->string('slug');
+
+            // 🌐 حقول الـ SEO الجديدة
+            $table->text('description')->nullable();         // نبذة تعريفية عن الوسم
+            $table->string('meta_title')->nullable();       // عنوان الميتا لمحركات البحث
+            $table->string('meta_description')->nullable(); // وصف الميتا لمحركات البحث
+
             $table->timestamps();
 
             $table->unique(['book_tag_id', 'locale']);

@@ -20,29 +20,38 @@ class BookTagController extends Controller
 
     public function create()
     {
-        $supportedLocales = \Mcamara\LaravelLocalization\Facades\LaravelLocalization::getSupportedLocales();
+        $supportedLocales = LaravelLocalization::getSupportedLocales();
         return view('admin.book_tags.create', compact('supportedLocales'));
     }
 
     public function store(Request $request)
     {
+        // 1. التحقق من البيانات مع إضافة قواعد الحقول الجديدة
         $request->validate([
-            'label' => 'required|string|unique:book_tags,label|max:50',
-            'translations.*.name' => 'nullable|string|max:50',
+            'label'                     => 'required|string|unique:book_tags,label|max:50',
+            'translations.*.name'       => 'nullable|string|max:50',
+            'translations.*.slug'       => 'nullable|string|max:50',
+            'translations.*.description' => 'nullable|string|max:1000',
+            'translations.*.meta_title'  => 'nullable|string|max:70',
+            'translations.*.meta_description' => 'nullable|string|max:160',
         ]);
 
         $tag = BookTag::create([
-            'user_id'     => Auth::id(),
-            'label' => Str::slug($request->label, '-'),
+            'user_id' => Auth::id(),
+            'label'   => Str::slug($request->label, '-'),
         ]);
 
+        // 2. حفظ الترجمات وحقول الـ SEO
         foreach ($request->translations as $localeCode => $data) {
             if (!empty($data['name'])) {
                 BookTagTranslation::create([
-                    'book_tag_id' => $tag->id,
-                    'locale'      => $localeCode,
-                    'name'        => $data['name'],
-                    'slug'        => Str::slug($data['name'], '-', null)
+                    'book_tag_id'      => $tag->id,
+                    'locale'           => $localeCode,
+                    'name'             => $data['name'],
+                    'slug'             => !empty($data['slug']) ? Str::slug($data['slug'], '-') : Str::slug($data['name'], '-', null),
+                    'description'      => $data['description'] ?? null,
+                    'meta_title'       => $data['meta_title'] ?? null,
+                    'meta_description' => $data['meta_description'] ?? null,
                 ]);
             }
         }
@@ -52,24 +61,28 @@ class BookTagController extends Controller
 
     public function edit(BookTag $tag)
     {
-
-        $supportedLocales = \Mcamara\LaravelLocalization\Facades\LaravelLocalization::getSupportedLocales();
+        $supportedLocales = LaravelLocalization::getSupportedLocales();
         $tag->load('translations');
         return view('admin.book_tags.edit', compact('tag', 'supportedLocales'));
     }
 
     public function update(Request $request, BookTag $tag)
     {
+        // 1. التحقق من البيانات أثناء التحديث
         $request->validate([
-            'label' => 'required|string|max:50|unique:book_tags,label,' . $tag->id,
-            'translations.*.name' => 'nullable|string|max:50',
-            'translations.*.slug' => 'nullable|string|max:50',
+            'label'                     => 'required|string|max:50|unique:book_tags,label,' . $tag->id,
+            'translations.*.name'       => 'nullable|string|max:50',
+            'translations.*.slug'       => 'nullable|string|max:50',
+            'translations.*.description' => 'nullable|string|max:1000',
+            'translations.*.meta_title'  => 'nullable|string|max:70',
+            'translations.*.meta_description' => 'nullable|string|max:160',
         ]);
 
         $tag->update([
             'label' => Str::of($request->label)->slug('-')
         ]);
 
+        // 2. تحديث أو إنشاء الترجمات وحقول الـ SEO
         foreach ($request->translations as $localeCode => $data) {
             if (empty($data['name'])) {
                 continue;
@@ -85,8 +98,11 @@ class BookTagController extends Controller
                     'locale'      => $localeCode,
                 ],
                 [
-                    'name' => $data['name'],
-                    'slug' => $finalSlug,
+                    'name'             => $data['name'],
+                    'slug'             => $finalSlug,
+                    'description'      => $data['description'] ?? null,
+                    'meta_title'       => $data['meta_title'] ?? null,
+                    'meta_description' => $data['meta_description'] ?? null,
                 ]
             );
         }

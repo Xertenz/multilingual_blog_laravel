@@ -155,10 +155,10 @@
                     </div>
                 </div>
                 
-                {{-- Translations Sections --}}
+                {{-- Translations Sections داخل resources/views/admin/tags/create.blade.php --}}
                 @foreach(LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
                     @php
-                        $isDefaultLang = ($localeCode === config('app.locale') || $localeCode === 'en');
+                        //$isDefaultLang = ($localeCode === config('app.locale') || $localeCode === 'en');
                     @endphp
                     
                     <div class="section-card">
@@ -169,36 +169,62 @@
                                 </svg>
                                 <span class="text-xs">{{ $properties['native'] }} ({{ strtoupper($localeCode) }})</span>
                             </div>
-                            @if($isDefaultLang)
-                                <span class="bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full text-[10px] font-semibold border border-indigo-100">Required</span>
-                            @else
-                                <span class="bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full text-[10px] font-medium">Optional</span>
-                            @endif
+                            <span class="bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full text-[10px] font-medium">Optional</span>
                         </div>
                         
-                        <div>
-                            <label class="input-label">
-                                Name @if($isDefaultLang)<span class="required">*</span>@endif
-                            </label>
-                            <input type="text" 
-                                   name="translations[{{ $localeCode }}][name]" 
-                                   value="{{ old("translations.$localeCode.name") }}" 
-                                   dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}"
-                                   class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error("translations.$localeCode.name") border-red-500 bg-red-50/50 @enderror" 
-                                   placeholder="e.g., {{ $localeCode == 'ar' ? 'قاتل متسلسل' : 'Serial Killer' }}" 
-                                   autocomplete="off">
-                            @error("translations.$localeCode.name")
-                                <div class="error-message">
-                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                    </svg>
-                                    {{ $message }}
+                        <div class="space-y-3">
+                            {{-- Name Field --}}
+                            <div>
+                                <label class="input-label">
+                                    Name
+                                </label>
+                                <input type="text" 
+                                    name="translations[{{ $localeCode }}][name]" 
+                                    value="{{ old("translations.$localeCode.name") }}" 
+                                    dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}"
+                                    class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error("translations.$localeCode.name") border-red-500 bg-red-50/50 @enderror" 
+                                    placeholder="e.g., {{ $localeCode == 'ar' ? 'قاتل متسلسل' : 'Serial Killer' }}" 
+                                    autocomplete="off">
+                                @error("translations.$localeCode.name")
+                                    <div class="error-message">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            {{-- Description Field --}}
+                            <div>
+                                <label class="input-label">Description (SEO / Header)</label>
+                                <textarea name="translations[{{ $localeCode }}][description]" 
+                                        dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}"
+                                        rows="2"
+                                        class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition"
+                                        placeholder="Brief description of this tag...">{{ old("translations.$localeCode.description") }}</textarea>
+                            </div>
+
+                            {{-- Meta Inputs Grid --}}
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="input-label">Meta Title</label>
+                                    <input type="text" 
+                                        name="translations[{{ $localeCode }}][meta_title]" 
+                                        value="{{ old("translations.$localeCode.meta_title") }}" 
+                                        dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}"
+                                        class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition"
+                                        placeholder="SEO Title">
                                 </div>
-                            @enderror
+                                <div>
+                                    <label class="input-label">Meta Description</label>
+                                    <input type="text" 
+                                        name="translations[{{ $localeCode }}][meta_description]" 
+                                        value="{{ old("translations.$localeCode.meta_description") }}" 
+                                        dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}"
+                                        class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition"
+                                        placeholder="SEO Description">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 @endforeach
-                
+
                 {{-- Form Actions --}}
                 <div class="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100">
                     <a href="{{ route('admin.article-tags.index') }}" class="btn-secondary text-decoration-none">

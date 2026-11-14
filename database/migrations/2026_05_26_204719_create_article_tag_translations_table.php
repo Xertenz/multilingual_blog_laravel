@@ -17,6 +17,9 @@ return new class extends Migration
             $table->string('locale', 5); // ar, en, en-US
             $table->string('name');
             $table->string('slug');
+            $table->text('description')->nullable();         // نبذة تعريفية عن الوسم تظهر في أعلى الصفحة
+            $table->string('meta_title')->nullable();       // عنوان الميتا الخاص بمحركات البحث
+            $table->string('meta_description')->nullable(); // وصف الميتا الخاص بمحركات البحث
             $table->timestamps();
 
             // منع تكرار الترجمة لنفس الوسم باللغة نفسها

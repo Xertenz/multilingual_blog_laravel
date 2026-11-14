@@ -41,18 +41,10 @@ return new class extends Migration {
             $table->unique(['game_id', 'locale']);
             $table->unique(['locale', 'slug']);
         });
-
-        // 3. الجدول الوسيط للوسوم (Many-to-Many)
-        Schema::create('game_tag', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('game_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('game_tag_id')->constrained()->cascadeOnDelete();
-        });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('game_tag');
         Schema::dropIfExists('game_translations');
         Schema::dropIfExists('games');
     }

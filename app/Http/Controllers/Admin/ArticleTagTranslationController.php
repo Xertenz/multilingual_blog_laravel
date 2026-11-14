@@ -22,34 +22,37 @@ class ArticleTagTranslationController extends Controller
 
     public function store(Request $request)
     {
-        // 1. التحقق من البيانات (Label مطلوب والترجمات مصفوفة)
+        // 1. التحقق من البيانات مع إضافة قواعد الحقول الجديدة
         $request->validate([
-            'label' => 'required|string|unique:tags,label|max:50',
-            'translations.*.name' => 'nullable|string|max:50', // جعلناها nullable لو أراد إضافة لغات معينة فقط وتأجيل الباقي
+            'label' => 'required|string|unique:article_tags,label|max:50',
+            'translations.*.name' => 'nullable|string|max:50',
+            'translations.*.slug' => 'nullable|string|max:50',
+            'translations.*.description' => 'nullable|string|max:1000',
+            'translations.*.meta_title' => 'nullable|string|max:70',
+            'translations.*.meta_description' => 'nullable|string|max:160',
         ]);
 
-        // 2. إضافة الـ Label في جدول tags الأساسي
+        // 2. إضافة الـ Label في جدول article_tags الأساسي
         $tag = ArticleTag::create([
-            'label' => Str::slug($request->label, '-') // تجميل الـ Label ليكون متناسقاً كرمز
+            'label' => Str::slug($request->label, '-')
         ]);
 
-        // 3. الدوران حول لغات الـ 12 الممررة من الحقول
+        // 3. تخزين الترجمات والحقول الجديدة
         foreach ($request->translations as $localeCode => $data) {
-
-            // التحقق من أن الحقل ليس فارغاً لهذه اللغة
             if (!empty($data['name'])) {
-
                 ArticleTagTranslation::create([
-                    'article_tag_id'  => $tag->id,
-                    'locale'          => $localeCode, // يُحفظ تلقائياً من الـ Key الخاص بالمصفوفة (ar, en, ja...)
-                    'name'            => $data['name'],
-                    // توليد السلوج تلقائياً بناءً على الاسم المكتوب باللغة نفسها
-                    'slug'            => Str::slug($data['name'], '-', null)
+                    'article_tag_id'   => $tag->id,
+                    'locale'           => $localeCode,
+                    'name'             => $data['name'],
+                    'slug'             => !empty($data['slug']) ? Str::slug($data['slug'], '-') : Str::slug($data['name'], '-'),
+                    'description'      => $data['description'] ?? null,
+                    'meta_title'       => $data['meta_title'] ?? null,
+                    'meta_description' => $data['meta_description'] ?? null,
                 ]);
             }
         }
 
-        return to_route('admin.tags.index')->with('success', 'Tag added successfully.');
+        return to_route('admin.article-tags.index')->with('success', 'Tag added successfully.');
     }
 
     public function show(int $tag_trans_id, ?string $slug = null)
@@ -70,7 +73,7 @@ class ArticleTagTranslationController extends Controller
                 ->first();
 
             if ($target_trans) {
-                return redirect()->route('tags.show', [
+                return redirect()->route('article-tags.show', [
                     'id'   => $target_trans->id,
                     'slug' => $target_trans->slug
                 ]);
@@ -81,7 +84,7 @@ class ArticleTagTranslationController extends Controller
 
         // 3. تصحيح الـ Slug في الـ URL لدعم SEO
         if (empty($slug) || $tag_trans->slug !== $slug) {
-            return redirect()->route('tags.show', [
+            return redirect()->route('article-tags.show', [
                 'id'   => $tag_trans->id,
                 'slug' => $tag_trans->slug
             ]);
@@ -104,19 +107,22 @@ class ArticleTagTranslationController extends Controller
 
     public function update(Request $request, ArticleTag $tag)
     {
-        // 1. الآن نقوم بعمل الـ Validation على القيمة النظيفة والنهائية
+        // 1. التحقق من البيانات للتحديث
         $request->validate([
-            'label' => 'required|string|max:50|unique:tags,label,' . $tag->id,
+            'label' => 'required|string|max:50|unique:article_tags,label,' . $tag->id,
             'translations.*.name' => 'nullable|string|max:50',
             'translations.*.slug' => 'nullable|string|max:50',
+            'translations.*.description' => 'nullable|string|max:1000',
+            'translations.*.meta_title' => 'nullable|string|max:70',
+            'translations.*.meta_description' => 'nullable|string|max:160',
         ]);
 
-        // 2. تحديث الـ Label الأساسي بأمان تام وبدون تكرار الدالة
+        // 2. تحديث الـ Label الأساسي
         $tag->update([
             'label' => Str::of($request->label)->slug('-')
         ]);
 
-        // 3. الدوران حول اللغات الـ 12
+        // 3. التحديث أو الإنشاء عبر updateOrCreate للترجمات والحقول الجديدة
         foreach ($request->translations as $localeCode => $data) {
             if (empty($data['name'])) {
                 continue;
@@ -126,20 +132,22 @@ class ArticleTagTranslationController extends Controller
                 ? (string) Str::of($data['slug'])->slug('-')
                 : (string) Str::of($data['name'])->slug('-');
 
-            // دالة updateOrCreate تبحث عن السطر بناءً على الشرط الأول، وتحدثه أو تنشئه بناءً على مصفوفة البيانات الثانية
             ArticleTagTranslation::updateOrCreate(
                 [
-                    'article_tag_id'        => $tag->id,
-                    'locale' => $localeCode,
+                    'article_tag_id' => $tag->id,
+                    'locale'         => $localeCode,
                 ],
                 [
-                    'name'          => $data['name'],
-                    'slug'          => $finalSlug,
+                    'name'             => $data['name'],
+                    'slug'             => $finalSlug,
+                    'description'      => $data['description'] ?? null,
+                    'meta_title'       => $data['meta_title'] ?? null,
+                    'meta_description' => $data['meta_description'] ?? null,
                 ]
             );
         }
 
-        return redirect()->route('admin.tags.index')->with('success', 'Tag updated successfully!');
+        return redirect()->route('admin.article-tags.index')->with('success', 'Tag updated successfully!');
     }
 
     //public function destroy(Tag $Tag) {}
@@ -163,6 +171,6 @@ class ArticleTagTranslationController extends Controller
         $tag->delete();
 
         // 5. إعادة التوجيه إلى الصفحة الرئيسية للوسوم مع رسالة نجاح (Session Flash Message)
-        return to_route('admin.tags.index')->with('success', 'Tag and its relations deleted successfully!');
+        return to_route('admin.article-tags.index')->with('success', 'Tag and its relations deleted successfully!');
     }
 }

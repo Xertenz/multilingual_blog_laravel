@@ -10,21 +10,30 @@ use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 class CategoryController extends Controller
 {
+
     public function index()
     {
         $current_locale = LaravelLocalization::getCurrentLocale();
         $cacheKey = "all_categories_page_{$current_locale}";
-        //$categories = Cache::remember($cacheKey, 3600, function () use ($current_locale) {
+
+        // $categories = Cache::remember($cacheKey, 3600, function () use ($current_locale) {
         $categories = ArticleCategory::with([
             'media',
             'translations' => function ($query) use ($current_locale) {
                 $query->where('locale', $current_locale);
             },
-            'articles' => function ($query) {
+        ])
+            ->withCount(['articles as published_articles_count' => function ($query) {
                 $query->where('status', 'published');
-            }
-        ])->get();
-        //});
+            }])
+            ->whereHas('translations', function ($query) use ($current_locale) {
+                $query->where('locale', $current_locale);
+            })
+            ->whereHas('articles', function ($query) {
+                $query->where('status', 'published');
+            })
+            ->get();
+        // });
 
         return view('categories.index', compact('categories'));
     }

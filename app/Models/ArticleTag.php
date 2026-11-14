@@ -11,7 +11,7 @@ class ArticleTag extends Model
     protected $fillable = ['label'];
     public function articles()
     {
-        return $this->belongsToMany(Article::class);
+        return $this->belongsToMany(Article::class, 'article_tag', 'article_tag_id', 'article_id');
     }
 
     public function translations()

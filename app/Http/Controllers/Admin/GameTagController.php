@@ -8,7 +8,6 @@ use App\Models\GameTagTranslation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 class GameTagController extends Controller
@@ -28,8 +27,12 @@ class GameTagController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'label' => 'required|string|unique:game_tags,label|max:50',
-            'translations.*.name' => 'nullable|string|max:50',
+            'label'                           => 'required|string|unique:game_tags,label|max:50',
+            'translations.*.name'             => 'nullable|string|max:50',
+            'translations.*.slug'             => 'nullable|string|max:50',
+            'translations.*.description'      => 'nullable|string|max:1000',
+            'translations.*.meta_title'       => 'nullable|string|max:70',
+            'translations.*.meta_description' => 'nullable|string|max:160',
         ]);
 
         $tag = GameTag::create([
@@ -41,13 +44,16 @@ class GameTagController extends Controller
             if (!empty($data['name'])) {
                 $slug = !empty($data['slug'])
                     ? Str::slug($data['slug'], '-')
-                    : Str::slug($data['name'], '-');
+                    : Str::slug($data['name'], '-', null);
 
                 GameTagTranslation::create([
-                    'game_tag_id' => $tag->id,
-                    'locale'      => $localeCode,
-                    'name'        => trim($data['name']),
-                    'slug'        => $slug,
+                    'game_tag_id'      => $tag->id,
+                    'locale'           => $localeCode,
+                    'name'             => trim($data['name']),
+                    'slug'             => $slug,
+                    'description'      => $data['description'] ?? null,
+                    'meta_title'       => $data['meta_title'] ?? null,
+                    'meta_description' => $data['meta_description'] ?? null,
                 ]);
             }
         }
@@ -65,9 +71,12 @@ class GameTagController extends Controller
     public function update(Request $request, GameTag $tag)
     {
         $request->validate([
-            'label' => 'required|string|max:50|unique:game_tags,label,' . $tag->id,
-            'translations.*.name' => 'nullable|string|max:50',
-            'translations.*.slug' => 'nullable|string|max:50',
+            'label'                           => 'required|string|max:50|unique:game_tags,label,' . $tag->id,
+            'translations.*.name'             => 'nullable|string|max:50',
+            'translations.*.slug'             => 'nullable|string|max:50',
+            'translations.*.description'      => 'nullable|string|max:1000',
+            'translations.*.meta_title'       => 'nullable|string|max:70',
+            'translations.*.meta_description' => 'nullable|string|max:160',
         ]);
 
         $tag->update([
@@ -89,8 +98,11 @@ class GameTagController extends Controller
                     'locale'      => $localeCode,
                 ],
                 [
-                    'name' => trim($data['name']),
-                    'slug' => $finalSlug,
+                    'name'             => trim($data['name']),
+                    'slug'             => $finalSlug,
+                    'description'      => $data['description'] ?? null,
+                    'meta_title'       => $data['meta_title'] ?? null,
+                    'meta_description' => $data['meta_description'] ?? null,
                 ]
             );
         }
