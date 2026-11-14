@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\App;
 
-class Tag extends Model
+class ArticleTag extends Model
 {
     //
     protected $fillable = ['label'];
@@ -16,13 +16,13 @@ class Tag extends Model
 
     public function translations()
     {
-        return $this->hasMany(TagTranslation::class, 'tag_id');
+        return $this->hasMany(ArticleTagTranslation::class, 'article_tag_id');
     }
 
     // دالة مساعدة لجلب ترجمة الوسم الحالية بناءً على لغة الموقع
     public function currentTranslation()
     {
-        return $this->hasOne(TagTranslation::class)->where('locale', App::getLocale());
+        return $this->hasOne(ArticleTagTranslation::class)->where('locale', App::getLocale());
     }
 
     public function translate(string $localeCode)

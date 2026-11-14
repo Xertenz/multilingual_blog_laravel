@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('category_translations', function (Blueprint $table) {
+        Schema::create('article_category_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('category_id')->nullable()->constrained('categories')->cascadeOnUpdate()->cascadeOnDelete();
+            $table->foreignId('article_category_id')->nullable()->constrained('article_categories')->cascadeOnUpdate()->cascadeOnDelete();
             //$table->enum('locale', ['en', 'ar', 'de', 'es', 'fr', 'ru', 'pt', 'it', 'nl', 'sv', 'da', 'nb']);
             $table->string('locale', 5); // like: en-US
-            $table->unique(['category_id', 'locale']);
+            $table->unique(['article_category_id', 'locale']);
             $table->string("slug"); //->unique();
             $table->unique(['locale', 'slug']);
             $table->string('name');
@@ -32,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('category_translations');
+        Schema::dropIfExists('article_category_translations');
     }
 };

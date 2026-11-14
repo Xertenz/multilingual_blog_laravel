@@ -3,7 +3,7 @@
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
-use App\Models\Category;
+use App\Models\ArticleCategory;
 use App\Models\User;
 use Illuminate\Notifications\DatabaseNotification;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
@@ -56,7 +56,7 @@ new class extends Component {
         $cacheKey = "navbar_categories_{$current_locale}";
 
         $categories = Cache::remember($cacheKey, 3600, function () use ($current_locale) {
-            return Category::with(['translations' => function ($query) use ($current_locale) {
+            return ArticleCategory::with(['translations' => function ($query) use ($current_locale) {
                 $query->where('locale', $current_locale);
             }])
                 ->whereHas('translations', function ($query) use ($current_locale) {
@@ -164,7 +164,7 @@ new class extends Component {
                                      class="absolute left-0 rtl:right-0 rtl:left-auto top-full pt-2 w-56 bg-[#0f1526] border border-slate-800 rounded-xl shadow-2xl shadow-black/90 z-50" x-cloak>
                                     <div class="p-2 space-y-1 max-h-64 overflow-y-auto">
                                         @forelse($cat_transes as $cat_trans)
-                                            <a href="{{ route('categories.show', ['id' => $cat_trans->id, 'slug' => $cat_trans->slug]) }}" class="block px-3 py-2 text-xs text-gray-300 hover:bg-slate-800/80 hover:text-white rounded-lg transition truncate">
+                                            <a href="{{ route('article-categories.show', ['id' => $cat_trans->id, 'slug' => $cat_trans->slug]) }}" class="block px-3 py-2 text-xs text-gray-300 hover:bg-slate-800/80 hover:text-white rounded-lg transition truncate">
                                                 {{ $cat_trans->name }}
                                             </a>
                                         @empty
@@ -172,7 +172,7 @@ new class extends Component {
                                         @endforelse
                                     </div>
                                     <div class="p-2 border-t border-slate-800 bg-slate-950/40">
-                                        <a href="{{ route('categories.index') }}" class="flex items-center justify-center gap-1.5 w-full py-2 px-3 bg-slate-900 hover:bg-red-950/40 text-red-400 hover:text-red-300 border border-slate-800 hover:border-red-900/50 rounded-lg text-xs font-semibold transition">
+                                        <a href="{{ route('article-categories.index') }}" class="flex items-center justify-center gap-1.5 w-full py-2 px-3 bg-slate-900 hover:bg-red-950/40 text-red-400 hover:text-red-300 border border-slate-800 hover:border-red-900/50 rounded-lg text-xs font-semibold transition">
                                             <span>{{ __('View All Categories') }}</span>
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                                         </a>
@@ -334,7 +334,7 @@ new class extends Component {
                                         </a>
 
                                         @if(Auth::user()->hasAnyRole(['super-admin', 'editor']))
-                                        <a href="{{ route('admin.categories.index') }}" class="flex items-center gap-2 px-3 py-2 text-xs text-gray-300 hover:bg-slate-800/80 hover:text-white transition">
+                                        <a href="{{ route('admin.article-categories.index') }}" class="flex items-center gap-2 px-3 py-2 text-xs text-gray-300 hover:bg-slate-800/80 hover:text-white transition">
                                             <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path></svg>
                                             <span>Admin Dashboard</span>
                                         </a>
@@ -434,7 +434,7 @@ new class extends Component {
 
                 <!-- روابط التنقل الشاملة في قائمة الجوال -->
                 <div class="space-y-1">
-                    <a href="{{ route('categories.index') }}" class="flex items-center gap-2 text-red-400 hover:text-red-300 bg-red-950/20 hover:bg-red-950/40 px-3 py-2 rounded-lg text-xs font-bold border border-red-900/30 transition">
+                    <a href="{{ route('article-categories.index') }}" class="flex items-center gap-2 text-red-400 hover:text-red-300 bg-red-950/20 hover:bg-red-950/40 px-3 py-2 rounded-lg text-xs font-bold border border-red-900/30 transition">
                         <span>📁</span> {{ __('View All Categories') }}
                     </a>
                     <a href="{{ route('games.index') }}" class="block text-gray-300 hover:text-red-500 hover:bg-slate-900/60 px-3 py-2 rounded-lg text-xs font-medium transition">

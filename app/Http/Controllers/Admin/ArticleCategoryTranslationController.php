@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 
 use App\Models\Article;
+use App\Models\ArticleCategory;
+use App\Models\ArticleCategoryTranslation;
 use App\Models\ArticleTranslation;
 use App\Models\Category;
 use App\Models\CategoryTranslation;
@@ -17,7 +19,7 @@ use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
 
-class CategoryTranslationController extends Controller
+class ArticleCategoryTranslationController extends Controller
 {
 
     public function create()
@@ -46,7 +48,7 @@ class CategoryTranslationController extends Controller
 
         // 1. التحقق من البيانات (المصفوفة الجديدة والـ Sign العام)
         $request->validate([
-            'cat_label' => 'required|string|unique:categories,label|max:50',
+            'cat_label' => 'required|string|unique:article_categories,label|max:50',
             'cat_featured_img' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120', // حتى 5 ميجا كما بالفورم
 
             // التحقق من الحقول داخل مصفوفة اللغات
@@ -55,7 +57,7 @@ class CategoryTranslationController extends Controller
                 'nullable',
                 'string',
                 'max:100',
-                Rule::unique('category_translations', 'slug')
+                Rule::unique('article_category_translations', 'slug')
             ],
             'translations.*.description' => 'nullable|string',
             'translations.*.meta_title' => 'nullable|string|max:150',
@@ -63,7 +65,7 @@ class CategoryTranslationController extends Controller
         ]);
 
         // 2. إنشاء السجل الأساسي للقسم (تجميل الـ Sign كـ slug آمن)
-        $cat = Category::create([
+        $cat = ArticleCategory::create([
             'label'    => (string) Str::of($request->cat_label)->slug('-'),
             'user_id' => Auth::id()
         ]);
@@ -121,13 +123,13 @@ class CategoryTranslationController extends Controller
         }
         */
 
-        return to_route('admin.categories.index')->with('success', 'Category Created Successfully!');
+        return to_route('admin.article-categories.index')->with('success', 'Category Created Successfully!');
     }
 
     public function show(int $category_trans_id, ?string $slug = null)
     {
         // 1. جلب الفئة مع الترجمات
-        $category_trans = CategoryTranslation::with(['category.translations'])->find($category_trans_id);
+        $category_trans = ArticleCategoryTranslation::with(['category.translations'])->find($category_trans_id);
 
         if (!$category_trans) {
             return to_route('home.index');
@@ -140,7 +142,7 @@ class CategoryTranslationController extends Controller
                 ->first();
             if ($category_trans) {
                 return redirect()->route(
-                    'categories.show',
+                    'article-categories.show',
                     [
                         'id' => $category_trans->id,
                         'slug' => $category_trans->slug
@@ -152,7 +154,7 @@ class CategoryTranslationController extends Controller
 
         if (empty($slug) || $category_trans->slug !== $slug) {
             return redirect()->route(
-                'categories.show',
+                'article-categories.show',
                 [
                     'id' => $category_trans->id,
                     'slug' => $category_trans->slug
@@ -170,7 +172,7 @@ class CategoryTranslationController extends Controller
             'media',
             'author' // أو 'user' حسب اسم العلاقة المسجلة في موديل Article
         ])
-            ->where('category_id', $category_trans->category->id)
+            ->where('article_category_id', $category_trans->category->id)
             ->where('status', 'published')
             ->latest()
             ->paginate(12);
@@ -183,7 +185,7 @@ class CategoryTranslationController extends Controller
 
     public function edit(int $id)
     {
-        $cat = Category::with('translations')->find($id);
+        $cat = ArticleCategory::with('translations')->find($id);
         $translations = $cat->translations->keyBy('locale');
         return view('admin.categories.edit', compact('cat', 'translations'));
     }
@@ -191,7 +193,7 @@ class CategoryTranslationController extends Controller
 
     public function update(Request $request, int $id)
     {
-        $cat = Category::findOrFail($id);
+        $cat = ArticleCategory::findOrFail($id);
 
         // 1. تجميل الـ sign القادم من الفورم ليكون بصيغة slug آمنة قبل الفحص
         if ($request->has('cat_label')) {
@@ -202,7 +204,7 @@ class CategoryTranslationController extends Controller
 
         // 2. التحقق من البيانات العامة للمجموعة والأقسام
         $request->validate([
-            'cat_label' => "required|string|max:50|unique:categories,label,{$id}",
+            'cat_label' => "required|string|max:50|unique:article_categories,label,{$id}",
             'cat_featured_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
 
             // التحقق من الحقول داخل مصفوفة اللغات الفرعية
@@ -218,7 +220,7 @@ class CategoryTranslationController extends Controller
                 $currentTransId = $cat->translations()->where('locale', $localeCode)->value('id');
 
                 $request->validate([
-                    "translations.{$localeCode}.slug" => "nullable|string|max:100|unique:category_translations,slug,{$currentTransId}",
+                    "translations.{$localeCode}.slug" => "nullable|string|max:100|unique:article_category_translations,slug,{$currentTransId}",
                 ]);
             }
         }
@@ -281,12 +283,12 @@ class CategoryTranslationController extends Controller
         }
         */
 
-        return to_route('admin.categories.index')->with('success', 'Category Updated Successfully!');
+        return to_route('admin.article-categories.index')->with('success', 'Category Updated Successfully!');
     }
 
     public function destroy(int $cat_id)
     {
-        $cat = Category::findOrFail($cat_id);
+        $cat = ArticleCategory::findOrFail($cat_id);
         $cat->delete();
 
         // إبطال كاش الـ Navbar لكل اللغات المتاحة
@@ -297,6 +299,6 @@ class CategoryTranslationController extends Controller
         }
         */
 
-        return to_route('admin.categories.index')->with('success', 'Category Deleted Successfully!');
+        return to_route('admin.article-categories.index')->with('success', 'Category Deleted Successfully!');
     }
 }

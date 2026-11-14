@@ -226,7 +226,7 @@
 
                     @if($category_translation)
                         <div class="inline-flex items-center bg-slate-900/80 rounded-xl p-1 border border-slate-800 gap-1">
-                            <a href="{{ route('categories.show', ['id' => $category_translation->id, 'slug' => $category_translation->slug]) }}"
+                            <a href="{{ route('article-categories.show', ['id' => $category_translation->id, 'slug' => $category_translation->slug]) }}"
                                 class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-red-400 hover:text-red-300 hover:bg-slate-700/60 rounded-lg transition duration-200 border border-transparent">
                                 <!--
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -282,7 +282,7 @@
                         @endphp
 
                         @if ($tag_translation)
-                        <a href="{{ route('tags.show', ['id' => $tag_translation->id]) }}" class="flex items-center gap-1 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white px-2.5 py-1 rounded-md text-xs font-medium transition duration-200 border border-slate-800">
+                        <a href="{{ route('article-tags.show', ['id' => $tag_translation->id]) }}" class="flex items-center gap-1 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white px-2.5 py-1 rounded-md text-xs font-medium transition duration-200 border border-slate-800">
                             <svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581a1.125 1.125 0 001.591 0l7.182-7.182a1.125 1.125 0 000-1.59l-9.581-9.581A2.25 2.25 0 009.568 3z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z"></path>
@@ -421,7 +421,7 @@
 
     async function toggleFavoriteCategory(event, categoryId) {
         event.preventDefault();
-        const baseUrl = "{{ route('categories.favorite', ':id') }}";
+        const baseUrl = "{{ route('article-categories.favorite', ':id') }}";
         const url = baseUrl.replace(':id', categoryId);
 
         const btn = document.getElementById(`fav-category-btn-${categoryId}`);

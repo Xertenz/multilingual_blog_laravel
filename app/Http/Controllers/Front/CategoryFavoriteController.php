@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
+use App\Models\ArticleCategory;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class CategoryFavoriteController extends Controller
 {
-    public function toggle(Category $category)
+    public function toggle(ArticleCategory $category)
     {
         if (Auth::check()) {
             $user = User::findOrFail(Auth::id());

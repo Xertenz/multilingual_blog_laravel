@@ -4,13 +4,15 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Article;
+use App\Models\ArticleTag;
+use App\Models\ArticleTagTranslation;
 use App\Models\Tag;
 use App\Models\TagTranslation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
-class TagTranslationController extends Controller
+class ArticleTagTranslationController extends Controller
 {
     //
     public function create()
@@ -27,7 +29,7 @@ class TagTranslationController extends Controller
         ]);
 
         // 2. إضافة الـ Label في جدول tags الأساسي
-        $tag = Tag::create([
+        $tag = ArticleTag::create([
             'label' => Str::slug($request->label, '-') // تجميل الـ Label ليكون متناسقاً كرمز
         ]);
 
@@ -37,12 +39,12 @@ class TagTranslationController extends Controller
             // التحقق من أن الحقل ليس فارغاً لهذه اللغة
             if (!empty($data['name'])) {
 
-                TagTranslation::create([
-                    'tag_id'        => $tag->id,
-                    'locale' => $localeCode, // يُحفظ تلقائياً من الـ Key الخاص بالمصفوفة (ar, en, ja...)
-                    'name'          => $data['name'],
+                ArticleTagTranslation::create([
+                    'article_tag_id'  => $tag->id,
+                    'locale'          => $localeCode, // يُحفظ تلقائياً من الـ Key الخاص بالمصفوفة (ar, en, ja...)
+                    'name'            => $data['name'],
                     // توليد السلوج تلقائياً بناءً على الاسم المكتوب باللغة نفسها
-                    'slug'          => Str::slug($data['name'], '-', null)
+                    'slug'            => Str::slug($data['name'], '-', null)
                 ]);
             }
         }
@@ -54,7 +56,7 @@ class TagTranslationController extends Controller
     {
 
         // 1. جلب ترجمة التاك المطلوبة مع التاك الأساسي وعلاقاته
-        $tag_trans = TagTranslation::with('tag')->find($tag_trans_id);
+        $tag_trans = ArticleTagTranslation::with('tag')->find($tag_trans_id);
         if (!$tag_trans) {
             return to_route('home.index');
         }
@@ -95,12 +97,12 @@ class TagTranslationController extends Controller
         return view('tag', compact('tag_trans', 'articles'));
     }
 
-    public function edit(Tag $tag)
+    public function edit(ArticleTag $tag)
     {
         return view('admin.tags.edit', compact('tag'));
     }
 
-    public function update(Request $request, Tag $tag)
+    public function update(Request $request, ArticleTag $tag)
     {
         // 1. الآن نقوم بعمل الـ Validation على القيمة النظيفة والنهائية
         $request->validate([
@@ -125,9 +127,9 @@ class TagTranslationController extends Controller
                 : (string) Str::of($data['name'])->slug('-');
 
             // دالة updateOrCreate تبحث عن السطر بناءً على الشرط الأول، وتحدثه أو تنشئه بناءً على مصفوفة البيانات الثانية
-            TagTranslation::updateOrCreate(
+            ArticleTagTranslation::updateOrCreate(
                 [
-                    'tag_id'        => $tag->id,
+                    'article_tag_id'        => $tag->id,
                     'locale' => $localeCode,
                 ],
                 [
@@ -144,7 +146,7 @@ class TagTranslationController extends Controller
     public function destroy(int $id)
     {
         // 1. جلب الوسم أو إرجاع خطأ 404 في حال عدم وجوده لضمان أمان العملية
-        $tag = Tag::findOrFail($id);
+        $tag = ArticleTag::findOrFail($id);
 
         // 2. فك ارتباط الوسم بجميع المقالات المرتبطة به في الجدول الوسيط (إن وُجدت)
         // هذا يمنع حدوث مشاكل في قاعدة البيانات (Foreign Key Constraints)

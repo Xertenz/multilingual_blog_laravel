@@ -10,7 +10,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Category extends Model implements HasMedia
+class ArticleCategory extends Model implements HasMedia
 {
     //
     use InteractsWithMedia;
@@ -20,12 +20,12 @@ class Category extends Model implements HasMedia
 
     public function translations(): HasMany
     {
-        return $this->hasMany(CategoryTranslation::class);
+        return $this->hasMany(ArticleCategoryTranslation::class, 'article_category_id');
     }
 
     public function articles(): HasMany
     {
-        return $this->hasMany(Article::class);
+        return $this->hasMany(Article::class, 'article_category_id');
     }
 
     public function author(): BelongsTo
@@ -35,7 +35,7 @@ class Category extends Model implements HasMedia
 
     public function followers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'category_user')->withTimestamps();
+        return $this->belongsToMany(User::class, 'article_category_user')->withTimestamps();
     }
 
     public function registerMediaConversions(?Media $media = null): void

@@ -11,16 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tag_translations', function (Blueprint $table) {
+        Schema::create('article_tag_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tag_id')->constrained('tags')->onDelete('cascade');
+            $table->foreignId('article_tag_id')->constrained('article_tags')->onDelete('cascade');
             $table->string('locale', 5); // ar, en, en-US
             $table->string('name');
             $table->string('slug');
             $table->timestamps();
 
             // منع تكرار الترجمة لنفس الوسم باللغة نفسها
-            $table->unique(['tag_id', 'locale']);
+            $table->unique(['article_tag_id', 'locale']);
             // ضمان فرادة السلوج داخل اللغة الواحدة لأجل الـ SEO
             $table->unique(['slug', 'locale']);
         });
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tag_translations');
+        Schema::dropIfExists('article_tag_translations');
     }
 };

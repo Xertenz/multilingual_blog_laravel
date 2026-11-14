@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
-use App\Models\Category;
+use App\Models\ArticleCategory;
 
 class HomeController extends Controller
 {
@@ -23,7 +23,7 @@ class HomeController extends Controller
             ->paginate(6);
 
         // 3. جلب الفئات مع عدد المقالات فيها
-        $categories = Category::withCount('articles')->get();
+        $categories = ArticleCategory::withCount('articles')->get();
 
         return view('home', compact('featuredArticle', 'articles', 'categories'));
     }

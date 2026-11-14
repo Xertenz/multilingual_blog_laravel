@@ -7,12 +7,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
-class CategoryTranslation extends Model implements HasMedia
+class ArticleCategoryTranslation extends Model implements HasMedia
 {
     use InteractsWithMedia;
 
     protected $fillable = [
-        'category_id',
+        'article_category_id',
         'locale',
         'slug',
         'name',
@@ -26,6 +26,6 @@ class CategoryTranslation extends Model implements HasMedia
 
     public function category(): BelongsTo
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(ArticleCategory::class, 'article_category_id');
     }
 }

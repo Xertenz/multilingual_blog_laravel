@@ -113,14 +113,14 @@
             <h1 class="text-xl font-bold text-slate-900">Create New Tag</h1>
             <p class="text-xs text-slate-500">Add a new tag with multi-language support</p>
         </div>
-        <a href="{{ route('admin.tags.index') }}" class="text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-2xs">
+        <a href="{{ route('admin.article-tags.index') }}" class="text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-2xs">
             &larr; Back to Tags
         </a>
     </div>
     
     <div class="form-card">
         <div class="p-6">
-            <form action="{{ route('admin.tags.store') }}" method="POST">
+            <form action="{{ route('admin.article-tags.store') }}" method="POST">
                 @csrf
                 
                 {{-- Basic Information Section --}}
@@ -201,7 +201,7 @@
                 
                 {{-- Form Actions --}}
                 <div class="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100">
-                    <a href="{{ route('admin.tags.index') }}" class="btn-secondary text-decoration-none">
+                    <a href="{{ route('admin.article-tags.index') }}" class="btn-secondary text-decoration-none">
                         Cancel
                     </a>
                     <button type="submit" class="btn-primary">

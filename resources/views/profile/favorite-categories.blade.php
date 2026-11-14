@@ -40,7 +40,7 @@
                                 : asset('images/default-article.jpg');
 
                             // 📊 حساب عدد المقالات التابعة لهذه الفئة بنفس لغة المستخدم
-                            $articlesCount = \App\Models\Article::where('category_id', $category->id)
+                            $articlesCount = \App\Models\Article::where('article_category_id', $category->id)
                                 ->whereHas('translations', function($q) use ($userLocale) {
                                     $q->where('locale', $userLocale);
                                 })->count();
@@ -53,7 +53,7 @@
                             <div>
                                 <!-- صورة الفئة بنفس تصميم صورة بطاقة المقال -->
                                 <div class="relative h-40 w-full overflow-hidden bg-slate-950">
-                                    <a href="{{ $category_translation ? route('categories.show', ['id' => $category_translation->id, 'slug' => $category_translation->slug ?? '']) : '#' }}" class="block w-full h-full">
+                                    <a href="{{ $category_translation ? route('article-categories.show', ['id' => $category_translation->id, 'slug' => $category_translation->slug ?? '']) : '#' }}" class="block w-full h-full">
                                         <img src="{{ $categoryImage }}" 
                                              alt="{{ $categoryName }}" 
                                              class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 ease-in-out">
@@ -69,7 +69,7 @@
                                 <!-- اسم الفئة والوصف -->
                                 <div class="p-4">
                                     <h2 class="text-base font-bold text-gray-200 group-hover:text-red-500 transition-colors line-clamp-2">
-                                        <a href="{{ $category_translation ? route('categories.show', ['id' => $category_translation->id, 'slug' => $category_translation->slug ?? '']) : '#' }}">
+                                        <a href="{{ $category_translation ? route('article-categories.show', ['id' => $category_translation->id, 'slug' => $category_translation->slug ?? '']) : '#' }}">
                                             {{ $categoryName }}
                                         </a>
                                     </h2>
@@ -114,7 +114,7 @@
         async function removeCategoryFromProfile(event, categoryId) {
             event.preventDefault();
             
-            const baseUrl = "{{ route('categories.favorite', ':id') }}";
+            const baseUrl = "{{ route('article-categories.favorite', ':id') }}";
             const url = baseUrl.replace(':id', categoryId);
             const card = document.getElementById(`category-card-${categoryId}`);
             

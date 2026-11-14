@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Article;
-use App\Models\Category;
+use App\Models\ArticleCategory;
+use App\Models\ArticleTag;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,8 +35,8 @@ class ArticleController extends Controller
             abort(403, 'غير مسموح لك بإنشاء المقالات الأساسية.');
         }
 
-        $cats = Category::orderBy('label', 'asc')->get();
-        $tags = Tag::all();
+        $cats = ArticleCategory::orderBy('label', 'asc')->get();
+        $tags = ArticleTag::all();
         return view('admin.articles.create', compact('cats', 'tags'));
     }
 
@@ -49,20 +50,19 @@ class ArticleController extends Controller
         $status = $request->input('status', 'draft');
 
         $request->validate([
-            'category_id' => 'required|numeric|exists:categories,id',
+            'category_id' => 'required|numeric|exists:article_categories,id',
             'featured_img' => "required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120",
             'internal_title' => 'required|string|unique:articles,internal_title',
             'status' => 'required|in:draft,pending,published',
         ]);
 
         $article = Article::create([
-            'category_id' => (int)$request->category_id,
+            'article_category_id' => (int)$request->category_id,
             'user_id' => Auth::id(),
             'internal_title' => trim($request->internal_title),
             'views' => 0,
             'status' => $status
         ]);
-
 
 
         // حفظ المواقع الجغرافية المتعددة
@@ -83,7 +83,6 @@ class ArticleController extends Controller
                 }
             }
         }
-
 
 
         if ($request->has('tags')) {
@@ -115,8 +114,8 @@ class ArticleController extends Controller
         }
 
         $article = Article::with('category', 'tags')->findOrFail($article_id);
-        $cats = Category::all();
-        $tags = Tag::all();
+        $cats = ArticleCategory::all();
+        $tags = ArticleTag::all();
         return view('admin.articles.edit', compact('article', 'cats', 'tags'));
     }
 
@@ -133,24 +132,32 @@ class ArticleController extends Controller
         $status = $request->input('status', $article->status);
 
         $request->validate([
-            'category_id' => 'required|numeric|exists:categories,id',
+            'category_id' => 'required|numeric|exists:article_categories,id',
             'featured_img' => "nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120",
             'internal_title' => [
+                'required',  // ✅ أُضيف
                 'string',
                 Rule::unique('articles', 'internal_title')->ignore($article_id),
             ],
             'status' => 'required|in:draft,pending,published',
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:article_tags,id',
         ]);
 
         try {
-            $article->category_id = (int)($request->category_id);
-            // ملاحظة: يُفضل عدم تغيير user_id عند التعديل ليبقى الكاتب الأصلي محفوظاً، إلا إذا رغبت بغير ذلك
-            // $article->user_id = Auth::id(); 
+            // ✅ 1. تحديث الحقول الأساسية عبر Mass Update
+            Article::where('id', $article_id)->update([
+                'article_category_id' => (int)$request->category_id,
+                'internal_title'      => trim($request->internal_title),
+                'status'              => $status,
+            ]);
 
+            // ✅ 2. تحديث الصورة (إن وُجدت) — يبقى على طريقة الكائن لأن MediaLibrary يحتاج instance
             if ($request->hasFile('featured_img')) {
                 if ($article->hasMedia('featured_imgs')) {
                     $article->clearMediaCollection('featured_imgs');
                 }
+
                 $file = $request->file('featured_img');
                 $file_ext = strtolower($file->getClientOriginalExtension());
                 $fileName = uniqid() . '.' . $file_ext;
@@ -161,14 +168,7 @@ class ArticleController extends Controller
                     ->toMediaCollection("featured_imgs");
             }
 
-            $article->internal_title = trim($request->internal_title);
-            $article->status = $status;
-            $article->save();
-
-
-
-
-            // تحديث المواقع (حذف القديم وإضافة الجديد بكل مرونة)
+            // ✅ 3. تحديث المواقع (حذف القديم + إضافة الجديد)
             $article->locations()->each(function ($location) {
                 $location->translations()->delete();
                 $location->delete();
@@ -191,18 +191,16 @@ class ArticleController extends Controller
                 }
             }
 
-
-
-
-
+            // ✅ 4. تحديث الوسوم
             $tags = $request->input('tags', []);
             $article->tags()->sync($tags);
 
             return to_route('admin.articles.index')->with('success', 'Article Updated Successfully.');
-        } catch (\Exception $e) {
+        } catch (\Exception $e) {  // ✅ Throwable بدل Exception
+
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Failed to update article. Please try again.');
+                ->with('error', 'Failed to update article: ' . $e->getMessage());
         }
     }
 

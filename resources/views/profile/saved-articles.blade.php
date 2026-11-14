@@ -67,7 +67,7 @@
                                         
                                         <!-- 🏷️ شارة الفئة في أعلى اليسار -->
                                         @if($catTrans && $categoryName)
-                                            <a href="{{ route('categories.show', ['id' => $catTrans->id, 'slug' => $catTrans->slug ?? '']) }}" 
+                                            <a href="{{ route('article-categories.show', ['id' => $catTrans->id, 'slug' => $catTrans->slug ?? '']) }}" 
                                                class="absolute top-3 left-3 z-10 bg-slate-950/80 backdrop-blur-md text-red-400 hover:text-white hover:bg-red-600 transition duration-200 text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-slate-800">
                                                 {{ $categoryName }}
                                             </a>

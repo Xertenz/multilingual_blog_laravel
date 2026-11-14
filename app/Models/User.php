@@ -64,7 +64,7 @@ class User extends AuthenticatableUser implements Authenticatable, HasMedia
 
     public function categories(): HasMany
     {
-        return $this->hasMany(Category::class);
+        return $this->hasMany(ArticleCategory::class, 'article_category_id');
     }
 
     public function comments(): HasMany
@@ -79,7 +79,7 @@ class User extends AuthenticatableUser implements Authenticatable, HasMedia
 
     public function favoriteCategories()
     {
-        return $this->belongsToMany(Category::class, 'category_user')->withTimestamps();
+        return $this->belongsToMany(ArticleCategory::class, 'article_category_user')->withTimestamps();
     }
 
     public function savedArticles(): BelongsToMany

@@ -24,8 +24,8 @@ class ArticleTranslationSeeder extends Seeder
             'meta_description' => 'meta descripion here',
             'title' => 'the miyazawa family massacre',
             'description' => <<<EOF
-            <p>this is the article description here</p>
-            EOF,
+                <p>this is the article description here</p>
+                EOF,
             'views' => 0,
 
             'created_at' => Carbon::now(),

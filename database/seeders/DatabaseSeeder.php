@@ -26,10 +26,11 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
 
-            CategorySeeder::class,
-            CategoryTranslationSeeder::class,
+            ArticleCategorySeeder::class,
+            ArticleCategoryTranslationSeeder::class,
 
             ArticleSeeder::class,
+
             ArticleTranslationSeeder::class,
 
             CommentSeeder::class,

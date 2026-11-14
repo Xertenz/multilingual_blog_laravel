@@ -147,14 +147,14 @@
             <h1 class="text-xl font-bold text-slate-900">Create New Category</h1>
             <p class="text-xs text-slate-500">Add a new category with multi-language support</p>
         </div>
-        <a href="{{ route('admin.categories.index') }}" class="text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-2xs">
+        <a href="{{ route('admin.article-categories.index') }}" class="text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-2xs">
             &larr; Back to Categories
         </a>
     </div>
     
     <div class="form-card">
         <div class="p-6">
-            <form action="{{ route('admin.categories.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('admin.article-categories.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 
                 <div class="section-card">
@@ -335,7 +335,7 @@
                 @endforeach
                 
                 <div class="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100">
-                    <a href="{{ route('admin.categories.index') }}" class="btn-secondary text-decoration-none">
+                    <a href="{{ route('admin.article-categories.index') }}" class="btn-secondary text-decoration-none">
                         Cancel
                     </a>
                     <button type="submit" class="btn-primary">

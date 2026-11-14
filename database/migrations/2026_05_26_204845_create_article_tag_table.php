@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('article_tag', function (Blueprint $table) {
             $table->id();
             $table->foreignId('article_id')->constrained('articles')->onDelete('cascade');
-            $table->foreignId('tag_id')->constrained('tags')->onDelete('cascade');
+            $table->foreignId('article_tag_id')->constrained('article_tags')->onDelete('cascade');
 
             // ضمان عدم تكرار ربط نفس الوسم بنفس المقالة مرتين
-            $table->unique(['article_id', 'tag_id']);
+            $table->unique(['article_id', 'article_tag_id']);
         });
     }
 

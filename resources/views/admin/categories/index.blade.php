@@ -30,7 +30,7 @@
             <h2 class="text-xl font-bold text-slate-800">Categories Management</h2>
             <p class="text-sm text-slate-500">Manage and organize your content categories</p>
         </div>
-        <a href="{{ route('admin.categories.create') }}" 
+        <a href="{{ route('admin.article-categories.create') }}" 
            class="bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm px-4 py-2 rounded-lg shadow-sm hover:shadow transition-all flex items-center gap-2">
             <span>+ Create Category</span>
         </a>
@@ -93,12 +93,12 @@
                         {{-- Actions --}}
                         <td class="py-3.5 px-4 text-right whitespace-nowrap">
                             <div class="flex items-center justify-end gap-2">
-                                <a href="{{ route('admin.categories.edit', $category) }}"
+                                <a href="{{ route('admin.article-categories.edit', $category) }}"
                                    class="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors">
                                     Edit
                                 </a>
                                 
-                                <form method="POST" action="{{ route('admin.categories.destroy', $category->id) }}"
+                                <form method="POST" action="{{ route('admin.article-categories.destroy', $category->id) }}"
                                       onsubmit="return confirm('Are you sure you want to delete this category?');" class="inline">
                                     @csrf
                                     @method('DELETE')
@@ -115,7 +115,7 @@
                             <div class="flex flex-col items-center justify-center">
                                 <span class="text-3xl mb-2">📂</span>
                                 <p class="text-sm font-medium text-slate-600">No categories found.</p>
-                                <a href="{{ route('admin.categories.create') }}" class="text-blue-600 hover:underline text-xs font-medium mt-1">
+                                <a href="{{ route('admin.article-categories.create') }}" class="text-blue-600 hover:underline text-xs font-medium mt-1">
                                     Create your first category &rarr;
                                 </a>
                             </div>

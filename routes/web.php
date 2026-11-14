@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\ArticleCategoryController;
+use App\Http\Controllers\Admin\ArticleCategoryTranslationController;
 use Illuminate\Support\Facades\Route;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
@@ -10,7 +12,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReactionController;
-use App\Http\Controllers\CategoryVisitorController;
+use App\Http\Controllers\Front\CategoryController as FrontCategoryController;
 use App\Http\Controllers\Front\ArticleSavedController;
 use App\Http\Controllers\Front\CategoryFavoriteController;
 use App\Http\Controllers\Front\SeriesController as FrontSeriesController;
@@ -21,6 +23,7 @@ use App\Http\Controllers\Front\BookController as FrontBookController;
 // Admin Controllers
 use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\ArticleLocationController;
+use App\Http\Controllers\Admin\ArticleTagController;
 use App\Http\Controllers\Admin\ArticleTranslationController;
 use App\Http\Controllers\Admin\BookController;
 use App\Http\Controllers\Admin\CategoryController;
@@ -29,7 +32,7 @@ use App\Http\Controllers\Admin\CommunityCaseCategoryController;
 use App\Http\Controllers\Admin\PenaltyController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\TagController;
-use App\Http\Controllers\Admin\TagTranslationController;
+use App\Http\Controllers\Admin\ArticleTagTranslationController;
 use App\Http\Controllers\Admin\SeriesController as AdminSeriesController;
 use App\Http\Controllers\Admin\SuggestionController;
 use App\Http\Controllers\Admin\UserController;
@@ -99,7 +102,7 @@ Route::group([
         Route::get('/profile/{id}', UserProfile::class)->name('profile.show');
         // التفضيلات والمقالات المحفوظة
         Route::get('/my-favorite-categories', [ProfileController::class, 'favoriteCategories'])->name('profile.favorites');
-        Route::post('/categories/{category}/favorite', [CategoryFavoriteController::class, 'toggle'])->name('categories.favorite');
+        Route::post('/categories/{category}/favorite', [CategoryFavoriteController::class, 'toggle'])->name('article-categories.favorite');
         Route::post('/articles/reactions/toggle', [ReactionController::class, 'toggleArticleReaction'])->name('articles.reactions.toggle');
         Route::get('/my-saved-articles', [ProfileController::class, 'savedArticles'])->name('profile.saved-articles');
         Route::post('/articles/{article}/saved', [ArticleSavedController::class, 'toggle'])->name('articles.saved');
@@ -127,9 +130,9 @@ Route::group([
     // 2. الواجهة العامة للموقع (Public Visitors)
     // =========================================================================
     Route::get('/', [HomeController::class, 'index'])->name('home.index');
-    Route::get('/categories', [CategoryVisitorController::class, 'index'])->name('categories.index');
-    Route::get('/category/{id}/{slug?}', [CategoryTranslationController::class, 'show'])->name('categories.show');
-    Route::get('/tags/{id}/{slug?}', [TagTranslationController::class, 'show'])->name('tags.show');
+    Route::get('/categories', [FrontCategoryController::class, 'index'])->name('article-categories.index');
+    Route::get('/category/{id}/{slug?}', [ArticleCategoryTranslationController::class, 'show'])->name('article-categories.show');
+    Route::get('/tags/{id}/{slug?}', [ArticleTagTranslationController::class, 'show'])->name('article-tags.show');
     Route::get('/search', SearchController::class)->name('search');
     Route::get('/articles/{id}/{slug?}', [ArticleTranslationController::class, 'show'])->where('id', '[0-9]+')->name('articles.show');
     Route::get('/series/{id}/{slug?}', [FrontSeriesController::class, 'show'])->name('series.show');
@@ -306,20 +309,20 @@ Route::group([
             Route::post('/articles/{id}/reject', [ArticleController::class, 'reject'])->name('admin.articles.reject');
 
             // الفئات (Categories)
-            Route::get('/categories', [CategoryController::class, 'index'])->name('admin.categories.index');
-            Route::get('/categories/create', [CategoryTranslationController::class, 'create'])->name('admin.categories.create');
-            Route::post('/categories', [CategoryTranslationController::class, 'store'])->name('admin.categories.store');
-            Route::get('/categories/{cat_id}/edit', [CategoryTranslationController::class, 'edit'])->name('admin.categories.edit');
-            Route::put('/categories/{cat_id}', [CategoryTranslationController::class, 'update'])->name('admin.categories.update');
-            Route::delete('/categories/{cat_id}', [CategoryTranslationController::class, 'destroy'])->name('admin.categories.destroy');
+            Route::get('/categories', [ArticleCategoryController::class, 'index'])->name('admin.article-categories.index');
+            Route::get('/categories/create', [ArticleCategoryTranslationController::class, 'create'])->name('admin.article-categories.create');
+            Route::post('/categories', [ArticleCategoryTranslationController::class, 'store'])->name('admin.article-categories.store');
+            Route::get('/categories/{cat_id}/edit', [ArticleCategoryTranslationController::class, 'edit'])->name('admin.article-categories.edit');
+            Route::put('/categories/{cat_id}', [ArticleCategoryTranslationController::class, 'update'])->name('admin.article-categories.update');
+            Route::delete('/categories/{cat_id}', [ArticleCategoryTranslationController::class, 'destroy'])->name('admin.article-categories.destroy');
 
             // الوسوم (Tags)
-            Route::get('/tags', [TagController::class, 'index'])->name('admin.tags.index');
-            Route::get('/tags/create', [TagTranslationController::class, 'create'])->name('admin.tags.create');
-            Route::post('/tags', [TagTranslationController::class, 'store'])->name('admin.tags.store');
-            Route::get('/tags/{tag}/edit', [TagTranslationController::class, 'edit'])->name('admin.tags.edit');
-            Route::put('/tags/{tag}', [TagTranslationController::class, 'update'])->name('admin.tags.update');
-            Route::delete('/tags/{tag}', [TagTranslationController::class, 'destroy'])->name('admin.tags.destroy');
+            Route::get('/tags', [ArticleTagController::class, 'index'])->name('admin.article-tags.index');
+            Route::get('/tags/create', [ArticleTagTranslationController::class, 'create'])->name('admin.article-tags.create');
+            Route::post('/tags', [ArticleTagTranslationController::class, 'store'])->name('admin.article-tags.store');
+            Route::get('/tags/{tag}/edit', [ArticleTagTranslationController::class, 'edit'])->name('admin.article-tags.edit');
+            Route::put('/tags/{tag}', [ArticleTagTranslationController::class, 'update'])->name('admin.article-tags.update');
+            Route::delete('/tags/{tag}', [ArticleTagTranslationController::class, 'destroy'])->name('admin.article-tags.destroy');
 
             // السلاسل (Series)
             Route::get('/series', [AdminSeriesController::class, 'index'])->name('admin.series.index');

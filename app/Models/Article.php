@@ -16,7 +16,7 @@ use Spatie\Image\Enums\Fit;
 class Article extends Model  implements HasMedia
 {
     use InteractsWithMedia;
-    protected $fillable = ['category_id', 'user_id', 'internal_title', 'views', 'status'];
+    protected $fillable = ['article_category_id', 'user_id', 'internal_title', 'views', 'status'];
     //public $timestamps = false;
     //
     public function translations(): HasMany
@@ -26,19 +26,14 @@ class Article extends Model  implements HasMedia
 
     public function category(): BelongsTo
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(ArticleCategory::class, 'article_category_id');
     }
 
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-    /*
-    public function comments(): HasMany
-    {
-        return $this->hasMany(Comment::class)->latest();
-    }
-    */
+
     public function comments()
     {
         return $this->morphMany(Comment::class, 'commentable');
@@ -51,7 +46,7 @@ class Article extends Model  implements HasMedia
 
     public function tags()
     {
-        return $this->belongsToMany(Tag::class);
+        return $this->belongsToMany(ArticleTag::class, 'article_tag', 'article_id', 'article_tag_id');
     }
 
     public function favoritedBy(): BelongsToMany
@@ -120,7 +115,7 @@ class Article extends Model  implements HasMedia
     }
 
 
-    public function scopeSearch($query, ?string $term)
+    public function scopeSearch(object $query, ?string $term)
     {
         if (empty(trim($term))) {
             return $query;

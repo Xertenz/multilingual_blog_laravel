@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
-class CategoryTranslationSeeder extends Seeder
+class ArticleCategoryTranslationSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -15,8 +15,8 @@ class CategoryTranslationSeeder extends Seeder
     public function run(): void
     {
         //
-        DB::table('category_translations')->insert([
-            'category_id' => 1,
+        DB::table('article_category_translations')->insert([
+            'article_category_id' => 1,
             'locale' => 'en',
             'slug' => 'general',
             'name' => 'General',
@@ -27,8 +27,8 @@ class CategoryTranslationSeeder extends Seeder
             'updated_at' => Carbon::now(),
         ]);
 
-        DB::table('category_translations')->insert([
-            'category_id' => 1,
+        DB::table('article_category_translations')->insert([
+            'article_category_id' => 1,
             'locale' => 'ar',
             'slug' => 'منوعات',
             'name' => 'منوعات',
@@ -38,8 +38,8 @@ class CategoryTranslationSeeder extends Seeder
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
-        DB::table('category_translations')->insert([
-            'category_id' => 2,
+        DB::table('article_category_translations')->insert([
+            'article_category_id' => 2,
             'locale' => 'en',
             'slug' => 'crimes',
             'name' => 'Crimes',
@@ -49,8 +49,8 @@ class CategoryTranslationSeeder extends Seeder
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ]);
-        DB::table('category_translations')->insert([
-            'category_id' => 2,
+        DB::table('article_category_translations')->insert([
+            'article_category_id' => 2,
             'locale' => 'ar',
             'slug' => 'جرائم',
             'name' => 'جرائم',

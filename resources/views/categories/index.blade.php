@@ -39,7 +39,7 @@
                 $articlesCount = $cat->articles->count();
             @endphp
 
-            <a href="{{ route('categories.show', ['id' => $catId, 'slug' => $catSlug]) }}"
+            <a href="{{ route('article-categories.show', ['id' => $catId, 'slug' => $catSlug]) }}"
                class="group relative bg-[#0f1526] border border-slate-800 hover:border-red-600/60 rounded-xl overflow-hidden shadow-lg transition-all duration-300 flex flex-col justify-between">
 
                 <div>

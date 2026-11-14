@@ -9,7 +9,7 @@
     <meta property="og:description" content="{{ $category_trans->meta_description ?? '' }}">
     
     {{-- رابط الـ Canonical للـ SEO --}}
-    <link rel="canonical" href="{{ route('categories.show', ['id' => $category_trans->id, 'slug' => $category_trans->slug ?? '']) }}">
+    <link rel="canonical" href="{{ route('article-categories.show', ['id' => $category_trans->id, 'slug' => $category_trans->slug ?? '']) }}">
 @endsection
 
 @section('content')

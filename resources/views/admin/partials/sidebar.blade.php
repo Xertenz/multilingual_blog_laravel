@@ -503,9 +503,9 @@
             
             <ul class="space-y-1">
                 <li>
-                    <a href="{{ route('admin.categories.index') }}" 
+                    <a href="{{ route('admin.article-categories.index') }}" 
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 
-                              {{ request()->routeIs('admin.categories.*') && !request()->routeIs('admin.categories.create') 
+                              {{ request()->routeIs('admin.article-categories.*') && !request()->routeIs('admin.article-categories.create') 
                                  ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-white' 
                                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
@@ -515,15 +515,15 @@
                         </div>
                         <span class="flex-1 text-sm font-medium">All Categories</span>
                         <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
-                            {{ \App\Models\Category::count() }}
+                            {{ \App\Models\ArticleCategory::count() }}
                         </span>
                     </a>
                 </li>
                 
                 <li>
-                    <a href="{{ route('admin.categories.create') }}" 
+                    <a href="{{ route('admin.article-categories.create') }}" 
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
-                              {{ request()->routeIs('admin.categories.create') 
+                              {{ request()->routeIs('admin.article-categories.create') 
                                  ? 'bg-gradient-to-r from-green-600/20 to-emerald-600/20 text-white' 
                                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
@@ -532,7 +532,7 @@
                             </svg>
                         </div>
                         <span class="flex-1 text-sm font-medium">Add New Category</span>
-                        @if(request()->routeIs('admin.categories.create'))
+                        @if(request()->routeIs('admin.article-categories.create'))
                             <span class="bg-green-600/20 text-green-400 text-xs px-2 py-1 rounded-full">Now</span>
                         @endif
                     </a>
@@ -549,9 +549,9 @@
             
             <ul class="space-y-1">
                 <li>
-                    <a href="{{ route('admin.tags.index') }}" 
+                    <a href="{{ route('admin.article-tags.index') }}" 
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 
-                              {{ request()->routeIs('admin.tags.*') && !request()->routeIs('admin.tags.create') 
+                              {{ request()->routeIs('admin.article-tags.*') && !request()->routeIs('admin.article-tags.create') 
                                  ? 'bg-gradient-to-r from-orange-600/20 to-amber-600/20 text-white' 
                                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
@@ -561,15 +561,15 @@
                         </div>
                         <span class="flex-1 text-sm font-medium">All Tags</span>
                         <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
-                            {{ \App\Models\Tag::count() }}
+                            {{ \App\Models\ArticleTag::count() }}
                         </span>
                     </a>
                 </li>
                 
                 <li>
-                    <a href="{{ route('admin.tags.create') }}" 
+                    <a href="{{ route('admin.article-tags.create') }}" 
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
-                              {{ request()->routeIs('admin.tags.create') 
+                              {{ request()->routeIs('admin.article-tags.create') 
                                  ? 'bg-gradient-to-r from-amber-500/20 to-red-500/20 text-white' 
                                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
@@ -578,7 +578,7 @@
                             </svg>
                         </div>
                         <span class="flex-1 text-sm font-medium">Add New Tag</span>
-                        @if(request()->routeIs('admin.tags.create'))
+                        @if(request()->routeIs('admin.article-tags.create'))
                             <span class="bg-amber-500/20 text-amber-400 text-xs px-2 py-1 rounded-full">Now</span>
                         @else
                             <span class="bg-amber-600/20 text-amber-400 text-xs px-2 py-1 rounded-full">#</span>

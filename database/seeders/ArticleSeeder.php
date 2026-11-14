@@ -15,7 +15,7 @@ class ArticleSeeder extends Seeder
     public function run(): void
     {
         Article::create([
-            'category_id' => 2,
+            'article_category_id' => 2,
             'user_id' => 1,
             'internal_title' => 'a',
             'views' => 0,

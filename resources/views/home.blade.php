@@ -48,7 +48,7 @@
                         <div class="flex items-center gap-3">
                             {{-- رابط الفئة للمقالة البارزة مع الـ Slug --}}
                             @if($featuredArticle->category)
-                                <a href="{{ route('categories.show', ['id' => $featuredArticle->category->id, 'slug' => $featuredCatTrans->slug ?? '']) }}" 
+                                <a href="{{ route('article-categories.show', ['id' => $featuredArticle->category->id, 'slug' => $featuredCatTrans->slug ?? '']) }}" 
                                    class="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-red-400 bg-red-500/10 border border-red-500/20 rounded-full hover:bg-red-500/20 transition-colors">
                                     🔥 {{ $featuredCatTrans->title ?? $featuredArticle->category->label }}
                                 </a>
@@ -200,7 +200,7 @@
                         @endphp
                         
                         {{-- تحديث رابط الفئة ليحتوي على الـ id والـ slug المترجم --}}
-                        <a href="{{ route('categories.show', ['id' => $category->id, 'slug' => $catTrans->slug ?? '']) }}" 
+                        <a href="{{ route('article-categories.show', ['id' => $category->id, 'slug' => $catTrans->slug ?? '']) }}" 
                            class="px-3 py-1.5 text-xs font-medium bg-slate-800/80 hover:bg-red-600/20 hover:border-red-500/40 text-gray-300 hover:text-red-400 border border-slate-700/60 rounded-xl transition-all">
                             {{ $catTrans->title ?? $category->label }}
                             <span class="text-slate-500 text-[10px] ml-1">({{ $category->articles_count ?? 0 }})</span>
