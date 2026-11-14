@@ -23,6 +23,11 @@ class CommentsSection extends Component
     public ?int $editingCommentId = null;
     public string $editBody = '';
 
+    public string $newCommentType = 'comment';
+    public string $replyCommentType = 'comment';
+
+    public string $editCommentType = 'comment';
+
     public function mount(Model $model)
     {
         $this->model = $model;
@@ -36,9 +41,13 @@ class CommentsSection extends Component
             return;
         }
 
-        $this->validate(['newCommentBody' => 'required|string|max:1000']);
-        $this->saveComment($this->newCommentBody, null);
+        $this->validate([
+            'newCommentBody' => 'required|string|max:1000',
+            'newCommentType' => 'required|in:comment,question,hint,evidence'
+        ]);
+        $this->saveComment($this->newCommentBody, null, $this->newCommentType);
         $this->newCommentBody = '';
+        $this->newCommentType = 'comment';
     }
 
     public function showReplyForm(int $commentId)
@@ -56,16 +65,25 @@ class CommentsSection extends Component
 
     public function addReply(int $parentId)
     {
-        $this->validate(['replyBody' => 'required|string|max:1000']);
-        $this->saveComment($this->replyBody, $parentId);
+        $this->validate([
+            'replyBody' => 'required|string|max:1000',
+            'replyCommentType' => 'required|in:comment,question,hint,evidence'
+        ]);
+        $this->saveComment($this->replyBody, $parentId, $this->replyCommentType);
         $this->hideReplyForm();
+        $this->replyCommentType = 'comment';
     }
 
-    public function showEditForm(int $commentId, string $currentBody)
+    public function showEditForm(int $commentId)
     {
         $this->hideReplyForm();
+        $comment = Comment::findOrFail($commentId);
+
+        if (Auth::id() !== $comment->user_id) return;
+
         $this->editingCommentId = $commentId;
-        $this->editBody = $currentBody;
+        $this->editBody = $comment->body;
+        $this->editCommentType = $comment->type;
     }
 
     public function hideEditForm()
@@ -76,7 +94,10 @@ class CommentsSection extends Component
 
     public function updateComment(int $commentId)
     {
-        $this->validate(['editBody' => 'required|string|max:1000']);
+        $this->validate([
+            'editBody' => 'required|string|max:1000',
+            'editCommentType' => 'required|in:comment,question,hint,evidence'
+        ]);
         $comment = Comment::findOrFail($commentId);
 
         if (Auth::id() !== $comment->user_id) return;
@@ -85,7 +106,10 @@ class CommentsSection extends Component
         $usernames = $matches[1];
         $mentionedUserIds = User::whereIn('name', $usernames)->pluck('id')->toArray();
 
-        $comment->update(['body' => trim(strip_tags($this->editBody))]);
+        $comment->update([
+            'body' => trim(strip_tags($this->editBody)),
+            'type' => $this->editCommentType,
+        ]);
 
         if (method_exists($comment, 'mentionedUsers')) {
             $comment->mentionedUsers()->sync($mentionedUserIds);
@@ -138,7 +162,7 @@ class CommentsSection extends Component
         }
     }
 
-    private function saveComment(string $body, ?int $parentId)
+    private function saveComment(string $body, ?int $parentId, string $type = "comment")
     {
         preg_match_all('/@([a-zA-Z0-9_]+)/', $body, $matches);
         $usernames = $matches[1];
@@ -148,6 +172,7 @@ class CommentsSection extends Component
         $comment = $this->model->comments()->create([
             'user_id' => Auth::id(),
             'parent_id' => $parentId,
+            'type' => $type,
             'body' => trim(strip_tags($body)),
             'locale' => LaravelLocalization::getCurrentLocale()
         ]);

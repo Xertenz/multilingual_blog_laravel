@@ -17,6 +17,7 @@ class Comment extends Model
         'commentable_id',
         //'article_id', 
         'parent_id',
+        'type',
         'body',
         'locale',
         'mentioned_user_ids'

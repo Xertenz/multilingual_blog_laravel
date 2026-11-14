@@ -39,6 +39,21 @@
                 @else
                     <span class="text-slate-400 italic font-normal text-xs">Deleted Account</span>
                 @endif
+
+                <!-- شارة نوع التعليق (Badge) تظهر فقط إذا لم يكن التعليق من النوع الافتراضي comment -->
+                @php
+                    $typeBadges = [
+                        'evidence' => ['label' => '🔍 Evidence', 'class' => 'bg-red-950/80 text-red-400 border-red-800/60'],
+                        'hint' => ['label' => '💡 Hint', 'class' => 'bg-amber-950/80 text-amber-400 border-amber-800/60'],
+                        'question' => ['label' => '❓ Question', 'class' => 'bg-sky-950/80 text-sky-400 border-sky-800/60'],
+                    ];
+                @endphp
+
+                @if(isset($typeBadges[$comment->type]))
+                    <span class="text-[10px] px-2 py-0.5 rounded border font-semibold {{ $typeBadges[$comment->type]['class'] }}">
+                        {{ $typeBadges[$comment->type]['label'] }}
+                    </span>
+                @endif
             </div>
 
             <div class="flex items-center gap-3">
@@ -115,7 +130,7 @@
             
             @if (Auth::check() && $comment->user_id && Auth::id() == $comment->user_id)
                 <span class="text-slate-700">|</span>
-                <button wire:click="showEditForm({{ $comment->id }}, '{{ addslashes($comment->body) }}')" class="hover:text-amber-400 transition">edit</button>
+                <button wire:click="showEditForm({{ $comment->id }})" class="hover:text-amber-400 transition">edit</button>
                 <span class="text-slate-700">|</span>
                 <button wire:confirm="Are you sure you want to delete this comment?" wire:click="deleteComment({{ $comment->id }})" class="hover:text-rose-500 transition">delete</button>
             @endif
@@ -124,6 +139,31 @@
         <!-- نموذج التعديل -->
         @if ($editingCommentId === $comment->id)
             <div wire:transition class="my-3 ms-4" wire:key="edit-box-{{ $comment->id }}">
+                <!-- أزرار اختيار نوع التعليق أثناء التعديل -->
+                <div class="flex flex-wrap items-center gap-2 mb-2">
+                    <span class="text-xs text-slate-400 font-medium">Type:</span>
+                    
+                    <label class="cursor-pointer text-xs px-2.5 py-1 rounded-md border transition"
+                           :class="$wire.editCommentType === 'comment' ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-800/50 text-slate-400 border-slate-700'">
+                        <input type="radio" wire:model="editCommentType" value="comment" class="hidden"> 💬 Comment
+                    </label>
+
+                    <label class="cursor-pointer text-xs px-2.5 py-1 rounded-md border transition"
+                           :class="$wire.editCommentType === 'evidence' ? 'bg-red-950/80 text-red-400 border-red-800' : 'bg-slate-800/50 text-slate-400 border-slate-700'">
+                        <input type="radio" wire:model="editCommentType" value="evidence" class="hidden"> 🔍 Evidence
+                    </label>
+
+                    <label class="cursor-pointer text-xs px-2.5 py-1 rounded-md border transition"
+                           :class="$wire.editCommentType === 'hint' ? 'bg-amber-950/80 text-amber-400 border-amber-800' : 'bg-slate-800/50 text-slate-400 border-slate-700'">
+                        <input type="radio" wire:model="editCommentType" value="hint" class="hidden"> 💡 Hint
+                    </label>
+
+                    <label class="cursor-pointer text-xs px-2.5 py-1 rounded-md border transition"
+                           :class="$wire.editCommentType === 'question' ? 'bg-sky-950/80 text-sky-400 border-sky-800' : 'bg-slate-800/50 text-slate-400 border-slate-700'">
+                        <input type="radio" wire:model="editCommentType" value="question" class="hidden"> ❓ Question
+                    </label>
+                </div>
+
                 <textarea
                     wire:model="editBody"
                     @keydown.enter.prevent="$wire.updateComment({{ $comment->id }})"
@@ -143,6 +183,31 @@
         <!-- نموذج الرد -->
         @if ($replyToCommentId === $comment->id)
             <div wire:transition class="my-3 ms-4" wire:key="reply-box-{{ $comment->id }}">
+                <!-- أزرار اختيار نوع التعليق -->
+                <div class="flex flex-wrap items-center gap-2 mb-2">
+                    <span class="text-xs text-slate-400 font-medium">Type:</span>
+                    
+                    <label class="cursor-pointer text-xs px-2.5 py-1 rounded-md border transition"
+                           :class="$wire.replyCommentType === 'comment' ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-800/50 text-slate-400 border-slate-700'">
+                        <input type="radio" wire:model="replyCommentType" value="comment" class="hidden"> 💬 Comment
+                    </label>
+
+                    <label class="cursor-pointer text-xs px-2.5 py-1 rounded-md border transition"
+                           :class="$wire.replyCommentType === 'evidence' ? 'bg-red-950/80 text-red-400 border-red-800' : 'bg-slate-800/50 text-slate-400 border-slate-700'">
+                        <input type="radio" wire:model="replyCommentType" value="evidence" class="hidden"> 🔍 Evidence
+                    </label>
+
+                    <label class="cursor-pointer text-xs px-2.5 py-1 rounded-md border transition"
+                           :class="$wire.replyCommentType === 'hint' ? 'bg-amber-950/80 text-amber-400 border-amber-800' : 'bg-slate-800/50 text-slate-400 border-slate-700'">
+                        <input type="radio" wire:model="replyCommentType" value="hint" class="hidden"> 💡 Hint
+                    </label>
+
+                    <label class="cursor-pointer text-xs px-2.5 py-1 rounded-md border transition"
+                           :class="$wire.replyCommentType === 'question' ? 'bg-sky-950/80 text-sky-400 border-sky-800' : 'bg-slate-800/50 text-slate-400 border-slate-700'">
+                        <input type="radio" wire:model="replyCommentType" value="question" class="hidden"> ❓ Question
+                    </label>
+                </div>
+
                 <textarea
                     wire:model="replyBody"
                     @keydown.enter.prevent="$wire.addReply({{ $comment->id }})"

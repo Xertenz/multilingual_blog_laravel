@@ -20,6 +20,32 @@
     <div class="comments-wrapper mb-8 bg-slate-900/40 p-4 rounded-xl border border-slate-800">
         @auth
             <form wire:submit.prevent="addComment" class="space-y-3">
+                
+                <!-- أزرار اختيار نوع التعليق -->
+                <div class="flex flex-wrap items-center gap-2 mb-2">
+                    <span class="text-xs text-slate-400 font-medium">Type:</span>
+                    
+                    <label class="cursor-pointer text-xs px-2.5 py-1 rounded-md border transition"
+                           :class="$wire.newCommentType === 'comment' ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-800/50 text-slate-400 border-slate-700'">
+                        <input type="radio" wire:model="newCommentType" value="comment" class="hidden"> 💬 Comment
+                    </label>
+
+                    <label class="cursor-pointer text-xs px-2.5 py-1 rounded-md border transition"
+                           :class="$wire.newCommentType === 'evidence' ? 'bg-red-950/80 text-red-400 border-red-800' : 'bg-slate-800/50 text-slate-400 border-slate-700'">
+                        <input type="radio" wire:model="newCommentType" value="evidence" class="hidden"> 🔍 Evidence
+                    </label>
+
+                    <label class="cursor-pointer text-xs px-2.5 py-1 rounded-md border transition"
+                           :class="$wire.newCommentType === 'hint' ? 'bg-amber-950/80 text-amber-400 border-amber-800' : 'bg-slate-800/50 text-slate-400 border-slate-700'">
+                        <input type="radio" wire:model="newCommentType" value="hint" class="hidden"> 💡 Hint
+                    </label>
+
+                    <label class="cursor-pointer text-xs px-2.5 py-1 rounded-md border transition"
+                           :class="$wire.newCommentType === 'question' ? 'bg-sky-950/80 text-sky-400 border-sky-800' : 'bg-slate-800/50 text-slate-400 border-slate-700'">
+                        <input type="radio" wire:model="newCommentType" value="question" class="hidden"> ❓ Question
+                    </label>
+                </div>
+
                 <textarea 
                     wire:model="newCommentBody"
                     @keydown.enter.prevent="$wire.addComment()"
@@ -35,12 +61,7 @@
                 </div>
             </form>
         @else
-            <div class="p-4 text-center rounded-lg bg-slate-900/80 border border-slate-800">
-                <p class="text-sm text-gray-400 italic">
-                    Create an account to participate in the discussion: 
-                    <a href="{{ route('register') }}" class="text-sky-400 hover:underline font-semibold not-italic ml-1">Register Now</a>
-                </p>
-            </div>
+            <!-- رسالة تسجيل الدخول -->
         @endauth
     </div>
 
