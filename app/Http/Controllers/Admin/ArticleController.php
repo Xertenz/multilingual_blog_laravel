@@ -19,7 +19,7 @@ class ArticleController extends Controller
         /*
         $articles = Article::with(['translations', 'user', 'category'])->paginate(10);
         */
-        $articles = Article::with(['translations', 'user', 'category'])
+        $articles = Article::with(['translations', 'author', 'category'])
             ->withCount(['media as content_imgs_count' => function ($q) {
                 $q->where('collection_name', 'content_imgs');
             }])
@@ -287,7 +287,7 @@ class ArticleController extends Controller
             abort(403, 'غير مسموح لك بمراجعة المقالات.');
         }
 
-        $articles = Article::with(['translations', 'user'])
+        $articles = Article::with(['translations', 'author'])
             ->where('status', 'pending')
             ->latest()
             ->paginate(10);

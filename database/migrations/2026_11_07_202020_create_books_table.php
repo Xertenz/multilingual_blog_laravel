@@ -31,7 +31,7 @@ return new class extends Migration
 
             // البيانات النصية
             $table->string('title'); // عنوان الكتاب
-            $table->string('author'); // اسم المؤلف حسب اللغة
+            $table->string('book_author'); // اسم المؤلف حسب اللغة
             $table->string('slug'); // الرابط الصديق
             $table->text('summary')->nullable(); // ملخص الكتاب
             $table->unsignedBigInteger('views')->default(0);
@@ -45,7 +45,7 @@ return new class extends Migration
 
             // قيود الفرادة
             $table->unique(['book_id', 'locale']);
-            $table->unique(['slug', 'locale']);
+            $table->unique(['locale', 'slug']);
         });
     }
 

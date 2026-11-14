@@ -36,7 +36,7 @@ class SuggestionStatusUpdated extends Notification implements ShouldQueue
     }
 
     // دالة مساعدة لترجمة الحالة للغة العربية أو عرضها بشكل لطيف
-    private function getStatusLabel($status)
+    private function getStatusLabel(string $status)
     {
         return match ($status) {
             'approved' => 'Under Research 🔍',

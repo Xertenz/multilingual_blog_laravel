@@ -41,7 +41,7 @@ class CommentsSection extends Component
         $this->newCommentBody = '';
     }
 
-    public function showReplyForm($commentId)
+    public function showReplyForm(int $commentId)
     {
         $this->editingCommentId = null;
         $this->replyToCommentId = $commentId;
@@ -54,14 +54,14 @@ class CommentsSection extends Component
         $this->replyBody = '';
     }
 
-    public function addReply($parentId)
+    public function addReply(int $parentId)
     {
         $this->validate(['replyBody' => 'required|string|max:1000']);
         $this->saveComment($this->replyBody, $parentId);
         $this->hideReplyForm();
     }
 
-    public function showEditForm($commentId, $currentBody)
+    public function showEditForm(int $commentId, string $currentBody)
     {
         $this->hideReplyForm();
         $this->editingCommentId = $commentId;
@@ -74,7 +74,7 @@ class CommentsSection extends Component
         $this->editBody = '';
     }
 
-    public function updateComment($commentId)
+    public function updateComment(int $commentId)
     {
         $this->validate(['editBody' => 'required|string|max:1000']);
         $comment = Comment::findOrFail($commentId);
@@ -101,7 +101,7 @@ class CommentsSection extends Component
         $this->hideEditForm();
     }
 
-    public function deleteComment($commentId)
+    public function deleteComment(int $commentId)
     {
         $comment = Comment::findOrFail($commentId);
         if (Auth::id() === $comment->user_id) {
@@ -109,7 +109,7 @@ class CommentsSection extends Component
         }
     }
 
-    public function toggleReaction($commentId, $type)
+    public function toggleReaction(int $commentId, string $type)
     {
         if (!Auth::check()) return redirect()->route('login');
 
@@ -134,7 +134,7 @@ class CommentsSection extends Component
         }
 
         if ($status !== 'removed' && $reaction && $comment->user_id !== $userId) {
-            $comment->user->notify(new NewCommentReactionNotification($reaction));
+            $comment->author->notify(new NewCommentReactionNotification($reaction));
         }
     }
 
@@ -158,7 +158,7 @@ class CommentsSection extends Component
 
         if ($comment->parent_id !== null) {
             $originalComment = Comment::find($comment->parent_id);
-            $receiver = $originalComment->user ?? null;
+            $receiver = $originalComment->author ?? null;
 
             if ($receiver && $receiver->id !== Auth::id() && !in_array($receiver->id, $mentionedUserIds)) {
                 $receiver->notify(new NewCommentReplyNotification($comment, $originalComment->locale));
@@ -177,10 +177,10 @@ class CommentsSection extends Component
     {
         $comments = $this->model->comments()
             ->with([
-                'user',
+                'author',
                 'reactions',
                 'replies' => fn($q) => $q->oldest(),
-                'replies.user',
+                'replies.author',
                 'replies.reactions',
                 'replies.replies' => fn($q) => $q->oldest()
             ])

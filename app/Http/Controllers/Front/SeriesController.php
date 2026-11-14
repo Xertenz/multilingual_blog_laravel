@@ -16,7 +16,7 @@ class SeriesController extends Controller
         // جلب السلسلة مع ترجماتها ومقالاتها المترتبة
         $series = Series::with([
             'translations',
-            'user',
+            'author',
             'articles' => function ($query) use ($currentLocale) {
                 // جلب تراجم المقالات للغة الحالية إن أمكن
                 $query->with(['translations' => function ($q) use ($currentLocale) {

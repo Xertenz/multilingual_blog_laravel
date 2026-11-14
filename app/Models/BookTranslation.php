@@ -15,7 +15,7 @@ class BookTranslation extends Model implements HasMedia
 
     protected $guarded = [];
 
-    public function uploader()
+    public function author()
     {
         return $this->belongsTo(User::class, 'user_id');
     }

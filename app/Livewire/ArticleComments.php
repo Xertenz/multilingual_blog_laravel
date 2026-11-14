@@ -88,7 +88,7 @@ class ArticleComments extends Component
         $this->editBody = '';
     }
 
-    public function updateComment($commentId)
+    public function updateComment(int $commentId)
     {
         $this->validate(['editBody' => 'required|string|max:1000']);
 
@@ -120,7 +120,7 @@ class ArticleComments extends Component
     }
 
     // --- 4. حذف تعليق/رد ---
-    public function deleteComment($commentId)
+    public function deleteComment(int $commentId)
     {
         $comment = Comment::findOrFail($commentId);
 
@@ -133,7 +133,7 @@ class ArticleComments extends Component
     }
 
     // --- 5. التفاعلات (Reactions) ---
-    public function toggleReaction($commentId, $type)
+    public function toggleReaction(int $commentId, $type)
     {
         if (!Auth::check()) {
             return redirect()->route('login');
@@ -164,7 +164,7 @@ class ArticleComments extends Component
         }
 
         if ($status !== 'removed' && $reaction && $comment->user_id !== $userId) {
-            $comment->user->notify(new NewCommentReactionNotification($reaction));
+            $comment->author->notify(new NewCommentReactionNotification($reaction));
         }
     }
 

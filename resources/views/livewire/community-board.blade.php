@@ -93,7 +93,7 @@
 
                 <!-- معلومات الكاتب والعدادات -->
                 <div class="pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-gray-500">
-                    <span class="text-gray-300 font-medium">بواسطة: {{ $case->user->name ?? 'محقق مجهول' }}</span>
+                    <span class="text-gray-300 font-medium">بواسطة: {{ $case->author->name ?? 'محقق مجهول' }}</span>
                     <div class="flex items-center gap-3">
                         @auth
                             @if($case->user_id !== auth()->id())
@@ -288,7 +288,7 @@
                 <!-- الشريط السفلي: الكاتب + العدادات -->
                 <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
                     <span class="font-mono truncate max-w-[120px]">
-                        ✍️ {{ $case->user->name ?? __('Anonymous Detective') }}
+                        ✍️ {{ $case->author->name ?? __('Anonymous Detective') }}
                     </span>
                     <div class="flex items-center gap-3 shrink-0">
                         @auth

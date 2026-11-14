@@ -94,16 +94,16 @@
 
         <!-- 👤 بطاقة معلومات الكاتب وزر المتابعة المدمج -->
         {{--
-        @if($media_trans->user)
+        @if($media_trans->author)
             <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 mb-8 flex items-center justify-between gap-4 shadow-sm">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-full bg-red-950/80 border border-red-800/60 flex items-center justify-center text-red-400 font-bold text-xs">
-                        {{ strtoupper(substr($media_trans->user->name, 0, 1)) }}
+                        {{ strtoupper(substr($media_trans->author->name, 0, 1)) }}
                     </div>
                     <div>
                         <span class="text-[10px] uppercase font-bold text-slate-500 block">Reviewed & Analyzed By</span>
-                        <a href="{{ route('authors.show', $media_trans->user->id) }}" class="text-xs font-bold text-slate-200 hover:text-red-500 transition">
-                            {{ $media_trans->user->name }}
+                        <a href="{{ route('authors.show', $media_trans->author->id) }}" class="text-xs font-bold text-slate-200 hover:text-red-500 transition">
+                            {{ $media_trans->author->name }}
                         </a>
                     </div>
                 </div>
@@ -132,7 +132,7 @@
         @endif
         --}}
         <!-- Author card -->
-        @include('partials.author-card', ['user' => $media_trans->user, 'label' => __('Reviewed & Analyzed By')])
+        @include('partials.author-card', ['uploader' => $media_trans->author, 'label' => __('Reviewed & Analyzed By')])
 
         @if($media_trans->synopsis)
             <section class="mb-10">

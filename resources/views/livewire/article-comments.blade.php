@@ -1,3 +1,4 @@
+{{--
 <section class="mt-16 pt-8 border-t border-gray-800">
     
     @php
@@ -50,3 +51,4 @@
         </ul>
     </div>
 </section>
+--}}

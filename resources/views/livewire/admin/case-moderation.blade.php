@@ -66,7 +66,7 @@
 
                         <!-- الكاتب -->
                         <td class="px-4 py-4 whitespace-nowrap font-medium text-slate-300">
-                            {{ $case->user->name }}
+                            {{ $case->author->name }}
                         </td>
 
                         <!-- التاريخ -->

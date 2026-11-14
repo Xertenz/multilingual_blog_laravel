@@ -71,7 +71,7 @@
 
                         {{-- Creator --}}
                         <td class="py-3.5 px-4 text-slate-600 font-mono text-xs">
-                            {{ $article->user->name ?? "no name" }}
+                            {{ $article->author->name ?? "no name" }}
                         </td>
 
                         {{-- Status Badge --}}

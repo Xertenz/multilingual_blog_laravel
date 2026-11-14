@@ -9,7 +9,7 @@
         <p class="text-slate-300 text-sm leading-relaxed mb-6">{{ $translation->description }}</p>
         
         <div class="flex items-center text-xs text-slate-400 space-x-4">
-            <span>بواسطة: <strong class="text-white">{{ $series->user->name ?? 'مشرف الموقع' }}</strong></span>
+            <span>بواسطة: <strong class="text-white">{{ $series->author->name ?? 'مشرف الموقع' }}</strong></span>
             <span>عدد المقالات: <strong class="text-white">{{ $series->articles->count() }}</strong> مقالات</span>
         </div>
     </div>

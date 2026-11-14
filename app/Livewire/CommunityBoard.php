@@ -79,7 +79,7 @@ class CommunityBoard extends Component
         $query = CommunityCase::query()
             ->where('moderation_status', 'approved')
             ->where('locale', app()->getLocale())
-            ->with(['user', 'category.translations'])
+            ->with(['author', 'category.translations'])
             ->latest();
 
         if ($this->selectedCategory) {

@@ -18,9 +18,9 @@ class Game extends Model implements HasMedia
 
     protected $guarded = [];
 
-    public function user(): BelongsTo
+    public function author(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function gameCategory(): BelongsTo

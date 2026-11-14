@@ -46,9 +46,9 @@ class CommunityCase extends Model
     /**
      * العلاقة مع العضو صاحب القضية
      */
-    public function user(): BelongsTo
+    public function author(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /*

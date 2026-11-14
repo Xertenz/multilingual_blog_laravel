@@ -31,7 +31,7 @@
             </div>
 
             <div class="flex items-center gap-3 text-xs text-gray-400">
-                <span>By <strong class="text-gray-200">{{ $communityCase->user->name }}</strong></span>
+                <span>By <strong class="text-gray-200">{{ $communityCase->author->name }}</strong></span>
                 <span>•</span>
                 <span>{{ $communityCase->created_at->format('F j, Y') }}</span>
                 <span>•</span>
@@ -137,7 +137,7 @@
             </div>
 
             <div class="flex items-center gap-3 text-xs text-gray-400">
-                <span>By <strong class="text-gray-200">{{ $communityCase->user->name }}</strong></span>
+                <span>By <strong class="text-gray-200">{{ $communityCase->author->name }}</strong></span>
                 <span>•</span>
                 <span>{{ $communityCase->created_at->format('F j, Y') }}</span>
                 <span>•</span>

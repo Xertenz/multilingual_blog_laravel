@@ -93,7 +93,7 @@
                     <div class="p-4">
                         <!-- المؤلف كسطر صغير -->
                         <div class="text-[11px] text-indigo-400 font-medium mb-1 truncate">
-                            By {{ $trans->author ?? 'Unknown' }}
+                            By {{ $trans->author->name ?? 'Unknown' }}
                         </div>
 
                         <h2 class="text-base font-bold text-gray-200 group-hover:text-red-500 transition-colors line-clamp-2">

@@ -11,7 +11,7 @@ class SuggestionController extends Controller
 {
     public function index()
     {
-        $suggestions = Suggestion::with(['user', 'votes'])
+        $suggestions = Suggestion::with(['author', 'votes'])
             ->withCount('votes')
             ->latest()
             ->paginate(10);
@@ -25,10 +25,10 @@ class SuggestionController extends Controller
             'status' => 'required|in:pending,approved,written',
         ]);
 
-        $user = $suggestion->user;
+        $author = $suggestion->author;
 
-        if ($user) {
-            $user->notify(new SuggestionStatusUpdated($suggestion));
+        if ($author) {
+            $author->notify(new SuggestionStatusUpdated($suggestion));
         }
 
         return redirect()->route('admin.suggestions.index')

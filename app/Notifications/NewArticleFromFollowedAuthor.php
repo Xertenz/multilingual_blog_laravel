@@ -17,7 +17,7 @@ class NewArticleFromFollowedAuthor extends Notification implements ShouldQueue
     public function __construct(ArticleTranslation $article_trans)
     {
         $this->article_trans = $article_trans;
-        $this->author = $article_trans->article->user; // الكاتب صاحب المقال
+        $this->author = $article_trans->article->author; // الكاتب صاحب المقال
     }
 
     public function via($notifiable): array

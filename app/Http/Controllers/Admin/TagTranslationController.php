@@ -87,7 +87,7 @@ class TagTranslationController extends Controller
 
         // 5. جلب المقالات المكتملة مع الصور (media) والترجمات والمؤلف
         $articles = $tag_trans->tag->articles()
-            ->with(['translations', 'media', 'user'])
+            ->with(['translations', 'media', 'author'])
             ->where('status', 'published')
             ->latest()
             ->paginate(12);

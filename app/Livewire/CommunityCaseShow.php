@@ -241,7 +241,7 @@ class CommunityCaseShow extends Component
     {
         $this->communityCase = CommunityCase::where('slug', $slug)
             ->where('moderation_status', 'approved')
-            ->with(['user', 'category.translations'])
+            ->with(['author', 'category.translations'])
             ->firstOrFail();
 
         $this->communityCase->increment('views_count');
@@ -256,6 +256,6 @@ class CommunityCaseShow extends Component
         return view('livewire.community-case-show', [
             'categoryTrans' => $categoryTrans,
             //'communityCase' => $this->communityCase,
-        ])->layout('layouts.main');
+        ]); //->layout('layouts.main');
     }
 }

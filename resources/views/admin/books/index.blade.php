@@ -56,7 +56,7 @@
                                 {{ $book->internal_title }}
                             </td>
                             <td class="p-4 text-slate-600">
-                                {{ $trans->author ?? 'N/A' }}
+                                {{ $trans->author->name ?? 'N/A' }}
                             </td>
                             <td class="p-4 text-slate-500">
                                 {{ $book->pages_count ?? '-' }}

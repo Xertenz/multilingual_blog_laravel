@@ -1,4 +1,5 @@
 <?php
+/*
 
 namespace App\Models;
 
@@ -15,7 +16,7 @@ class CaseComment extends Model
         'locale'
     ];
 
-    public function user(): BelongsTo
+    public function author(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
@@ -52,3 +53,5 @@ class CaseComment extends Model
         }, $body);
     }
 }
+
+*/

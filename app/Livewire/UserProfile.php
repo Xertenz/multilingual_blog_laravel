@@ -12,7 +12,7 @@ class UserProfile extends Component
     public User $user;
     public string $activeTab = 'articles'; // التبويب الافتراضي
 
-    public function mount($id)
+    public function mount(int $id)
     {
         $userId = (int) $id;
         $this->user = User::with([

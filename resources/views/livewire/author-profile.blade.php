@@ -151,7 +151,7 @@
                         }
                         $catTrans = $book->bookCategory?->translations->where('locale', app()->getLocale())->first() ?? $book->bookCategory?->translations->first();
                     @endphp
-                    <a href="{{ route('books.show', ['id' => $book->id, 'slug' => $bookTrans->slug]) }}" 
+                    <a href="{{ route('books.show', ['id' => $bookTrans->id, 'slug' => $bookTrans->slug]) }}" 
                        class="group relative bg-[#0f1526] border border-slate-800 hover:border-red-600/60 rounded-xl overflow-hidden shadow-lg transition-all duration-300 flex flex-col justify-between">
                         <div>
                             <div class="relative h-40 w-full overflow-hidden bg-slate-950">
@@ -174,7 +174,7 @@
                                 <h3 class="text-base font-bold text-gray-200 group-hover:text-red-500 transition-colors line-clamp-1">
                                     {{ $bookTrans->title }}
                                 </h3>
-                                <p class="text-xs text-slate-400 mt-1">By <span class="text-slate-300 font-semibold">{{ $bookTrans->author ?? 'Unknown' }}</span></p>
+                                <p class="text-xs text-slate-400 mt-1">By <span class="text-slate-300 font-semibold">{{ $bookTrans->author->name ?? 'Unknown' }}</span></p>
                                 <p class="text-xs text-gray-400 mt-1.5 line-clamp-2 leading-relaxed">
                                     {!! strip_tags($bookTrans->summary) !!}
                                 </p>

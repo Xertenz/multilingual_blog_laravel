@@ -19,7 +19,8 @@ class AuthorNewContentNotification extends Notification implements ShouldQueue
     {
         $this->content = $content;
         $this->contentType = $contentType;
-        $this->author = $content->user ?? $content->author;
+        // method to connect to 'users' should be with the name 'author()'
+        $this->author = $content->author;
     }
 
     public function via($notifiable): array

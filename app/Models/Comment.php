@@ -20,9 +20,9 @@ class Comment extends Model
         'locale',
         'mentioned_user_ids'
     ];
-    public function user(): BelongsTo
+    public function author(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     /*

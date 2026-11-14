@@ -55,7 +55,7 @@ class MediaSummary extends Model implements HasMedia
         return $this->morphMany(Comment::class, 'commentable');
     }
 
-    public function user(): BelongsTo
+    public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }

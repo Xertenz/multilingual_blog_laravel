@@ -80,7 +80,7 @@ class CommentController extends Controller
         //Create the notification for the new comment
         if ($comment_item->parent_id !== null) {
             $original_comment = Comment::find($comment_item->parent_id);
-            $receiver = $original_comment->user;
+            $receiver = $original_comment->author;
             $original_comment_locale = $original_comment->locale;
 
             // لا تقم بإرسال إشعار الرد في حالتين:

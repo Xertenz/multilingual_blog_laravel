@@ -15,7 +15,7 @@ class Series extends Model
 
     protected $fillable = ['user_id', 'internal_title', 'status'];
 
-    public function user(): BelongsTo
+    public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }

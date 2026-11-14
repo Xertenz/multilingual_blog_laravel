@@ -43,7 +43,7 @@
 
                         {{-- Writer --}}
                         <td class="py-3.5 px-6 text-slate-600">
-                            {{ $article->user->name ?? 'Unknown' }}
+                            {{ $article->author->name ?? 'Unknown' }}
                         </td>
 
                         {{-- Internal Title --}}

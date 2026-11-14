@@ -97,7 +97,7 @@ class BookController extends Controller
                     'user_id'       => Auth::id(),
                     'locale'        => $localeCode,
                     'title'         => trim($transData['title']),
-                    'author'        => trim($transData['author'] ?? ''),
+                    'book_author'   => trim($transData['author'] ?? ''),
                     'slug'          => trim($slug),
                     'summary'       => $transData['summary'] ?? null,
                     'affiliate_url' => $transData['affiliate_url'] ?? null,
@@ -213,7 +213,7 @@ class BookController extends Controller
                     ['locale' => $localeCode],
                     [
                         'title'         => trim($transData['title']),
-                        'author'        => trim($transData['author'] ?? ''),
+                        'book_author'   => trim($transData['author'] ?? ''),
                         'slug'          => trim($slug),
                         'summary'       => $transData['summary'] ?? null,
                         'affiliate_url' => $transData['affiliate_url'] ?? null,

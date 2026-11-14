@@ -45,7 +45,7 @@ class CaseModeration extends Component
     {
         $cases = CommunityCase::query()
             ->where('moderation_status', $this->filter)
-            ->with(['user', 'category.translations'])
+            ->with(['author', 'category.translations'])
             ->latest()
             ->paginate(10);
 

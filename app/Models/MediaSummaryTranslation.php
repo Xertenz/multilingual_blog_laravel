@@ -31,7 +31,7 @@ class MediaSummaryTranslation extends Model
         return $this->belongsTo(MediaSummary::class);
     }
 
-    public function user(): BelongsTo
+    public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }

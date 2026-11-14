@@ -71,7 +71,7 @@
                         <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                     </svg>
                     <a href="{{ route('authors.show', $article_trans->user_id) }}" class="hover:text-red-400 transition font-semibold">
-                        {{ $article_trans->user->name ?? 'Investigator Team' }}
+                        {{ $article_trans->author->name ?? 'Investigator Team' }}
                     </a>
                 </div>
 

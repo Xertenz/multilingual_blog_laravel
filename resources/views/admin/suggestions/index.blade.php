@@ -73,7 +73,7 @@
                                 @endif
                             </td>
                             <td class="py-3.5 px-6 text-slate-600 text-xs whitespace-nowrap">
-                                <span class="font-medium text-slate-700 block truncate max-w-[140px]">{{ $suggestion->user->name ?? 'Unknown' }}</span>
+                                <span class="font-medium text-slate-700 block truncate max-w-[140px]">{{ $suggestion->author->name ?? 'Unknown' }}</span>
                                 <span class="block text-slate-400 text-[11px]">{{ $suggestion->created_at->diffForHumans() }}</span>
                             </td>
                             <td class="py-3.5 px-6 text-center whitespace-nowrap">

@@ -22,7 +22,7 @@ class Suggestions extends Component
     // الفرز والتصفية
     public $filter = 'popular'; // popular أو latest
     #public $selectedLocale = 'all';
-    public $selectedLocale;
+    public string $selectedLocale;
     public $mySuggestionsOnly = false; // فلتر مقترحات العضو الحالي
     public $showModal = false;
 
@@ -83,7 +83,7 @@ class Suggestions extends Component
     public function render()
     {
         $query = Suggestion::query()
-            ->with(['user', 'votes'])
+            ->with(['author', 'votes'])
             ->withCount('votes');
 
         // 1. فلترة مقترحات العضو الحالي فقط إذا تم تفعيل الخيار

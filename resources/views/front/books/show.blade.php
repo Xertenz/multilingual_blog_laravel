@@ -60,7 +60,18 @@
                     <h1 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight mb-2">
                         {{ $translation->title ?? 'N/A' }}
                     </h1>
-                    <p class="text-sm text-slate-400">Author: <span class="font-bold text-slate-200">{{ $translation->author ?? 'N/A' }}</span></p>
+                    {{-- <p class="text-sm text-slate-400">Author: <span class="font-bold text-slate-200">{{ $translation->author->name ?? 'N/A' }}</span></p> --}}
+                    <p class="text-sm text-slate-400">
+                        Author: 
+                        @if($translation->author)
+                            <a href="{{ route('authors.show', ['id' => $translation->author->id, 'tab' => 'books']) }}" 
+                            class="font-bold text-slate-200 hover:text-red-500 transition">
+                                {{ $translation->author->name }}
+                            </a>
+                        @else
+                            <span class="font-bold text-slate-200">N/A</span>
+                        @endif
+                    </p>
                 </div>
 
                 <!-- Author card here -->

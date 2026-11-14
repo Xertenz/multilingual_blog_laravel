@@ -19,7 +19,7 @@ class SeriesController extends Controller
     public function index()
     {
         // جلب السلاسل مع ترجماتها وصاحبها وعدد المقالات فيها
-        $series = Series::with(['translations', 'user'])
+        $series = Series::with(['translations', 'author'])
             ->withCount('articles')
             ->latest()
             ->paginate(15);

@@ -7,33 +7,33 @@
             <!-- تم تغيير <p> إلى <div> لأن وضع <div> داخل <p> ممنوع برمجياً ويخرب التنسيق -->
             <div class="capitalize whitespace-normal text-slate-100 font-bold text-sm flex items-center gap-2.5">
                 <!-- النقطة الحمراء للدلالة على وجود مستخدم نشط -->
-                <span class="w-2 h-2 rounded-full {{ $comment->user ? 'bg-red-500' : 'bg-slate-600' }}"></span>
+                <span class="w-2 h-2 rounded-full {{ $comment->author ? 'bg-red-500' : 'bg-slate-600' }}"></span>
                 
-                @if($comment->user)
+                @if($comment->author)
                     @php
-                        $avatarUrl = $comment->user->hasMedia('avatar_imgs') 
-                            ? $comment->user->getFirstMediaUrl('avatar_imgs', 'thumb') 
+                        $avatarUrl = $comment->author->hasMedia('avatar_imgs') 
+                            ? $comment->author->getFirstMediaUrl('avatar_imgs', 'thumb') 
                             : asset('images/default-avatar-150x150.jpg');
                     @endphp
 
                     <!-- جعل الرابط يحيط بالصورة والاسم معا، مع إضافة تأثير hover لطيف -->
-                    <a href="{{ route('profile.show', $comment->user->id) }}" class="flex items-center gap-2.5 group hover:opacity-95 transition">
+                    <a href="{{ route('profile.show', $comment->author->id) }}" class="flex items-center gap-2.5 group hover:opacity-95 transition">
                         
                         {{-- الحاوية الدائرية للصورة أو الحروف البديلة --}}
                         <div class="w-8 h-8 rounded-full overflow-hidden bg-slate-800 border border-slate-700/80 flex items-center justify-center shrink-0 group-hover:border-red-500/50 transition">
                             @if($avatarUrl)
                                 <img 
                                     src="{{ $avatarUrl }}"
-                                    alt="{{ $comment->user->name }}"
+                                    alt="{{ $comment->author->name }}"
                                     class="w-full h-full object-cover">
                             @else
-                                <span class="text-xs text-red-400 font-bold uppercase">{{ substr($comment->user->name, 0, 2) }}</span>
+                                <span class="text-xs text-red-400 font-bold uppercase">{{ substr($comment->author->name, 0, 2) }}</span>
                             @endif
                         </div>
 
                         <!-- الاسم مع خط تحتفل عند التمرير -->
                         <span class="group-hover:underline">
-                            {{ $comment->user->name }}
+                            {{ $comment->author->name }}
                         </span>
                     </a>
                 @else

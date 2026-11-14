@@ -83,7 +83,7 @@ class ReactionController extends Controller
 
         // 🔔 إرسال إشعار لصاحب التعليق إذا لم يكن هو نفس المستخدم المتفاعل، وتمت الإضافة أو التحديث
         if ($status !== 'removed' && $reaction && $comment->user_id !== $userId) {
-            $comment->user->notify(new \App\Notifications\NewCommentReactionNotification($reaction));
+            $comment->author->notify(new \App\Notifications\NewCommentReactionNotification($reaction));
         }
 
         // إرجاع أعداد التفاعلات المحدثة لكل نوع لهذا التعليق

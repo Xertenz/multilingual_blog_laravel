@@ -104,40 +104,59 @@
                     </div>
                 </div>
 
-
-
-
-    {{-- 6️⃣ إشعار محتوى جديد من كاتب تتابعه (مقال، كتاب، لعبة، ميديا) --}}
-    @elseif($notification->type === 'App\Notifications\AuthorNewContentNotification')
-        @php
-            $contentType = $data['content_type'] ?? 'article';
+            {{-- 6️⃣ إشعار محتوى جديد من كاتب تتابعه (مقال، كتاب، لعبة، ميديا) --}}
+            @elseif($notification->type === 'App\Notifications\AuthorNewContentNotification')
+                @php
+                    $contentType = $data['content_type'] ?? 'article';
+                    
+                    // تخصيص الأيقونة واللون حسب نوع المحتوى
+                    $badgeConfig = match($contentType) {
+                        'article' => ['icon' => '📰', 'label' => __('New Article'), 'color' => 'text-rose-400'],
+                        'book'    => ['icon' => '📖', 'label' => __('New Book Summary'), 'color' => 'text-amber-400'],
+                        'game'    => ['icon' => '🎮', 'label' => __('New Game'), 'color' => 'text-emerald-400'],
+                        'media'   => ['icon' => '🎥', 'label' => __('New Media Summary'), 'color' => 'text-indigo-400'],
+                        default   => ['icon' => '🔔', 'label' => __('New Publication'), 'color' => 'text-gray-400'],
+                    };
+                @endphp
+                <div class="flex items-start gap-2">
+                    <span class="text-base shrink-0">{{ $badgeConfig['icon'] }}</span>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-semibold {{ $badgeConfig['color'] }} uppercase tracking-wider mb-0.5">
+                            {{ $badgeConfig['label'] }}
+                        </p>
+                        <p class="whitespace-nowrap max-w-[280px] overflow-hidden text-ellipsis text-sm font-medium text-gray-100">
+                            {{ $data['title'] ?? '' }}
+                        </p>
+                        <p class="text-xs text-gray-400 mt-1 truncate">
+                            {{ __('By') }} <span class="text-red-400 font-semibold">{{ $data['author_name'] ?? 'Author' }}</span>
+                        </p>
+                    </div>
+                </div>
             
-            // تخصيص الأيقونة واللون حسب نوع المحتوى
-            $badgeConfig = match($contentType) {
-                'article' => ['icon' => '📰', 'label' => __('New Article'), 'color' => 'text-rose-400'],
-                'book'    => ['icon' => '📖', 'label' => __('New Book Summary'), 'color' => 'text-amber-400'],
-                'game'    => ['icon' => '🎮', 'label' => __('New Game'), 'color' => 'text-emerald-400'],
-                'media'   => ['icon' => '🎥', 'label' => __('New Media Summary'), 'color' => 'text-indigo-400'],
-                default   => ['icon' => '🔔', 'label' => __('New Publication'), 'color' => 'text-gray-400'],
-            };
-        @endphp
-        <div class="flex items-start gap-2">
-            <span class="text-base shrink-0">{{ $badgeConfig['icon'] }}</span>
-            <div class="flex-1 min-w-0">
-                <p class="text-xs font-semibold {{ $badgeConfig['color'] }} uppercase tracking-wider mb-0.5">
-                    {{ $badgeConfig['label'] }}
-                </p>
-                <p class="whitespace-nowrap max-w-[280px] overflow-hidden text-ellipsis text-sm font-medium text-gray-100">
-                    {{ $data['title'] ?? '' }}
-                </p>
-                <p class="text-xs text-gray-400 mt-1 truncate">
-                    {{ __('By') }} <span class="text-red-400 font-semibold">{{ $data['author_name'] ?? 'Author' }}</span>
-                </p>
-            </div>
-        </div>
 
-
-
+            {{-- 7️⃣ إشعار محتوى جديد من فئة تتابعها --}}
+            @elseif($notification->type === 'App\Notifications\CategoryNewContentNotification')
+                @php
+                    $contentType = $data['content_type'] ?? 'article';
+                    $badgeConfig = match($contentType) {
+                        'article' => ['icon' => '📁', 'label' => __('Category Article'), 'color' => 'text-purple-400'],
+                        'book'    => ['icon' => '📚', 'label' => __('Category Book'), 'color' => 'text-amber-400'],
+                        'game'    => ['icon' => '🎮', 'label' => __('Category Game'), 'color' => 'text-emerald-400'],
+                        'media'   => ['icon' => '🎬', 'label' => __('Category Media'), 'color' => 'text-indigo-400'],
+                        default   => ['icon' => '📂', 'label' => __('Category Update'), 'color' => 'text-gray-400'],
+                    };
+                @endphp
+                <div class="flex items-start gap-2">
+                    <span class="text-base shrink-0">{{ $badgeConfig['icon'] }}</span>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs font-semibold {{ $badgeConfig['color'] }} uppercase tracking-wider mb-0.5">
+                            {{ $badgeConfig['label'] }} [{{ $data['category_name'] ?? '' }}]
+                        </p>
+                        <p class="whitespace-nowrap max-w-[280px] overflow-hidden text-ellipsis text-sm font-medium text-gray-100">
+                            {{ $data['title'] ?? '' }}
+                        </p>
+                    </div>
+                </div>
 
             {{-- 5️⃣ حالة Fallback --}}
             @else

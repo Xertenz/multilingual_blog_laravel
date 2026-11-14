@@ -82,7 +82,7 @@
 
 
     <!-- author card include here -->
-    @include('partials.author-card', ['user' => $game_trans->user, 'label' => __('Written & Reviewed By')])
+    @include('partials.author-card', ['uploader' => $game_trans->author, 'label' => __('Written & Reviewed By')])
 
 
     <!-- Main Content Review Body -->

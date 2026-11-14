@@ -50,9 +50,9 @@ class UserMentionedNotification extends Notification implements ShouldQueue
 
         $data = [
             'comment_id' => $comment->id,
-            'user_name'  => $comment->user->name,
+            'user_name'  => $comment->author->name,
             'sender_locale' => $comment->locale,
-            'message'    => 'أشار إليك ' . $comment->user->name . ' في ' . ($isReply ? 'رد' : 'تعليق') . '.',
+            'message'    => 'أشار إليك ' . $comment->author->name . ' في ' . ($isReply ? 'رد' : 'تعليق') . '.',
         ];
 
         // إذا كانت الإشارة داخل مقال (Article)

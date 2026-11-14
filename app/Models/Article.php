@@ -29,9 +29,9 @@ class Article extends Model  implements HasMedia
         return $this->belongsTo(Category::class);
     }
 
-    public function user(): BelongsTo
+    public function author(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
     /*
     public function comments(): HasMany

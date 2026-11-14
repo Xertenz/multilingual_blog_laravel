@@ -31,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        /*
         View::composer('partials.navbar', function ($navbar_view) {
             $current_locale = LaravelLocalization::getCurrentLocale();
             //$cacheKey = "navbar_categories_{$current_locale}";
@@ -47,5 +48,6 @@ class AppServiceProvider extends ServiceProvider
             //});
             $navbar_view->with('categories', $categories);
         });
+        */
     }
 }

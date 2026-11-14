@@ -16,7 +16,7 @@ class HomeController extends Controller
             ->first();
 
         // 2. جلب بقية المقالات المتبقية
-        $articles = Article::with(['translations', 'category', 'category.translations', 'user'])
+        $articles = Article::with(['translations', 'category', 'category.translations', 'author'])
             ->where('status', 'published')
             ->when($featuredArticle, fn($q) => $q->where('id', '!=', $featuredArticle->id))
             ->latest()

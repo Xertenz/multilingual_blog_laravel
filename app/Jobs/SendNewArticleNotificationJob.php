@@ -25,14 +25,14 @@ class SendNewArticleNotificationJob implements ShouldQueue
 
         // جلب معرف الكاتب صاحب المقال لتجنب إرسال إشعار له
         //$authorId = $article->user_id ?? $this->article_trans->user_id;
-        $authorId = $this->article_trans->user_id ?? $this->article_trans->user_id;
+        $authorId = $this->article_trans->user_id ?? $article->user_id;
 
         // تحميل المتابعين للفئة ومتابعي الكاتب
-        $article->load(['category.followers', 'user.authorFollowers']);
+        $article->load(['category.followers', 'author.authorFollowers']);
 
         $categoryFollowers = $article->category ? $article->category->followers : collect();
-        $authorFollowers = $article->user && method_exists($article->user, 'authorFollowers')
-            ? $article->user->authorFollowers
+        $authorFollowers = $article->author && method_exists($article->author, 'authorFollowers')
+            ? $article->author->authorFollowers
             : collect();
 
         // دمج المجموعتين واستثناء التكرار

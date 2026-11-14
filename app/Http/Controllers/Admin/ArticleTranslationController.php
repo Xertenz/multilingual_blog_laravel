@@ -138,7 +138,6 @@ class ArticleTranslationController extends Controller
             'article.media'
         ])->find($article_trans_id);
 
-
         // 🔍 شرط العرض المزدوج: يجب أن يكون المقال الأساسي منشوراً، والترجمة الخاصة بهذه اللفة منشورة أيضاً
         if (!$trans || $trans->article->status != "published" || $trans->status != "published") {
             return to_route('home.index')->with('info', __('This article is not available at the moment.'));

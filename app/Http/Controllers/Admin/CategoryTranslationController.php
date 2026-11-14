@@ -168,7 +168,7 @@ class CategoryTranslationController extends Controller
         $articles =  Article::with([
             'translations',
             'media',
-            'user' // أو 'user' حسب اسم العلاقة المسجلة في موديل Article
+            'author' // أو 'user' حسب اسم العلاقة المسجلة في موديل Article
         ])
             ->where('category_id', $category_trans->category->id)
             ->where('status', 'published')

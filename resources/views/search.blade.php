@@ -26,7 +26,7 @@
                                 ?? $article->translations->first();
 
                         // 👤 جلب الكاتب بأولوية الترجمة، ثم المقالة الأساسية، والتحقق من وجوده
-                        $author = $trans?->user ?? $article->user;
+                        $author = $trans?->author ?? $article->author;
                         $authorName = $author?->name ?? __('home.anonymous');
                         $authorId = $author?->id;
 

@@ -5,8 +5,8 @@
         <div class="flex justify-between items-center mb-1.5">
             <p class="capitalize whitespace-normal text-slate-200 font-bold flex items-center gap-1.5">
                 <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                <a href="{{ route('profile.show', $comment_item->user->id) }}">
-                    {{ $comment_item->user->name }}
+                <a href="{{ route('profile.show', $comment_item->author->id) }}">
+                    {{ $comment_item->author->name }}
                 </a>
             </p>
             <p class="text-slate-500 font-mono text-[11px]">{{ $comment_item->created_at->diffForHumans(['parts' => 1, 'short' => true]) }}</p>

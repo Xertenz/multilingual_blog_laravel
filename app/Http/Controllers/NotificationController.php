@@ -312,6 +312,71 @@ class NotificationController extends Controller
                 $targetUrl = $targetUrl ?? LaravelLocalization::getLocalizedURL($recipientLocale, route('home.index'));
                 break;
 
+
+
+
+
+
+
+
+
+            case \App\Notifications\CategoryNewContentNotification::class:
+                $contentType = $data['content_type'] ?? null;
+                $contentId = $data['content_id'] ?? null;
+                $recipientLocale = $notification->notifiable->locale ?? LaravelLocalization::getCurrentLocale();
+
+                if ($contentType && $contentId) {
+                    switch ($contentType) {
+                        case 'article':
+                            $articleTrans = \App\Models\ArticleTranslation::find($contentId);
+                            if ($articleTrans) {
+                                $targetUrl = LaravelLocalization::getLocalizedURL($recipientLocale, route('articles.show', [
+                                    'id'   => $articleTrans->id,
+                                    'slug' => $articleTrans->slug
+                                ]));
+                            }
+                            break;
+
+                        case 'book':
+                            $book_trans = \App\Models\BookTranslation::find($contentId);
+                            if ($book_trans) {
+                                $targetUrl = LaravelLocalization::getLocalizedURL($recipientLocale, route('books.show', [
+                                    'id'   => $book_trans->id,
+                                    'slug' => $book_trans->slug
+                                ]));
+                            }
+                            break;
+
+                        case 'game':
+                            $game_trans = \App\Models\GameTranslation::find($contentId);
+                            if ($game_trans) {
+                                $targetUrl = LaravelLocalization::getLocalizedURL($recipientLocale, route('games.show', $game_trans->id));
+                            }
+                            break;
+
+                        case 'media':
+                            $media_summary_trans = \App\Models\MediaSummary::find($contentId);
+                            if ($media_summary_trans) {
+                                $targetUrl = LaravelLocalization::getLocalizedURL($recipientLocale, route('media-summaries.show', $media_summary_trans->id));
+                            }
+                            break;
+                    }
+                }
+
+                $targetUrl = $targetUrl ?? LaravelLocalization::getLocalizedURL($recipientLocale, route('home.index'));
+                break;
+
+
+
+
+
+
+
+
+
+
+
+
             // 🔮 لأي أنواع إشعارات مستقبلية
             default:
                 $targetUrl = route('home.index');

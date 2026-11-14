@@ -110,7 +110,7 @@
                     @endif
 
                     <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-gray-500">
-                        <span>{{ __('Suggested by') ?? 'مقترح بواسطة' }}: <strong class="text-gray-400"><a href="{{route('profile.show', ['id' => $suggestion->user->id])}}">{{ $suggestion->user->name }}</a></strong></span>
+                        <span>{{ __('Suggested by') ?? 'مقترح بواسطة' }}: <strong class="text-gray-400"><a href="{{route('profile.show', ['id' => $suggestion->author->id])}}">{{ $suggestion->author->name }}</a></strong></span>
                         <span class="hidden sm:inline">•</span>
                         <span>{{ $suggestion->created_at->diffForHumans() }}</span>
                     </div>
