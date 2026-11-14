@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Support\Facades\Auth;
 
 class Comment extends Model
 {
@@ -82,5 +83,28 @@ class Comment extends Model
     public function reports()
     {
         return $this->morphMany(Report::class, 'reportable');
+    }
+
+    public function votes()
+    {
+        return $this->hasMany(CommentVote::class);
+    }
+
+    // حساب مجموع النقاط الإجمالي للتعليق (Upvotes - Downvotes)
+    public function getScoreAttribute()
+    {
+        return $this->votes()->sum('vote');
+    }
+
+    // معرفة تصويت المستخدم الحالي (إن وجد)
+    public function getUserVoteAttribute()
+    {
+        if (!Auth::check()) {
+            return null;
+        }
+
+        // استخدام ذاكرة التخزين المؤقت أو البحث المباشر
+        $vote = $this->votes()->where('user_id', Auth::id())->first();
+        return $vote ? $vote->vote : null;
     }
 }

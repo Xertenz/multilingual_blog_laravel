@@ -67,10 +67,16 @@ class User extends AuthenticatableUser implements Authenticatable, HasMedia
         return $this->hasMany(ArticleCategory::class, 'article_category_id');
     }
 
+    // Comments
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
     }
+    public function commentVotes()
+    {
+        return $this->hasMany(CommentVote::class);
+    }
+
 
     public function reacitons(): HasMany
     {

@@ -173,16 +173,52 @@ class CommentsSection extends Component
         }
     }
 
+    public function vote(int $commentId, int $requestedVote)
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        $comment = Comment::findOrFail($commentId);
+        $userId = Auth::id();
+
+        // البحث عما إذا كان المستخدم قد تصويت مسبقاً لهذا التعليق
+        $existingVote = \App\Models\CommentVote::where('user_id', $userId)
+            ->where('comment_id', $comment->id)
+            ->first();
+
+        if ($existingVote) {
+            if ($existingVote->vote === $requestedVote) {
+                // إذا ضغط على نفس الزر مرتين، يتم إلغاء التصويت (Toggle off)
+                $existingVote->delete();
+            } else {
+                // إذا غير رأيه (من Upvote إلى Downvote أو العكس)
+                $existingVote->update(['vote' => $requestedVote]);
+            }
+        } else {
+            // إضافة تصويت جديد
+            \App\Models\CommentVote::create([
+                'user_id'    => $userId,
+                'comment_id' => $comment->id,
+                'vote'       => $requestedVote,
+            ]);
+        }
+
+        // Livewire سيقوم بإعادة رسم المكون تلقائياً وتحديث الـ Score والأزرار
+    }
+
     public function render()
     {
         $comments = $this->model->comments()
             ->with([
                 'author',
                 'reactions',
-                'replies' => fn($q) => $q->oldest(),
+                'votes', // <--- إضافة علاقة الأصوات هنا
+                'replies' => fn($q) => $q->with(['author', 'reactions', 'votes'])->oldest(),
                 'replies.author',
                 'replies.reactions',
-                'replies.replies' => fn($q) => $q->oldest()
+                'replies.votes', // <--- جلب أصوات الردود أيضاً
+                'replies.replies' => fn($q) => $q->with(['author', 'reactions', 'votes'])->oldest()
             ])
             ->whereNull('parent_id')
             ->latest()

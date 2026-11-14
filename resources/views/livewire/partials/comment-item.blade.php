@@ -57,6 +57,25 @@
 
         <!-- شريط التفاعلات (Reactions) -->
         <div class="flex flex-wrap items-center gap-1.5 ms-4 my-2.5">
+
+            <!-- نظام التصويت Upvote / Downvote المصغر -->
+            @php
+                $userVote = Auth::check() ? $comment->votes->where('user_id', Auth::id())->first()?->vote : null;
+            @endphp
+            <div class="inline-flex items-center gap-1.5 bg-slate-800/80 border border-slate-700/60 rounded-md p-0.5 text-xs">
+                <button type="button"
+                        wire:click="vote({{ $comment->id }}, 1)"
+                        class="px-1.5 py-0.5 rounded transition text-xs {{ $userVote === 1 ? 'text-emerald-400 font-bold bg-emerald-950/60' : 'text-slate-400 hover:text-emerald-400' }}">
+                    ▲
+                </button>
+                <span class="font-mono font-bold text-slate-200 px-1 text-xs">{{ $comment->score }}</span>
+                <button type="button"
+                        wire:click="vote({{ $comment->id }}, -1)"
+                        class="px-1.5 py-0.5 rounded transition text-xs {{ $userVote === -1 ? 'text-rose-400 font-bold bg-rose-950/60' : 'text-slate-400 hover:text-rose-400' }}">
+                    ▼
+                </button>
+            </div>
+
             @php
                 $reactionTypes = [
                     'like' => ['icon' => '👍'],
