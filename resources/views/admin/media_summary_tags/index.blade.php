@@ -4,7 +4,7 @@
 @section('title', 'Media Summary Tags')
 
 @section('content')
-    <livewire:tag-manager
+    <livewire:admin.tag-manager
         :model-type="\App\Models\MediaSummaryTag::class"
         :translation-type="\App\Models\MediaSummaryTagTranslation::class"
         page-title="Media Summary Tags" />

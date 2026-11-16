@@ -202,7 +202,7 @@ new class extends Component {
                                             Suggestions
                                         </a>
                                         <a href="{{ route('community.cases.index') }}" class="block px-3 py-2 text-xs text-gray-300 hover:bg-slate-800/80 hover:text-white rounded-lg transition">
-                                            Detectives
+                                            Community
                                         </a>
                                         <a href="{{ route('books.index') }}" class="block px-3 py-2 text-xs text-gray-300 hover:bg-slate-800/80 hover:text-white rounded-lg transition">
                                             Books
@@ -444,7 +444,7 @@ new class extends Component {
                         Suggestions
                     </a>
                     <a href="{{ route('community.cases.index') }}" class="block text-gray-300 hover:text-red-500 hover:bg-slate-900/60 px-3 py-2 rounded-lg text-xs font-medium transition">
-                        Detectives
+                        Community
                     </a>
                     <a href="{{ route('books.index') }}" class="block text-gray-300 hover:text-red-500 hover:bg-slate-900/60 px-3 py-2 rounded-lg text-xs font-medium transition">
                         Books

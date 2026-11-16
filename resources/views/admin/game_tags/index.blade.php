@@ -3,7 +3,7 @@
 @section('title', 'Game Tags - Shadow Files')
 
 @section('content')
-    <livewire:tag-manager
+    <livewire:admin.tag-manager
         :model-type="\App\Models\GameTag::class"
         :translation-type="\App\Models\GameTagTranslation::class"
         page-title="Game Tags" />

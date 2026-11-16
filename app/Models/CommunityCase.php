@@ -15,19 +15,7 @@ class CommunityCase extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'user_id',
-        'community_case_category_id',
-        'locale',
-        'title',
-        'slug',
-        'body',
-        'moderation_status',
-        'case_status',
-        'rejection_reason',
-        'views_count',
-        'comments_count',
-    ];
+    protected $guarded = [];
 
     // إضافة الـ Casts هنا
     protected $casts = [
@@ -72,6 +60,11 @@ class CommunityCase extends Model
             'community_case_id',
             'community_case_tag_id'
         )->withTimestamps();
+    }
+
+    public function activeTags()
+    {
+        return $this->tags()->where('community_case_tags.is_active', true);
     }
 
     public function comments()

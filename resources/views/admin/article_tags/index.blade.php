@@ -4,7 +4,7 @@
 @section('title', 'Tags')
 
 @section('content')
-    <livewire:tag-manager
+    <livewire:admin.tag-manager
         :model-type="\App\Models\ArticleTag::class"
         :translation-type="\App\Models\ArticleTagTranslation::class"
         page-title="Article Tags" />

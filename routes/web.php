@@ -48,6 +48,7 @@ use App\Http\Controllers\UserReportController;
 use App\Livewire\AuthorProfile;
 use App\Http\Controllers\Admin\BookCategoryController;
 use App\Http\Controllers\Admin\BookTagController;
+use App\Http\Controllers\Admin\CommunityCaseController;
 use App\Http\Controllers\Admin\GameCategoryController;
 use App\Http\Controllers\Admin\GameController;
 use App\Http\Controllers\Admin\GameTagController;
@@ -82,8 +83,8 @@ Route::group([
     Route::get('/true-crime-media/{id}/{slug?}', [MediaSummaryTranslationController::class, 'show'])->name('media-summaries.show');
 
 
-    Route::get('/detective-board', CommunityBoard::class)->name('community.cases.index');
-    Route::get('/detective-board/cases/{slug}', CommunityCaseShow::class)->name('community.cases.show');
+    Route::get('/community', CommunityBoard::class)->name('community.cases.index');
+    Route::get('/community/cases/{slug}', CommunityCaseShow::class)->name('community.cases.show');
 
     Route::get('/books', [FrontBookController::class, 'index'])->name('books.index');
     Route::get('/books/{id}/{slug?}', [FrontBookController::class, 'show'])->where('id', '[0-9]+')->name('books.show');
@@ -320,9 +321,18 @@ Route::group([
             Route::put('/books/{book}', [BookController::class, 'update'])->name('admin.books.update');
             Route::delete('/books/{book}', [BookController::class, 'destroy'])->name('admin.books.destroy');
 
+            // Community Case
             Route::resource('community-case-categories', CommunityCaseCategoryController::class, [
                 'as' => 'admin'
             ]);
+
+            Route::view('/community-case-tags', 'admin.community_case_tags.index')
+                ->name('admin.community-case-tags.index');
+
+            Route::get('/community-cases', [CommunityCaseController::class, 'index'])->name('admin.community-cases.index');
+            Route::patch('/community-cases/{id}/approve', [CommunityCaseController::class, 'approve'])->name('admin.community-cases.approve');
+            Route::patch('/community-cases/{id}/reject', [CommunityCaseController::class, 'reject'])->name('admin.community-cases.reject');
+            Route::delete('/community-cases/{id}', [CommunityCaseController::class, 'destroy'])->name('admin.community-cases.destroy');
 
 
             // الهيكل الأساسي للمقالات

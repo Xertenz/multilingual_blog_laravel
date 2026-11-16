@@ -42,7 +42,7 @@ class MediaSummaryCategoryTranslationController extends Controller
         // 2. التحقق
         $request->validate([
             'cat_label' => 'required|string|unique:media_summary_categories,label|max:100',
-            'cat_featured_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
+            'cat_featured_img' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
             'is_active' => 'nullable|boolean',  // ✅
 
             'translations.*.name' => 'nullable|string|max:150',

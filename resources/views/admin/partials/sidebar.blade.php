@@ -1,6 +1,6 @@
 {{-- resources/views/admin/partials/sidebar.blade.php --}}
 <aside class="w-72 bg-gradient-to-b from-slate-900 to-slate-800 text-white fixed h-full overflow-y-auto">
-    
+
     {{-- Logo & Home Link --}}
     <div class="p-6 border-b border-slate-700">
         <div class="flex items-center justify-between">
@@ -18,16 +18,14 @@
                 </div>
             </div>
 
-            {{-- زر الانتقال للصفحة الرئيسية --}}
-            <a href="{{ url('/') }}" target="_blank" title="View Website" 
+            <a href="{{ url('/') }}" target="_blank" title="View Website"
                class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white p-2 rounded-xl transition-all border border-slate-700/60 flex items-center justify-center">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                 </svg>
             </a>
         </div>
-        
-        {{-- Admin Info --}}
+
         <div class="mt-4 flex items-center space-x-3 bg-slate-800/50 p-3 rounded-xl">
             <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                 <span class="text-sm font-bold">{{ auth()->user()->initials ?? 'JD' }}</span>
@@ -38,27 +36,28 @@
             </div>
         </div>
     </div>
-    
+
     {{-- Navigation --}}
     <nav class="p-4">
-        {{-- Main Heading --}}
         <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-4 px-3">
             Main Menu
         </div>
 
-        {{-- Articles Section (متاحة للجميع: مشرف، محرر، كاتب) --}}
+        {{-- =====================================================================
+             ARTICLES SECTION
+             ===================================================================== --}}
         <div class="mb-6">
             <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 px-3">
                 Articles
             </div>
-            
+
             <ul class="space-y-1">
-                {{-- All Articles Link --}}
+                {{-- All Articles --}}
                 <li>
-                    <a href="{{ route('admin.articles.index') }}" 
+                    <a href="{{ route('admin.articles.index') }}"
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
-                              {{ request()->routeIs('admin.articles.index') 
-                                 ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-white' 
+                              {{ request()->routeIs('admin.articles.index')
+                                 ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-white'
                                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
                             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,10 +71,48 @@
                     </a>
                 </li>
 
+                {{-- Article Categories --}}
+                <li>
+                    <a href="{{ route('admin.article-categories.index') }}"
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.article-categories.*')
+                                 ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-white'
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">Article Categories</span>
+                        <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
+                            {{ \App\Models\ArticleCategory::count() }}
+                        </span>
+                    </a>
+                </li>
+
+                {{-- Article Tags --}}
+                <li>
+                    <a href="{{ route('admin.article-tags.index') }}"
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.article-tags.*')
+                                 ? 'bg-gradient-to-r from-orange-600/20 to-amber-600/20 text-white'
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M6 20l6.5-6.5A2.5 2.5 0 0012 10a2.5 2.5 0 00-3.5 0L2 16.5V20h4zM21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">Article Tags</span>
+                        <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
+                            {{ \App\Models\ArticleTag::count() }}
+                        </span>
+                    </a>
+                </li>
+
                 {{-- Map Locations --}}
                 <li>
-                    <a href="{{ route('admin.article-locations.index') }}" 
-                        class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold rounded-lg transition-colors {{ request()->routeIs('admin.article-locations.*') ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                    <a href="{{ route('admin.article-locations.index') }}"
+                       class="flex items-center gap-3 px-4 py-2.5 text-sm font-semibold rounded-lg transition-colors {{ request()->routeIs('admin.article-locations.*') ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -83,33 +120,14 @@
                         <span>Map Locations</span>
                     </a>
                 </li>
-                
-                {{-- 🔒 Write New Article Link (محصور حصراً للمشرف والمحرر فقط لأنه ينشئ المقال الأساسي) --}}
-                @hasanyrole('super-admin|editor')
-                <li>
-                    <a href="{{ route('admin.articles.create') }}" 
-                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
-                              {{ request()->routeIs('admin.articles.create') 
-                                 ? 'bg-gradient-to-r from-purple-600/20 to-pink-600/20 text-white' 
-                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
-                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
-                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
-                        <span class="flex-1 text-sm font-medium">Write New Article</span>
-                        <span class="bg-purple-600/20 text-purple-400 text-xs px-2 py-1 rounded-full">+</span>
-                    </a>
-                </li>
-                @endhasanyrole
 
-                {{-- Pending Articles Moderation Link (خاص بالمشرفين والمحررين) --}}
+                {{-- Pending Articles --}}
                 @hasanyrole('super-admin|editor')
                 <li>
-                    <a href="{{ route('admin.articles.pending') }}" 
+                    <a href="{{ route('admin.articles.pending') }}"
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
-                              {{ request()->routeIs('admin.articles.pending') 
-                                 ? 'bg-gradient-to-r from-amber-600/20 to-orange-600/20 text-white' 
+                              {{ request()->routeIs('admin.articles.pending')
+                                 ? 'bg-gradient-to-r from-amber-600/20 to-orange-600/20 text-white'
                                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
                             <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -126,21 +144,22 @@
             </ul>
         </div>
 
-        {{-- Books Section (قسم ملخصات الكتب - خاص بالمشرفين والمحررين) --}}
+        {{-- =====================================================================
+             BOOKS SECTION
+             ===================================================================== --}}
         @hasanyrole('super-admin|editor')
         <div class="border-t border-slate-700 my-4"></div>
         <div class="mb-6">
             <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 px-3">
                 Books
             </div>
-            
+
             <ul class="space-y-1">
-                {{-- All Books --}}
                 <li>
-                    <a href="{{ route('admin.books.index') }}" 
-                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 
-                              {{ request()->routeIs('admin.books.*') && !request()->routeIs('admin.books.create') && !request()->routeIs('admin.book-categories.*') && !request()->routeIs('admin.book-tags.*')
-                                 ? 'bg-gradient-to-r from-red-600/20 to-rose-600/20 text-white' 
+                    <a href="{{ route('admin.books.index') }}"
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.books.*') && !request()->routeIs('admin.book-categories.*') && !request()->routeIs('admin.book-tags.*')
+                                 ? 'bg-gradient-to-r from-red-600/20 to-rose-600/20 text-white'
                                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
                             <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -153,30 +172,12 @@
                         </span>
                     </a>
                 </li>
-                
-                {{-- Add New Book --}}
-                <li>
-                    <a href="{{ route('admin.books.create') }}" 
-                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
-                              {{ request()->routeIs('admin.books.create') 
-                                 ? 'bg-gradient-to-r from-rose-600/20 to-pink-600/20 text-white' 
-                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
-                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
-                            <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                            </svg>
-                        </div>
-                        <span class="flex-1 text-sm font-medium">Add New Book</span>
-                        <span class="bg-rose-600/20 text-rose-400 text-xs px-2 py-1 rounded-full">+</span>
-                    </a>
-                </li>
 
-                {{-- Book Categories --}}
                 <li>
-                    <a href="{{ route('admin.book-categories.index') }}" 
+                    <a href="{{ route('admin.book-categories.index') }}"
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
-                              {{ request()->routeIs('admin.book-categories.*') 
-                                 ? 'bg-gradient-to-r from-rose-600/20 to-pink-600/20 text-white' 
+                              {{ request()->routeIs('admin.book-categories.*')
+                                 ? 'bg-gradient-to-r from-rose-600/20 to-pink-600/20 text-white'
                                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
                             <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -190,12 +191,11 @@
                     </a>
                 </li>
 
-                {{-- Book Tags --}}
                 <li>
-                    <a href="{{ route('admin.book-tags.index') }}" 
+                    <a href="{{ route('admin.book-tags.index') }}"
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
-                              {{ request()->routeIs('admin.book-tags.*') 
-                                 ? 'bg-gradient-to-r from-rose-600/20 to-pink-600/20 text-white' 
+                              {{ request()->routeIs('admin.book-tags.*')
+                                 ? 'bg-gradient-to-r from-rose-600/20 to-pink-600/20 text-white'
                                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
                             <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -212,21 +212,22 @@
         </div>
         @endhasanyrole
 
-        {{-- Media Summaries Section (قسم ملخصات الوسائط - متاح للمشرف، المحرر، والكاتب) --}}
+        {{-- =====================================================================
+             MEDIA SUMMARIES SECTION
+             ===================================================================== --}}
         @hasanyrole('super-admin|editor|writer')
         <div class="border-t border-slate-700 my-4"></div>
         <div class="mb-6">
             <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 px-3">
                 Media Summaries
             </div>
-            
+
             <ul class="space-y-1">
-                {{-- رابط استعراض كل الملخصات --}}
                 <li>
-                    <a href="{{ route('admin.media-summaries.index') }}" 
-                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 
-                              {{ request()->routeIs('admin.media-summaries.index', 'admin.media-summaries.edit') 
-                                 ? 'bg-gradient-to-r from-indigo-600/20 to-blue-600/20 text-white' 
+                    <a href="{{ route('admin.media-summaries.index') }}"
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.media-summaries.*') && !request()->routeIs('admin.media-summary-categories.*') && !request()->routeIs('admin.media-summary-tags.*')
+                                 ? 'bg-gradient-to-r from-indigo-600/20 to-blue-600/20 text-white'
                                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
                             <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -239,31 +240,13 @@
                         </span>
                     </a>
                 </li>
-                
-                {{-- رابط إضافة ملخص جديد --}}
-                <li>
-                    <a href="{{ route('admin.media-summaries.create') }}" 
-                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
-                              {{ request()->routeIs('admin.media-summaries.create') 
-                                 ? 'bg-gradient-to-r from-indigo-600/20 to-purple-600/20 text-white' 
-                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
-                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
-                            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                            </svg>
-                        </div>
-                        <span class="flex-1 text-sm font-medium">Add New Media</span>
-                        <span class="bg-indigo-600/20 text-indigo-400 text-xs px-2 py-1 rounded-full">+</span>
-                    </a>
-                </li>
 
-                {{-- روابط الفئات والوسوم (للمشرف والمحرر فقط) --}}
                 @hasanyrole('super-admin|editor')
                 <li>
-                    <a href="{{ route('admin.media-summary-categories.index') }}" 
+                    <a href="{{ route('admin.media-summary-categories.index') }}"
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
-                              {{ request()->routeIs('admin.media-summary-categories.*') 
-                                 ? 'bg-gradient-to-r from-indigo-600/20 to-blue-600/20 text-white' 
+                              {{ request()->routeIs('admin.media-summary-categories.*')
+                                 ? 'bg-gradient-to-r from-indigo-600/20 to-blue-600/20 text-white'
                                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
                             <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -278,10 +261,10 @@
                 </li>
 
                 <li>
-                    <a href="{{ route('admin.media-summary-tags.index') }}" 
+                    <a href="{{ route('admin.media-summary-tags.index') }}"
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
-                              {{ request()->routeIs('admin.media-summary-tags.*') 
-                                 ? 'bg-gradient-to-r from-indigo-600/20 to-blue-600/20 text-white' 
+                              {{ request()->routeIs('admin.media-summary-tags.*')
+                                 ? 'bg-gradient-to-r from-indigo-600/20 to-blue-600/20 text-white'
                                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
                             <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -299,21 +282,22 @@
         </div>
         @endhasanyrole
 
-        {{-- Games Section (قسم ملخصات الألعاب - متاح للمشرف، المحرر، والكاتب) --}}
+        {{-- =====================================================================
+             GAMES SECTION
+             ===================================================================== --}}
         @hasanyrole('super-admin|editor|writer')
         <div class="border-t border-slate-700 my-4"></div>
         <div class="mb-6">
             <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 px-3">
                 Games
             </div>
-            
+
             <ul class="space-y-1">
-                {{-- رابط استعراض كل الألعاب --}}
                 <li>
-                    <a href="{{ route('admin.games.index') }}" 
-                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 
-                              {{ request()->routeIs('admin.games.*') && !request()->routeIs('admin.games.create') 
-                                 ? 'bg-gradient-to-r from-emerald-600/20 to-teal-600/20 text-white' 
+                    <a href="{{ route('admin.games.index') }}"
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.games.*') && !request()->routeIs('admin.game-categories.*') && !request()->routeIs('admin.game-tags.*')
+                                 ? 'bg-gradient-to-r from-emerald-600/20 to-teal-600/20 text-white'
                                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
                             <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -327,30 +311,12 @@
                         </span>
                     </a>
                 </li>
-                
-                {{-- رابط إضافة لعبة جديدة --}}
-                <li>
-                    <a href="{{ route('admin.games.create') }}" 
-                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
-                              {{ request()->routeIs('admin.games.create') 
-                                 ? 'bg-gradient-to-r from-emerald-600/20 to-green-600/20 text-white' 
-                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
-                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
-                            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                            </svg>
-                        </div>
-                        <span class="flex-1 text-sm font-medium">Add New Game</span>
-                        <span class="bg-emerald-600/20 text-emerald-400 text-xs px-2 py-1 rounded-full">+</span>
-                    </a>
-                </li>
 
-                {{-- رابط فئات وتصنيفات الألعاب --}}
                 <li>
-                    <a href="{{ route('admin.game-categories.index') }}" 
+                    <a href="{{ route('admin.game-categories.index') }}"
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
-                              {{ request()->routeIs('admin.game-categories.*') 
-                                 ? 'bg-gradient-to-r from-emerald-600/20 to-teal-600/20 text-white' 
+                              {{ request()->routeIs('admin.game-categories.*')
+                                 ? 'bg-gradient-to-r from-emerald-600/20 to-teal-600/20 text-white'
                                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
                             <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -364,12 +330,11 @@
                     </a>
                 </li>
 
-                {{-- رابط وسوم الألعاب --}}
                 <li>
-                    <a href="{{ route('admin.game-tags.index') }}" 
+                    <a href="{{ route('admin.game-tags.index') }}"
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
-                              {{ request()->routeIs('admin.game-tags.*') 
-                                 ? 'bg-gradient-to-r from-emerald-600/20 to-teal-600/20 text-white' 
+                              {{ request()->routeIs('admin.game-tags.*')
+                                 ? 'bg-gradient-to-r from-emerald-600/20 to-teal-600/20 text-white'
                                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
                             <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -386,17 +351,80 @@
         </div>
         @endhasanyrole
 
-        {{-- Case Suggestions Moderation Link --}}
+        {{-- =====================================================================
+             COMMUNITY SECTION
+             ===================================================================== --}}
         @hasanyrole('super-admin|editor')
         <div class="border-t border-slate-700 my-4"></div>
         <div class="mb-6">
+            <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 px-3">
+                Community Cases
+            </div>
+
             <ul class="space-y-1">
+                {{-- All Community Cases --}}
                 <li>
-                    <a href="{{ route('admin.suggestions.index') }}" 
+                    <a href="{{ route('admin.community-cases.index') }}"
                     class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
-                            {{ request()->routeIs('admin.suggestions.*') 
-                                ? 'bg-gradient-to-r from-red-600/20 to-orange-600/25 text-white' 
+                            {{ request()->routeIs('admin.community-cases.*')
+                                ? 'bg-gradient-to-r from-red-600/20 to-orange-600/20 text-white'
                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">All Cases</span>
+                        <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
+                            {{ \App\Models\CommunityCase::count() }}
+                        </span>
+                    </a>
+                </li>
+                {{-- Case Categories --}}
+                <li>
+                    <a href="{{ route('admin.community-case-categories.index') }}"
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.community-case-categories.*')
+                                 ? 'bg-gradient-to-r from-red-600/20 to-orange-600/20 text-white'
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">Case Categories</span>
+                        <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
+                            {{ \App\Models\CommunityCaseCategory::count() }}
+                        </span>
+                    </a>
+                </li>
+
+                {{-- Community Tags --}}
+                <li>
+                    <a href="{{ route('admin.community-case-tags.index') }}"
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.community-case-tags.*')
+                                 ? 'bg-gradient-to-r from-rose-600/20 to-red-600/20 text-white'
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M6 20l6.5-6.5A2.5 2.5 0 0012 10a2.5 2.5 0 00-3.5 0L2 16.5V20h4zM21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">Community Tags</span>
+                        <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
+                            {{ \App\Models\CommunityCaseTag::count() }}
+                        </span>
+                    </a>
+                </li>
+
+                {{-- Case Suggestions --}}
+                <li>
+                    <a href="{{ route('admin.suggestions.index') }}"
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.suggestions.*')
+                                 ? 'bg-gradient-to-r from-red-600/20 to-orange-600/25 text-white'
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
                             <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
@@ -408,20 +436,13 @@
                         </span>
                     </a>
                 </li>
-            </ul>
-        </div>
-        @endhasanyrole
 
-        {{-- Detective Board Moderation Link (قسم منفصل للمشرفين والمحررين تحت Case Suggestions) --}}
-        @hasanyrole('super-admin|editor')
-        <div class="border-t border-slate-700 my-4"></div>
-        <div class="mb-6">
-            <ul class="space-y-1">
+                {{-- Case Moderation --}}
                 <li>
-                    <a href="{{ route('admin.cases.moderation') }}" 
+                    <a href="{{ route('admin.cases.moderation') }}"
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
-                              {{ request()->routeIs('admin.cases.moderation') 
-                                 ? 'bg-gradient-to-r from-rose-600/20 to-red-600/25 text-white' 
+                              {{ request()->routeIs('admin.cases.moderation')
+                                 ? 'bg-gradient-to-r from-rose-600/20 to-red-600/25 text-white'
                                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
                             <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -434,17 +455,13 @@
                         </span>
                     </a>
                 </li>
-            </ul>
-        </div>
 
-        <div class="border-t border-slate-700 my-4"></div>
-        <div class="mb-6">
-            <ul class="space-y-1">
+                {{-- Reports Moderation --}}
                 <li>
-                    <a href="{{ route('admin.reports.index') }}" 
+                    <a href="{{ route('admin.reports.index') }}"
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
-                              {{ request()->routeIs('admin.reports.*') 
-                                 ? 'bg-gradient-to-r from-amber-600/20 to-orange-600/25 text-white' 
+                              {{ request()->routeIs('admin.reports.*')
+                                 ? 'bg-gradient-to-r from-amber-600/20 to-orange-600/25 text-white'
                                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
                             <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -459,171 +476,24 @@
                 </li>
             </ul>
         </div>
-
-        {{-- Community Case Categories Section (فئات قضايا المجتمع) --}}
-        <div class="border-t border-slate-700 my-4"></div>
-        <div class="mb-6">
-            <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 px-3">
-                Community Categories
-            </div>
-            
-            <ul class="space-y-1">
-                {{-- All Community Categories --}}
-                <li>
-                    <a href="{{ route('admin.community-case-categories.index') }}" 
-                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 
-                              {{ request()->routeIs('admin.community-case-categories.*') && !request()->routeIs('admin.community-case-categories.create') 
-                                 ? 'bg-gradient-to-r from-red-600/20 to-orange-600/20 text-white' 
-                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
-                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
-                            <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                            </svg>
-                        </div>
-                        <span class="flex-1 text-sm font-medium">Case Categories</span>
-                        <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
-                            {{ \App\Models\CommunityCaseCategory::count() }}
-                        </span>
-                    </a>
-                </li>
-                
-                {{-- Add New Community Category --}}
-                <li>
-                    <a href="{{ route('admin.community-case-categories.create') }}" 
-                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
-                              {{ request()->routeIs('admin.community-case-categories.create') 
-                                 ? 'bg-gradient-to-r from-orange-600/20 to-amber-600/20 text-white' 
-                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
-                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
-                            <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                            </svg>
-                        </div>
-                        <span class="flex-1 text-sm font-medium">Add New Category</span>
-                        @if(request()->routeIs('admin.community-case-categories.create'))
-                            <span class="bg-orange-500/20 text-orange-400 text-xs px-2 py-1 rounded-full">Now</span>
-                        @else
-                            <span class="bg-orange-600/20 text-orange-400 text-xs px-2 py-1 rounded-full">+</span>
-                        @endif
-                    </a>
-                </li>
-            </ul>
-        </div>
-        
-        <div class="border-t border-slate-700 my-4"></div>
         @endhasanyrole
 
-        {{-- Categories, Tags, Series Sections (خاص بالمشرفين والمحررين فقط) --}}
+        {{-- =====================================================================
+             SERIES SECTION (يبقى كما هو)
+             ===================================================================== --}}
         @hasanyrole('super-admin|editor')
-        
-        {{-- Categories Section --}}
-        <div class="mb-6">
-            <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 px-3">
-                Categories
-            </div>
-            
-            <ul class="space-y-1">
-                <li>
-                    <a href="{{ route('admin.article-categories.index') }}" 
-                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 
-                              {{ request()->routeIs('admin.article-categories.*') && !request()->routeIs('admin.article-categories.create') 
-                                 ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-white' 
-                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
-                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
-                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
-                            </svg>
-                        </div>
-                        <span class="flex-1 text-sm font-medium">All Categories</span>
-                        <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
-                            {{ \App\Models\ArticleCategory::count() }}
-                        </span>
-                    </a>
-                </li>
-                
-                <li>
-                    <a href="{{ route('admin.article-categories.create') }}" 
-                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
-                              {{ request()->routeIs('admin.article-categories.create') 
-                                 ? 'bg-gradient-to-r from-green-600/20 to-emerald-600/20 text-white' 
-                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
-                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
-                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                            </svg>
-                        </div>
-                        <span class="flex-1 text-sm font-medium">Add New Category</span>
-                        @if(request()->routeIs('admin.article-categories.create'))
-                            <span class="bg-green-600/20 text-green-400 text-xs px-2 py-1 rounded-full">Now</span>
-                        @endif
-                    </a>
-                </li>
-            </ul>
-        </div>
-        
         <div class="border-t border-slate-700 my-4"></div>
-        {{-- Tags Section --}}
-        <div class="mb-6">
-            <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 px-3">
-                Tags
-            </div>
-            
-            <ul class="space-y-1">
-                <li>
-                    <a href="{{ route('admin.article-tags.index') }}" 
-                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 
-                              {{ request()->routeIs('admin.article-tags.*') && !request()->routeIs('admin.article-tags.create') 
-                                 ? 'bg-gradient-to-r from-orange-600/20 to-amber-600/20 text-white' 
-                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
-                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
-                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M6 20l6.5-6.5A2.5 2.5 0 0012 10a2.5 2.5 0 00-3.5 0L2 16.5V20h4zM21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3"></path>
-                            </svg>
-                        </div>
-                        <span class="flex-1 text-sm font-medium">All Tags</span>
-                        <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
-                            {{ \App\Models\ArticleTag::count() }}
-                        </span>
-                    </a>
-                </li>
-                
-                {{--
-                <li>
-                    <a href="{{ route('admin.article-tags.create') }}" 
-                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
-                              {{ request()->routeIs('admin.article-tags.create') 
-                                 ? 'bg-gradient-to-r from-amber-500/20 to-red-500/20 text-white' 
-                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
-                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
-                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
-                            </svg>
-                        </div>
-                        <span class="flex-1 text-sm font-medium">Add New Tag</span>
-                        @if(request()->routeIs('admin.article-tags.create'))
-                            <span class="bg-amber-500/20 text-amber-400 text-xs px-2 py-1 rounded-full">Now</span>
-                        @else
-                            <span class="bg-amber-600/20 text-amber-400 text-xs px-2 py-1 rounded-full">#</span>
-                        @endif
-                    </a>
-                </li>
-                --}}
-            </ul>
-        </div>
-
-        <div class="border-t border-slate-700 my-4"></div>
-        {{-- Series Section --}}
         <div class="mb-6">
             <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 px-3">
                 Series
             </div>
-            
+
             <ul class="space-y-1">
                 <li>
-                    <a href="{{ route('admin.series.index') }}" 
-                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 
-                              {{ request()->routeIs('admin.series.*') && !request()->routeIs('admin.series.create') 
-                                 ? 'bg-gradient-to-r from-indigo-600/20 to-purple-600/20 text-white' 
+                    <a href="{{ route('admin.series.index') }}"
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.series.*')
+                                 ? 'bg-gradient-to-r from-indigo-600/20 to-purple-600/20 text-white'
                                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
                             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -636,44 +506,26 @@
                         </span>
                     </a>
                 </li>
-                
-                <li>
-                    <a href="{{ route('admin.series.create') }}" 
-                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
-                              {{ request()->routeIs('admin.series.create') 
-                                 ? 'bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-white' 
-                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
-                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
-                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                            </svg>
-                        </div>
-                        <span class="flex-1 text-sm font-medium">Add New Series</span>
-                        @if(request()->routeIs('admin.series.create'))
-                            <span class="bg-indigo-500/20 text-indigo-400 text-xs px-2 py-1 rounded-full">Now</span>
-                        @else
-                            <span class="bg-indigo-600/20 text-indigo-400 text-xs px-2 py-1 rounded-full">+</span>
-                        @endif
-                    </a>
-                </li>
             </ul>
         </div>
         @endhasanyrole
 
-        {{-- Users Section (خاص بالمشرف العام فقط) --}}
+        {{-- =====================================================================
+             USERS SECTION
+             ===================================================================== --}}
         @role('super-admin')
         <div class="border-t border-slate-700 my-4"></div>
         <div class="mb-6">
             <div class="text-xs font-medium text-slate-500 uppercase tracking-wider mb-2 px-3">
                 Users
             </div>
-            
+
             <ul class="space-y-1">
                 <li>
-                    <a href="{{ route('admin.users.index') }}" 
-                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 
-                              {{ request()->routeIs('admin.users.*') 
-                                 ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-white' 
+                    <a href="{{ route('admin.users.index') }}"
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.users.*')
+                                 ? 'bg-gradient-to-r from-blue-600/20 to-purple-600/20 text-white'
                                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
                             <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -689,7 +541,7 @@
             </ul>
         </div>
         @endrole
-        
+
         {{-- Logout --}}
         <div class="border-t border-slate-700 mt-6 pt-4">
             <form method="POST" action="{{route('logout')}}">

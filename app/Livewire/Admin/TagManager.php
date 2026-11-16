@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Admin;
 
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -183,6 +183,6 @@ class TagManager extends Component
 
         $supportedLocales = LaravelLocalization::getSupportedLocales();
 
-        return view('livewire.tag-manager', compact('items', 'supportedLocales'));
+        return view('livewire.admin.tag-manager', compact('items', 'supportedLocales'));
     }
 }

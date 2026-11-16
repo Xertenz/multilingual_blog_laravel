@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CommunityCaseTag extends Model
 {
-    protected $guarded = [];
+    protected $fillable = ['label', 'is_active', 'user_id'];
 
     public function author(): BelongsTo
     {
@@ -29,5 +29,11 @@ class CommunityCaseTag extends Model
             'community_case_tag_id',
             'community_case_id'
         )->withTimestamps();
+    }
+
+    // ✅ علاقة جاهزة للقضايا المعتمدة فقط
+    public function approvedCommunityCases(): BelongsToMany
+    {
+        return $this->communityCases()->where('moderation_status', 'approved');
     }
 }
