@@ -43,7 +43,7 @@ class GameCategoryController extends Controller
         // 2. التحقق
         $request->validate([
             'cat_label' => 'required|string|unique:game_categories,label|max:50',
-            'cat_featured_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
+            'cat_featured_img' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
             'is_active' => 'nullable|boolean',  // ✅
 
             'translations.*.name' => 'nullable|string|max:100',

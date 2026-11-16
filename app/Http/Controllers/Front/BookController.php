@@ -19,8 +19,8 @@ class BookController extends Controller
         // جلب الترجمات الخاصة باللغة الحالية مباشرة مع كافة العلاقات المرتبطة لتجنب N+1
         $translations = BookTranslation::where('locale', $currentLocale)
             ->with([
-                'book.bookCategory.translations',
-                'book.bookTags.translations',
+                'book.category.translations',
+                'book.tags.translations',
                 'book.media',
                 'media' // لضمان جلب غلاف الترجمة إن وجد
             ])
@@ -38,8 +38,7 @@ class BookController extends Controller
         $currentLocale = app()->getLocale();
 
         // جلب الكتاب مع الفئات، الوسوم، والوسائط
-        //$book = Book::with(['bookCategory.translations', 'bookTags.translations', 'media'])->findOrFail($id);
-        $trans = BookTranslation::with(['book.bookCategory.translations', 'book.bookTags.translations', 'book.media'])->findOrFail($id);
+        $trans = BookTranslation::with(['book.category.translations', 'book.tags.translations', 'book.media'])->findOrFail($id);
         $book = $trans->book;
 
         // جلب الترجمة الخاصة باللغة الحالية فقط

@@ -148,7 +148,7 @@
 
                         {{-- Gallery (Livewire) --}}
                         <td class="py-3.5 px-4">
-                            <livewire:content-gallery
+                            <livewire:admin.content-gallery
                                 :model-type="\App\Models\Game::class"
                                 :model-id="$game->id"
                                 :collection="'content_imgs'"

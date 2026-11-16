@@ -149,7 +149,7 @@
                         } elseif ($book && $book->hasMedia('cover_imgs')) {
                             $media = $book->getFirstMedia('cover_imgs');
                         }
-                        $catTrans = $book->bookCategory?->translations->where('locale', app()->getLocale())->first() ?? $book->bookCategory?->translations->first();
+                        $catTrans = $book->category?->translations->where('locale', app()->getLocale())->first() ?? $book->category?->translations->first();
                     @endphp
                     <a href="{{ route('books.show', ['id' => $bookTrans->id, 'slug' => $bookTrans->slug]) }}" 
                        class="group relative bg-[#0f1526] border border-slate-800 hover:border-red-600/60 rounded-xl overflow-hidden shadow-lg transition-all duration-300 flex flex-col justify-between">
@@ -163,7 +163,7 @@
                                 <div class="absolute inset-0 bg-gradient-to-t from-[#0f1526] via-transparent to-transparent"></div>
                                 @if($catTrans)
                                     <span class="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md text-indigo-400 border border-indigo-900/40 text-[10px] font-semibold px-2.5 py-1 rounded-lg pointer-events-none">
-                                        {{ $catTrans->name ?? $book->bookCategory->label }}
+                                        {{ $catTrans->name ?? $book->category->label }}
                                     </span>
                                 @endif
                                 <span class="absolute top-3 right-3 bg-slate-950/80 backdrop-blur-md border border-slate-800 text-gray-300 text-[10px] font-mono px-2.5 py-1 rounded-lg">

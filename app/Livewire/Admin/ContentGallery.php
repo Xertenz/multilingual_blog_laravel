@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Admin;
 
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -118,6 +118,6 @@ class ContentGallery extends Component
 
     public function render()
     {
-        return view('livewire.content-gallery');
+        return view('livewire.admin.content-gallery');
     }
 }

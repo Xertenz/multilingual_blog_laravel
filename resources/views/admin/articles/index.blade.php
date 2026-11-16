@@ -91,91 +91,86 @@
                         </td>
 
                         {{-- Translations (كل اللغات المدعومة) --}}
+                        <td class="py-3.5 px-4">
+                            @php
+                                $translationMap = $article->translations->keyBy('locale');
+                            @endphp
 
+                            {{-- سطر واحد دائماً، بدون تمرير داخلي، والجدول كاملاً هو من يمرر أفقياً --}}
+                            <div class="flex items-center gap-1.5 flex-nowrap">
+                                @foreach ($supportedLocales as $localeCode => $localeProps)
+                                    @php
+                                        $existingTrans = $translationMap->get($localeCode);
+                                        $canEdit = Auth::user()->hasRole(['super-admin', 'editor'])
+                                                || ($existingTrans && $existingTrans->user_id === Auth::id());
+                                        $canCreate = Auth::user()->hasAnyRole(['super-admin', 'editor', 'writer']);
+                                    @endphp
 
-{{-- Translations (كل اللغات المدعومة) --}}
-<td class="py-3.5 px-4">
-    @php
-        $translationMap = $article->translations->keyBy('locale');
-    @endphp
+                                    @if ($existingTrans)
+                                        {{-- ✅ الترجمة موجودة --}}
+                                        <div class="inline-flex items-center bg-slate-50 border border-slate-200 rounded-lg shadow-2xs overflow-hidden shrink-0">
+                                            @if ($canEdit)
+                                                <a href="{{ route('admin.articles-trans.edit', $existingTrans->id) }}"
+                                                class="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-blue-600 hover:text-blue-800 hover:bg-blue-50 transition-colors whitespace-nowrap"
+                                                title="{{ __('Edit :lang translation', ['lang' => $localeProps['name']]) }}">
+                                                    <span class="font-mono">{{ strtoupper($localeCode) }}</span>
+                                                    <span class="text-[9px] px-1 py-0.5 rounded
+                                                        {{ $existingTrans->status === 'published' ? 'bg-emerald-100 text-emerald-700' : ($existingTrans->status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-slate-200 text-slate-600') }}">
+                                                        {{ $existingTrans->status }}
+                                                    </span>
+                                                </a>
+                                            @else
+                                                <span class="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-slate-400 whitespace-nowrap"
+                                                    title="{{ __('Read-only translation') }}">
+                                                    <span class="font-mono">{{ strtoupper($localeCode) }}</span>
+                                                    <span class="text-[9px] px-1 py-0.5 rounded bg-slate-200 text-slate-600">
+                                                        {{ $existingTrans->status }}
+                                                    </span>
+                                                </span>
+                                            @endif
 
-    {{-- سطر واحد دائماً، بدون تمرير داخلي، والجدول كاملاً هو من يمرر أفقياً --}}
-    <div class="flex items-center gap-1.5 flex-nowrap">
-        @foreach ($supportedLocales as $localeCode => $localeProps)
-            @php
-                $existingTrans = $translationMap->get($localeCode);
-                $canEdit = Auth::user()->hasRole(['super-admin', 'editor'])
-                        || ($existingTrans && $existingTrans->user_id === Auth::id());
-                $canCreate = Auth::user()->hasAnyRole(['super-admin', 'editor', 'writer']);
-            @endphp
-
-            @if ($existingTrans)
-                {{-- ✅ الترجمة موجودة --}}
-                <div class="inline-flex items-center bg-slate-50 border border-slate-200 rounded-lg shadow-2xs overflow-hidden shrink-0">
-                    @if ($canEdit)
-                        <a href="{{ route('admin.articles-trans.edit', $existingTrans->id) }}"
-                           class="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-blue-600 hover:text-blue-800 hover:bg-blue-50 transition-colors whitespace-nowrap"
-                           title="{{ __('Edit :lang translation', ['lang' => $localeProps['name']]) }}">
-                            <span class="font-mono">{{ strtoupper($localeCode) }}</span>
-                            <span class="text-[9px] px-1 py-0.5 rounded
-                                {{ $existingTrans->status === 'published' ? 'bg-emerald-100 text-emerald-700' : ($existingTrans->status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-slate-200 text-slate-600') }}">
-                                {{ $existingTrans->status }}
-                            </span>
-                        </a>
-                    @else
-                        <span class="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold text-slate-400 whitespace-nowrap"
-                              title="{{ __('Read-only translation') }}">
-                            <span class="font-mono">{{ strtoupper($localeCode) }}</span>
-                            <span class="text-[9px] px-1 py-0.5 rounded bg-slate-200 text-slate-600">
-                                {{ $existingTrans->status }}
-                            </span>
-                        </span>
-                    @endif
-
-                    @if ($canEdit)
-                        <form action="{{ route('admin.articles-trans.destroy', $existingTrans->id) }}"
-                              method="POST"
-                              class="inline-flex border-l border-slate-200 shrink-0"
-                              onsubmit="return confirm('{{ __('Are you sure you want to delete this translation?') }}');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit"
-                                    class="px-1.5 py-1 text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors text-xs font-bold leading-none"
-                                    title="{{ __('Delete Translation') }}">
-                                &times;
-                            </button>
-                        </form>
-                    @endif
-                </div>
-            @else
-                {{-- ➕ الترجمة مفقودة — بارزة بالأحمر --}}
-                @if ($canCreate)
-                    <a href="{{ route('admin.articles-trans.create', $article->id) }}?locale={{ $localeCode }}"
-                       class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold bg-red-50 border border-dashed border-red-300 text-red-600 hover:bg-red-100 hover:border-red-400 transition-colors shrink-0 whitespace-nowrap"
-                       title="{{ __('Add :lang translation', ['lang' => $localeProps['name']]) }}">
-                        <span class="font-mono">{{ strtoupper($localeCode) }}</span>
-                        <span class="text-[10px] font-bold">+</span>
-                    </a>
-                @else
-                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-mono bg-red-50 border border-dashed border-red-200 text-red-300 cursor-not-allowed shrink-0 whitespace-nowrap"
-                          title="{{ __('No permission to add translation') }}">
-                        {{ strtoupper($localeCode) }}
-                    </span>
-                @endif
-            @endif
-        @endforeach
-    </div>
-</td>
-
-
+                                            @if ($canEdit)
+                                                <form action="{{ route('admin.articles-trans.destroy', $existingTrans->id) }}"
+                                                    method="POST"
+                                                    class="inline-flex border-l border-slate-200 shrink-0"
+                                                    onsubmit="return confirm('{{ __('Are you sure you want to delete this translation?') }}');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                            class="px-1.5 py-1 text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors text-xs font-bold leading-none"
+                                                            title="{{ __('Delete Translation') }}">
+                                                        &times;
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </div>
+                                    @else
+                                        {{-- ➕ الترجمة مفقودة — بارزة بالأحمر --}}
+                                        @if ($canCreate)
+                                            <a href="{{ route('admin.articles-trans.create', $article->id) }}?locale={{ $localeCode }}"
+                                            class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold bg-red-50 border border-dashed border-red-300 text-red-600 hover:bg-red-100 hover:border-red-400 transition-colors shrink-0 whitespace-nowrap"
+                                            title="{{ __('Add :lang translation', ['lang' => $localeProps['name']]) }}">
+                                                <span class="font-mono">{{ strtoupper($localeCode) }}</span>
+                                                <span class="text-[10px] font-bold">+</span>
+                                            </a>
+                                        @else
+                                            <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-mono bg-red-50 border border-dashed border-red-200 text-red-300 cursor-not-allowed shrink-0 whitespace-nowrap"
+                                                title="{{ __('No permission to add translation') }}">
+                                                {{ strtoupper($localeCode) }}
+                                            </span>
+                                        @endif
+                                    @endif
+                                @endforeach
+                            </div>
+                        </td>
 
                         {{-- Gallery --}}
                         <td class="py-3.5 px-4">
-                            <button class="show-gallery inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-medium px-2.5 py-1 rounded-lg text-xs transition-colors cursor-pointer"
-                                    data-article-id="{{ $article->id }}">
-                                <span>📷</span>
-                                <span class="artilce-content_imgs-count font-semibold">{{ $article->content_imgs_count }}</span>
-                            </button>
+                            <livewire:admin.content-gallery
+                                :model-type="\App\Models\Article::class"
+                                :model-id="$article->id"
+                                :collection="'content_imgs'"
+                                :key="'gallery-article-'.$article->id" />
                         </td>
 
                         {{-- Actions Column --}}

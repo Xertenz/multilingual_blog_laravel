@@ -42,10 +42,10 @@
 
                 // اسم الفئة المترجم
                 $catName = null;
-                if ($book && $book->bookCategory) {
-                    $catTrans = $book->bookCategory->translations->where('locale', app()->getLocale())->first()
-                             ?? $book->bookCategory->translations->first();
-                    $catName = $catTrans->name ?? $book->bookCategory->label;
+                if ($book && $book->ategory) {
+                    $catTrans = $book->category->translations->where('locale', app()->getLocale())->first()
+                             ?? $book->ategory->translations->first();
+                    $catName = $catTrans->name ?? $book->category->label;
                 }
             @endphp
 

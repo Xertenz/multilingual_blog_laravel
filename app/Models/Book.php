@@ -106,12 +106,12 @@ class Book extends Model implements HasMedia
         return $this->morphMany(Comment::class, 'commentable');
     }
 
-    public function bookCategory(): BelongsTo
+    public function category(): BelongsTo
     {
         return $this->belongsTo(BookCategory::class);
     }
 
-    public function bookTags(): BelongsToMany
+    public function tags(): BelongsToMany
     {
         return $this->belongsToMany(BookTag::class, 'book_tag', 'book_id', 'book_tag_id'); //->withTimestamps();
     }

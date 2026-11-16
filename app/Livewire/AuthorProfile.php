@@ -56,7 +56,7 @@ class AuthorProfile extends Component
         // 2. الكتب
         $books = BookTranslation::where('user_id', $this->author->id)
             ->where('locale', $currentLocale)
-            ->with(['book.bookCategory.translations', 'book.media'])
+            ->with(['book.category.translations', 'book.media'])
             ->latest()
             ->paginate(9, ['*'], 'booksPage');
 

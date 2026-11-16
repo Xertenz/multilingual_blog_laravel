@@ -20,7 +20,7 @@ class BookController extends Controller
      */
     public function index()
     {
-        $books = Book::with(['translations', 'media', 'bookCategory.translations', 'bookTags.translations'])->latest()->paginate(10);
+        $books = Book::with(['translations', 'media', 'category.translations', 'tags.translations'])->latest()->paginate(10);
         return view('admin.books.index', compact('books'));
     }
 
@@ -31,8 +31,8 @@ class BookController extends Controller
     {
         $locales = LaravelLocalization::getSupportedLocales();
         $bookCategories = BookCategory::with('translations')->get();
-        $bookTags = BookTag::with('translations')->get();
-        return view('admin.books.create', compact('locales', 'bookCategories', 'bookTags'));
+        $tags = BookTag::with('translations')->get();
+        return view('admin.books.create', compact('locales', 'bookCategories', 'tags'));
     }
 
     /**
@@ -74,7 +74,7 @@ class BookController extends Controller
 
         // ربط الوسوم (Many-to-Many)
         if ($request->has('tags')) {
-            $book->bookTags()->sync($request->tags);
+            $book->tags()->sync($request->tags);
         }
 
         // 3. رفع غلاف الكتاب باستخدام Spatie Media Library
@@ -127,14 +127,14 @@ class BookController extends Controller
      */
     public function edit(Book $book)
     {
-        $book->load(['translations', 'media', 'bookTags']);
+        $book->load(['translations', 'media', 'tags']);
         $locales = LaravelLocalization::getSupportedLocales();
         $bookCategories = BookCategory::with('translations')->get();
-        $bookTags = BookTag::with('translations')->get();
+        $tags = BookTag::with('translations')->get();
         // تجهيز الترجمات كمفتاح باللغة لتسهيل عرضها في الفورم (مثل الأقسام)
         $translations = $book->translations->keyBy('locale');
 
-        return view('admin.books.edit', compact('book', 'locales', 'translations', 'bookCategories', 'bookTags'));
+        return view('admin.books.edit', compact('book', 'locales', 'translations', 'bookCategories', 'tags'));
     }
 
     /**
@@ -183,7 +183,7 @@ class BookController extends Controller
             'pages_count'      => (int) $request->pages_count,
         ]);
         // تحديث الوسوم
-        $book->bookTags()->sync($request->tags ?? []);
+        $book->tags()->sync($request->tags ?? []);
 
         // 2. تحديث صورة الغلاف إن وُجدت
         if ($request->hasFile('cover_image')) {

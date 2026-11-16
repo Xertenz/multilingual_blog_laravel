@@ -140,30 +140,14 @@
                             </div>
                         </td>
 
-                        {{-- Gallery --}}
-                        {{--
+                        {{-- بدلاً من زر Gallery --}}
                         <td class="py-3.5 px-4">
-<button class="show-gallery inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 font-medium px-2.5 py-1 rounded-lg text-xs transition-colors cursor-pointer"
-        data-media-summary-id="{{ $summary->id }}">
-    <span>📷</span>
-    <span class="media-content-imgs-count font-semibold">{{ $summary->content_imgs_count }}</span>
-</button>
+                            <livewire:admin.content-gallery
+                            :model-type="\App\Models\MediaSummary::class"
+                            :model-id="$summary->id"
+                            :collection="'content_imgs'"
+                            :key="'gallery-ms-'.$summary->id" />
                         </td>
-                        --}}
-
-
-
-
-{{-- بدلاً من زر Gallery --}}
-<td class="py-3.5 px-4">
-    <livewire:content-gallery
-    :model-type="\App\Models\MediaSummary::class"
-    :model-id="$summary->id"
-    :collection="'content_imgs'"
-    :key="'gallery-ms-'.$summary->id" />
-</td>
-
-
 
                         {{-- Actions --}}
                         <td class="py-3.5 px-4 text-right">

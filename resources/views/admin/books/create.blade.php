@@ -44,7 +44,7 @@
             <div class="md:col-span-2">
                 <label class="block text-xs font-semibold text-slate-600 mb-1">Book Tags</label>
                 <div class="flex flex-wrap gap-2 p-3 bg-white rounded-lg border border-slate-200">
-                    @forelse($bookTags as $tag)
+                    @forelse($tags as $tag)
                         @php
                             $tagTrans = $tag->translations->where('locale', app()->getLocale())->first() ?? $tag->translations->first();
                             $tagName = $tagTrans->name ?? $tag->label;

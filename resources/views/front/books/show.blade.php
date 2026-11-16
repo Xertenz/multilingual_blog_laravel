@@ -80,13 +80,13 @@
                 <!-- Meta Badges -->
                 <div class="flex flex-wrap gap-3 py-3 border-y border-slate-800 text-xs text-slate-300">
 
-                    @if($book->bookCategory)
+                    @if($book->category)
                         @php
-                            $catTrans = $book->bookCategory->translations->where('locale', app()->getLocale())->first() ?? $book->bookCategory->translations->first();
+                            $catTrans = $book->category->translations->where('locale', app()->getLocale())->first() ?? $book->category->translations->first();
                         @endphp
                         <div class="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
                             <span class="text-slate-400 block text-[10px]">Category</span>
-                            <span class="font-semibold text-indigo-400">{{ $catTrans->name ?? $book->bookCategory->label }}</span>
+                            <span class="font-semibold text-indigo-400">{{ $catTrans->name ?? $book->category->label }}</span>
                         </div>
                     @endif
 
@@ -127,11 +127,11 @@
                 </div>
 
                 <!-- Book Tags -->
-                @if($book->bookTags->count() > 0)
+                @if($book->tags->count() > 0)
                     <div class="pt-4 border-t border-slate-800">
                         <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Book Tags</h3>
                         <div class="flex flex-wrap gap-2">
-                            @foreach($book->bookTags as $tag)
+                            @foreach($book->tags as $tag)
                                 @php
                                     $tagTrans = $tag->translations->where('locale', app()->getLocale())->first() ?? $tag->translations->first();
                                     $tagName = $tagTrans->name ?? $tag->label;
