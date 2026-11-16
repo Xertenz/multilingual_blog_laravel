@@ -43,7 +43,7 @@ class SeriesController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'internal_title' => 'required|string|unique:series,internal_title',
+            'label' => 'required|string|unique:series,label',
             'status' => 'required|in:draft,pending,published',
 
             // التحقق من الحقول المترجمة (مثلاً للغة العربية ar والإنجليزية en)
@@ -58,7 +58,7 @@ class SeriesController extends Controller
             // 1. إنشاء السلسلة الأساسية
             $series = Series::create([
                 'user_id' => Auth::id(),
-                'internal_title' => $request->internal_title,
+                'label' => $request->label,
                 'status' => $request->status,
             ]);
 
@@ -102,7 +102,7 @@ class SeriesController extends Controller
     public function update(Request $request, Series $series)
     {
         $request->validate([
-            'internal_title' => 'required|string|unique:series,internal_title,' . ($series->id ?? ''),
+            'label' => 'required|string|unique:series,label,' . ($series->id ?? ''),
             'status' => 'required|in:draft,pending,published',
 
             'translations.*.title' => 'required|string|max:255',
@@ -120,7 +120,7 @@ class SeriesController extends Controller
         DB::transaction(function () use ($request, $series) {
             // 1. تحديث الجدول الأساسي
             $series->update([
-                'internal_title' => $request->internal_title,
+                'label' => $request->label,
                 'status' => $request->status,
             ]);
 

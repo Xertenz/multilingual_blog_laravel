@@ -13,7 +13,7 @@ class Series extends Model
 {
     protected $table = 'series';
 
-    protected $fillable = ['user_id', 'internal_title', 'status'];
+    protected $fillable = ['user_id', 'label', 'status'];
 
     public function author(): BelongsTo
     {

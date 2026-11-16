@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('book_category_id')->nullable()->constrained('book_categories')->nullOnDelete();
             $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnUpdate()->nullOnDelete();
-            $table->string('internal_title')->unique();
+            $table->string('label')->unique();
             $table->integer('published_year')->nullable(); // سنة النشر
             $table->integer('pages_count')->nullable(); // عدد الصفحات
             $table->unsignedBigInteger('views')->default(0);

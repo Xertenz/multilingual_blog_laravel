@@ -52,14 +52,14 @@ class ArticleController extends Controller
         $request->validate([
             'category_id' => 'required|numeric|exists:article_categories,id',
             'featured_img' => "required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120",
-            'internal_title' => 'required|string|unique:articles,internal_title',
+            'label' => 'required|string|unique:articles,label',
             'status' => 'required|in:draft,pending,published',
         ]);
 
         $article = Article::create([
             'article_category_id' => (int)$request->category_id,
             'user_id' => Auth::id(),
-            'internal_title' => trim($request->internal_title),
+            'label' => trim($request->label),
             'views' => 0,
             'status' => $status
         ]);
@@ -134,10 +134,10 @@ class ArticleController extends Controller
         $request->validate([
             'category_id' => 'required|numeric|exists:article_categories,id',
             'featured_img' => "nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120",
-            'internal_title' => [
+            'label' => [
                 'required',  // ✅ أُضيف
                 'string',
-                Rule::unique('articles', 'internal_title')->ignore($article_id),
+                Rule::unique('articles', 'label')->ignore($article_id),
             ],
             'status' => 'required|in:draft,pending,published',
             'tags' => 'nullable|array',
@@ -148,7 +148,7 @@ class ArticleController extends Controller
             // ✅ 1. تحديث الحقول الأساسية عبر Mass Update
             Article::where('id', $article_id)->update([
                 'article_category_id' => (int)$request->category_id,
-                'internal_title'      => trim($request->internal_title),
+                'label'      => trim($request->label),
                 'status'              => $status,
             ]);
 

@@ -14,24 +14,25 @@ class GameTranslationController extends Controller
 {
     public function create(Request $request, int $game_id)
     {
-        if (!$request->user() || !$request->user()->hasRole(['super-admin', 'editor', 'writer'])) {
-            abort(403, 'غير مسموح لك بالوصول إلى هذه الصفحة.');
-        }
+        $game = Game::with('translations')->findOrFail($game_id);
+        $game_content_imgs = $game->getMedia('content_imgs');
 
-        $game = Game::findOrFail($game_id);
-        $game_content_imgs = $game->getMedia('content_imgs'); // 👈 جلب صور المعرض
-        return view('admin.games.create-trans', compact('game_id', 'game', 'game_content_imgs'));
+        $supportedLocales = LaravelLocalization::getSupportedLocales();
+        $existingLocales = $game->translations->pluck('locale')->toArray();
+        $selectedLocale = $request->query('locale');
+
+        return view('admin.games.create-trans', compact(
+            'game_id',
+            'game',
+            'game_content_imgs',
+            'supportedLocales',
+            'existingLocales',
+            'selectedLocale'
+        ));
     }
 
     public function store(Request $request)
     {
-        if (!$request->user() || !$request->user()->hasRole(['super-admin', 'editor', 'writer'])) {
-            abort(403, 'غير مسموح لك بإنشاء ترجمة جديدة.');
-        }
-
-        $slugSource = trim($request->input('slug')) !== '' ? $request->input('slug') : $request->input('title');
-        $finalSlug = (string) Str::of($slugSource)->slug('-');
-        $request->merge(['slug' => $finalSlug]);
 
         $supportedLocales = implode(',', LaravelLocalization::getSupportedLanguagesKeys());
 
@@ -51,10 +52,21 @@ class GameTranslationController extends Controller
             'content'          => 'required|string|min:20',
             'meta_title'       => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
+            'status'           => 'sometimes|in:draft,pending,published',
             'affiliate_url'    => 'nullable|url',
             'price'            => 'nullable|numeric|min:0',
             'currency'         => 'nullable|string|max:10',
         ]);
+
+        // ✅ الكاتب → pending، المحرر/المدير → حسب الاختيار
+        $status = 'pending';
+        if ($request->user()->hasRole(['super-admin', 'editor']) || $request->user()->can('publish-articles')) {
+            $status = $request->input('status', 'draft');
+        }
+
+        $slugSource = trim($request->input('slug')) !== '' ? $request->input('slug') : $request->input('title');
+        $finalSlug = (string) Str::of($slugSource)->slug('-');
+        $request->merge(['slug' => $finalSlug]);
 
         GameTranslation::create([
             'game_id'          => $request->game_id,
@@ -65,6 +77,7 @@ class GameTranslationController extends Controller
             'content'          => trim($request->content),
             'meta_title'       => trim($request->meta_title ?? $request->title),
             'meta_description' => trim($request->meta_description ?? Str::limit(strip_tags($request->content), 150)),
+            'status'           => $status,
             'affiliate_url'    => $request->affiliate_url,
             'price'            => $request->price,
             'currency'         => $request->currency ?? 'USD',
@@ -78,10 +91,6 @@ class GameTranslationController extends Controller
         $game_trans = GameTranslation::with('game')->findOrFail($id);
         $game = $game_trans->game;
 
-        if (!$request->user() || !$request->user()->hasRole(['super-admin', 'editor', 'writer'])) {
-            abort(403, 'غير مسموح لك بتعديل الترجمات.');
-        }
-
         if (!$request->user()->hasRole(['super-admin', 'editor']) && $game_trans->user_id !== $request->user()->id) {
             abort(403, 'غير مسموح لك بتعديل ترجمة لم تقم بإنشائها.');
         }
@@ -94,17 +103,13 @@ class GameTranslationController extends Controller
     {
         $game_trans = GameTranslation::findOrFail($id);
 
-        if (!$request->user() || !$request->user()->hasRole(['super-admin', 'editor', 'writer'])) {
-            abort(403, 'غير مسموح لك بتحديث الترجمات.');
-        }
-
         if (!$request->user()->hasRole(['super-admin', 'editor']) && $game_trans->user_id !== $request->user()->id) {
             abort(403, 'غير مسموح لك بتحديث ترجمة لم تقم بإنشائها.');
         }
 
-        $slugSource = trim($request->input('slug')) !== '' ? $request->input('slug') : $request->input('title');
-        $finalSlug = (string) Str::of($slugSource)->slug('-');
-        $request->merge(['slug' => $finalSlug]);
+        // ✅ حفظ الحالة السابقة
+        $previousStatus = $game_trans->status;
+
 
         $supportedLocales = implode(',', LaravelLocalization::getSupportedLanguagesKeys());
 
@@ -124,10 +129,23 @@ class GameTranslationController extends Controller
             'content'          => 'required|string|min:20',
             'meta_title'       => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
+            'status'           => 'sometimes|in:draft,pending,published',
             'affiliate_url'    => 'nullable|url',
             'price'            => 'nullable|numeric|min:0',
             'currency'         => 'nullable|string|max:10',
         ]);
+
+        // ✅ الكاتب: التعديل يعيد الحالة إلى pending
+        $status = $game_trans->status;
+        if ($request->user()->hasRole(['super-admin', 'editor']) || $request->user()->can('publish-articles')) {
+            $status = $request->input('status', $game_trans->status);
+        } else {
+            $status = 'pending';
+        }
+
+        $slugSource = trim($request->input('slug')) !== '' ? $request->input('slug') : $request->input('title');
+        $finalSlug = (string) Str::of($slugSource)->slug('-');
+        $request->merge(['slug' => $finalSlug]);
 
         $game_trans->update([
             'locale'           => $request->locale,
@@ -136,10 +154,16 @@ class GameTranslationController extends Controller
             'content'          => trim($request->content),
             'meta_title'       => trim($request->meta_title ?? $request->title),
             'meta_description' => trim($request->meta_description ?? Str::limit(strip_tags($request->content), 150)),
+            'status'           => $status,
             'affiliate_url'    => $request->affiliate_url,
             'price'            => $request->price,
             'currency'         => $request->currency ?? 'USD',
         ]);
+
+        // ✅ إشعار المتابعين فقط عند التحول إلى published
+        if ($previousStatus !== 'published' && $game_trans->status === 'published') {
+            // \App\Jobs\SendNewGameTranslationNotificationJob::dispatch($game_trans)->onQueue('default');
+        }
 
         return redirect()->route('admin.games.index')->with('success', 'Game Translation Updated Successfully.');
     }

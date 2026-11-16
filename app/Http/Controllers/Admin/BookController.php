@@ -44,7 +44,7 @@ class BookController extends Controller
 
         // 1. قواعد التحقق العامة والفرعية (جعل حقول الترجمة اختيارية nullable)
         $rules = [
-            'internal_title'   => 'required|string|max:255|unique:books,internal_title',
+            'label'   => 'required|string|max:255|unique:books,label',
             'book_category_id' => 'required|exists:book_categories,id',
             'tags'             => 'nullable|array',
             'tags.*'           => 'exists:book_tags,id',
@@ -67,7 +67,7 @@ class BookController extends Controller
         $book = Book::create([
             'user_id' => Auth::id(),
             'book_category_id' => (int) $request->book_category_id,
-            'internal_title'   => $request->internal_title,
+            'label'   => $request->label,
             'published_year'   => $request->published_year,
             'pages_count'      => (int) $request->pages_count,
         ]);
@@ -145,7 +145,7 @@ class BookController extends Controller
         $validLocales = LaravelLocalization::getSupportedLanguagesKeys();
 
         $rules = [
-            'internal_title'   => ['required', 'string', 'max:255', Rule::unique('books', 'internal_title')->ignore($book->id)],
+            'label'   => ['required', 'string', 'max:255', Rule::unique('books', 'label')->ignore($book->id)],
             'book_category_id' => 'required|exists:book_categories,id',
             'tags'             => 'nullable|array',
             'tags.*'           => 'exists:book_tags,id',
@@ -178,7 +178,7 @@ class BookController extends Controller
         // 1. تحديث البيانات العامة
         $book->update([
             'book_category_id' => (int) $request->book_category_id,
-            'internal_title'   => $request->internal_title,
+            'label'   => $request->label,
             'published_year'   => $request->published_year,
             'pages_count'      => (int) $request->pages_count,
         ]);

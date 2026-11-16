@@ -1,9 +1,14 @@
 @extends('layouts.admin.master')
 
+@section('title', 'Book Categories')
+
 @section('content')
 <div class="container-fluid px-4 py-4">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-xl font-bold text-slate-800">Book Categories</h1>
+        <div>
+            <h2 class="text-xl font-bold text-slate-800">Book Categories</h2>
+            <p class="text-sm text-slate-500">Manage and organize book categories</p>
+        </div>
         <a href="{{ route('admin.book-categories.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
             + Add New Category
         </a>
@@ -22,6 +27,7 @@
                     <th class="py-3 px-4">Image</th>
                     <th class="py-3 px-4">Label</th>
                     <th class="py-3 px-4">Books Count</th>
+                    <th class="py-3 px-4 w-32">Status</th>  {{-- ✅ --}}
                     <th class="py-3 px-4 text-right">Actions</th>
                 </tr>
             </thead>
@@ -41,6 +47,14 @@
                                 {{ $cat->books_count }} Books
                             </span>
                         </td>
+                        {{-- ✅ Status --}}
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border
+                                {{ $cat->is_active ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-200' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ $cat->is_active ? 'bg-emerald-500' : 'bg-slate-400' }}"></span>
+                                {{ $cat->is_active ? 'Active' : 'Inactive' }}
+                            </span>
+                        </td>
                         <td class="py-3 px-4 text-right space-x-2">
                             <a href="{{ route('admin.book-categories.edit', $cat->id) }}" class="text-indigo-600 hover:text-indigo-900 font-medium text-xs">Edit</a>
                             <form action="{{ route('admin.book-categories.destroy', $cat->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this category?');">
@@ -52,7 +66,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="text-center py-8 text-slate-400 text-sm">No book categories found.</td>
+                        <td colspan="5" class="text-center py-8 text-slate-400 text-sm">No book categories found.</td>
                     </tr>
                 @endforelse
             </tbody>

@@ -21,8 +21,8 @@ return new class extends Migration
             $table->unique(['locale', 'slug']);
             $table->string('name');
             $table->text('description')->nullable();
-            $table->string('meta_title');
-            $table->text('meta_description');
+            $table->string('meta_title')->nullable();
+            $table->text('meta_description')->nullable();
             $table->timestamps();
         });
     }

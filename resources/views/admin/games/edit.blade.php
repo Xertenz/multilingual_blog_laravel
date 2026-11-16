@@ -1,81 +1,196 @@
 @extends('layouts.admin.master')
 
-@section('title', 'Edit Game Summary - Shadow Files')
+@section('title', 'Edit Game')
 
 @section('content')
-<div class="container-fluid px-4 py-4">
-    <h1 class="text-2xl font-bold text-gray-800 mb-6">Edit Game Summary</h1>
+<div class="container mx-auto pb-8 px-4 max-w-2xl">
 
-    <form action="{{ route('admin.games.update', $game->id) }}" method="POST" enctype="multipart/form-data" class="bg-white shadow-md rounded-lg p-6">
-        @csrf
-        @method('PUT')
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div>
-                <label class="block text-gray-700 font-bold mb-2">Internal Identifier Title *</label>
-                <input type="text" name="internal_title" value="{{ old('internal_title', $game->internal_title) }}" required class="w-full border border-gray-300 rounded-lg p-2">
-                @error('internal_title') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-            </div>
-
-            <div>
-                <label class="block text-gray-700 font-bold mb-2">Category *</label>
-                <select name="game_category_id" required class="w-full border border-gray-300 rounded-lg p-2">
-                    <option value="">Select Category</option>
-                    @foreach($cats as $cat)
-                        <option value="{{ $cat->id }}" {{ old('game_category_id', $game->game_category_id) == $cat->id ? 'selected' : '' }}>
-                            {{ optional($cat->translations->where('locale', app()->getLocale())->first())->name ?? $cat->label }}
-                        </option>
-                    @endforeach
-                </select>
-                @error('game_category_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-            </div>
-
-            <div>
-                <label class="block text-gray-700 font-bold mb-2">Developer / Studio</label>
-                <input type="text" name="developer" value="{{ old('developer', $game->developer) }}" class="w-full border border-gray-300 rounded-lg p-2">
-            </div>
+    {{-- Header --}}
+    <div class="flex items-center justify-between mb-4">
+        <div>
+            <h1 class="text-xl font-bold text-slate-900">Edit Game</h1>
+            <p class="text-xs text-slate-500">Update game metadata (ID: {{ $game->id }})</p>
         </div>
+        <a href="{{ route('admin.games.index') }}" class="text-xs font-semibold text-slate-600 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-2xs">
+            &larr; Back to Games
+        </a>
+    </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div>
-                <label class="block text-gray-700 font-bold mb-2">Published Year</label>
-                <input type="number" name="published_year" value="{{ old('published_year', $game->published_year) }}" class="w-full border border-gray-300 rounded-lg p-2">
-            </div>
+    {{-- Form Card --}}
+    <div class="bg-white shadow rounded-2xl border border-slate-200 overflow-hidden">
+        <div class="p-6">
+            <form action="{{ route('admin.games.update', $game->id) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                @csrf
+                @method('PUT')
 
-            <div>
-                <label class="block text-gray-700 font-bold mb-2">Change Main Cover Image</label>
-                @if($game->hasMedia('cover_imgs'))
-                    <div class="mb-2">
-                        <img src="{{ $game->getFirstMediaUrl('cover_imgs', 'thumb') }}" alt="Cover" class="w-16 h-20 object-cover rounded">
-                    </div>
-                @endif
-                <input type="file" name="featured_img" class="w-full border border-gray-300 rounded-lg p-2">
-                @error('featured_img') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-            </div>
-        </div>
-
-        <!-- Tags Selection -->
-        <div class="mb-6">
-            <label class="block text-gray-700 font-bold mb-2">Tags</label>
-            <div class="flex flex-wrap gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
-                @php
-                    $selectedTags = old('tags', $game->gameTags->pluck('id')->toArray());
-                @endphp
-                @foreach($tags as $tag)
-                    <label class="inline-flex items-center">
-                        <input type="checkbox" name="tags[]" value="{{ $tag->id }}" {{ in_array($tag->id, $selectedTags) ? 'checked' : '' }} class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
-                        <span class="ml-2 text-sm text-gray-700">
-                            {{ optional($tag->translations->where('locale', app()->getLocale())->first())->name ?? $tag->label }}
-                        </span>
+                {{-- Category --}}
+                <div class="bg-white rounded-xl p-4 border border-slate-200">
+                    <label for="game_category_id" class="block text-xs font-semibold text-slate-600 mb-1.5">
+                        Choose Category <span class="text-red-500">*</span>
                     </label>
-                @endforeach
-            </div>
-        </div>
+                    <select name="game_category_id" id="game_category_id"
+                            class="w-full rounded-lg border border-slate-300 text-sm py-2 px-3 outline-none @error('game_category_id') border-red-500 @enderror">
+                        <option value="" disabled>-- Select a category --</option>
+                        @foreach ($cats as $cat)
+                            <option value="{{ $cat->id }}" {{ old('game_category_id', $game->game_category_id) == $cat->id ? 'selected' : '' }}>
+                                {{ optional($cat->translations->where('locale', app()->getLocale())->first())->name ?? $cat->label }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('game_category_id') <div class="text-red-500 text-xs mt-1">{{ $message }}</div> @enderror
+                </div>
 
-        <div class="mt-6 flex items-center justify-end">
-            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">Update Game Basic Info</button>
-            <a href="{{ route('admin.games.index') }}" class="ml-4 text-gray-600 hover:underline">Cancel</a>
+                {{-- Label --}}
+                <div class="bg-white rounded-xl p-4 border border-slate-200">
+                    <label for="label" class="block text-xs font-semibold text-slate-600 mb-1.5">
+                        Label <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="label" id="label" value="{{ old('label', $game->label) }}"
+                           class="w-full rounded-lg border border-slate-300 text-sm py-2 px-3 outline-none @error('label') border-red-500 @enderror"
+                           autocomplete="off">
+                    @error('label') <div class="text-red-500 text-xs mt-1">{{ $message }}</div> @enderror
+                    <p class="text-[11px] text-slate-400 mt-1">Unique internal identifier (not shown to visitors).</p>
+                </div>
+
+                {{-- Developer & Year --}}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white rounded-xl p-4 border border-slate-200">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1.5">Developer / Studio</label>
+                        <input type="text" name="developer" value="{{ old('developer', $game->developer) }}"
+                               class="w-full rounded-lg border border-slate-300 text-sm py-2 px-3 outline-none">
+                    </div>
+                    <div class="bg-white rounded-xl p-4 border border-slate-200">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1.5">Published Year</label>
+                        <input type="number" name="published_year" value="{{ old('published_year', $game->published_year) }}"
+                               min="1900" max="{{ date('Y') + 1 }}"
+                               class="w-full rounded-lg border border-slate-300 text-sm py-2 px-3 outline-none">
+                    </div>
+                </div>
+            
+                {{-- Publication Status --}}
+                <div class="bg-white rounded-xl p-4 border border-slate-200">
+                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">Publication Status</label>
+                    @can('publish-articles')
+                        @php $statusVal = old('status', $game->status); @endphp
+                        <select name="status" class="w-full rounded-lg border border-slate-300 text-sm py-2 px-3 bg-white">
+                            <option value="draft" {{ $statusVal === 'draft' ? 'selected' : '' }}>Draft</option>
+                            <option value="pending" {{ $statusVal === 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="published" {{ $statusVal === 'published' ? 'selected' : '' }}>Published</option>
+                        </select>
+                    @else
+                        <input type="hidden" name="status" value="pending">
+                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800">
+                            Status: Pending Review on update.
+                        </div>
+                    @endcan
+                </div>
+
+                {{-- Featured Image --}}
+                <div class="bg-white rounded-xl p-4 border border-slate-200">
+                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">
+                        Featured Image <span class="text-slate-400 text-xs font-normal">(Optional)</span>
+                    </label>
+
+                    @if($game->hasMedia('cover_imgs'))
+                        <div id="currentImageWrapper" class="flex items-center gap-3 mb-3 p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                            <img src="{{ $game->getFirstMediaUrl('cover_imgs', 'thumb') }}"
+                                 alt="Current Cover"
+                                 class="w-16 h-20 object-cover rounded-lg border border-slate-200">
+                            <div>
+                                <p class="text-xs font-semibold text-slate-700">Current Cover Image</p>
+                                <p class="text-[11px] text-slate-400">Upload a new image below to replace it</p>
+                            </div>
+                        </div>
+                    @endif
+
+                    <div class="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:border-indigo-500 transition cursor-pointer bg-slate-50" id="uploadArea">
+                        <input type="file" name="featured_img" id="featured_img" class="hidden" accept="image/*">
+                        <svg class="w-7 h-7 mx-auto text-slate-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <p class="text-slate-600 text-xs font-medium">Click to upload new image or drag & drop</p>
+                        <p class="text-slate-400 text-[11px] mt-0.5">PNG, JPG, WebP up to 5MB</p>
+                        <img id="imagePreview" class="max-w-[140px] max-h-[100px] mx-auto mt-2 rounded-lg hidden" src="#" alt="Preview">
+                    </div>
+                    @error('featured_img') <div class="text-red-500 text-xs mt-1">{{ $message }}</div> @enderror
+                </div>
+
+                {{-- Tags --}}
+                <div class="bg-white rounded-xl p-4 border border-slate-200">
+                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">Game Tags</label>
+                    @php
+                        $selectedTags = old('tags', $game->gameTags->pluck('id')->toArray());
+                    @endphp
+                    <select name="tags[]" multiple class="w-full rounded-lg border border-slate-300 text-sm p-2 h-24">
+                        @foreach ($tags as $tag)
+                            <option value="{{ $tag->id }}" {{ in_array($tag->id, $selectedTags) ? 'selected' : '' }}>
+                                {{ optional($tag->translations->where('locale', app()->getLocale())->first())->name ?? $tag->label }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <p class="text-[11px] text-slate-400 mt-1">Hold Ctrl / Cmd to select multiple tags.</p>
+                </div>
+
+                {{-- Actions --}}
+                <div class="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100">
+                    <a href="{{ route('admin.games.index') }}" class="bg-white text-slate-700 font-semibold px-4 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 text-sm">Cancel</a>
+                    <button type="submit" class="bg-indigo-600 text-white font-semibold px-5 py-2 rounded-lg hover:bg-indigo-700 text-sm shadow-2xs">Update Game &rarr;</button>
+                </div>
+            </form>
         </div>
-    </form>
+    </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('featured_img');
+        const imagePreview = document.getElementById('imagePreview');
+        const currentImageWrapper = document.getElementById('currentImageWrapper');
+
+        if (uploadArea && fileInput) {
+            uploadArea.addEventListener('click', () => fileInput.click());
+
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('border-indigo-500', 'bg-indigo-50/50');
+            });
+
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('border-indigo-500', 'bg-indigo-50/50');
+            });
+
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('border-indigo-500', 'bg-indigo-50/50');
+                if (e.dataTransfer.files.length > 0) {
+                    fileInput.files = e.dataTransfer.files;
+                    handleImagePreview(e.dataTransfer.files[0]);
+                }
+            });
+
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    handleImagePreview(this.files[0]);
+                }
+            });
+        }
+
+        function handleImagePreview(file) {
+            // إخفاء رسالة الصورة الحالية عند اختيار صورة جديدة
+            if (currentImageWrapper) {
+                currentImageWrapper.style.display = 'none';
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                imagePreview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+@endpush

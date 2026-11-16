@@ -14,7 +14,11 @@ class GameCategoryController extends Controller
 {
     public function index()
     {
-        $cats = GameCategory::with(['translations', 'media', 'games'])->withCount('games')->paginate(10);
+        $cats = GameCategory::with('media')
+            ->withCount('games')
+            ->latest()
+            ->paginate(10);
+
         return view('admin.game_categories.index', compact('cats'));
     }
 
@@ -26,61 +30,57 @@ class GameCategoryController extends Controller
 
     public function store(Request $request)
     {
+        // 1. توليد الـ slug لكل لغة
         $translations = $request->input('translations', []);
-
         foreach ($translations as $locale => $data) {
             if (!empty($data['name'])) {
                 $slugSource = !empty($data['slug']) ? $data['slug'] : $data['name'];
                 $translations[$locale]['slug'] = (string) Str::of($slugSource)->slug('-');
             }
         }
-
         $request->merge(['translations' => $translations]);
 
+        // 2. التحقق
         $request->validate([
             'cat_label' => 'required|string|unique:game_categories,label|max:50',
             'cat_featured_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
+            'is_active' => 'nullable|boolean',  // ✅
+
             'translations.*.name' => 'nullable|string|max:100',
+            'translations.*.slug' => [
+                'nullable',
+                'string',
+                'max:100',
+                Rule::unique('game_category_translations', 'slug')
+            ],
             'translations.*.description' => 'nullable|string',
             'translations.*.meta_title' => 'nullable|string|max:150',
             'translations.*.meta_description' => 'nullable|string|max:255',
         ]);
 
-        foreach ($request->translations as $localeCode => $data) {
-            if (!empty($data['slug'])) {
-                $request->validate([
-                    "translations.{$localeCode}.slug" => [
-                        'nullable',
-                        'string',
-                        'max:100',
-                        Rule::unique('game_category_translations', 'slug')->where('locale', $localeCode),
-                    ],
-                ]);
-            }
-        }
-
+        // 3. إنشاء الفئة
         $cat = GameCategory::create([
-            'label'   => (string) Str::of($request->cat_label)->slug('-'),
-            'user_id' => Auth::id()
+            'user_id'   => Auth::id(),
+            'label'     => (string) Str::of($request->cat_label)->slug('-'),
+            'is_active' => $request->boolean('is_active'),  // ✅
         ]);
 
+        // 4. رفع الصورة
         if ($request->hasFile('cat_featured_img')) {
             $file = $request->file('cat_featured_img');
-            $file_ext = strtolower($file->getClientOriginalExtension());
-            $fileName = uniqid() . '.' . $file_ext;
-
+            $fileName = uniqid() . '.' . strtolower($file->getClientOriginalExtension());
             $cat->addMedia($file)
                 ->usingFileName($fileName)
-                ->toMediaCollection("featured_imgs");
+                ->withResponsiveImages()
+                ->toMediaCollection('featured_imgs');
         }
 
+        // 5. الترجمات
         $validLocales = LaravelLocalization::getSupportedLanguagesKeys();
-
         foreach ($request->translations as $localeCode => $data) {
             if (!in_array($localeCode, $validLocales) || empty($data['name'])) {
                 continue;
             }
-
             $cat->translations()->create([
                 'locale'           => $localeCode,
                 'slug'             => trim($data['slug']),
@@ -91,7 +91,8 @@ class GameCategoryController extends Controller
             ]);
         }
 
-        return to_route('admin.game-categories.index')->with('success', 'Game Category Created Successfully!');
+        return to_route('admin.game-categories.index')
+            ->with('success', 'Game Category Created Successfully!');
     }
 
     public function edit(int $id)
@@ -115,16 +116,18 @@ class GameCategoryController extends Controller
         $request->validate([
             'cat_label' => "required|string|max:50|unique:game_categories,label,{$id}",
             'cat_featured_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
+            'is_active' => 'nullable|boolean',  // ✅
+
             'translations.*.name' => 'nullable|string|max:100',
             'translations.*.description' => 'nullable|string',
             'translations.*.meta_title' => 'nullable|string|max:150',
             'translations.*.meta_description' => 'nullable|string|max:255',
         ]);
 
+        // التحقق الديناميكي من slug
         foreach ($request->translations as $localeCode => $data) {
             if (!empty($data['slug'])) {
                 $currentTransId = $cat->translations()->where('locale', $localeCode)->value('id');
-
                 $request->validate([
                     "translations.{$localeCode}.slug" => [
                         'nullable',
@@ -138,30 +141,31 @@ class GameCategoryController extends Controller
             }
         }
 
+        // تحديث الأساسي + is_active
         $cat->update([
-            'label'   => $request->cat_label,
-            'user_id' => Auth::id()
+            //'user_id'   => Auth::id(),
+            'label'     => $request->cat_label,
+            'is_active' => $request->boolean('is_active'),  // ✅
         ]);
 
+        // الصورة
         if ($request->hasFile('cat_featured_img')) {
             if ($cat->hasMedia('featured_imgs')) {
                 $cat->clearMediaCollection('featured_imgs');
             }
-
             $file = $request->file('cat_featured_img');
-            $file_ext = strtolower($file->getClientOriginalExtension());
-            $fileName = uniqid() . '.' . $file_ext;
-
+            $fileName = uniqid() . '.' . strtolower($file->getClientOriginalExtension());
             $cat->addMedia($file)
                 ->usingFileName($fileName)
-                ->toMediaCollection("featured_imgs");
+                ->withResponsiveImages()
+                ->toMediaCollection('featured_imgs');
         }
 
+        // الترجمات
         foreach ($request->translations as $localeCode => $data) {
             if (empty($data['name'])) {
                 continue;
             }
-
             $finalSlug = !empty($data['slug'])
                 ? (string) Str::of($data['slug'])->slug('-')
                 : (string) Str::of($data['name'])->slug('-');
@@ -178,7 +182,8 @@ class GameCategoryController extends Controller
             );
         }
 
-        return to_route('admin.game-categories.index')->with('success', 'Game Category Updated Successfully!');
+        return to_route('admin.game-categories.index')
+            ->with('success', 'Game Category Updated Successfully!');
     }
 
     public function destroy(int $id)
@@ -186,6 +191,7 @@ class GameCategoryController extends Controller
         $cat = GameCategory::findOrFail($id);
         $cat->delete();
 
-        return to_route('admin.game-categories.index')->with('success', 'Game Category Deleted Successfully!');
+        return to_route('admin.game-categories.index')
+            ->with('success', 'Game Category Deleted Successfully!');
     }
 }

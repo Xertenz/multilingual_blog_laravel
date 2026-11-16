@@ -77,7 +77,7 @@
                             
                             <div class="space-y-1">
                                 <h4 class="text-sm font-bold text-white group-hover:text-red-400 transition">
-                                    {{ $this->getArticleTrans($article)->title ?? $article->internal_title }}
+                                    {{ $this->getArticleTrans($article)->title ?? $article->label }}
                                 </h4>
                                 <p class="text-xs text-gray-400 line-clamp-1">
                                     {{ Str::limit(strip_tags($this->getArticleTrans($article)->description ?? ''), 80) }}

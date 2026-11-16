@@ -29,12 +29,9 @@ class CategoryController extends Controller
             ->whereHas('translations', function ($query) use ($current_locale) {
                 $query->where('locale', $current_locale);
             })
-            ->whereHas('articles', function ($query) {
-                $query->where('status', 'published');
-            })
             ->get();
         // });
 
-        return view('categories.index', compact('categories'));
+        return view('article_categories.index', compact('categories'));
     }
 }

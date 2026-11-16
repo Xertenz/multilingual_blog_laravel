@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('article_category_id')->nullable()->index()->constrained('article_categories')->cascadeOnUpdate()->nullOnDelete();
             $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnUpdate()->nullOnDelete();
-            $table->string('internal_title')->unique();
+            $table->string('label')->unique();
             $table->unsignedInteger('views')->default(0);
             $table->enum('status', ['draft', 'pending', 'published'])->index();
             $table->timestamps();

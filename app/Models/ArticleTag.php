@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\App;
 class ArticleTag extends Model
 {
     //
-    protected $fillable = ['label'];
+    protected $guarded = [];
     public function articles()
     {
         return $this->belongsToMany(Article::class, 'article_tag', 'article_tag_id', 'article_id');

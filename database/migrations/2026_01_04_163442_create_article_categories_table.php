@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('users')->cascadeOnUpdate()->nullOnDelete();
             $table->string('label')->unique();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

@@ -21,12 +21,12 @@
             
             {{-- Internal Title --}}
             <div>
-                <label for="internal_title" class="block text-sm font-medium text-slate-700 mb-1">Internal Title (Unique Identifier)</label>
-                <input type="text" name="internal_title" id="internal_title" value="{{ old('internal_title', $series->internal_title) }}" 
-                       class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error('internal_title') border-red-500 bg-red-50/50 @enderror"
+                <label for="label" class="block text-sm font-medium text-slate-700 mb-1">Label (Unique Identifier)</label>
+                <input type="text" name="label" id="label" value="{{ old('label', $series->label) }}" 
+                       class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error('label') border-red-500 bg-red-50/50 @enderror"
                        placeholder="e.g., php-mastery-series">
                 <p class="text-xs text-slate-500 mt-1">Used programmatically to identify the series in templates.</p>
-                @error('internal_title')
+                @error('label')
                     <div class="text-red-500 text-xs mt-1 flex items-center gap-1">
                         <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>

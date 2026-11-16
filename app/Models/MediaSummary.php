@@ -3,10 +3,10 @@
 namespace App\Models;
 
 use App\Enums\ContentStatus;
-use App\Enums\MediaType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -17,18 +17,10 @@ class MediaSummary extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia;
 
-    protected $fillable = [
-        'user_id',
-        'type',
-        'release_year',
-        'imdb_rating',
-        'article_location_id',
-        'status',
-        'views'
-    ];
+    protected $guarded = [];
 
     protected $casts = [
-        'type' => MediaType::class,
+        //'type' => MediaType::class,
         'status' => ContentStatus::class,
     ];
 
@@ -48,6 +40,20 @@ class MediaSummary extends Model implements HasMedia
     public function location()
     {
         return $this->belongsTo(ArticleLocation::class, 'article_location_id');
+    }
+
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(MediaSummaryCategory::class, 'media_summary_category_id');
+    }
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            MediaSummaryTag::class,
+            'media_summary_tag',
+            'media_summary_id',
+            'media_summary_tag_id'
+        )->withTimestamps();
     }
 
     public function comments(): MorphMany

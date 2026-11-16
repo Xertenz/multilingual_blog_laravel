@@ -8,19 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MediaSummaryTranslation extends Model
 {
-    protected $fillable = [
-        'media_summary_id',
-        'user_id',
-        'locale',
-        'title',
-        'slug',
-        'synopsis',
-        'review_analysis',
-        'meta_title',
-        'meta_description',
-        'status',
-        'views'
-    ];
+    protected $guarded = [];
 
     protected $casts = [
         'status' => ContentStatus::class,

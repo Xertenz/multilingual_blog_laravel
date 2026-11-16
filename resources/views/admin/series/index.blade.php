@@ -39,7 +39,7 @@
 
                         {{-- Internal Title --}}
                         <td class="py-3.5 px-6 font-semibold text-slate-800">
-                            <code>{{ $item->internal_title ?? '---' }}</code>
+                            <code>{{ $item->label ?? '---' }}</code>
                         </td>
 
                         {{-- Title --}}

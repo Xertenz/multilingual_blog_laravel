@@ -66,7 +66,7 @@
 
                         {{-- Internal Title --}}
                         <td class="py-3.5 px-4 text-slate-600 font-mono text-xs">
-                            {{ $article->internal_title ?? "no internal title" }}
+                            {{ $article->label ?? "no internal title" }}
                         </td>
 
                         {{-- Creator --}}

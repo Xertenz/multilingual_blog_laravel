@@ -17,7 +17,7 @@ class ArticleSeeder extends Seeder
         Article::create([
             'article_category_id' => 2,
             'user_id' => 1,
-            'internal_title' => 'a',
+            'label' => 'a',
             'views' => 0,
             'status' => 'published',
             'created_at' => Carbon::now(),

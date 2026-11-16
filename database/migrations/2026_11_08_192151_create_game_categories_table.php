@@ -12,6 +12,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->string('label')->unique(); // System Label (مثل: crime-investigation)
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
 

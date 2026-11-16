@@ -28,28 +28,42 @@
 
         <hr class="border-slate-100">
 
-        <!-- Translations Tabs/Sections for Supported Locales -->
+        <!-- Translations -->
         <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Translations (Optional)</h3>
-        
+
         <div class="space-y-6">
             @foreach($locales as $localeCode => $properties)
                 <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-4">
                     <h4 class="text-xs font-bold text-red-600 uppercase">{{ $properties['native'] }} ({{ $localeCode }})</h4>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs text-slate-600 mb-1">Category Name</label>
                             <input type="text" name="translations[{{ $localeCode }}][name]" value="{{ old("translations.{$localeCode}.name") }}" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
+                            @error("translations.{$localeCode}.name") <span class="text-rose-500 text-[11px] mt-1 block">{{ $message }}</span> @enderror
                         </div>
                         <div>
                             <label class="block text-xs text-slate-600 mb-1">Custom Slug (Optional)</label>
                             <input type="text" name="translations[{{ $localeCode }}][slug]" value="{{ old("translations.{$localeCode}.slug") }}" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">
+                            @error("translations.{$localeCode}.slug") <span class="text-rose-500 text-[11px] mt-1 block">{{ $message }}</span> @enderror
                         </div>
                     </div>
 
                     <div>
                         <label class="block text-xs text-slate-600 mb-1">Description</label>
                         <textarea name="translations[{{ $localeCode }}][description]" rows="2" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2">{{ old("translations.{$localeCode}.description") }}</textarea>
+                    </div>
+
+                    <!-- ✅ حقول SEO الجديدة -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs text-slate-600 mb-1">Meta Title (SEO)</label>
+                            <input type="text" name="translations[{{ $localeCode }}][meta_title]" value="{{ old("translations.{$localeCode}.meta_title") }}" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2" placeholder="Max 255 characters">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-600 mb-1">Meta Description (SEO)</label>
+                            <textarea name="translations[{{ $localeCode }}][meta_description]" rows="2" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-2" placeholder="Max 160 characters recommended">{{ old("translations.{$localeCode}.meta_description") }}</textarea>
+                        </div>
                     </div>
                 </div>
             @endforeach

@@ -1,6 +1,6 @@
 @extends('layouts.admin.master')
 
-@section('title', 'Create New Category')
+@section('title', 'Edit Media Category')
 
 @push('styles')
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -141,22 +141,23 @@
 
 @section('content')
 <div class="container mx-auto pb-8 px-4 max-w-3xl">
-    
+
     <div class="flex items-center justify-between mb-4">
         <div>
-            <h1 class="text-xl font-bold text-slate-900">Create New Category</h1>
-            <p class="text-xs text-slate-500">Add a new category with multi-language support</p>
+            <h1 class="text-xl font-bold text-slate-900">Edit Media Category</h1>
+            <p class="text-xs text-slate-500">Update category details & multi-language translations ({{ $cat->label }})</p>
         </div>
-        <a href="{{ route('admin.article-categories.index') }}" class="text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-2xs">
+        <a href="{{ route('admin.media-summary-categories.index') }}" class="text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-2xs">
             &larr; Back to Categories
         </a>
     </div>
-    
+
     <div class="form-card">
         <div class="p-6">
-            <form action="{{ route('admin.article-categories.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('admin.media-summary-categories.update', $cat->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                
+                @method('PUT')
+
                 <div class="section-card">
                     <div class="section-title">
                         <svg class="section-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -164,17 +165,17 @@
                         </svg>
                         <span>Basic Information</span>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label for="cat_label" class="input-label">
                             Category Label <span class="required">*</span>
                         </label>
-                        <input type="text" 
-                               name="cat_label" 
-                               id="cat_label" 
-                               value="{{ old('cat_label') }}" 
-                               class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error('cat_label') border-red-500 bg-red-50/50 @enderror" 
-                               placeholder="e.g., tech, news, sports" 
+                        <input type="text"
+                               name="cat_label"
+                               id="cat_label"
+                               value="{{ old('cat_label', $cat->label) }}"
+                               class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error('cat_label') border-red-500 bg-red-50/50 @enderror"
+                               placeholder="e.g., documentaries, movies, series"
                                autocomplete="off">
                         <p class="input-hint">Unique identifier in English, only for admins.</p>
                         @error('cat_label')
@@ -186,9 +187,33 @@
                         </div>
                         @enderror
                     </div>
-                    
+
+                    {{-- ✅ is_active --}}
+                    <div class="mb-3">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="is_active" value="1"
+                                {{ old('is_active', $cat->is_active) ? 'checked' : '' }}
+                                class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+                            <span class="text-sm font-medium text-slate-700">Active (visible to visitors)</span>
+                        </label>
+                        <p class="input-hint">Inactive categories won't appear in public menus or lists.</p>
+                    </div>
+
                     <div>
-                        <label class="input-label">Featured Image <span class="required">*</span></label>
+                        <label class="input-label">Featured Image</label>
+
+                        @if($cat->hasMedia('featured_imgs'))
+                            <div class="mb-3 flex items-center gap-3 p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                                <img src="{{ $cat->getFirstMediaUrl('featured_imgs', 'thumb') ?: $cat->getFirstMediaUrl('featured_imgs') }}"
+                                     alt="{{ $cat->label }}"
+                                     class="w-16 h-16 object-cover rounded-lg border border-slate-200">
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-700">Current Featured Image</p>
+                                    <p class="text-[11px] text-slate-400">Upload a new image below to replace it</p>
+                                </div>
+                            </div>
+                        @endif
+
                         <div class="upload-area" id="uploadArea" onclick="document.getElementById('cat_featured_img').click()">
                             <input type="file" name="cat_featured_img" id="cat_featured_img" class="hidden" accept="image/*">
                             <svg class="w-8 h-8 mx-auto text-slate-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -208,12 +233,13 @@
                         @enderror
                     </div>
                 </div>
-                
-                @foreach(LaravelLocalization::getSupportedLocales() as $localeCode =>$properties)
+
+                @foreach(LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
                     @php
                         $isDefaultLang = ($localeCode === config('app.locale') || $localeCode === 'en');
+                        $trans = $translations[$localeCode] ?? null;
                     @endphp
-                    
+
                     <div class="section-card">
                         <div class="flex items-center justify-between mb-3">
                             <div class="section-title mb-0 border-0 pb-0">
@@ -228,18 +254,18 @@
                                 <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full text-[10px] font-medium">Optional</span>
                             @endif
                         </div>
-                        
+
                         <div class="grid-2 mb-3">
                             <div>
                                 <label class="input-label">
                                     Name @if($isDefaultLang)<span class="required">*</span>@endif
                                 </label>
-                                <input type="text" 
-                                       name="translations[{{ $localeCode }}][name]" 
-                                       value="{{ old("translations.$localeCode.name") }}" 
+                                <input type="text"
+                                       name="translations[{{ $localeCode }}][name]"
+                                       value="{{ old("translations.$localeCode.name", $trans->name ?? '') }}"
                                        dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}"
-                                       class="name-input w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error("translations.$localeCode.name") border-red-500 bg-red-50/50 @enderror" 
-                                       placeholder="e.g., {{ $localeCode == 'ar' ? 'تقنية' : 'Technology' }}" 
+                                       class="name-input w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error("translations.$localeCode.name") border-red-500 bg-red-50/50 @enderror"
+                                       placeholder="e.g., {{ $localeCode == 'ar' ? 'وثائقيات' : 'Documentaries' }}"
                                        data-locale="{{ $localeCode }}"
                                        autocomplete="off">
                                 @error("translations.$localeCode.name")
@@ -256,12 +282,12 @@
                                 <label class="input-label">
                                     Slug @if($isDefaultLang)<span class="required">*</span>@endif
                                 </label>
-                                <input type="text" 
-                                       name="translations[{{ $localeCode }}][slug]" 
-                                       value="{{ old("translations.$localeCode.slug") }}" 
+                                <input type="text"
+                                       name="translations[{{ $localeCode }}][slug]"
+                                       value="{{ old("translations.$localeCode.slug", $trans->slug ?? '') }}"
                                        dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}"
-                                       class="slug-input w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error("translations.$localeCode.slug") border-red-500 bg-red-50/50 @enderror" 
-                                       placeholder="Auto-generated" 
+                                       class="slug-input w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error("translations.$localeCode.slug") border-red-500 bg-red-50/50 @enderror"
+                                       placeholder="Auto-generated"
                                        data-locale="{{ $localeCode }}"
                                        autocomplete="off">
                                 @error("translations.$localeCode.slug")
@@ -274,16 +300,16 @@
                                 @enderror
                             </div>
                         </div>
-                        
+
                         <div class="mb-3">
                             <label class="input-label">
                                 Description @if($isDefaultLang)<span class="required">*</span>@endif
                             </label>
-                            <textarea name="translations[{{ $localeCode }}][description]" 
-                                      rows="2" 
+                            <textarea name="translations[{{ $localeCode }}][description]"
+                                      rows="2"
                                       dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}"
-                                      class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition resize-y min-h-[70px] @error("translations.$localeCode.description") border-red-500 bg-red-50/50 @enderror" 
-                                      placeholder="Description in {{ $properties['name'] }}">{{ old("translations.$localeCode.description") }}</textarea>
+                                      class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition resize-y min-h-[70px] @error("translations.$localeCode.description") border-red-500 bg-red-50/50 @enderror"
+                                      placeholder="Description in {{ $properties['name'] }}">{{ old("translations.$localeCode.description", $trans->description ?? '') }}</textarea>
                             @error("translations.$localeCode.description")
                                 <div class="text-red-500 text-xs mt-1 flex items-center gap-1">
                                     <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
@@ -293,16 +319,16 @@
                                 </div>
                             @enderror
                         </div>
-                        
+
                         <div class="grid-2">
                             <div>
                                 <label class="input-label">Meta Title</label>
-                                <input type="text" 
-                                       name="translations[{{ $localeCode }}][meta_title]" 
-                                       value="{{ old("translations.$localeCode.meta_title") }}" 
+                                <input type="text"
+                                       name="translations[{{ $localeCode }}][meta_title]"
+                                       value="{{ old("translations.$localeCode.meta_title", $trans->meta_title ?? '') }}"
                                        dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}"
-                                       class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error("translations.$localeCode.meta_title") border-red-500 bg-red-50/50 @enderror" 
-                                       placeholder="Meta title for SEO" 
+                                       class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition @error("translations.$localeCode.meta_title") border-red-500 bg-red-50/50 @enderror"
+                                       placeholder="Meta title for SEO"
                                        autocomplete="off">
                                 @error("translations.$localeCode.meta_title")
                                     <div class="text-red-500 text-xs mt-1 flex items-center gap-1">
@@ -313,14 +339,14 @@
                                     </div>
                                 @enderror
                             </div>
-                            
+
                             <div>
                                 <label class="input-label">Meta Description</label>
-                                <textarea name="translations[{{ $localeCode }}][meta_description]" 
-                                          rows="1" 
+                                <textarea name="translations[{{ $localeCode }}][meta_description]"
+                                          rows="1"
                                           dir="{{ $localeCode == 'ar' ? 'rtl' : 'ltr' }}"
-                                          class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition resize-y min-h-[50px] @error("translations.$localeCode.meta_description") border-red-500 bg-red-50/50 @enderror" 
-                                          placeholder="Meta description for SEO">{{ old("translations.$localeCode.meta_description") }}</textarea>
+                                          class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 outline-none transition resize-y min-h-[50px] @error("translations.$localeCode.meta_description") border-red-500 bg-red-50/50 @enderror"
+                                          placeholder="Meta description for SEO">{{ old("translations.$localeCode.meta_description", $trans->meta_description ?? '') }}</textarea>
                                 @error("translations.$localeCode.meta_description")
                                     <div class="text-red-500 text-xs mt-1 flex items-center gap-1">
                                         <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
@@ -333,13 +359,13 @@
                         </div>
                     </div>
                 @endforeach
-                
+
                 <div class="flex items-center justify-end space-x-3 pt-4 border-t border-slate-100">
-                    <a href="{{ route('admin.article-categories.index') }}" class="btn-secondary text-decoration-none">
+                    <a href="{{ route('admin.media-summary-categories.index') }}" class="btn-secondary text-decoration-none">
                         Cancel
                     </a>
                     <button type="submit" class="btn-primary">
-                        Create Category &rarr;
+                        Update Category &rarr;
                     </button>
                 </div>
             </form>
@@ -384,7 +410,7 @@
             const dt = e.dataTransfer;
             const files = dt.files;
             fileInput.files = files;
-            
+
             if (files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -402,7 +428,7 @@
                 input.addEventListener('input', function () {
                     const locale = this.getAttribute('data-locale');
                     const slugInput = document.querySelector(`.slug-input[data-locale="${locale}"]`);
-                    
+
                     if (slugInput && (slugInput.value.trim() === '' || slugInput.hasAttribute('data-auto-generate'))) {
                         slugInput.setAttribute('data-auto-generate', 'true');
                         slugInput.value = generateSlug(this.value);
@@ -422,11 +448,11 @@
                     .toString()
                     .toLowerCase()
                     .trim()
-                    .replace(/[^a-z0-9\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF-]/g, '-') 
-                    .replace(/\s+/g, '-')           
-                    .replace(/-+/g, '-')            
-                    .replace(/^-+/, '')             
-                    .replace(/-+$/, '');            
+                    .replace(/[^a-z0-9\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF-]/g, '-')
+                    .replace(/\s+/g, '-')
+                    .replace(/-+/g, '-')
+                    .replace(/^-+/, '')
+                    .replace(/-+$/, '');
             }
         });
     </script>

@@ -1,62 +1,83 @@
 @extends('layouts.admin.master')
 
-@section('title', 'Game Categories - Shadow Files')
+@section('title', 'Game Categories')
 
 @section('content')
 <div class="container-fluid px-4 py-4">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-800">Game Categories</h1>
-        <a href="{{ route('admin.game-categories.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+        <div>
+            <h2 class="text-xl font-bold text-slate-800">Game Categories</h2>
+            <p class="text-sm text-slate-500">Manage and organize game categories</p>
+        </div>
+        <a href="{{ route('admin.game-categories.create') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">
             + Add New Category
         </a>
     </div>
 
     @if(session('success'))
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-            <span class="block sm:inline">{{ session('success') }}</span>
+        <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-lg mb-4 text-sm">
+            {{ session('success') }}
         </div>
     @endif
 
-    <div class="bg-white shadow-md rounded-lg overflow-hidden">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <th class="px-6 py-3">ID</th>
-                    <th class="px-6 py-3">System Label</th>
-                    <th class="px-6 py-3">Name (Default)</th>
-                    <th class="px-6 py-3">Games Count</th>
-                    <th class="px-6 py-3 text-right">Actions</th>
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
+                    <th class="py-3 px-4">Image</th>
+                    <th class="py-3 px-4">Label</th>
+                    <th class="py-3 px-4">Name (Default)</th>
+                    <th class="py-3 px-4">Games Count</th>
+                    <th class="py-3 px-4 w-32">Status</th>
+                    <th class="py-3 px-4 text-right">Actions</th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody class="divide-y divide-slate-200 text-sm">
                 @forelse($cats as $cat)
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $cat->id }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">{{ $cat->label }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    <tr class="hover:bg-slate-50/50 transition">
+                        <td class="py-3 px-4">
+                            @if($cat->hasMedia('featured_imgs'))
+                                <img src="{{ $cat->getFirstMediaUrl('featured_imgs', 'thumb') }}" class="w-10 h-10 object-cover rounded-lg border">
+                            @else
+                                <span class="text-xs text-slate-400">No Image</span>
+                            @endif
+                        </td>
+                        <td class="py-3 px-4 font-medium text-slate-800">{{ $cat->label }}</td>
+                        <td class="py-3 px-4 text-slate-700">
                             {{ $cat->translations->where('locale', app()->getLocale())->first()->name ?? ($cat->translations->first()->name ?? 'N/A') }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $cat->games_count }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <a href="{{ route('admin.game-categories.edit', $cat->id) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
-                            <form action="{{ route('admin.game-categories.destroy', $cat->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure?');">
+                        <td class="py-3 px-4">
+                            <span class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full text-xs font-semibold">
+                                {{ $cat->games_count }} Games
+                            </span>
+                        </td>
+                        {{-- ✅ Status --}}
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border
+                                {{ $cat->is_active ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-600 border-slate-200' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ $cat->is_active ? 'bg-emerald-500' : 'bg-slate-400' }}"></span>
+                                {{ $cat->is_active ? 'Active' : 'Inactive' }}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-right space-x-2">
+                            <a href="{{ route('admin.game-categories.edit', $cat->id) }}" class="text-indigo-600 hover:text-indigo-900 font-medium text-xs">Edit</a>
+                            <form action="{{ route('admin.game-categories.destroy', $cat->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Are you sure you want to delete this category?');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                                <button type="submit" class="text-rose-600 hover:text-rose-900 font-medium text-xs">Delete</button>
                             </form>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">No categories found.</td>
+                        <td colspan="6" class="text-center py-8 text-slate-400 text-sm">No game categories found.</td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
-    </div>
-
-    <div class="mt-4">
-        {{ $cats->links() }}
+        <div class="p-4 border-t border-slate-200">
+            {{ $cats->links() }}
+        </div>
     </div>
 </div>
 @endsection

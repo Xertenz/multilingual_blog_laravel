@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\BookCategory;
-use App\Models\BookCategoryTranslation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -16,32 +15,39 @@ class BookCategoryController extends Controller
 {
     public function index()
     {
-        $cats = BookCategory::with('media', 'books')->withCount('books')->paginate(10);
+        $cats = BookCategory::with('media')
+            ->withCount('books')
+            ->latest()
+            ->paginate(10);
+
         return view('admin.book_categories.index', compact('cats'));
     }
 
     public function create()
     {
-        $supportedLocales = \Mcamara\LaravelLocalization\Facades\LaravelLocalization::getSupportedLocales();
+        $supportedLocales = LaravelLocalization::getSupportedLocales();
         return view('admin.book_categories.create', compact('supportedLocales'));
     }
 
     public function store(Request $request)
     {
+        // 1. توليد الـ slug لكل لغة
         $translations = $request->input('translations', []);
-
         foreach ($translations as $locale => $data) {
             if (!empty($data['name'])) {
                 $slugSource = !empty($data['slug']) ? $data['slug'] : $data['name'];
                 $translations[$locale]['slug'] = (string) Str::of($slugSource)->slug('-');
             }
         }
-
         $request->merge(['translations' => $translations]);
 
+        $supportedLocales = implode(',', LaravelLocalization::getSupportedLanguagesKeys());
+
+        // 2. التحقق
         $request->validate([
             'cat_label' => 'required|string|unique:book_categories,label|max:50',
             'cat_featured_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
+            'is_active' => 'nullable|boolean',  // ✅
 
             'translations.*.name' => 'nullable|string|max:100',
             'translations.*.slug' => [
@@ -55,29 +61,29 @@ class BookCategoryController extends Controller
             'translations.*.meta_description' => 'nullable|string|max:255',
         ]);
 
+        // 3. إنشاء الفئة
         $cat = BookCategory::create([
-            'label'   => (string) Str::of($request->cat_label)->slug('-'),
-            'user_id' => Auth::id()
+            'user_id'   => Auth::id(),
+            'label'     => (string) Str::of($request->cat_label)->slug('-'),
+            'is_active' => $request->boolean('is_active'),  // ✅
         ]);
 
+        // 4. رفع الصورة
         if ($request->hasFile('cat_featured_img')) {
             $file = $request->file('cat_featured_img');
-            $file_ext = strtolower($file->getClientOriginalExtension());
-            $fileName = uniqid() . '.' . $file_ext;
-
+            $fileName = uniqid() . '.' . strtolower($file->getClientOriginalExtension());
             $cat->addMedia($file)
                 ->usingFileName($fileName)
                 ->withResponsiveImages()
-                ->toMediaCollection("featured_imgs");
+                ->toMediaCollection('featured_imgs');
         }
 
+        // 5. الترجمات
         $validLocales = LaravelLocalization::getSupportedLanguagesKeys();
-
         foreach ($request->translations as $localeCode => $data) {
             if (!in_array($localeCode, $validLocales) || empty($data['name'])) {
                 continue;
             }
-
             $cat->translations()->create([
                 'locale'           => $localeCode,
                 'slug'             => trim($data['slug']),
@@ -90,12 +96,13 @@ class BookCategoryController extends Controller
             ]);
         }
 
-        return to_route('admin.book-categories.index')->with('success', 'Book Category Created Successfully!');
+        return to_route('admin.book-categories.index')
+            ->with('success', 'Book Category Created Successfully!');
     }
 
     public function edit(int $id)
     {
-        $supportedLocales = \Mcamara\LaravelLocalization\Facades\LaravelLocalization::getSupportedLocales();
+        $supportedLocales = LaravelLocalization::getSupportedLocales();
         $cat = BookCategory::with('translations')->findOrFail($id);
         $translations = $cat->translations->keyBy('locale');
         return view('admin.book_categories.edit', compact('cat', 'translations', 'supportedLocales'));
@@ -114,6 +121,7 @@ class BookCategoryController extends Controller
         $request->validate([
             'cat_label' => "required|string|max:50|unique:book_categories,label,{$id}",
             'cat_featured_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
+            'is_active' => 'nullable|boolean',  // ✅
 
             'translations.*.name' => 'nullable|string|max:100',
             'translations.*.description' => 'nullable|string',
@@ -121,40 +129,41 @@ class BookCategoryController extends Controller
             'translations.*.meta_description' => 'nullable|string|max:255',
         ]);
 
+        // التحقق الديناميكي من slug
         foreach ($request->translations as $localeCode => $data) {
             if (!empty($data['slug'])) {
                 $currentTransId = $cat->translations()->where('locale', $localeCode)->value('id');
-
                 $request->validate([
                     "translations.{$localeCode}.slug" => "nullable|string|max:100|unique:book_category_translations,slug,{$currentTransId}",
                 ]);
             }
         }
 
+        // تحديث الأساسي + is_active
         $cat->update([
-            'label'   => $request->cat_label,
-            'user_id' => Auth::id()
+            //'user_id'   => Auth::id(),
+            'label'     => $request->cat_label,
+            'is_active' => $request->boolean('is_active'),  // ✅
         ]);
 
+        // الصورة
         if ($request->hasFile('cat_featured_img')) {
             if ($cat->hasMedia('featured_imgs')) {
                 $cat->clearMediaCollection('featured_imgs');
             }
-
             $file = $request->file('cat_featured_img');
-            $file_ext = strtolower($file->getClientOriginalExtension());
-            $fileName = uniqid() . '.' . $file_ext;
-
+            $fileName = uniqid() . '.' . strtolower($file->getClientOriginalExtension());
             $cat->addMedia($file)
                 ->usingFileName($fileName)
-                ->toMediaCollection("featured_imgs");
+                ->withResponsiveImages()
+                ->toMediaCollection('featured_imgs');
         }
 
+        // الترجمات
         foreach ($request->translations as $localeCode => $data) {
             if (empty($data['name'])) {
                 continue;
             }
-
             $finalSlug = !empty($data['slug'])
                 ? (string) Str::of($data['slug'])->slug('-')
                 : (string) Str::of($data['name'])->slug('-');
@@ -167,12 +176,13 @@ class BookCategoryController extends Controller
                     'description'      => trim($data['description'] ?? ''),
                     'meta_title'       => trim($data['meta_title'] ?? $data['name']),
                     'meta_description' => trim($data['meta_description'] ?? Str::limit(strip_tags($data['description'] ?? ''), 150)),
-                    'updated_at'       => Carbon::now()
+                    'updated_at'       => Carbon::now(),
                 ]
             );
         }
 
-        return to_route('admin.book-categories.index')->with('success', 'Book Category Updated Successfully!');
+        return to_route('admin.book-categories.index')
+            ->with('success', 'Book Category Updated Successfully!');
     }
 
     public function destroy(int $id)
@@ -180,6 +190,7 @@ class BookCategoryController extends Controller
         $cat = BookCategory::findOrFail($id);
         $cat->delete();
 
-        return to_route('admin.book-categories.index')->with('success', 'Book Category Deleted Successfully!');
+        return to_route('admin.book-categories.index')
+            ->with('success', 'Book Category Deleted Successfully!');
     }
 }

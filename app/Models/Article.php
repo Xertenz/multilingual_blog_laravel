@@ -16,7 +16,8 @@ use Spatie\Image\Enums\Fit;
 class Article extends Model  implements HasMedia
 {
     use InteractsWithMedia;
-    protected $fillable = ['article_category_id', 'user_id', 'internal_title', 'views', 'status'];
+    //protected $fillable = ['article_category_id', 'user_id', 'label', 'views', 'status'];
+    protected $guarded = [];
     //public $timestamps = false;
     //
     public function translations(): HasMany

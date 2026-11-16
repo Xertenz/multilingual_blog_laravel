@@ -49,7 +49,7 @@
                     <div>
                         <!-- صورة اللعبة بنفس تصميم صورة المقالة -->
                         <div class="relative h-40 w-full overflow-hidden bg-slate-950">
-                            <img src="{{ $imageUrl }}" alt="{{ optional($trans)->title ?? $game->internal_title }}"
+                            <img src="{{ $imageUrl }}" alt="{{ optional($trans)->title ?? $game->label }}"
                                  class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 ease-in-out">
                             <div class="absolute inset-0 bg-gradient-to-t from-[#0f1526] via-transparent to-transparent"></div>
 
@@ -76,7 +76,7 @@
                             </div>
 
                             <h2 class="text-base font-bold text-gray-200 group-hover:text-red-500 transition-colors line-clamp-2">
-                                {{ optional($trans)->title ?? $game->internal_title }}
+                                {{ optional($trans)->title ?? $game->label }}
                             </h2>
                             <p class="text-xs text-gray-400 mt-1.5 line-clamp-2 leading-relaxed">
                                 {{ optional($trans)->meta_description ?? Str::limit(strip_tags(optional($trans)->content), 100) }}

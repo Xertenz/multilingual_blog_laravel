@@ -193,6 +193,18 @@
                             <div class="error-message">{{ $message }}</div>
                         @enderror
                     </div>
+
+                    <div class="mb-3">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox"
+                                name="is_active"
+                                value="1"
+                                {{ old('is_active', $cat->is_active) ? 'checked' : '' }}
+                                class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 w-4 h-4">
+                            <span class="text-sm font-medium text-slate-700">Active (visible to visitors)</span>
+                        </label>
+                        <p class="input-hint">Inactive categories won't appear in public menus or lists.</p>
+                    </div>
                     
                     <div>
                         <label class="input-label">Featured Image <span class="text-slate-400 text-xs font-normal">(Optional)</span></label>

@@ -45,6 +45,7 @@
                         <th class="py-3 px-4 w-20">ID</th>
                         <th class="py-3 px-4 w-28">Featured Img</th>
                         <th class="py-3 px-4">Name / Label</th>
+                        <th class="py-3 px-4 w-32">Status</th>
                         <th class="py-3 px-4 w-48">Slug</th>
                         <th class="py-3 px-4 w-36">Articles Count</th>
                         <th class="py-3 px-4 text-right w-44">Actions</th>
@@ -76,6 +77,16 @@
                         {{-- Name / Label --}}
                         <td class="py-3.5 px-4 font-semibold text-slate-800">
                             {{ $category->label }}
+                        </td>
+
+                        <td class="py-3.5 px-4 whitespace-nowrap">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border
+                                {{ $category->is_active
+                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                    : 'bg-slate-100 text-slate-600 border-slate-200' }}">
+                                <span class="w-1.5 h-1.5 rounded-full {{ $category->is_active ? 'bg-emerald-500' : 'bg-slate-400' }}"></span>
+                                {{ $category->is_active ? 'Active' : 'Inactive' }}
+                            </span>
                         </td>
 
                         {{-- Slug --}}
@@ -111,7 +122,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-12 text-center text-slate-400">
+                        <td colspan="7" class="px-6 py-12 text-center text-slate-400">
                             <div class="flex flex-col items-center justify-center">
                                 <span class="text-3xl mb-2">📂</span>
                                 <p class="text-sm font-medium text-slate-600">No categories found.</p>

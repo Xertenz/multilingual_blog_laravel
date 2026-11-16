@@ -24,7 +24,7 @@ class ArticleCategoryTranslationController extends Controller
 
     public function create()
     {
-        return view('admin.categories.create');
+        return view('admin.article_categories.create');
     }
 
 
@@ -50,6 +50,7 @@ class ArticleCategoryTranslationController extends Controller
         $request->validate([
             'cat_label' => 'required|string|unique:article_categories,label|max:50',
             'cat_featured_img' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120', // حتى 5 ميجا كما بالفورم
+            'is_active'  => 'nullable|boolean',
 
             // التحقق من الحقول داخل مصفوفة اللغات
             'translations.*.name' => 'nullable|string|max:100',
@@ -66,8 +67,9 @@ class ArticleCategoryTranslationController extends Controller
 
         // 2. إنشاء السجل الأساسي للقسم (تجميل الـ Sign كـ slug آمن)
         $cat = ArticleCategory::create([
-            'label'    => (string) Str::of($request->cat_label)->slug('-'),
-            'user_id' => Auth::id()
+            'label'     => (string) Str::of($request->cat_label)->slug('-'),
+            'user_id'   => Auth::id(),
+            'is_active' => $request->boolean('is_active'),  // ✅
         ]);
 
         // 3. رفع ومعالجة الصورة باستخدام حزمة Spatie Media Library
@@ -187,7 +189,7 @@ class ArticleCategoryTranslationController extends Controller
     {
         $cat = ArticleCategory::with('translations')->find($id);
         $translations = $cat->translations->keyBy('locale');
-        return view('admin.categories.edit', compact('cat', 'translations'));
+        return view('admin.article_categories.edit', compact('cat', 'translations'));
     }
 
 
@@ -206,6 +208,7 @@ class ArticleCategoryTranslationController extends Controller
         $request->validate([
             'cat_label' => "required|string|max:50|unique:article_categories,label,{$id}",
             'cat_featured_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
+            'is_active' => 'nullable|boolean',
 
             // التحقق من الحقول داخل مصفوفة اللغات الفرعية
             'translations.*.name' => 'nullable|string|max:100',
@@ -228,7 +231,8 @@ class ArticleCategoryTranslationController extends Controller
         // 4. تحديث البيانات الأساسية للقسم
         $cat->update([
             'label'    => $request->cat_label,
-            'user_id' => Auth::id()
+            //'user_id' => Auth::id(),
+            'is_active' => $request->boolean('is_active')
         ]);
 
         // 5. معالجة تحديث الصورة (حذف القديمة ورفع الجديدة إن وجدت)

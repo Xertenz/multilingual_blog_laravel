@@ -12,7 +12,8 @@ class BookCategory extends Model implements HasMedia
 {
     use InteractsWithMedia;
 
-    protected $fillable = ['label', 'user_id'];
+    //protected $fillable = ['label', 'user_id'];
+    protected $guarded = [];
 
     public function translations(): HasMany
     {

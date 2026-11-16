@@ -29,29 +29,49 @@
                 <!-- Language & Slug Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label for="locale" class="block text-xs font-semibold text-slate-600 mb-1">Language <span class="text-red-500">*</span></label>
+                        <label for="locale" class="block text-xs font-semibold text-slate-600 mb-1">
+                            Language <span class="text-red-500">*</span>
+                        </label>
                         <select name="locale" id="locale" class="w-full rounded-lg border border-slate-300 text-sm p-2.5">
-                            <option value="en">🇬🇧 English</option>
-                            <option value="ar">🇸🇦 Arabic</option>
-                            <option value="de">🇩🇪 German</option>
-                            <option value="es">🇪🇸 Spanish</option>
-                            <option value="fr">🇫🇷 French</option>
-                            <option value="ru">🇷🇺 Russian</option>
-                            <option value="pt">🇵🇹 Portuguese</option>
-                            <option value="nl">🇳🇱 Dutch</option>
-                            <option value="it">🇮🇹 Italian</option>
-                            <option value="sv">🇸🇪 Swedish</option>
-                            <option value="da">🇩🇰 Danish</option>
-                            <option value="nb">🇳🇴 Norwegian (Bokmål)</option>
+                            <option value="">— Select a language —</option>
+                            @foreach ($supportedLocales as $code => $props)
+                                @php $isTaken = in_array($code, $existingLocales); @endphp
+                                <option value="{{ $code }}"
+                                        {{ old('locale', $selectedLocale ?? '') === $code ? 'selected' : '' }}
+                                        {{ $isTaken ? 'disabled' : '' }}>
+                                    {{ $props['native'] }}@if($isTaken) — (already exists) @endif
+                                </option>
+                            @endforeach
                         </select>
                         @error('locale') <div class="text-red-500 text-xs mt-1">{{ $message }}</div> @enderror
                     </div>
 
                     <div>
-                        <label for="slug" class="block text-xs font-semibold text-slate-600 mb-1">Slug <span class="text-red-500">*</span></label>
-                        <input type="text" name="slug" value="{{ old('slug') }}" class="w-full rounded-lg border border-slate-300 text-sm p-2.5" placeholder="game-review-slug">
+                        <label for="slug" class="block text-xs font-semibold text-slate-600 mb-1">
+                            Slug <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="slug" value="{{ old('slug') }}"
+                               class="w-full rounded-lg border border-slate-300 text-sm p-2.5"
+                               placeholder="game-review-slug">
                         @error('slug') <div class="text-red-500 text-xs mt-1">{{ $message }}</div> @enderror
                     </div>
+                </div>
+
+                {{-- Publication Status --}}
+                <div class="border border-slate-200 p-4 rounded-xl bg-white mb-4">
+                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">Translation Status</label>
+                    @can('publish-articles')
+                        <select name="status" class="w-full rounded-lg border border-slate-300 text-sm p-2.5">
+                            <option value="draft" {{ old('status', 'draft') === 'draft' ? 'selected' : '' }}>Draft</option>
+                            <option value="pending" {{ old('status') === 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="published" {{ old('status') === 'published' ? 'selected' : '' }}>Published</option>
+                        </select>
+                    @else
+                        <input type="hidden" name="status" value="pending">
+                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800">
+                            Status: Pending Review on submit.
+                        </div>
+                    @endcan
                 </div>
 
                 <!-- Price & Affiliate -->
@@ -116,7 +136,6 @@
         @php
             $game_content_imgs_info = [];
             $i = 0;
-            // جلب الصور المرتبطة باللعبة الأساسية عبر Spatie Media Library
             foreach($game->getMedia('content_imgs') as $img) {
                 $game_content_imgs_info[$i]['id'] = $img->id;
                 $game_content_imgs_info[$i]['src'] = $img->getUrl();
@@ -125,6 +144,5 @@
         @endphp
         const game_content_imgs_info = @json($game_content_imgs_info);
     </script>
-    {{-- ربط ملف جافاسكريبت محرر TinyMCE الخاص بالألعاب --}}
     @vite(['resources/js/components/game-trans-add-edit.js'])
 @endpush

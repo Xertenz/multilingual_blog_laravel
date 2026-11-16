@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class CommunityCase extends Model
 {
@@ -61,6 +62,16 @@ class CommunityCase extends Model
     public function category()
     {
         return $this->belongsTo(CommunityCaseCategory::class, 'community_case_category_id');
+    }
+
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            CommunityCaseTag::class,
+            'community_case_tag',
+            'community_case_id',
+            'community_case_tag_id'
+        )->withTimestamps();
     }
 
     public function comments()

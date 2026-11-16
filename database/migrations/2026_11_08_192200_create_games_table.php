@@ -12,9 +12,10 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('game_category_id')->constrained()->cascadeOnDelete(); // فئة اللعبة الزامية
-            $table->string('internal_title')->unique(); // معرف داخلي
+            $table->string('label')->unique(); // معرف داخلي
             $table->year('published_year')->nullable(); // سنة الإصدار
             $table->string('developer')->nullable(); // المطور أو الاستوديو
+            $table->enum('status', ['draft', 'pending', 'published'])->index();
             $table->unsignedBigInteger('views')->default(0);
             $table->timestamps();
         });
@@ -27,6 +28,7 @@ return new class extends Migration {
             $table->string('locale')->index();
             $table->string('title');
             $table->string('slug');
+            $table->enum('status', ['draft', 'pending', 'published'])->index();
             $table->unsignedBigInteger('views')->default(0);
             // المقال الشامل والملخص التفاعلي للعبة
             $table->longText('content')->nullable();

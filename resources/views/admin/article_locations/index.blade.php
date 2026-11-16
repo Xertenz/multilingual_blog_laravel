@@ -49,7 +49,7 @@
                     <a href="{{ route('admin.article-locations.index', ['article_id' => $art->id]) }}" 
                        class="block p-3 rounded-xl border transition-all {{ optional($selectedArticle)->id === $art->id ? 'bg-indigo-50 border-indigo-300 ring-1 ring-indigo-300' : 'bg-slate-50 border-slate-200 hover:bg-slate-100' }}">
                         <div class="flex items-center justify-between mb-1">
-                            <span class="text-xs font-semibold text-slate-800 truncate">{{ $art->internal_title }}</span>
+                            <span class="text-xs font-semibold text-slate-800 truncate">{{ $art->label }}</span>
                             <span class="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
                                 {{ $art->locations->count() }} موقع
                             </span>
@@ -72,7 +72,7 @@
                 <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
                     <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                         <div>
-                            <h2 class="text-base font-bold text-slate-800">المقال المحدد: <span class="text-indigo-600">{{ $selectedArticle->internal_title }}</span></h2>
+                            <h2 class="text-base font-bold text-slate-800">المقال المحدد: <span class="text-indigo-600">{{ $selectedArticle->label }}</span></h2>
                             <p class="text-xs text-slate-500">انقر على الخريطة أدناه لاقتناص الإحداثيات مباشرة.</p>
                         </div>
                     </div>

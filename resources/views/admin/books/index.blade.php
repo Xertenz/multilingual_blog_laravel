@@ -53,7 +53,7 @@
                                 @endif
                             </td>
                             <td class="p-4 font-mono font-semibold text-indigo-600">
-                                {{ $book->internal_title }}
+                                {{ $book->label }}
                             </td>
                             <td class="p-4 text-slate-600">
                                 {{ $trans->author->name ?? 'N/A' }}

@@ -72,7 +72,6 @@
                     </a>
                 </li>
 
-
                 {{-- Map Locations --}}
                 <li>
                     <a href="{{ route('admin.article-locations.index') }}" 
@@ -84,11 +83,6 @@
                         <span>Map Locations</span>
                     </a>
                 </li>
-
-
-
-
-
                 
                 {{-- 🔒 Write New Article Link (محصور حصراً للمشرف والمحرر فقط لأنه ينشئ المقال الأساسي) --}}
                 @hasanyrole('super-admin|editor')
@@ -109,7 +103,7 @@
                 </li>
                 @endhasanyrole
 
-                {{-- Pending Articles Moderation Link (خاص بالمشرفين والمحرרים) --}}
+                {{-- Pending Articles Moderation Link (خاص بالمشرفين والمحررين) --}}
                 @hasanyrole('super-admin|editor')
                 <li>
                     <a href="{{ route('admin.articles.pending') }}" 
@@ -133,7 +127,6 @@
         </div>
 
         {{-- Books Section (قسم ملخصات الكتب - خاص بالمشرفين والمحررين) --}}
-{{-- Books Section (قسم ملخصات الكتب - خاص بالمشرفين والمحررين) --}}
         @hasanyrole('super-admin|editor')
         <div class="border-t border-slate-700 my-4"></div>
         <div class="mb-6">
@@ -219,7 +212,7 @@
         </div>
         @endhasanyrole
 
-        {{-- Media Summaries Section (قسم ملخصات الوسائط - خاص بالمشرفين والمحررين) --}}
+        {{-- Media Summaries Section (قسم ملخصات الوسائط - متاح للمشرف، المحرر، والكاتب) --}}
         @hasanyrole('super-admin|editor|writer')
         <div class="border-t border-slate-700 my-4"></div>
         <div class="mb-6">
@@ -232,7 +225,7 @@
                 <li>
                     <a href="{{ route('admin.media-summaries.index') }}" 
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 
-                              {{ request()->routeIs('admin.media-summaries.*') && !request()->routeIs('admin.media-summaries.create') 
+                              {{ request()->routeIs('admin.media-summaries.index', 'admin.media-summaries.edit') 
                                  ? 'bg-gradient-to-r from-indigo-600/20 to-blue-600/20 text-white' 
                                  : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
                         <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
@@ -263,10 +256,48 @@
                         <span class="bg-indigo-600/20 text-indigo-400 text-xs px-2 py-1 rounded-full">+</span>
                     </a>
                 </li>
+
+                {{-- روابط الفئات والوسوم (للمشرف والمحرر فقط) --}}
+                @hasanyrole('super-admin|editor')
+                <li>
+                    <a href="{{ route('admin.media-summary-categories.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.media-summary-categories.*') 
+                                 ? 'bg-gradient-to-r from-indigo-600/20 to-blue-600/20 text-white' 
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">Media Categories</span>
+                        <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
+                            {{ \App\Models\MediaSummaryCategory::count() }}
+                        </span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ route('admin.media-summary-tags.index') }}" 
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.media-summary-tags.*') 
+                                 ? 'bg-gradient-to-r from-indigo-600/20 to-blue-600/20 text-white' 
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M6 20l6.5-6.5A2.5 2.5 0 0012 10a2.5 2.5 0 00-3.5 0L2 16.5V20h4zM21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">Media Tags</span>
+                        <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
+                            {{ \App\Models\MediaSummaryTag::count() }}
+                        </span>
+                    </a>
+                </li>
+                @endhasanyrole
             </ul>
         </div>
         @endhasanyrole
-
 
         {{-- Games Section (قسم ملخصات الألعاب - متاح للمشرف، المحرر، والكاتب) --}}
         @hasanyrole('super-admin|editor|writer')
@@ -355,7 +386,6 @@
         </div>
         @endhasanyrole
 
-
         {{-- Case Suggestions Moderation Link --}}
         @hasanyrole('super-admin|editor')
         <div class="border-t border-slate-700 my-4"></div>
@@ -382,7 +412,7 @@
         </div>
         @endhasanyrole
 
-        {{-- Detective Board Moderation Link (قسم منفصل للمشرفين والمحرרים تحت Case Suggestions) --}}
+        {{-- Detective Board Moderation Link (قسم منفصل للمشرفين والمحررين تحت Case Suggestions) --}}
         @hasanyrole('super-admin|editor')
         <div class="border-t border-slate-700 my-4"></div>
         <div class="mb-6">
@@ -407,10 +437,6 @@
             </ul>
         </div>
 
-
-
-
-        @hasanyrole('super-admin|editor')
         <div class="border-t border-slate-700 my-4"></div>
         <div class="mb-6">
             <ul class="space-y-1">
@@ -433,11 +459,7 @@
                 </li>
             </ul>
         </div>
-        @endhasanyrole
 
-
-
-        @hasanyrole('super-admin|editor')
         {{-- Community Case Categories Section (فئات قضايا المجتمع) --}}
         <div class="border-t border-slate-700 my-4"></div>
         <div class="mb-6">
@@ -487,12 +509,11 @@
                 </li>
             </ul>
         </div>
-        @endhasanyrole
         
         <div class="border-t border-slate-700 my-4"></div>
         @endhasanyrole
 
-        {{-- Categories, Tags, Series Sections (خاص بالمشرفين والمحرרים فقط) --}}
+        {{-- Categories, Tags, Series Sections (خاص بالمشرفين والمحررين فقط) --}}
         @hasanyrole('super-admin|editor')
         
         {{-- Categories Section --}}
@@ -566,6 +587,7 @@
                     </a>
                 </li>
                 
+                {{--
                 <li>
                     <a href="{{ route('admin.article-tags.create') }}" 
                        class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
@@ -585,6 +607,7 @@
                         @endif
                     </a>
                 </li>
+                --}}
             </ul>
         </div>
 

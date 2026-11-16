@@ -9,6 +9,11 @@
 @endpush
 
 @section('content')
+@php
+    $supportedLocales = \Mcamara\LaravelLocalization\Facades\LaravelLocalization::getSupportedLocales();
+    $existingLocales = $game->translations->pluck('locale')->toArray();
+@endphp
+
 <div class="container mx-auto pb-8 px-4 max-w-3xl">
     <div class="flex items-center justify-between mb-4">
         <div>
@@ -30,29 +35,50 @@
                 <!-- Language & Slug Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label for="locale" class="block text-xs font-semibold text-slate-600 mb-1">Language <span class="text-red-500">*</span></label>
+                        <label for="locale" class="block text-xs font-semibold text-slate-600 mb-1">
+                            Language <span class="text-red-500">*</span>
+                        </label>
                         <select name="locale" id="locale" class="w-full rounded-lg border border-slate-300 text-sm p-2.5">
-                            <option value="en" {{ $game_trans->locale == 'en' ? 'selected' : '' }}>🇬🇧 English</option>
-                            <option value="ar" {{ $game_trans->locale == 'ar' ? 'selected' : '' }}>🇸🇦 Arabic</option>
-                            <option value="de" {{ $game_trans->locale == 'de' ? 'selected' : '' }}>🇩🇪 German</option>
-                            <option value="es" {{ $game_trans->locale == 'es' ? 'selected' : '' }}>🇪🇸 Spanish</option>
-                            <option value="fr" {{ $game_trans->locale == 'fr' ? 'selected' : '' }}>🇫🇷 French</option>
-                            <option value="ru" {{ $game_trans->locale == 'ru' ? 'selected' : '' }}>🇷🇺 Russian</option>
-                            <option value="pt" {{ $game_trans->locale == 'pt' ? 'selected' : '' }}>🇵🇹 Portuguese</option>
-                            <option value="nl" {{ $game_trans->locale == 'nl' ? 'selected' : '' }}>🇳🇱 Dutch</option>
-                            <option value="it" {{ $game_trans->locale == 'it' ? 'selected' : '' }}>🇮🇹 Italian</option>
-                            <option value="sv" {{ $game_trans->locale == 'sv' ? 'selected' : '' }}>🇸🇪 Swedish</option>
-                            <option value="da" {{ $game_trans->locale == 'da' ? 'selected' : '' }}>🇩🇰 Danish</option>
-                            <option value="nb" {{ $game_trans->locale == 'nb' ? 'selected' : '' }}>🇳🇴 Norwegian (Bokmål)</option>
+                            @foreach ($supportedLocales as $code => $props)
+                                @php
+                                    $isTaken = in_array($code, $existingLocales) && $code !== $game_trans->locale;
+                                @endphp
+                                <option value="{{ $code }}"
+                                        {{ old('locale', $game_trans->locale) === $code ? 'selected' : '' }}
+                                        {{ $isTaken ? 'disabled' : '' }}>
+                                    {{ $props['native'] }}@if($isTaken) — (already exists) @endif
+                                </option>
+                            @endforeach
                         </select>
                         @error('locale') <div class="text-red-500 text-xs mt-1">{{ $message }}</div> @enderror
                     </div>
 
                     <div>
-                        <label for="slug" class="block text-xs font-semibold text-slate-600 mb-1">Slug <span class="text-red-500">*</span></label>
-                        <input type="text" name="slug" value="{{ old('slug', $game_trans->slug) }}" class="w-full rounded-lg border border-slate-300 text-sm p-2.5">
+                        <label for="slug" class="block text-xs font-semibold text-slate-600 mb-1">
+                            Slug <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" name="slug" value="{{ old('slug', $game_trans->slug) }}"
+                               class="w-full rounded-lg border border-slate-300 text-sm p-2.5">
                         @error('slug') <div class="text-red-500 text-xs mt-1">{{ $message }}</div> @enderror
                     </div>
+                </div>
+
+                {{-- Publication Status --}}
+                <div class="border border-slate-200 p-4 rounded-xl bg-white mb-4">
+                    <label class="block text-xs font-semibold text-slate-600 mb-1.5">Translation Status</label>
+                    @can('publish-articles')
+                        @php $currentStatus = old('status', $game_trans->status); @endphp
+                        <select name="status" class="w-full rounded-lg border border-slate-300 text-sm p-2.5">
+                            <option value="draft" {{ $currentStatus === 'draft' ? 'selected' : '' }}>Draft</option>
+                            <option value="pending" {{ $currentStatus === 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="published" {{ $currentStatus === 'published' ? 'selected' : '' }}>Published</option>
+                        </select>
+                    @else
+                        <input type="hidden" name="status" value="pending">
+                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800">
+                            Status: {{ ucfirst($game_trans->status) }} — updating will re-submit for review.
+                        </div>
+                    @endcan
                 </div>
 
                 <!-- Price & Affiliate -->

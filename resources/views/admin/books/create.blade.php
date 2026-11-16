@@ -68,8 +68,8 @@
 
                     <div class="md:col-span-2">
                         <label class="block text-xs font-semibold text-slate-600 mb-1">Internal Title <span class="text-red-500">*</span></label>
-                        <input type="text" name="internal_title" value="{{ old('internal_title') }}" class="w-full rounded-lg border @error('internal_title') border-red-500 bg-red-50/50 @else border-slate-300 @enderror focus:border-indigo-500 text-sm py-2 px-3 outline-none transition bg-white" placeholder="e.g., atomic-habits-summary" autocomplete="off">
-                        @error('internal_title')
+                        <input type="text" name="label" value="{{ old('label') }}" class="w-full rounded-lg border @error('label') border-red-500 bg-red-50/50 @else border-slate-300 @enderror focus:border-indigo-500 text-sm py-2 px-3 outline-none transition bg-white" placeholder="e.g., atomic-habits-summary" autocomplete="off">
+                        @error('label')
                             <p class="text-red-500 text-[11px] mt-1">{{ $message }}</p>
                         @enderror
                         <p class="text-[11px] text-slate-400 mt-1">Unique internal reference identifier (not shown to visitors).</p>

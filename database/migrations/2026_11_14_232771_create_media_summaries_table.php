@@ -11,14 +11,14 @@ return new class extends Migration
         // 1. الجدول الأساسي (البيانات المشتركة الثابتة)
         Schema::create('media_summaries', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('media_summary_category_id')->nullable()->constrained('media_summary_categories')->nullOnDelete();
             $table->foreignId('article_location_id')->nullable()->constrained('article_locations')->nullOnDelete();
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
 
-            //$table->enum('type', ['movie', 'series', 'documentary'])->default('documentary');
-            $table->string('type')->default('documentary'); // نوع العمل (movie, series, podcast, etc.)
+            $table->string('label')->unique();
             $table->integer('release_year')->nullable(); // سنة الإصدار
             $table->decimal('imdb_rating', 3, 1)->nullable(); // تقييم IMDb
-            $table->string('status')->default('draft'); // draft, pending, published
+            $table->string('status')->default('draft')->index(); // draft, pending, published
             $table->unsignedBigInteger('views')->default(0);
 
             $table->timestamps();
@@ -39,10 +39,10 @@ return new class extends Migration
             $table->text('meta_description');
             $table->string('status')->default('draft'); // draft, pending, published
             $table->unsignedBigInteger('views')->default(0);
+            $table->timestamps();
 
             $table->unique(['media_summary_id', 'locale']);
             $table->unique(['locale', 'slug']);
-            $table->timestamps();
         });
     }
 

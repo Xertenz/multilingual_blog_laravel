@@ -48,7 +48,7 @@
 
                         {{-- Internal Title --}}
                         <td class="py-3.5 px-6 font-mono text-xs text-slate-500">
-                            {{ $article->internal_title }}
+                            {{ $article->label }}
                         </td>
 
                         {{-- Actions --}}

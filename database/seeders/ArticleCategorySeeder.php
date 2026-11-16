@@ -17,12 +17,14 @@ class ArticleCategorySeeder extends Seeder
         DB::table('article_categories')->insert([
             'user_id' => 1,
             'label' => 'general',
+            'is_active' => true,
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
         ]);
         DB::table('article_categories')->insert([
             'user_id' => 1,
             'label' => 'crimes',
+            'is_active' => true,
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now()
         ]);

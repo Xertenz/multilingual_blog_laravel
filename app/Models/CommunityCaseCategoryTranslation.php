@@ -7,13 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CommunityCaseCategoryTranslation extends Model
 {
-    protected $fillable = [
-        'community_case_category_id',
-        'locale',
-        'name',
-        'slug',
-        'description',
-    ];
+    protected $guarded = [];
 
     public function category(): BelongsTo
     {

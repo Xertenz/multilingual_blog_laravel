@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('series', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->string('internal_title')->unique(); // المعرّف البرمجي للوحة التحكم
+            $table->string('label')->unique(); // المعرّف البرمجي للوحة التحكم
             $table->enum('status', ['draft', 'pending', 'published'])->index();
             $table->timestamps();
         });

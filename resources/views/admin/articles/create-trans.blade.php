@@ -80,7 +80,7 @@
             <h1 class="text-xl font-bold text-slate-900">Add Article Translation</h1>
             <p class="text-xs text-slate-500">
                 Create a new localized version for:
-                <span class="font-semibold text-slate-700">{{ $article->internal_title }}</span>
+                <span class="font-semibold text-slate-700">{{ $article->label }}</span>
             </p>
         </div>
         <a href="{{ route('admin.articles.index') }}" class="text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-2xs">

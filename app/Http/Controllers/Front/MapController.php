@@ -30,7 +30,7 @@ class MapController extends Controller
 
         foreach ($articles as $article) {
             $articleTranslation = $article->translations->first();
-            $articleTitle = $articleTranslation->title ?? $article->internal_title;
+            $articleTitle = $articleTranslation->title ?? $article->label;
 
             foreach ($article->locations as $location) {
                 $locationTranslation = $location->translations->first();

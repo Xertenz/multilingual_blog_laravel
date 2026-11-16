@@ -52,7 +52,13 @@ use App\Http\Controllers\Admin\GameCategoryController;
 use App\Http\Controllers\Admin\GameController;
 use App\Http\Controllers\Admin\GameTagController;
 use App\Http\Controllers\Admin\GameTranslationController;
+use App\Http\Controllers\Admin\MediaSummaryCategoryController;
+use App\Http\Controllers\Admin\MediaSummaryCategoryTranslationController;
+use App\Http\Controllers\Admin\MediaSummaryTagController;
+use App\Http\Controllers\Admin\MediaSummaryTagTranslationController;
+use App\Http\Controllers\Front\ArticleTagTranslationController as FrontArticleTagTranslationController;
 use App\Http\Controllers\Front\GameController as FrontGameController;
+use App\Models\MediaSummaryTagTranslation;
 
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),
@@ -63,6 +69,9 @@ Route::group([
         \App\Http\Middleware\UpdateUserLocale::class
     ]
 ], function () {
+
+    Route::get('/media-categories/{id}/{slug?}', [MediaSummaryCategoryTranslationController::class, 'show'])
+        ->name('media-summary-categories.show');
 
     // مسارات ملخصات ومراجعات الألعاب (Frontend)
     Route::get('/games', [FrontGameController::class, 'index'])->name('games.index');
@@ -116,23 +125,13 @@ Route::group([
     require __DIR__ . '/auth.php';
 
 
-
-    /*
-    Route::middleware(['auth', 'banned'])->group(function () {
-        // المسارات التي تتطلب حساباً غير محظور (مثل إنشاء القضايا، كتابة التعليقات، إلخ)
-        Route::post('/community-cases', [CommunityBoard::class, 'storeCase'])->name('community-board.storeCase');
-        Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
-    });
-    */
-
-
     // =========================================================================
     // 2. الواجهة العامة للموقع (Public Visitors)
     // =========================================================================
     Route::get('/', [HomeController::class, 'index'])->name('home.index');
     Route::get('/categories', [FrontCategoryController::class, 'index'])->name('article-categories.index');
     Route::get('/category/{id}/{slug?}', [ArticleCategoryTranslationController::class, 'show'])->name('article-categories.show');
-    Route::get('/tags/{id}/{slug?}', [ArticleTagTranslationController::class, 'show'])->name('article-tags.show');
+    Route::get('/tags/{id}/{slug?}', [FrontArticleTagTranslationController::class, 'show'])->name('article-tags.show');
     Route::get('/search', SearchController::class)->name('search');
     Route::get('/articles/{id}/{slug?}', [ArticleTranslationController::class, 'show'])->where('id', '[0-9]+')->name('articles.show');
     Route::get('/series/{id}/{slug?}', [FrontSeriesController::class, 'show'])->name('series.show');
@@ -159,23 +158,17 @@ Route::group([
         Route::group(['middleware' => ['role:super-admin|editor|writer']], function () {
             Route::view('/dashboard', 'admin.layout.dashboard')->name('dashboard');
 
-            // إدارة البيانات الأساسية لملخصات الوسائط
-            Route::resource('media-summaries', MediaSummaryController::class)->names([
-                'index' => 'admin.media-summaries.index',
-                'create' => 'admin.media-summaries.create',
-                'store' => 'admin.media-summaries.store',
-                'edit' => 'admin.media-summaries.edit',
-                'update' => 'admin.media-summaries.update',
-                'destroy' => 'admin.media-summaries.destroy',
-            ]);
+            // عرض القائمة (الجميع)
+            Route::get('/media-summaries', [MediaSummaryController::class, 'index'])->name('admin.media-summaries.index');
 
-            // إدارة ترجمات ملخصات الوسائط بشكل منفصل (على غرار المقالات)
+            // الترجمات (الجميع)
             Route::get('/media-summaries-trans/create/{media_summary_id}', [MediaSummaryTranslationController::class, 'create'])->name('admin.media-summaries-trans.create');
             Route::post('/media-summaries-trans', [MediaSummaryTranslationController::class, 'store'])->name('admin.media-summaries-trans.store');
             Route::get('/media-summaries-trans/{id}/edit', [MediaSummaryTranslationController::class, 'edit'])->name('admin.media-summaries-trans.edit');
             Route::put('/media-summaries-trans/{id}', [MediaSummaryTranslationController::class, 'update'])->name('admin.media-summaries-trans.update');
             Route::delete('/media-summaries-trans/{id}', [MediaSummaryTranslationController::class, 'destroy'])->name('admin.media-summaries-trans.destroy');
 
+            // رفع صور المحتوى (TinyMCE)
             Route::post('/media-summaries/upload-content-img', [MediaSummaryController::class, 'uploadContentImg'])->name('admin.media-summaries.upload.content');
             Route::post('/media-summaries/get-content-imgs', [MediaSummaryController::class, 'getMediaContentImgs'])->name('admin.media-summaries.get.content');
             Route::post('/media-summaries/delete-image', [MediaSummaryController::class, 'deleteContentImg'])->name('admin.media-summaries.delete.content_img');
@@ -202,6 +195,48 @@ Route::group([
         Route::group(['middleware' => ['role:super-admin|editor']], function () {
 
 
+
+
+            // -----------------------------------------------------------------
+            // إدارة فئات ملخصات الوسائط (Media Summary Categories)
+            // -----------------------------------------------------------------
+            // داخل مجموعة لوحة التحكم (role:super-admin|editor)
+            Route::get('/media-summary-categories', [MediaSummaryCategoryController::class, 'index'])
+                ->name('admin.media-summary-categories.index');
+
+            Route::get('/media-summary-categories/create', [MediaSummaryCategoryTranslationController::class, 'create'])
+                ->name('admin.media-summary-categories.create');
+
+            Route::post('/media-summary-categories', [MediaSummaryCategoryTranslationController::class, 'store'])
+                ->name('admin.media-summary-categories.store');
+
+            Route::get('/media-summary-categories/{id}/edit', [MediaSummaryCategoryTranslationController::class, 'edit'])
+                ->name('admin.media-summary-categories.edit');
+
+            Route::put('/media-summary-categories/{id}', [MediaSummaryCategoryTranslationController::class, 'update'])
+                ->name('admin.media-summary-categories.update');
+
+            Route::delete('/media-summary-categories/{id}', [MediaSummaryCategoryTranslationController::class, 'destroy'])
+                ->name('admin.media-summary-categories.destroy');
+
+            // -----------------------------------------------------------------
+            // إدارة وسوم ملخصات الوسائط (Media Summary Tags)
+            // -----------------------------------------------------------------
+            Route::view('/media-summary-tags', 'admin.media_summary_tags.index')->name('admin.media-summary-tags.index');
+
+            // إنشاء/تعديل/حذف MediaSummary الأساسي
+            Route::get('/media-summaries/create', [MediaSummaryController::class, 'create'])->name('admin.media-summaries.create');
+            Route::post('/media-summaries', [MediaSummaryController::class, 'store'])->name('admin.media-summaries.store');
+            Route::get('/media-summaries/{id}/edit', [MediaSummaryController::class, 'edit'])->name('admin.media-summaries.edit');
+            Route::put('/media-summaries/{id}', [MediaSummaryController::class, 'update'])->name('admin.media-summaries.update');
+            Route::delete('/media-summaries/{id}', [MediaSummaryController::class, 'destroy'])->name('admin.media-summaries.destroy');
+
+            // المراجعة (pending/approve/reject) — أضفها بعد إضافة الدوال في Controller
+            Route::get('/media-summaries/pending', [MediaSummaryController::class, 'pending'])->name('admin.media-summaries.pending');
+            Route::post('/media-summaries/{id}/approve', [MediaSummaryController::class, 'approve'])->name('admin.media-summaries.approve');
+            Route::post('/media-summaries/{id}/reject', [MediaSummaryController::class, 'reject'])->name('admin.media-summaries.reject');
+
+
             // -----------------------------------------------------------------
             // إدارة فئات الألعاب (Game Categories)
             // -----------------------------------------------------------------
@@ -215,12 +250,7 @@ Route::group([
             // -----------------------------------------------------------------
             // إدارة وسوم الألعاب (Game Tags)
             // -----------------------------------------------------------------
-            Route::get('/game-tags', [GameTagController::class, 'index'])->name('admin.game-tags.index');
-            Route::get('/game-tags/create', [GameTagController::class, 'create'])->name('admin.game-tags.create');
-            Route::post('/game-tags', [GameTagController::class, 'store'])->name('admin.game-tags.store');
-            Route::get('/game-tags/{tag}/edit', [GameTagController::class, 'edit'])->name('admin.game-tags.edit');
-            Route::put('/game-tags/{tag}', [GameTagController::class, 'update'])->name('admin.game-tags.update');
-            Route::delete('/game-tags/{tag}', [GameTagController::class, 'destroy'])->name('admin.game-tags.destroy');
+            Route::view('/game-tags', 'admin.game_tags.index')->name('admin.game-tags.index');
 
             // -----------------------------------------------------------------
             // إدارة ملخصات ومراجعات الألعاب (Games)
@@ -245,6 +275,11 @@ Route::group([
             Route::post('/games/get-content-imgs', [GameController::class, 'getGameContentImgs'])->name('admin.games.get.content');
             Route::post('/games/delete-image', [GameController::class, 'deleteContentImg'])->name('admin.games.delete.content_img');
 
+            // داخل مجموعة role:super-admin|editor
+            Route::get('/games/pending', [GameController::class, 'pending'])->name('admin.games.pending');
+            Route::post('/games/{id}/approve', [GameController::class, 'approve'])->name('admin.games.approve');
+            Route::post('/games/{id}/reject', [GameController::class, 'reject'])->name('admin.games.reject');
+
 
             // -----------------------------------------------------------------
             // إدارة فئات الكتب (Book Categories)
@@ -259,13 +294,7 @@ Route::group([
             // -----------------------------------------------------------------
             // إدارة وسوم الكتب (Book Tags)
             // -----------------------------------------------------------------
-            Route::get('/book-tags', [BookTagController::class, 'index'])->name('admin.book-tags.index');
-            Route::get('/book-tags/create', [BookTagController::class, 'create'])->name('admin.book-tags.create');
-            Route::post('/book-tags', [BookTagController::class, 'store'])->name('admin.book-tags.store');
-            Route::get('/book-tags/{tag}/edit', [BookTagController::class, 'edit'])->name('admin.book-tags.edit');
-            Route::put('/book-tags/{tag}', [BookTagController::class, 'update'])->name('admin.book-tags.update');
-            Route::delete('/book-tags/{tag}', [BookTagController::class, 'destroy'])->name('admin.book-tags.destroy');
-
+            Route::view('/book-tags', 'admin.book_tags.index')->name('admin.book-tags.index');
 
             Route::get('/article-locations', [ArticleLocationController::class, 'index'])->name('admin.article-locations.index');
             Route::post('/articles/{article}/locations', [ArticleLocationController::class, 'store'])->name('admin.article-locations.store');
@@ -317,12 +346,7 @@ Route::group([
             Route::delete('/categories/{cat_id}', [ArticleCategoryTranslationController::class, 'destroy'])->name('admin.article-categories.destroy');
 
             // الوسوم (Tags)
-            Route::get('/tags', [ArticleTagController::class, 'index'])->name('admin.article-tags.index');
-            Route::get('/tags/create', [ArticleTagTranslationController::class, 'create'])->name('admin.article-tags.create');
-            Route::post('/tags', [ArticleTagTranslationController::class, 'store'])->name('admin.article-tags.store');
-            Route::get('/tags/{tag}/edit', [ArticleTagTranslationController::class, 'edit'])->name('admin.article-tags.edit');
-            Route::put('/tags/{tag}', [ArticleTagTranslationController::class, 'update'])->name('admin.article-tags.update');
-            Route::delete('/tags/{tag}', [ArticleTagTranslationController::class, 'destroy'])->name('admin.article-tags.destroy');
+            Route::view('/tags', 'admin.article_tags.index')->name('admin.article-tags.index');
 
             // السلاسل (Series)
             Route::get('/series', [AdminSeriesController::class, 'index'])->name('admin.series.index');
