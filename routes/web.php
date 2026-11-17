@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\Admin\ArticleCategoryController;
 use App\Http\Controllers\Admin\ArticleCategoryTranslationController;
 use Illuminate\Support\Facades\Route;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
@@ -9,7 +8,6 @@ use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchController;
-use App\Http\Controllers\CommentController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReactionController;
 use App\Http\Controllers\Front\CategoryController as FrontCategoryController;
@@ -23,16 +21,10 @@ use App\Http\Controllers\Front\BookController as FrontBookController;
 // Admin Controllers
 use App\Http\Controllers\Admin\ArticleController;
 use App\Http\Controllers\Admin\ArticleLocationController;
-use App\Http\Controllers\Admin\ArticleTagController;
 use App\Http\Controllers\Admin\ArticleTranslationController;
 use App\Http\Controllers\Admin\BookController;
-use App\Http\Controllers\Admin\CategoryController;
-use App\Http\Controllers\Admin\CategoryTranslationController;
-use App\Http\Controllers\Admin\CommunityCaseCategoryController;
 use App\Http\Controllers\Admin\PenaltyController;
 use App\Http\Controllers\Admin\ReportController;
-use App\Http\Controllers\Admin\TagController;
-use App\Http\Controllers\Admin\ArticleTagTranslationController;
 use App\Http\Controllers\Admin\SeriesController as AdminSeriesController;
 use App\Http\Controllers\Admin\SuggestionController;
 use App\Http\Controllers\Admin\UserController;
@@ -46,20 +38,12 @@ use App\Http\Controllers\Admin\MediaSummaryTranslationController;
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\UserReportController;
 use App\Livewire\AuthorProfile;
-use App\Http\Controllers\Admin\BookCategoryController;
-use App\Http\Controllers\Admin\BookTagController;
 use App\Http\Controllers\Admin\CommunityCaseController;
-use App\Http\Controllers\Admin\GameCategoryController;
 use App\Http\Controllers\Admin\GameController;
-use App\Http\Controllers\Admin\GameTagController;
 use App\Http\Controllers\Admin\GameTranslationController;
-use App\Http\Controllers\Admin\MediaSummaryCategoryController;
 use App\Http\Controllers\Admin\MediaSummaryCategoryTranslationController;
-use App\Http\Controllers\Admin\MediaSummaryTagController;
-use App\Http\Controllers\Admin\MediaSummaryTagTranslationController;
 use App\Http\Controllers\Front\ArticleTagTranslationController as FrontArticleTagTranslationController;
 use App\Http\Controllers\Front\GameController as FrontGameController;
-use App\Models\MediaSummaryTagTranslation;
 
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),
@@ -198,10 +182,10 @@ Route::group([
 
 
 
-            // -----------------------------------------------------------------
-            // إدارة فئات ملخصات الوسائط (Media Summary Categories)
-            // -----------------------------------------------------------------
-            // داخل مجموعة لوحة التحكم (role:super-admin|editor)
+            // ✅ Media Summary Categories
+            Route::view('/media-summary-categories', 'admin.media_summary_categories.index')->name('admin.media-summary-categories.index');
+            /*
+
             Route::get('/media-summary-categories', [MediaSummaryCategoryController::class, 'index'])
                 ->name('admin.media-summary-categories.index');
 
@@ -219,6 +203,7 @@ Route::group([
 
             Route::delete('/media-summary-categories/{id}', [MediaSummaryCategoryTranslationController::class, 'destroy'])
                 ->name('admin.media-summary-categories.destroy');
+            */
 
             // -----------------------------------------------------------------
             // إدارة وسوم ملخصات الوسائط (Media Summary Tags)
@@ -238,15 +223,16 @@ Route::group([
             Route::post('/media-summaries/{id}/reject', [MediaSummaryController::class, 'reject'])->name('admin.media-summaries.reject');
 
 
-            // -----------------------------------------------------------------
-            // إدارة فئات الألعاب (Game Categories)
-            // -----------------------------------------------------------------
+            // ✅ Game Categories
+            Route::view('/game-categories', 'admin.game_categories.index')->name('admin.game-categories.index');
+            /*
             Route::get('/game-categories', [GameCategoryController::class, 'index'])->name('admin.game-categories.index');
             Route::get('/game-categories/create', [GameCategoryController::class, 'create'])->name('admin.game-categories.create');
             Route::post('/game-categories', [GameCategoryController::class, 'store'])->name('admin.game-categories.store');
             Route::get('/game-categories/{cat_id}/edit', [GameCategoryController::class, 'edit'])->name('admin.game-categories.edit');
             Route::put('/game-categories/{cat_id}', [GameCategoryController::class, 'update'])->name('admin.game-categories.update');
             Route::delete('/game-categories/{cat_id}', [GameCategoryController::class, 'destroy'])->name('admin.game-categories.destroy');
+            */
 
             // -----------------------------------------------------------------
             // إدارة وسوم الألعاب (Game Tags)
@@ -282,15 +268,16 @@ Route::group([
             Route::post('/games/{id}/reject', [GameController::class, 'reject'])->name('admin.games.reject');
 
 
-            // -----------------------------------------------------------------
-            // إدارة فئات الكتب (Book Categories)
-            // -----------------------------------------------------------------
+            // ✅ Book Categories
+            Route::view('/book-categories', 'admin.book_categories.index')->name('admin.book-categories.index');
+            /*
             Route::get('/book-categories', [BookCategoryController::class, 'index'])->name('admin.book-categories.index');
             Route::get('/book-categories/create', [BookCategoryController::class, 'create'])->name('admin.book-categories.create');
             Route::post('/book-categories', [BookCategoryController::class, 'store'])->name('admin.book-categories.store');
             Route::get('/book-categories/{cat_id}/edit', [BookCategoryController::class, 'edit'])->name('admin.book-categories.edit');
             Route::put('/book-categories/{cat_id}', [BookCategoryController::class, 'update'])->name('admin.book-categories.update');
             Route::delete('/book-categories/{cat_id}', [BookCategoryController::class, 'destroy'])->name('admin.book-categories.destroy');
+            */
 
             // -----------------------------------------------------------------
             // إدارة وسوم الكتب (Book Tags)
@@ -322,9 +309,13 @@ Route::group([
             Route::delete('/books/{book}', [BookController::class, 'destroy'])->name('admin.books.destroy');
 
             // Community Case
+            // ✅ Community Case Categories
+            Route::view('/community-case-categories', 'admin.community_case_categories.index')->name('admin.community-case-categories.index');
+            /*
             Route::resource('community-case-categories', CommunityCaseCategoryController::class, [
                 'as' => 'admin'
             ]);
+            */
 
             Route::view('/community-case-tags', 'admin.community_case_tags.index')
                 ->name('admin.community-case-tags.index');
@@ -347,13 +338,16 @@ Route::group([
             Route::post('/articles/{id}/approve', [ArticleController::class, 'approve'])->name('admin.articles.approve');
             Route::post('/articles/{id}/reject', [ArticleController::class, 'reject'])->name('admin.articles.reject');
 
-            // الفئات (Categories)
+            // ✅ Article Categories
+            Route::view('/categories', 'admin.article_categories.index')->name('admin.article-categories.index');
+            /*
             Route::get('/categories', [ArticleCategoryController::class, 'index'])->name('admin.article-categories.index');
             Route::get('/categories/create', [ArticleCategoryTranslationController::class, 'create'])->name('admin.article-categories.create');
             Route::post('/categories', [ArticleCategoryTranslationController::class, 'store'])->name('admin.article-categories.store');
             Route::get('/categories/{cat_id}/edit', [ArticleCategoryTranslationController::class, 'edit'])->name('admin.article-categories.edit');
             Route::put('/categories/{cat_id}', [ArticleCategoryTranslationController::class, 'update'])->name('admin.article-categories.update');
             Route::delete('/categories/{cat_id}', [ArticleCategoryTranslationController::class, 'destroy'])->name('admin.article-categories.destroy');
+            */
 
             // الوسوم (Tags)
             Route::view('/tags', 'admin.article_tags.index')->name('admin.article-tags.index');

@@ -374,7 +374,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path>
                             </svg>
                         </div>
-                        <span class="flex-1 text-sm font-medium">All Cases</span>
+                        <span class="flex-1 text-sm font-medium">All Community Cases</span>
                         <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
                             {{ \App\Models\CommunityCase::count() }}
                         </span>
@@ -392,7 +392,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                             </svg>
                         </div>
-                        <span class="flex-1 text-sm font-medium">Case Categories</span>
+                        <span class="flex-1 text-sm font-medium">Community Categories</span>
                         <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
                             {{ \App\Models\CommunityCaseCategory::count() }}
                         </span>

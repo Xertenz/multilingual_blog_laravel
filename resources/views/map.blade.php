@@ -23,6 +23,10 @@
         .leaflet-marker-icon, .leaflet-popup {
             filter: invert(1) hue-rotate(200deg) saturate(3);
         }
+
+        .leaflet-control-attribution.leaflet-control {
+            display: none;
+        }
     </style>
 @endpush
 
