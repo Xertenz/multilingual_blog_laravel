@@ -23,6 +23,7 @@ class CommentSeeder extends Seeder
             'commentable_id' => 1,
 
             'parent_id' => null,
+            'type'    => 'question',
             'body' => 'this is admin comment',
             'locale' => 'en',
             'created_at' => Carbon::now(),
@@ -36,6 +37,7 @@ class CommentSeeder extends Seeder
             'commentable_id' => 1,
 
             'parent_id' => 1,
+            'type'    => 'hint',
             'body' => 'this is a user reply',
             'locale' => 'en',
             'created_at' => Carbon::now(),

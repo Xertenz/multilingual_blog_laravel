@@ -11,7 +11,7 @@ class GameController extends Controller
 {
     public function index()
     {
-        $games = Game::with(['translations', 'gameCategory.translations', 'media'])
+        $games = Game::with(['translations', 'category.translations', 'media'])
             ->latest()
             ->paginate(12);
 
@@ -24,8 +24,8 @@ class GameController extends Controller
         $currentLocale = app()->getLocale();
 
         $game_trans = GameTranslation::with([
-            'game.gameCategory.translations',
-            'game.gameTags.translations',
+            'game.category.translations',
+            'game.tags.translations',
             'game.media'
         ])->where('game_id', $id)->where('locale', $currentLocale)->first();
 
@@ -49,8 +49,8 @@ class GameController extends Controller
         $currentLocale = app()->getLocale();
 
         $game_trans = GameTranslation::with([
-            'game.gameCategory.translations',
-            'game.gameTags.translations',
+            'game.category.translations',
+            'game.tags.translations',
             'game.media' // لجلب الوسائط المرتبطة باللعبة
         ])->where('game_id', $id)->where('locale', $currentLocale)->first();
 

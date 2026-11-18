@@ -39,8 +39,8 @@
                         : asset('images/default-game.jpg');
 
                     // اسم الفئة المترجم
-                    $catName = optional($game->gameCategory?->translations->where('locale', app()->getLocale())->first())->name
-                            ?? $game->gameCategory?->label;
+                    $catName = optional($game->category?->translations->where('locale', app()->getLocale())->first())->name
+                            ?? $game->category?->label;
                 @endphp
 
                 <a href="{{ route('games.show', ['id' => $game->id, 'slug' => optional($trans)->slug ?? 'game']) }}"

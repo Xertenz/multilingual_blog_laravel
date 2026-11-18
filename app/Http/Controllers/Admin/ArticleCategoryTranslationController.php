@@ -22,12 +22,15 @@ use Illuminate\Support\Facades\Cache;
 class ArticleCategoryTranslationController extends Controller
 {
 
+    /*
     public function create()
     {
         return view('admin.article_categories.create');
     }
+        */
 
 
+    /*
     public function store(Request $request)
     {
         // 1. معالجة وتوليد الـ Slug لكل لغة في المصفوفة قبل التمرير للـ Validation
@@ -97,11 +100,9 @@ class ArticleCategoryTranslationController extends Controller
 
 
             // تطبيق الفلسفة الذكية للـ Slug: إن كُتب يدوياً نأخذه، وإن تُرِك فارغاً نولده من الاسم
-            /*
-            $finalSlug = !empty($data['slug'])
-                ? (string) Str::of($data['slug'])->slug('-')
-                : (string) Str::of($data['name'])->slug('-');
-            */
+            //$finalSlug = !empty($data['slug'])
+            //    ? (string) Str::of($data['slug'])->slug('-')
+            //    : (string) Str::of($data['name'])->slug('-');
 
             // إدخال الترجمة الحالية في قاعدة البيانات
             $cat->translations()->create([
@@ -118,15 +119,14 @@ class ArticleCategoryTranslationController extends Controller
         }
 
         // إبطال كاش الـ Navbar لكل اللغات المتاحة
-        /*
-        foreach (LaravelLocalization::getSupportedLanguagesKeys() as $lang) {
-            //Cache::forget("navbar_categories_{$lang}");
-            //Cache::forget("all_categories_page_{$lang}");
-        }
-        */
+        //foreach (LaravelLocalization::getSupportedLanguagesKeys() as $lang) {
+        //    //Cache::forget("navbar_categories_{$lang}");
+        //    //Cache::forget("all_categories_page_{$lang}");
+        // }
 
         return to_route('admin.article-categories.index')->with('success', 'Category Created Successfully!');
     }
+    */
 
     public function show(int $category_trans_id, ?string $slug = null)
     {
@@ -185,14 +185,17 @@ class ArticleCategoryTranslationController extends Controller
         return view('category', compact('category_trans', 'articles'));
     }
 
+    /*
     public function edit(int $id)
     {
         $cat = ArticleCategory::with('translations')->find($id);
         $translations = $cat->translations->keyBy('locale');
         return view('admin.article_categories.edit', compact('cat', 'translations'));
     }
+    */
 
 
+    /*
     public function update(Request $request, int $id)
     {
         $cat = ArticleCategory::findOrFail($id);
@@ -280,29 +283,28 @@ class ArticleCategoryTranslationController extends Controller
         }
 
         // إبطال كاش الـ Navbar لكل اللغات المتاحة
-        /*
-        foreach (LaravelLocalization::getSupportedLanguagesKeys() as $lang) {
+        //foreach (LaravelLocalization::getSupportedLanguagesKeys() as $lang) {
             //Cache::forget("navbar_categories_{$lang}");
             //Cache::forget("all_categories_page_{$lang}");
-        }
-        */
+        //}
 
         return to_route('admin.article-categories.index')->with('success', 'Category Updated Successfully!');
     }
+    */
 
+    /*
     public function destroy(int $cat_id)
     {
         $cat = ArticleCategory::findOrFail($cat_id);
         $cat->delete();
 
         // إبطال كاش الـ Navbar لكل اللغات المتاحة
-        /*
-        foreach (LaravelLocalization::getSupportedLanguagesKeys() as $lang) {
+        //foreach (LaravelLocalization::getSupportedLanguagesKeys() as $lang) {
             //Cache::forget("navbar_categories_{$lang}");
             //Cache::forget("all_categories_page_{$lang}");
-        }
-        */
+        //}
 
         return to_route('admin.article-categories.index')->with('success', 'Category Deleted Successfully!');
     }
+    */
 }

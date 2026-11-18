@@ -23,7 +23,7 @@ class Game extends Model implements HasMedia
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function gameCategory(): BelongsTo
+    public function category(): BelongsTo
     {
         return $this->belongsTo(GameCategory::class);
     }
@@ -33,7 +33,7 @@ class Game extends Model implements HasMedia
         return $this->hasMany(GameTranslation::class);
     }
 
-    public function gameTags(): BelongsToMany
+    public function tags(): BelongsToMany
     {
         return $this->belongsToMany(GameTag::class, 'game_tag', 'game_id', 'game_tag_id');
     }

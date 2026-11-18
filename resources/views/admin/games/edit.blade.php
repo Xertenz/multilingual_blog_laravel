@@ -119,7 +119,7 @@
                 <div class="bg-white rounded-xl p-4 border border-slate-200">
                     <label class="block text-xs font-semibold text-slate-600 mb-1.5">Game Tags</label>
                     @php
-                        $selectedTags = old('tags', $game->gameTags->pluck('id')->toArray());
+                        $selectedTags = old('tags', $game->tags->pluck('id')->toArray());
                     @endphp
                     <select name="tags[]" multiple class="w-full rounded-lg border border-slate-300 text-sm p-2 h-24">
                         @foreach ($tags as $tag)

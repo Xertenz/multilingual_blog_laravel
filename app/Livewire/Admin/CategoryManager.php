@@ -4,6 +4,7 @@ namespace App\Livewire\Admin;
 
 use Livewire\Component;
 use Livewire\WithPagination;
+use Livewire\WithFileUploads;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
@@ -11,13 +12,14 @@ use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 class CategoryManager extends Component
 {
     use WithPagination;
+    use WithFileUploads;
 
     // ✅ خصائص المكون (تُمرَّر من Blade)
     public string $modelType;          // e.g. \App\Models\ArticleCategory::class
     public string $translationType;    // e.g. \App\Models\ArticleCategoryTranslation::class
     public string $foreignKey;         // e.g. 'article_category_id'
     public string $pageTitle;          // e.g. 'Article Categories'
-    public ?string $countRelation = null;
+    public ?string $countRelation = null;  // e.g. 'articles' (اختياري)
 
     // ✅ حالة النموذج (Modal)
     public bool $showModal = false;
@@ -25,6 +27,11 @@ class CategoryManager extends Component
     public string $label = '';
     public bool $is_active = true;
     public array $translations = [];
+
+    // ✅ رفع الصور
+    public $featured_img = null;         // الملف الجديد
+    public ?string $currentImageUrl = null;  // الصورة الحالية
+    public bool $removeCurrentImage = false; // حذف الصورة الحالية
 
     // ✅ التهيئة
     public function mount(
@@ -67,6 +74,9 @@ class CategoryManager extends Component
         $this->label = '';
         $this->is_active = true;
         $this->translations = $this->emptyTranslations();
+        $this->featured_img = null;
+        $this->currentImageUrl = null;
+        $this->removeCurrentImage = false;
         $this->showModal = true;
     }
 
@@ -75,7 +85,7 @@ class CategoryManager extends Component
     {
         $this->resetValidation();
 
-        $model = $this->modelType::with('translations')->findOrFail($id);
+        $model = $this->modelType::with('translations', 'media')->findOrFail($id);
 
         $this->editingId = $id;
         $this->label = $model->label;
@@ -92,13 +102,18 @@ class CategoryManager extends Component
             ];
         }
 
+        // ✅ جلب الصورة الحالية
+        $this->currentImageUrl = $model->getFirstMediaUrl('featured_imgs', 'thumb') ?: null;
+        $this->featured_img = null;
+        $this->removeCurrentImage = false;
+
         $this->showModal = true;
     }
 
     // ✅ حفظ (إنشاء أو تعديل)
     public function save()
     {
-        // 1. التحقق الأساسي
+        // 1. التحقق
         $rules = [
             'label' => [
                 'required',
@@ -108,12 +123,18 @@ class CategoryManager extends Component
                     ->ignore($this->editingId),
             ],
             'is_active' => 'boolean',
+            'featured_img' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
             'translations.*.name'             => 'nullable|string|max:100',
             'translations.*.slug'             => 'nullable|string|max:100',
             'translations.*.description'      => 'nullable|string',
             'translations.*.meta_title'       => 'nullable|string|max:150',
             'translations.*.meta_description' => 'nullable|string|max:255',
         ];
+
+        // ✅ الصورة إلزامية عند الإنشاء فقط
+        if (!$this->editingId && !$this->featured_img) {
+            $rules['featured_img'] = 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120';
+        }
 
         $this->validate($rules);
 
@@ -131,7 +152,25 @@ class CategoryManager extends Component
             $model = $this->modelType::create($data);
         }
 
-        // 3. مزامنة الترجمات
+        // 3. معالجة الصورة
+        if ($this->featured_img) {
+            // حذف الصورة القديمة (إن وجدت)
+            if ($model->hasMedia('featured_imgs')) {
+                $model->clearMediaCollection('featured_imgs');
+            }
+
+            // رفع الصورة الجديدة
+            $fileName = uniqid() . '.' . strtolower($this->featured_img->getClientOriginalExtension());
+            $model->addMedia($this->featured_img->getRealPath())
+                ->usingFileName($fileName)
+                ->withResponsiveImages()
+                ->toMediaCollection('featured_imgs');
+        } elseif ($this->removeCurrentImage && $model->hasMedia('featured_imgs')) {
+            // ✅ حذف الصورة الحالية إذا طلب المستخدم
+            $model->clearMediaCollection('featured_imgs');
+        }
+
+        // 4. مزامنة الترجمات
         foreach ($this->translations as $locale => $data) {
             // إذا كان الاسم فارغاً → احذف الترجمة إن وجدت
             if (empty($data['name'])) {
@@ -155,9 +194,9 @@ class CategoryManager extends Component
             );
         }
 
-        // 4. إغلاق Modal + رسالة نجاح
+        // 5. إغلاق Modal + رسالة نجاح
         $this->showModal = false;
-        $this->reset(['label', 'is_active', 'translations', 'editingId']);
+        $this->reset(['label', 'is_active', 'translations', 'editingId', 'featured_img', 'currentImageUrl', 'removeCurrentImage']);
         $this->translations = $this->emptyTranslations();
 
         $this->dispatch('toast', type: 'success', message: __('Saved successfully'));
@@ -167,13 +206,14 @@ class CategoryManager extends Component
     public function delete(int $id)
     {
         $model = $this->modelType::findOrFail($id);
+        $model->clearMediaCollection('featured_imgs');  // ✅ حذف الصورة
         $model->translations()->delete();
         $model->delete();
 
         $this->dispatch('toast', type: 'success', message: __('Deleted successfully'));
     }
 
-    // ✅ تبديل حالة التفعيل بسرعة
+    // ✅ تبديل حالة التفعيل
     public function toggleActive(int $id)
     {
         $model = $this->modelType::findOrFail($id);
@@ -183,10 +223,12 @@ class CategoryManager extends Component
     // ✅ العرض
     public function render()
     {
-        $query = $this->modelType::with('translations');
+        $query = $this->modelType::with('translations', 'media');
+
         if ($this->countRelation) {
             $query->withCount($this->countRelation);
         }
+
         $items = $query->latest()->paginate(10);
 
         $supportedLocales = LaravelLocalization::getSupportedLocales();

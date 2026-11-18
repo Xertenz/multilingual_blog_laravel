@@ -9,7 +9,7 @@ class GameTagTranslation extends Model
 {
     protected $guarded = [];
 
-    public function gameTag(): BelongsTo
+    public function tag(): BelongsTo
     {
         return $this->belongsTo(GameTag::class);
     }

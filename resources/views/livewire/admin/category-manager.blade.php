@@ -19,6 +19,7 @@
                 <thead>
                     <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
                         <th class="py-3 px-4 w-16">ID</th>
+                        <th class="py-3 px-4 w-20">Image</th>
                         <th class="py-3 px-4">Label</th>
                         <th class="py-3 px-4">Translations</th>
                         @if($countRelation)
@@ -32,6 +33,19 @@
                     @forelse($items as $item)
                         <tr class="hover:bg-slate-50/70 transition-colors" wire:key="cat-row-{{ $item->id }}">
                             <td class="py-3 px-4 font-mono text-xs text-slate-500">#{{ $item->id }}</td>
+
+                            {{-- Image --}}
+                            <td class="py-3 px-4">
+                                @if($item->getFirstMediaUrl('featured_imgs', 'thumb'))
+                                    <img src="{{ $item->getFirstMediaUrl('featured_imgs', 'thumb') }}"
+                                         class="w-12 h-10 object-cover rounded-lg border border-slate-200">
+                                @else
+                                    <div class="w-12 h-10 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center">
+                                        <span class="text-[10px] text-slate-400">No Img</span>
+                                    </div>
+                                @endif
+                            </td>
+
                             <td class="py-3 px-4 font-medium text-slate-800">{{ $item->label }}</td>
 
                             {{-- Translations --}}
@@ -96,7 +110,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ $countRelation ? 6 : 5 }}" class="text-center py-12 text-slate-400 text-sm">
+                            <td colspan="{{ $countRelation ? 7 : 6 }}" class="text-center py-12 text-slate-400 text-sm">
                                 <div class="flex flex-col items-center justify-center">
                                     <span class="text-3xl mb-2">📂</span>
                                     <p class="font-medium text-slate-600">No {{ strtolower($pageTitle) }} found.</p>
@@ -120,12 +134,13 @@
         @endif
     </div>
 
-    {{-- Modal (Create/Edit) — نفس تصميم TagManager --}}
+    {{-- Modal (Create/Edit) --}}
     @if($showModal)
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4"
              wire:click.self="$set('showModal', false)">
             <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-3xl overflow-hidden max-h-[90vh] flex flex-col">
 
+                {{-- Header --}}
                 <div class="flex justify-between items-center px-6 py-4 bg-slate-50 border-b border-slate-200">
                     <h3 class="text-base font-bold text-slate-800">
                         {{ $editingId ? __('Edit') : __('Create') }} {{ $pageTitle }}
@@ -137,6 +152,7 @@
                     </button>
                 </div>
 
+                {{-- Body --}}
                 <div class="p-6 overflow-y-auto flex-1">
 
                     {{-- Basic Info --}}
@@ -160,6 +176,67 @@
                             </label>
                             <p class="text-[11px] text-slate-400 mt-1">Inactive categories won't appear in public menus or lists.</p>
                         </div>
+                    </div>
+
+                    {{-- ✅ Featured Image --}}
+                    <div class="bg-white rounded-xl p-4 border border-slate-200 mb-4">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1.5">
+                            Featured Image
+                            @if(!$editingId)
+                                <span class="text-red-500">*</span>
+                            @else
+                                <span class="text-slate-400 text-xs font-normal">(Optional)</span>
+                            @endif
+                        </label>
+
+                        {{-- معاينة الصورة الحالية --}}
+                        @if($currentImageUrl && !$removeCurrentImage)
+                            <div class="flex items-center gap-3 mb-3 p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                                <img src="{{ $currentImageUrl }}" class="w-16 h-16 object-cover rounded-lg border border-slate-200">
+                                <div class="flex-1">
+                                    <p class="text-xs font-semibold text-slate-700">Current Image</p>
+                                    <p class="text-[11px] text-slate-400">Upload a new image below to replace it</p>
+                                </div>
+                                <button type="button" wire:click="$set('removeCurrentImage', true)"
+                                        class="text-rose-500 hover:text-rose-700 text-xs font-semibold">
+                                    Remove
+                                </button>
+                            </div>
+                        @endif
+
+                        {{-- معاينة الصورة الجديدة --}}
+                        @if($featured_img)
+                            <div class="mb-3 flex items-center gap-3 p-2.5 bg-emerald-50 rounded-xl border border-emerald-200">
+                                <img src="{{ $featured_img->temporaryUrl() }}" class="w-16 h-16 object-cover rounded-lg border border-emerald-200">
+                                <div class="flex-1">
+                                    <p class="text-xs font-semibold text-emerald-700">New Image (Preview)</p>
+                                    <p class="text-[11px] text-emerald-500">{{ $featured_img->getClientOriginalName() }}</p>
+                                </div>
+                                <button type="button" wire:click="$set('featured_img', null)"
+                                        class="text-rose-500 hover:text-rose-700 text-xs font-semibold">
+                                    Cancel
+                                </button>
+                            </div>
+                        @endif
+
+                        {{-- حقل الرفع --}}
+                        <div class="border-2 border-dashed border-slate-300 rounded-xl p-4 text-center hover:border-indigo-500 transition cursor-pointer bg-slate-50">
+                            <input type="file" wire:model="featured_img" class="hidden" id="cat-featured-img-{{ $editingId ?? 'new' }}" accept="image/*">
+                            <label for="cat-featured-img-{{ $editingId ?? 'new' }}" class="cursor-pointer">
+                                <svg class="w-7 h-7 mx-auto text-slate-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <p class="text-slate-600 text-xs font-medium">Click to upload</p>
+                                <p class="text-slate-400 text-[11px] mt-0.5">PNG, JPG, WebP up to 5MB</p>
+                            </label>
+                        </div>
+
+                        {{-- مؤشر التحميل --}}
+                        <div wire:loading wire:target="featured_img" class="mt-2 text-xs text-indigo-600 text-center">
+                            ⏳ Uploading...
+                        </div>
+
+                        @error('featured_img') <div class="text-red-500 text-xs mt-1">{{ $message }}</div> @enderror
                     </div>
 
                     {{-- Translations --}}
@@ -223,6 +300,7 @@
                     @endforeach
                 </div>
 
+                {{-- Footer --}}
                 <div class="flex justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50">
                     <button wire:click="$set('showModal', false)"
                             type="button"

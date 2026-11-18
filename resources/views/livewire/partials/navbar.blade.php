@@ -55,8 +55,9 @@ new class extends Component {
         $current_locale = LaravelLocalization::getCurrentLocale();
         $cacheKey = "navbar_categories_{$current_locale}";
 
-        $categories = Cache::remember($cacheKey, 3600, function () use ($current_locale) {
-            return ArticleCategory::with(['translations' => function ($query) use ($current_locale) {
+        //$categories = Cache::remember($cacheKey, 3600, function () use ($current_locale) {
+            //return ArticleCategory::with(['translations' => function ($query) use ($current_locale) {
+            $categories = ArticleCategory::with(['translations' => function ($query) use ($current_locale) {
                 $query->where('locale', $current_locale);
             }])
                 ->whereHas('translations', function ($query) use ($current_locale) {
@@ -64,7 +65,7 @@ new class extends Component {
                 })
                 ->orderBy('label', 'asc')
                 ->get();
-        });
+        //});
 
         $this->cat_transes = $categories->map(fn($category) => $category->translations->first())->filter();
     }

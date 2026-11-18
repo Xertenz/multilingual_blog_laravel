@@ -39,9 +39,9 @@ class SendAuthorNewContentJob implements ShouldQueue
             $book = $this->content->book ?? null;
             $category = $book ? $book->category : null;
         } elseif ($this->contentType === 'game') {
-            // الألعاب مرتبطة بـ gameCategory (عدل اسم العلاقة حسب نموذجك إن لم تكن gameCategory)
+            // الألعاب مرتبطة بـ category (عدل اسم العلاقة حسب نموذجك إن لم تكن category)
             $game = $this->content->game ?? null;
-            $category = $game ? $game->gameCategory : null;
+            $category = $game ? $game->category : null;
         } elseif ($this->contentType === 'media') {
             // الميديا مرتبطة بـ category أو mediaCategory حسب هيكلك
             $media = $this->content->mediaSummary ?? null;

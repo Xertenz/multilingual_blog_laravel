@@ -38,7 +38,7 @@
                         {{-- Category --}}
                         <td class="py-3.5 px-4 font-medium text-slate-700">
                             <span class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md text-xs font-semibold border border-slate-200">
-                                {{ optional($game->gameCategory->translations->where('locale', app()->getLocale())->first())->name ?? $game->gameCategory->label }}
+                                {{ $game->category?->label ?? '[Null]' }}
                             </span>
                         </td>
 

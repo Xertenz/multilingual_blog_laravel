@@ -15,7 +15,7 @@ class GameController extends Controller
 {
     public function index()
     {
-        $games = Game::with(['translations', 'author', 'gameCategory.translations'])
+        $games = Game::with(['translations', 'author', 'category.translations'])
             ->withCount(['media as content_imgs_count' => function ($q) {
                 $q->where('collection_name', 'content_imgs');
             }])
@@ -62,7 +62,7 @@ class GameController extends Controller
         ]);
 
         if ($request->has('tags')) {
-            $game->gameTags()->sync($request->tags);
+            $game->tags()->sync($request->tags);
         }
 
         if ($request->hasFile('featured_img')) {
@@ -80,7 +80,7 @@ class GameController extends Controller
 
     public function edit(Request $request, int $id)
     {
-        $game = Game::with('gameCategory', 'gameTags')->findOrFail($id);
+        $game = Game::with('category', 'tags')->findOrFail($id);
         $cats = GameCategory::with('translations')->get();
         $tags = GameTag::with('translations')->get();
         return view('admin.games.edit', compact('game', 'cats', 'tags'));
@@ -130,7 +130,7 @@ class GameController extends Controller
                 ->toMediaCollection('cover_imgs');
         }
 
-        $game->gameTags()->sync($request->input('tags', []));
+        $game->tags()->sync($request->input('tags', []));
 
         // ✅ إشعار المتابعين فقط عند التحول إلى published
         if ($previousStatus !== 'published' && $game->status === 'published') {

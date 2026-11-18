@@ -29,9 +29,9 @@
             <div class="absolute bottom-6 left-6 right-6 text-white">
                 <!-- Category & Year -->
                 <div class="flex items-center gap-3 mb-2 flex-wrap">
-                    @if($game_trans->game->gameCategory)
+                    @if($game_trans->game->category)
                         <span class="bg-indigo-600/90 backdrop-blur-md text-white text-xs font-semibold px-3 py-1 rounded-lg">
-                            {{ optional($game_trans->game->gameCategory->translations->where('locale', app()->getLocale())->first())->name ?? $game_trans->game->gameCategory->label }}
+                            {{ optional($game_trans->game->category->translations->where('locale', app()->getLocale())->first())->name ?? $game_trans->game->category->label }}
                         </span>
                     @endif
                     <span class="text-xs text-slate-300 font-medium">
@@ -93,10 +93,10 @@
     </div>
 
     <!-- Tags Section -->
-    @if($game_trans->game->gameTags->count() > 0)
+    @if($game_trans->game->tags->count() > 0)
         <div class="flex items-center gap-2 flex-wrap mb-8">
             <span class="text-xs font-bold text-slate-400 uppercase mr-2">{{ __('Tags:') }}</span>
-            @foreach($game_trans->game->gameTags as $tag)
+            @foreach($game_trans->game->tags as $tag)
                 @php
                     $tagTrans = $tag->translations->where('locale', app()->getLocale())->first();
                 @endphp

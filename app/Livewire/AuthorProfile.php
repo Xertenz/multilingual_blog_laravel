@@ -63,7 +63,7 @@ class AuthorProfile extends Component
         // 3. الألعاب
         $games = GameTranslation::where('user_id', $this->author->id)
             ->where('locale', $currentLocale)
-            ->with(['game.gameCategory.translations', 'game.media'])
+            ->with(['game.category.translations', 'game.media'])
             ->latest()
             ->paginate(9, ['*'], 'gamesPage');
 
