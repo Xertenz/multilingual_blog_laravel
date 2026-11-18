@@ -282,7 +282,7 @@
                         @endphp
 
                         @if ($tag_translation)
-                        <a href="{{ route('article-tags.show', ['id' => $tag_translation->id]) }}" class="flex items-center gap-1 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white px-2.5 py-1 rounded-md text-xs font-medium transition duration-200 border border-slate-800">
+                        <a href="{{ route('article-tags.show', ['id' => $tag_translation->id, 'slug' => $tag_translation->slug]) }}" class="flex items-center gap-1 bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white px-2.5 py-1 rounded-md text-xs font-medium transition duration-200 border border-slate-800">
                             <svg class="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581a1.125 1.125 0 001.591 0l7.182-7.182a1.125 1.125 0 000-1.59l-9.581-9.581A2.25 2.25 0 009.568 3z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z"></path>
@@ -331,6 +331,68 @@
                 </div>
             </div>
         </div>
+
+        <!-- ==================== -->
+        <!-- مقالات ذات صلة في نفس الفئة -->
+        <!-- ==================== -->
+        @if(isset($relatedArticles) && $relatedArticles->isNotEmpty())
+            <section class="mt-8 bg-[#0f1526] border border-slate-800 rounded-xl p-6">
+                <div class="flex items-center justify-between gap-2 mb-4 pb-3 border-b border-slate-800/70">
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                        <span class="w-2 h-2 bg-red-600 rounded-sm"></span>
+                        <span>{{ __('Related Articles') }}</span>
+                    </h2>
+
+                    @php
+                        $currentLocale = app()->getLocale();
+                        $catTrans = $article_trans->article->category?->translations
+                            ->where('locale', $currentLocale)
+                            ->first()
+                            ?? $article_trans->article->category?->translations->first();
+                    @endphp
+
+                    @if($catTrans)
+                        <a href="{{ route('article-categories.show', ['id' => $catTrans->id, 'slug' => $catTrans->slug]) }}"
+                        class="text-xs font-semibold text-red-400 hover:text-red-300 transition">
+                            {{ __('View All in') }} {{ $catTrans->name }} &rarr;
+                        </a>
+                    @endif
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    @foreach($relatedArticles as $relTrans)
+                        @php
+                            $thumb = $relTrans->article?->getFirstMedia('featured_imgs')
+                                ?? $relTrans->article?->getFirstMedia('content_imgs');
+                            $thumbUrl = $thumb ? $thumb->getUrl('medium') : null;
+                        @endphp
+
+                        <a href="{{ route('articles.show', ['id' => $relTrans->id, 'slug' => $relTrans->slug]) }}"
+                        class="group flex items-center gap-3 p-3 rounded-xl bg-slate-900/70 hover:bg-slate-900 border border-slate-800 hover:border-red-600/50 transition">
+                            @if($thumbUrl)
+                                <img src="{{ $thumbUrl }}"
+                                    alt="{{ $relTrans->title }}"
+                                    loading="lazy"
+                                    class="w-16 h-16 rounded-lg object-cover shrink-0 border border-slate-800">
+                            @else
+                                <div class="w-16 h-16 rounded-lg bg-slate-800 flex items-center justify-center text-[10px] text-slate-500 shrink-0">
+                                    {{ __('No Image') }}
+                                </div>
+                            @endif
+
+                            <div class="min-w-0 flex-1">
+                                <h3 class="text-xs sm:text-sm font-bold text-gray-200 group-hover:text-red-400 transition line-clamp-2">
+                                    {{ $relTrans->title }}
+                                </h3>
+                                <p class="text-[11px] text-slate-400 mt-1 truncate">
+                                    {{ $relTrans->author->name ?? __('Investigator Team') }} • {{ $relTrans->created_at->format('M j, Y') }}
+                                </p>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            </section>
+        @endif
 
         <!-- ==================== -->
         <!-- قسم التعليقات -->

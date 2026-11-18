@@ -1,5 +1,5 @@
 @extends("layouts.main")
-@section('title', 'Book Summaries')
+@section('title', ($category_trans->meta_title ?? $category_trans->name ?? $category_trans->category?->label) . ' - Book Summaries')
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
@@ -10,18 +10,22 @@
             <div class="flex items-center gap-2">
                 <span class="w-2 h-2 bg-red-600 rounded-sm shrink-0"></span>
                 <h1 class="text-lg md:text-xl font-bold text-white tracking-wide">
-                    Book Summaries & Reviews
+                    {{ $category_trans->name ?? $category_trans->category?->label }}
                 </h1>
             </div>
             <p class="text-gray-400 text-xs max-w-2xl leading-relaxed">
-                Explore our curated collection of book summaries, key insights, and recommendations.
+                {{ $category_trans->description ?? $category_trans->meta_description ?? 'Explore book summaries and reviews in this category.' }}
             </p>
         </div>
 
-        <div class="shrink-0 self-start sm:self-center">
+        <div class="flex items-center gap-2 shrink-0 self-start sm:self-center">
             <span class="inline-block px-2.5 py-1 bg-slate-900 text-gray-300 text-[11px] font-mono rounded-md border border-slate-800">
                 {{ $translations->total() }} {{ __('Books') }}
             </span>
+            <a href="{{ route('books.index') }}"
+               class="inline-block px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-gray-300 text-[11px] font-medium rounded-md border border-slate-800 transition-colors">
+                {{ __('All Books') }}
+            </a>
         </div>
     </div>
 
@@ -31,7 +35,6 @@
             @php
                 $book = $trans->book;
 
-                // صورة الغلاف (أولوية لغلاف الترجمة ثم الغلاف العام للكتاب)
                 $media = null;
                 if ($trans->hasMedia('cover_imgs')) {
                     $media = $trans->getFirstMedia('cover_imgs');
@@ -40,21 +43,15 @@
                 }
                 $imageUrl = $media ? $media->getUrl('medium') : asset('images/default-book.jpg');
 
-                // اسم الفئة المترجم
-                $catName = null;
-                if ($book && $book->ategory) {
-                    $catTrans = $book->category->translations->where('locale', app()->getLocale())->first()
-                             ?? $book->ategory->translations->first();
-                    $catName = $catTrans->name ?? $book->category->label;
-                }
+                $catName = $category_trans->name
+                    ?? optional($book?->category?->translations->where('locale', app()->getLocale())->first())->name
+                    ?? $book?->category?->label;
             @endphp
 
-            {{-- 🔗 هنا الرابط يحتوي على id الترجمة ($trans->id) بدل id الكتاب الأساسي --}}
             <a href="{{ route('books.show', ['id' => $trans->id, 'slug' => $trans->slug ?? 'book']) }}"
                class="group relative bg-[#0f1526] border border-slate-800 hover:border-red-600/60 rounded-xl overflow-hidden shadow-lg transition-all duration-300 flex flex-col justify-between">
 
                 <div>
-                    <!-- صورة الغلاف -->
                     <div class="relative h-80 w-full overflow-hidden bg-slate-950">
                         @if($media)
                             <img src="{{ $imageUrl }}"
@@ -67,21 +64,18 @@
 
                         <div class="absolute inset-0 bg-gradient-to-t from-[#0f1526] via-transparent to-transparent"></div>
 
-                        <!-- شارة الفئة أعلى اليسار -->
                         @if($catName)
                             <span class="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md border border-slate-800 text-gray-300 text-[10px] font-mono px-2.5 py-1 rounded-lg">
                                 {{ $catName }}
                             </span>
                         @endif
 
-                        <!-- سنة النشر أعلى اليمين -->
                         @if($book && $book->published_year)
                             <span class="absolute top-3 right-3 bg-slate-950/80 backdrop-blur-md border border-slate-800 text-gray-300 text-[10px] font-mono px-2.5 py-1 rounded-lg">
                                 {{ $book->published_year }}
                             </span>
                         @endif
 
-                        <!-- شارة السعر أسفل اليمين -->
                         @if($trans->price)
                             <span class="absolute bottom-3 right-3 bg-red-600/90 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-lg shadow-lg">
                                 {{ $trans->currency ?? 'USD' }} {{ $trans->price }}
@@ -89,9 +83,7 @@
                         @endif
                     </div>
 
-                    <!-- محتوى البطاقة -->
                     <div class="p-4">
-                        <!-- المؤلف كسطر صغير -->
                         <div class="text-[11px] text-indigo-400 font-medium mb-1 truncate">
                             By {{ $trans->author->name ?? 'Unknown' }}
                         </div>
@@ -105,7 +97,6 @@
                     </div>
                 </div>
 
-                <!-- شريط الصفحات وزر القراءة في الأسفل -->
                 <div class="p-4 pt-3 border-t border-slate-850 flex items-center justify-between text-xs text-slate-400">
                     <span class="font-mono truncate max-w-[120px]">
                         📖
@@ -122,12 +113,11 @@
             </a>
         @empty
             <div class="col-span-full py-16 text-center text-slate-500 text-sm">
-                No book summaries available at the moment. Please check back later!
+                No book summaries available under this category yet.
             </div>
         @endforelse
     </div>
 
-    <!-- Pagination -->
     @if($translations->hasPages())
         <div class="mt-10">
             {{ $translations->links() }}

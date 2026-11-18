@@ -27,7 +27,7 @@ class BookController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('front.books.index', compact('translations'));
+        return view('books.index', compact('translations'));
     }
 
     /**
@@ -52,6 +52,6 @@ class BookController extends Controller
         $translation->increment('views');
         $book->increment('views');
 
-        return view('front.books.show', compact('book', 'translation'));
+        return view('books.show', compact('book', 'translation'));
     }
 }

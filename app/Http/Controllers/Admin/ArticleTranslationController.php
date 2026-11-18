@@ -195,7 +195,26 @@ class ArticleTranslationController extends Controller
             ], 301);
         }
 
-        return view('articles.show', compact('article_trans'));
+
+        // Getting related articles
+        $relatedArticles = ArticleTranslation::with([
+            'article.media',
+            'article.category.translations',
+            'author',
+        ])
+            ->where('locale', $currentLocale)
+            ->where('status', 'published')
+            ->where('article_id', '!=', $article_trans->article_id)
+            ->whereHas('article', function ($query) use ($article_trans) {
+                $query->where('status', 'published')
+                    ->where('article_category_id', $article_trans->article->article_category_id);
+            })
+            ->latest()
+            ->take(4)
+            ->get();
+
+
+        return view('articles.show', compact('article_trans', 'relatedArticles'));
     }
 
     public function edit(Request $request, int $article_trans_id)

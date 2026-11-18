@@ -11,10 +11,11 @@ use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 class ArticleCategoryController extends Controller
 {
 
+    /*
     public function index()
     {
         $current_locale = LaravelLocalization::getCurrentLocale();
-        $cacheKey = "all_categories_page_{$current_locale}";
+        // $cacheKey = "all_categories_page_{$current_locale}";
 
         // $categories = Cache::remember($cacheKey, 3600, function () use ($current_locale) {
         $categories = ArticleCategory::with([
@@ -31,6 +32,33 @@ class ArticleCategoryController extends Controller
             })
             ->get();
         // });
+
+        return view('article_categories.index', compact('categories'));
+    }
+    */
+
+
+
+    public function index()
+    {
+        $current_locale = LaravelLocalization::getCurrentLocale();
+
+        $categories = ArticleCategory::with([
+            'media',
+            'translations' => function ($query) use ($current_locale) {
+                $query->where('locale', $current_locale);
+            },
+        ])
+            ->withCount(['articles as published_articles_count' => function ($query) use ($current_locale) {
+                $query->where('status', 'published')
+                    ->whereHas('translations', function ($q) use ($current_locale) {
+                        $q->where('locale', $current_locale)->where('status', 'published');
+                    });
+            }])
+            ->whereHas('translations', function ($query) use ($current_locale) {
+                $query->where('locale', $current_locale);
+            })
+            ->get();
 
         return view('article_categories.index', compact('categories'));
     }

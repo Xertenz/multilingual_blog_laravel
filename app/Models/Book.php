@@ -108,7 +108,7 @@ class Book extends Model implements HasMedia
 
     public function category(): BelongsTo
     {
-        return $this->belongsTo(BookCategory::class);
+        return $this->belongsTo(BookCategory::class, 'book_category_id');
     }
 
     public function tags(): BelongsToMany

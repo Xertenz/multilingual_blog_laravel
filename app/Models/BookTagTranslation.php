@@ -9,8 +9,8 @@ class BookTagTranslation extends Model
 {
     protected $guarded = [];
 
-    public function bookTag(): BelongsTo
+    public function tag(): BelongsTo
     {
-        return $this->belongsTo(BookTag::class);
+        return $this->belongsTo(BookTag::class, 'book_tag');
     }
 }

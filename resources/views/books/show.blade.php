@@ -63,10 +63,10 @@
                     {{-- <p class="text-sm text-slate-400">Author: <span class="font-bold text-slate-200">{{ $translation->author->name ?? 'N/A' }}</span></p> --}}
                     <p class="text-sm text-slate-400">
                         Author: 
-                        @if($translation->author)
-                            <a href="{{ route('authors.show', ['id' => $translation->author->id, 'tab' => 'books']) }}" 
+                        @if($translation->book->author)
+                            <a href="{{ route('authors.show', ['id' => $translation->book->author->id, 'tab' => 'books']) }}" 
                             class="font-bold text-slate-200 hover:text-red-500 transition">
-                                {{ $translation->author->name }}
+                                {{ $translation->book->author->name }}
                             </a>
                         @else
                             <span class="font-bold text-slate-200">N/A</span>
@@ -82,12 +82,21 @@
 
                     @if($book->category)
                         @php
-                            $catTrans = $book->category->translations->where('locale', app()->getLocale())->first() ?? $book->category->translations->first();
+                            $catTrans = $book->category->translations->where('locale', app()->getLocale())->first()
+                                ?? $book->category->translations->first();
                         @endphp
-                        <div class="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
-                            <span class="text-slate-400 block text-[10px]">Category</span>
-                            <span class="font-semibold text-indigo-400">{{ $catTrans->name ?? $book->category->label }}</span>
-                        </div>
+                        @if($catTrans)
+                            <a href="{{ route('book-categories.show', ['id' => $catTrans->id, 'slug' => $catTrans->slug]) }}"
+                            class="bg-slate-800 hover:bg-indigo-950 px-3 py-1.5 rounded-lg border border-slate-700 hover:border-indigo-700 transition-colors">
+                                <span class="text-slate-400 block text-[10px]">Category</span>
+                                <span class="font-semibold text-indigo-400">{{ $catTrans->name ?? $book->category->label }}</span>
+                            </a>
+                        @else
+                            <div class="bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
+                                <span class="text-slate-400 block text-[10px]">Category</span>
+                                <span class="font-semibold text-indigo-400">{{ $book->category->label }}</span>
+                            </div>
+                        @endif
                     @endif
 
                     @if($book->published_year)
@@ -133,17 +142,24 @@
                         <div class="flex flex-wrap gap-2">
                             @foreach($book->tags as $tag)
                                 @php
-                                    $tagTrans = $tag->translations->where('locale', app()->getLocale())->first() ?? $tag->translations->first();
+                                    $tagTrans = $tag->translations->where('locale', app()->getLocale())->first()
+                                        ?? $tag->translations->first();
                                     $tagName = $tagTrans->name ?? $tag->label;
                                 @endphp
-                                <span class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-3 py-1 rounded-full transition font-medium border border-slate-700/60">
-                                    # {{ $tagName }}
-                                </span>
+                                @if($tagTrans)
+                                    <a href="{{ route('book-tags.show', ['id' => $tagTrans->id, 'slug' => $tagTrans->slug]) }}"
+                                    class="bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white text-xs px-3 py-1 rounded-full transition font-medium border border-slate-700/60">
+                                        # {{ $tagName }}
+                                    </a>
+                                @else
+                                    <span class="bg-slate-800 text-slate-300 text-xs px-3 py-1 rounded-full font-medium border border-slate-700/60">
+                                        # {{ $tagName }}
+                                    </span>
+                                @endif
                             @endforeach
                         </div>
                     </div>
                 @endif
-
             </div>
 
         </div>
