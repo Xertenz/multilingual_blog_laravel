@@ -26,42 +26,43 @@
         </div>
     </div>
 
-    {{-- شبكة الألعاب: نفس شبكة المقالات --}}
+    {{-- شبكة الألعاب المترجمة --}}
     @if($games->count() > 0)
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            @foreach($games as $game)
+            @foreach($games as $trans)
                 @php
-                    $trans = $game->translate(app()->getLocale()) ?? $game->translations->first();
+                    $game = $trans->game;
 
-                    // جلب صورة الغلاف عبر Spatie MediaLibrary
-                    $imageUrl = $game->hasMedia('cover_imgs')
+                    // جلب صورة الغلاف عبر Spatie MediaLibrary من اللعبة الأساسية
+                    $imageUrl = ($game && $game->hasMedia('cover_imgs'))
                         ? $game->getFirstMediaUrl('cover_imgs', 'medium')
                         : asset('images/default-game.jpg');
 
                     // اسم الفئة المترجم
-                    $catName = optional($game->category?->translations->where('locale', app()->getLocale())->first())->name
-                            ?? $game->category?->label;
+                    $catName = optional($game?->category?->translations->where('locale', app()->getLocale())->first())->name
+                            ?? optional($game?->category?->translations->first())->name
+                            ?? $game?->category?->label;
                 @endphp
 
-                <a href="{{ route('games.show', ['id' => $game->id, 'slug' => optional($trans)->slug ?? 'game']) }}"
+                <a href="{{ route('games.show', ['id' => $trans->id, 'slug' => $trans->slug ?? 'game']) }}"
                    class="group relative bg-[#0f1526] border border-slate-800 hover:border-red-600/60 rounded-xl overflow-hidden shadow-lg transition-all duration-300 flex flex-col justify-between">
 
                     <div>
-                        <!-- صورة اللعبة بنفس تصميم صورة المقالة -->
+                        <!-- صورة اللعبة -->
                         <div class="relative h-40 w-full overflow-hidden bg-slate-950">
-                            <img src="{{ $imageUrl }}" alt="{{ optional($trans)->title ?? $game->label }}"
+                            <img src="{{ $imageUrl }}" alt="{{ $trans->title ?? $game?->label }}"
                                  class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 ease-in-out">
                             <div class="absolute inset-0 bg-gradient-to-t from-[#0f1526] via-transparent to-transparent"></div>
 
-                            <!-- شارة الفئة أعلى اليسار (تكييف اللعبة) -->
+                            <!-- شارة الفئة أعلى اليسار -->
                             @if($catName)
                                 <span class="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md border border-slate-800 text-gray-300 text-[10px] font-mono px-2.5 py-1 rounded-lg">
                                     {{ $catName }}
                                 </span>
                             @endif
 
-                            <!-- سنة الإصدار أعلى اليمين (بدل تاريخ النشر في المقالة) -->
-                            @if($game->published_year)
+                            <!-- سنة الإصدار أعلى اليمين -->
+                            @if($game?->published_year)
                                 <span class="absolute top-3 right-3 bg-slate-950/80 backdrop-blur-md border border-slate-800 text-gray-300 text-[10px] font-mono px-2.5 py-1 rounded-lg">
                                     {{ $game->published_year }}
                                 </span>
@@ -70,24 +71,23 @@
 
                         <!-- محتوى البطاقة -->
                         <div class="p-4">
-                            <!-- اسم المطور كسطر صغير (بديل بصري لسطر صغير في المقالة) -->
                             <div class="text-[11px] text-indigo-400 font-medium mb-1 truncate">
-                                {{ $game->developer ?? 'Unknown Studio' }}
+                                {{ $game?->developer ?? 'Unknown Studio' }}
                             </div>
 
                             <h2 class="text-base font-bold text-gray-200 group-hover:text-red-500 transition-colors line-clamp-2">
-                                {{ optional($trans)->title ?? $game->label }}
+                                {{ $trans->title ?? $game?->label }}
                             </h2>
                             <p class="text-xs text-gray-400 mt-1.5 line-clamp-2 leading-relaxed">
-                                {{ optional($trans)->meta_description ?? Str::limit(strip_tags(optional($trans)->content), 100) }}
+                                {{ $trans->meta_description ?? Str::limit(strip_tags($trans->content), 100) }}
                             </p>
                         </div>
                     </div>
 
-                    <!-- شريط السعر وزر القراءة في الأسفل (نفس شريط الكاتب في المقالة) -->
+                    <!-- شريط السعر وزر القراءة في الأسفل -->
                     <div class="p-4 pt-3 border-t border-slate-850 flex items-center justify-between text-xs text-slate-400">
                         <span class="font-mono truncate max-w-[120px]">
-                            @if(optional($trans)->price > 0)
+                            @if($trans->price > 0)
                                 💰 {{ $trans->price }} {{ $trans->currency ?? 'USD' }}
                             @else
                                 <span class="text-emerald-500 font-semibold">Free / Review</span>

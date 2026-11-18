@@ -41,6 +41,9 @@ use App\Livewire\AuthorProfile;
 use App\Http\Controllers\Admin\CommunityCaseController;
 use App\Http\Controllers\Admin\GameController;
 use App\Http\Controllers\Admin\GameTranslationController;
+
+use App\Http\Controllers\Front\GameTagTranslationController as FrontGameTagTranslationController;
+
 use App\Http\Controllers\Front\ArticleTagTranslationController as FrontArticleTagTranslationController;
 use App\Http\Controllers\Front\GameController as FrontGameController;
 use App\Http\Controllers\Front\MediaSummaryCategoryTranslationController;
@@ -62,6 +65,9 @@ Route::group([
     // مسارات ملخصات ومراجعات الألعاب (Frontend)
     Route::get('/games', [FrontGameController::class, 'index'])->name('games.index');
     Route::get('/games/{id}/{slug?}', [FrontGameController::class, 'show'])->where('id', '[0-9]+')->name('games.show');
+
+    Route::get('/games/tag/{id}/{slug?}', [FrontGameTagTranslationController::class, 'show'])
+        ->name('game-tags.show');
 
 
     Route::get('/media-summaries', [FrontMediaSummaryTranslationController::class, 'index'])->name('media-summaries.index');
@@ -185,27 +191,6 @@ Route::group([
 
             // ✅ Media Summary Categories
             Route::view('/media-summary-categories', 'admin.media_summary_categories.index')->name('admin.media-summary-categories.index');
-            /*
-
-            Route::get('/media-summary-categories', [MediaSummaryCategoryController::class, 'index'])
-                ->name('admin.media-summary-categories.index');
-
-            Route::get('/media-summary-categories/create', [MediaSummaryCategoryTranslationController::class, 'create'])
-                ->name('admin.media-summary-categories.create');
-
-            Route::post('/media-summary-categories', [MediaSummaryCategoryTranslationController::class, 'store'])
-                ->name('admin.media-summary-categories.store');
-
-            Route::get('/media-summary-categories/{id}/edit', [MediaSummaryCategoryTranslationController::class, 'edit'])
-                ->name('admin.media-summary-categories.edit');
-
-            Route::put('/media-summary-categories/{id}', [MediaSummaryCategoryTranslationController::class, 'update'])
-                ->name('admin.media-summary-categories.update');
-
-            Route::delete('/media-summary-categories/{id}', [MediaSummaryCategoryTranslationController::class, 'destroy'])
-                ->name('admin.media-summary-categories.destroy');
-            */
-
             // -----------------------------------------------------------------
             // إدارة وسوم ملخصات الوسائط (Media Summary Tags)
             // -----------------------------------------------------------------
@@ -226,15 +211,6 @@ Route::group([
 
             // ✅ Game Categories
             Route::view('/game-categories', 'admin.game_categories.index')->name('admin.game-categories.index');
-            /*
-            Route::get('/game-categories', [GameCategoryController::class, 'index'])->name('admin.game-categories.index');
-            Route::get('/game-categories/create', [GameCategoryController::class, 'create'])->name('admin.game-categories.create');
-            Route::post('/game-categories', [GameCategoryController::class, 'store'])->name('admin.game-categories.store');
-            Route::get('/game-categories/{cat_id}/edit', [GameCategoryController::class, 'edit'])->name('admin.game-categories.edit');
-            Route::put('/game-categories/{cat_id}', [GameCategoryController::class, 'update'])->name('admin.game-categories.update');
-            Route::delete('/game-categories/{cat_id}', [GameCategoryController::class, 'destroy'])->name('admin.game-categories.destroy');
-            */
-
             // -----------------------------------------------------------------
             // إدارة وسوم الألعاب (Game Tags)
             // -----------------------------------------------------------------
@@ -271,15 +247,6 @@ Route::group([
 
             // ✅ Book Categories
             Route::view('/book-categories', 'admin.book_categories.index')->name('admin.book-categories.index');
-            /*
-            Route::get('/book-categories', [BookCategoryController::class, 'index'])->name('admin.book-categories.index');
-            Route::get('/book-categories/create', [BookCategoryController::class, 'create'])->name('admin.book-categories.create');
-            Route::post('/book-categories', [BookCategoryController::class, 'store'])->name('admin.book-categories.store');
-            Route::get('/book-categories/{cat_id}/edit', [BookCategoryController::class, 'edit'])->name('admin.book-categories.edit');
-            Route::put('/book-categories/{cat_id}', [BookCategoryController::class, 'update'])->name('admin.book-categories.update');
-            Route::delete('/book-categories/{cat_id}', [BookCategoryController::class, 'destroy'])->name('admin.book-categories.destroy');
-            */
-
             // -----------------------------------------------------------------
             // إدارة وسوم الكتب (Book Tags)
             // -----------------------------------------------------------------
@@ -312,11 +279,6 @@ Route::group([
             // Community Case
             // ✅ Community Case Categories
             Route::view('/community-case-categories', 'admin.community_case_categories.index')->name('admin.community-case-categories.index');
-            /*
-            Route::resource('community-case-categories', CommunityCaseCategoryController::class, [
-                'as' => 'admin'
-            ]);
-            */
 
             Route::view('/community-case-tags', 'admin.community_case_tags.index')
                 ->name('admin.community-case-tags.index');
@@ -341,14 +303,6 @@ Route::group([
 
             // ✅ Article Categories
             Route::view('/categories', 'admin.article_categories.index')->name('admin.article-categories.index');
-            /*
-            Route::get('/categories', [ArticleCategoryController::class, 'index'])->name('admin.article-categories.index');
-            Route::get('/categories/create', [ArticleCategoryTranslationController::class, 'create'])->name('admin.article-categories.create');
-            Route::post('/categories', [ArticleCategoryTranslationController::class, 'store'])->name('admin.article-categories.store');
-            Route::get('/categories/{cat_id}/edit', [ArticleCategoryTranslationController::class, 'edit'])->name('admin.article-categories.edit');
-            Route::put('/categories/{cat_id}', [ArticleCategoryTranslationController::class, 'update'])->name('admin.article-categories.update');
-            Route::delete('/categories/{cat_id}', [ArticleCategoryTranslationController::class, 'destroy'])->name('admin.article-categories.destroy');
-            */
 
             // الوسوم (Tags)
             Route::view('/tags', 'admin.article_tags.index')->name('admin.article-tags.index');

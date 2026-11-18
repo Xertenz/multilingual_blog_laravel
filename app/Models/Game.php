@@ -25,7 +25,7 @@ class Game extends Model implements HasMedia
 
     public function category(): BelongsTo
     {
-        return $this->belongsTo(GameCategory::class);
+        return $this->belongsTo(GameCategory::class, 'game_category_id');
     }
 
     public function translations(): HasMany

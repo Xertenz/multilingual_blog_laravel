@@ -11,6 +11,6 @@ class GameTagTranslation extends Model
 
     public function tag(): BelongsTo
     {
-        return $this->belongsTo(GameTag::class);
+        return $this->belongsTo(GameTag::class, 'game_tag_id');
     }
 }
