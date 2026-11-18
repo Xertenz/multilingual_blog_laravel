@@ -48,6 +48,7 @@ use App\Http\Controllers\Front\ArticleTagTranslationController as FrontArticleTa
 use App\Http\Controllers\Front\GameController as FrontGameController;
 use App\Http\Controllers\Front\MediaSummaryCategoryTranslationController;
 use App\Http\Controllers\Front\MediaSummaryTranslationController as FrontMediaSummaryTranslationController;
+use App\Http\Controllers\Front\GameCategoryTranslationController as FrontGameCategoryTranslationController;
 
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),
@@ -68,6 +69,9 @@ Route::group([
 
     Route::get('/games/tag/{id}/{slug?}', [FrontGameTagTranslationController::class, 'show'])
         ->name('game-tags.show');
+
+    Route::get('/games/category/{id}/{slug?}', [FrontGameCategoryTranslationController::class, 'show'])
+        ->name('game-categories.show');
 
 
     Route::get('/media-summaries', [FrontMediaSummaryTranslationController::class, 'index'])->name('media-summaries.index');

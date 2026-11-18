@@ -29,11 +29,27 @@
             <div class="absolute bottom-6 left-6 right-6 text-white">
                 <!-- Category & Year -->
                 <div class="flex items-center gap-3 mb-2 flex-wrap">
-                    @if($game_trans->game?->category)
-                        <span class="bg-indigo-600/90 backdrop-blur-md text-white text-xs font-semibold px-3 py-1 rounded-lg">
-                            {{ optional($game_trans->game->category->translations->where('locale', app()->getLocale())->first())->name ?? $game_trans->game->category->label }}
-                        </span>
-                    @endif
+
+
+@php
+    $cat = $game_trans->game?->category;
+    $catTrans = $cat?->translations->firstWhere('locale', app()->getLocale())
+        ?? $cat?->translations->first();
+@endphp
+
+@if($cat)
+    @if($catTrans)
+        <a href="{{ route('game-categories.show', ['id' => $catTrans->id, 'slug' => $catTrans->slug]) }}"
+           class="bg-indigo-600/90 hover:bg-indigo-600 backdrop-blur-md text-white text-xs font-semibold px-3 py-1 rounded-lg transition-colors">
+            {{ $catTrans->name ?? $cat->label }}
+        </a>
+    @else
+        <span class="bg-indigo-600/90 backdrop-blur-md text-white text-xs font-semibold px-3 py-1 rounded-lg">
+            {{ $cat->label }}
+        </span>
+    @endif
+@endif
+
                     <span class="text-xs text-slate-300 font-medium">
                         {{ $game_trans->game?->developer ?? 'Unknown Studio' }} @if($game_trans->game?->published_year) • {{ $game_trans->game->published_year }} @endif
                     </span>
