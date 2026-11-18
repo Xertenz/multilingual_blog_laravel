@@ -46,9 +46,11 @@ use App\Http\Controllers\Front\GameTagTranslationController as FrontGameTagTrans
 
 use App\Http\Controllers\Front\ArticleTagTranslationController as FrontArticleTagTranslationController;
 use App\Http\Controllers\Front\GameController as FrontGameController;
-use App\Http\Controllers\Front\MediaSummaryCategoryTranslationController;
 use App\Http\Controllers\Front\MediaSummaryTranslationController as FrontMediaSummaryTranslationController;
 use App\Http\Controllers\Front\GameCategoryTranslationController as FrontGameCategoryTranslationController;
+
+use App\Http\Controllers\Front\MediaSummaryCategoryTranslationController as FrontMediaSummaryCategoryTranslationController;
+use App\Http\Controllers\Front\MediaSummaryTagTranslationController as FrontMediaSummaryTagTranslationController;
 
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),
@@ -60,22 +62,29 @@ Route::group([
     ]
 ], function () {
 
-    Route::get('/media-categories/{id}/{slug?}', [MediaSummaryCategoryTranslationController::class, 'show'])
-        ->name('media-summary-categories.show');
-
     // مسارات ملخصات ومراجعات الألعاب (Frontend)
     Route::get('/games', [FrontGameController::class, 'index'])->name('games.index');
-    Route::get('/games/{id}/{slug?}', [FrontGameController::class, 'show'])->where('id', '[0-9]+')->name('games.show');
-
+    Route::get('/games/{id}/{slug?}', [FrontGameController::class, 'show'])
+        ->where('id', '[0-9]+')
+        ->name('games.show');
     Route::get('/games/tag/{id}/{slug?}', [FrontGameTagTranslationController::class, 'show'])
+        ->where('id', '[0-9]+')
         ->name('game-tags.show');
-
     Route::get('/games/category/{id}/{slug?}', [FrontGameCategoryTranslationController::class, 'show'])
+        ->where('id', '[0-9]+')
         ->name('game-categories.show');
 
 
     Route::get('/media-summaries', [FrontMediaSummaryTranslationController::class, 'index'])->name('media-summaries.index');
-    Route::get('/media-summaries/{id}/{slug?}', [FrontMediaSummaryTranslationController::class, 'show'])->name('media-summaries.show');
+    Route::get('/media-summaries/category/{id}/{slug?}', [FrontMediaSummaryCategoryTranslationController::class, 'show'])
+        ->where('id', '[0-9]+')
+        ->name('media-summary-categories.show');
+    Route::get('/media-summaries/tag/{id}/{slug?}', [FrontMediaSummaryTagTranslationController::class, 'show'])
+        ->where('id', '[0-9]+')
+        ->name('media-summary-tags.show');
+    Route::get('/media-summaries/{id}/{slug?}', [FrontMediaSummaryTranslationController::class, 'show'])
+        ->where('id', '[0-9]+')
+        ->name('media-summaries.show');
 
 
     Route::get('/community', CommunityBoard::class)->name('community.cases.index');

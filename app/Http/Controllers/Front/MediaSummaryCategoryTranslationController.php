@@ -3,59 +3,66 @@
 namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
-use App\Models\MediaSummary;
 use App\Models\MediaSummaryCategoryTranslation;
+use App\Models\MediaSummaryTranslation;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 class MediaSummaryCategoryTranslationController extends Controller
 {
-    public function show(int $category_trans_id, ?string $slug = null)
+    public function show(int $id, ?string $slug = null)
     {
-        // 1. جلب ترجمة الفئة مع الفئة الأساسية وترجماتها
-        $category_trans = MediaSummaryCategoryTranslation::with(['category.translations'])
-            ->find($category_trans_id);
+        $category_trans = MediaSummaryCategoryTranslation::with([
+            'category' => function ($query) {
+                $query->where('is_active', true);
+            },
+            'category.translations',
+        ])->find($id);
 
-        if (!$category_trans) {
-            return to_route('home.index');
+        if (!$category_trans || !$category_trans->category) {
+            return to_route('media-summaries.index');
         }
 
-        $current_locale = LaravelLocalization::getCurrentLocale();
+        $currentLocale = LaravelLocalization::getCurrentLocale();
 
-        // 2. التحقق من تطابق اللغة
-        if ($category_trans->locale !== $current_locale) {
-            $target = $category_trans->category->translations
-                ->where('locale', $current_locale)
-                ->first();
+        // التحويل إلى ترجمة الفئة نفسها باللغة الحالية إن وُجدت
+        if ($category_trans->locale !== $currentLocale) {
+            $targetTrans = $category_trans->category->translations
+                ? $category_trans->category->translations->firstWhere('locale', $currentLocale)
+                : null;
 
-            if ($target) {
+            if ($targetTrans) {
                 return redirect()->route('media-summary-categories.show', [
-                    'id'   => $target->id,
-                    'slug' => $target->slug,
+                    'id'   => $targetTrans->id,
+                    'slug' => $targetTrans->slug,
                 ]);
             }
-
-            return to_route('home.index')->with('info', __('This category is not available in your language.'));
         }
 
-        // 3. تصحيح الـ slug في الـ URL (SEO)
-        if (empty($slug) || $category_trans->slug !== $slug) {
+        // تصحيح الـ slug في الرابط لدعم SEO
+        if (!empty($category_trans->slug) && $slug !== $category_trans->slug) {
             return redirect()->route('media-summary-categories.show', [
                 'id'   => $category_trans->id,
                 'slug' => $category_trans->slug,
-            ]);
+            ], 301);
         }
 
-        // 4. جلب ملخصات الوسائط المنشورة في هذه الفئة
-        $mediaSummaries = MediaSummary::with([
-            'translations',
-            'media',
-            'user',
+        $categoryId = $category_trans->media_summary_category_id ?? $category_trans->category->id;
+
+        $summaries = MediaSummaryTranslation::with([
+            'mediaSummary.media',
+            'mediaSummary.category.translations',
+            'mediaSummary.tags.translations',
+            'mediaSummary.location.translations',
         ])
-            ->where('media_summary_category_id', $category_trans->category->id)
+            ->where('locale', $currentLocale)
             ->where('status', 'published')
+            ->whereHas('mediaSummary', function ($q) use ($categoryId) {
+                $q->where('status', 'published')
+                    ->where('media_summary_category_id', $categoryId);
+            })
             ->latest()
             ->paginate(12);
 
-        return view('media_summary_category', compact('category_trans', 'mediaSummaries'));
+        return view('media_summaries.category', compact('category_trans', 'summaries'));
     }
 }

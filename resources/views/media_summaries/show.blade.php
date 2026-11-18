@@ -42,16 +42,25 @@
         <header class="mb-8 pb-6 border-b border-slate-800">
             <div class="flex items-center gap-2 mb-4">
                 @php
-                    $categoryTrans = $media_trans->mediaSummary->category?->translations
-                        ->where('locale', app()->getLocale())
-                        ->first()
-                        ?? $media_trans->mediaSummary->category?->translations->first();
+                    $categoryObj = $media_trans->mediaSummary?->category;
+                    $categoryTrans = $categoryObj?->translations
+                        ->firstWhere('locale', app()->getLocale())
+                        ?? $categoryObj?->translations->first();
                 @endphp
-                <span class="bg-indigo-950 text-indigo-400 border border-indigo-800 px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider">
-                        @if($categoryTrans)
-                            {{ $categoryTrans->name }}
-                        @endif
-                </span>
+
+                @if($categoryObj)
+                    @if($categoryTrans)
+                        <a href="{{ route('media-summary-categories.show', ['id' => $categoryTrans->id, 'slug' => $categoryTrans->slug]) }}"
+                        class="bg-indigo-950 hover:bg-indigo-900 text-indigo-400 border border-indigo-800 px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider transition-colors">
+                            {{ $categoryTrans->name ?? $categoryObj->label }}
+                        </a>
+                    @else
+                        <span class="bg-indigo-950 text-indigo-400 border border-indigo-800 px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider">
+                            {{ $categoryObj->label }}
+                        </span>
+                    @endif
+                @endif
+
                 @if($media_trans->mediaSummary->release_year)
                     <span class="text-slate-400 text-xs font-mono">• {{ $media_trans->mediaSummary->release_year }}</span>
                 @endif
@@ -100,45 +109,6 @@
             </div>
         </header>
 
-        <!-- 👤 بطاقة معلومات الكاتب وزر المتابعة المدمج -->
-        {{--
-        @if($media_trans->author)
-            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 mb-8 flex items-center justify-between gap-4 shadow-sm">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-red-950/80 border border-red-800/60 flex items-center justify-center text-red-400 font-bold text-xs">
-                        {{ strtoupper(substr($media_trans->author->name, 0, 1)) }}
-                    </div>
-                    <div>
-                        <span class="text-[10px] uppercase font-bold text-slate-500 block">Reviewed & Analyzed By</span>
-                        <a href="{{ route('authors.show', $media_trans->author->id) }}" class="text-xs font-bold text-slate-200 hover:text-red-500 transition">
-                            {{ $media_trans->author->name }}
-                        </a>
-                    </div>
-                </div>
-
-                @auth
-                    @if(auth()->id() !== $media_trans->user_id) 
-                        @php
-                            $isFollowingAuthor = auth()->user()->followingAuthors->contains($media_trans->user_id);
-                        @endphp
-
-                        <button type="button" 
-                                id="follow-author-btn-{{ $media_trans->user_id }}"
-                                onclick="toggleFollowAuthor(event, {{ $media_trans->user_id }})"
-                                class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl transition duration-200 border
-                                {{ $isFollowingAuthor 
-                                    ? 'bg-rose-950/80 text-rose-400 border-rose-800/60' 
-                                    : 'bg-slate-800 text-gray-300 border-slate-700 hover:text-white' 
-                                }}">
-                            <span id="follow-author-text-{{ $media_trans->user_id }}">
-                                {{ $isFollowingAuthor ? __('Following') : __('Follow Author') }}
-                            </span>
-                        </button>
-                    @endif
-                @endauth
-            </div>
-        @endif
-        --}}
         <!-- Author card -->
         @include('partials.author-card', ['uploader' => $media_trans->author, 'label' => __('Reviewed & Analyzed By')])
 
@@ -165,6 +135,32 @@
                 </div>
             </section>
         @endif
+
+@php
+    $mediaTags = $media_trans->mediaSummary?->tags ?? collect();
+@endphp
+
+@if($mediaTags->count() > 0)
+    <div class="flex items-center gap-2 flex-wrap mb-8">
+        <span class="text-xs font-bold text-slate-400 uppercase mr-2">{{ __('Tags:') }}</span>
+        @foreach($mediaTags as $tag)
+            @php
+                $tagTrans = $tag->translations->firstWhere('locale', app()->getLocale())
+                    ?? $tag->translations->first();
+            @endphp
+            @if($tagTrans)
+                <a href="{{ route('media-summary-tags.show', ['id' => $tagTrans->id, 'slug' => $tagTrans->slug]) }}"
+                   class="bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors">
+                    # {{ $tagTrans->name ?? $tag->label }}
+                </a>
+            @else
+                <span class="bg-slate-800 text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-xl">
+                    # {{ $tag->label }}
+                </span>
+            @endif
+        @endforeach
+    </div>
+@endif
 
         <div class="mt-8 pt-6 border-t border-slate-800">
             <div class="flex flex-wrap items-center justify-between gap-6 bg-slate-900/20 p-4 rounded-xl">

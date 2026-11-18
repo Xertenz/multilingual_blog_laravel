@@ -26,28 +26,6 @@
         </div>
     </div>
 
-    <!-- شريط الفلترة حسب النوع — منفصل تحت الرأس -->
-    <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-between gap-3 mb-6">
-        <div class="flex items-center gap-2 flex-wrap">
-            <a href="{{ route('media-summaries.index') }}"
-               class="px-3 py-1.5 rounded-lg text-xs font-semibold transition border {{ !request('type') ? 'bg-red-950/80 text-red-400 border-red-800/60' : 'bg-slate-900 text-gray-400 hover:text-white border border-slate-800' }}">
-                {{ __('All Types') }}
-            </a>
-            <a href="{{ route('media-summaries.index', ['type' => 'documentary']) }}"
-               class="px-3 py-1.5 rounded-lg text-xs font-semibold transition border {{ request('type') == 'documentary' ? 'bg-red-950/80 text-red-400 border-red-800/60' : 'bg-slate-900 text-gray-400 hover:text-white border border-slate-800' }}">
-                {{ __('Documentaries') }}
-            </a>
-            <a href="{{ route('media-summaries.index', ['type' => 'movie']) }}"
-               class="px-3 py-1.5 rounded-lg text-xs font-semibold transition border {{ request('type') == 'movie' ? 'bg-red-950/80 text-red-400 border-red-800/60' : 'bg-slate-900 text-gray-400 hover:text-white border border-slate-800' }}">
-                {{ __('Movies') }}
-            </a>
-            <a href="{{ route('media-summaries.index', ['type' => 'series']) }}"
-               class="px-3 py-1.5 rounded-lg text-xs font-semibold transition border {{ request('type') == 'series' ? 'bg-red-950/80 text-red-400 border-red-800/60' : 'bg-slate-900 text-gray-400 hover:text-white border border-slate-800' }}">
-                {{ __('Series') }}
-            </a>
-        </div>
-    </div>
-
     <!-- Media Cards Grid -->
     @if($summaries->count() > 0)
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
