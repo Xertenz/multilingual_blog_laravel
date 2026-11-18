@@ -89,7 +89,7 @@ class ContentGallery extends Component
 
         try {
             $model->addMedia($this->newImage->getRealPath())
-                ->usingFileName(uniqid() . '.' . $this->newImage->getClientOriginalExtension())
+                ->usingFileName(uniqid() . '.' . strtolower($this->newImage->getClientOriginalExtension()))
                 ->withResponsiveImages()
                 ->toMediaCollection($this->collection);
 

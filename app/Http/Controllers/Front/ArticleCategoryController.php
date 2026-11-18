@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
-class CategoryController extends Controller
+class ArticleCategoryController extends Controller
 {
 
     public function index()

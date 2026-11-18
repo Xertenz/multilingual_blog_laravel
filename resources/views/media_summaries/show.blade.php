@@ -41,8 +41,16 @@
     <div class="container mx-auto px-4 py-12 max-w-3xl">
         <header class="mb-8 pb-6 border-b border-slate-800">
             <div class="flex items-center gap-2 mb-4">
+                @php
+                    $categoryTrans = $media_trans->mediaSummary->category?->translations
+                        ->where('locale', app()->getLocale())
+                        ->first()
+                        ?? $media_trans->mediaSummary->category?->translations->first();
+                @endphp
                 <span class="bg-indigo-950 text-indigo-400 border border-indigo-800 px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider">
-                    {{ $media_trans->mediaSummary->type }}
+                        @if($categoryTrans)
+                            {{ $categoryTrans->name }}
+                        @endif
                 </span>
                 @if($media_trans->mediaSummary->release_year)
                     <span class="text-slate-400 text-xs font-mono">• {{ $media_trans->mediaSummary->release_year }}</span>

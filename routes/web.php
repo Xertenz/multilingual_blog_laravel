@@ -10,7 +10,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReactionController;
-use App\Http\Controllers\Front\CategoryController as FrontCategoryController;
+use App\Http\Controllers\Front\ArticleCategoryController as FrontCategoryController;
 use App\Http\Controllers\Front\ArticleSavedController;
 use App\Http\Controllers\Front\CategoryFavoriteController;
 use App\Http\Controllers\Front\SeriesController as FrontSeriesController;
@@ -34,16 +34,17 @@ use App\Livewire\CommunityCaseShow;
 use App\Http\Controllers\Auth\SocialController;
 use App\Http\Controllers\Front\MapController;
 use App\Http\Controllers\Admin\MediaSummaryController;
-use App\Http\Controllers\Admin\MediaSummaryTranslationController;
+use App\Http\Controllers\Admin\MediaSummaryTranslationController as AdminMediaSummaryTranslationController;
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\UserReportController;
 use App\Livewire\AuthorProfile;
 use App\Http\Controllers\Admin\CommunityCaseController;
 use App\Http\Controllers\Admin\GameController;
 use App\Http\Controllers\Admin\GameTranslationController;
-use App\Http\Controllers\Admin\MediaSummaryCategoryTranslationController;
 use App\Http\Controllers\Front\ArticleTagTranslationController as FrontArticleTagTranslationController;
 use App\Http\Controllers\Front\GameController as FrontGameController;
+use App\Http\Controllers\Front\MediaSummaryCategoryTranslationController;
+use App\Http\Controllers\Front\MediaSummaryTranslationController as FrontMediaSummaryTranslationController;
 
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),
@@ -63,8 +64,8 @@ Route::group([
     Route::get('/games/{id}/{slug?}', [FrontGameController::class, 'show'])->where('id', '[0-9]+')->name('games.show');
 
 
-    Route::get('/true-crime-media', [MediaSummaryTranslationController::class, 'index'])->name('media-summaries.index');
-    Route::get('/true-crime-media/{id}/{slug?}', [MediaSummaryTranslationController::class, 'show'])->name('media-summaries.show');
+    Route::get('/media-summaries', [FrontMediaSummaryTranslationController::class, 'index'])->name('media-summaries.index');
+    Route::get('/media-summaries/{id}/{slug?}', [FrontMediaSummaryTranslationController::class, 'show'])->name('media-summaries.show');
 
 
     Route::get('/community', CommunityBoard::class)->name('community.cases.index');
@@ -147,11 +148,11 @@ Route::group([
             Route::get('/media-summaries', [MediaSummaryController::class, 'index'])->name('admin.media-summaries.index');
 
             // الترجمات (الجميع)
-            Route::get('/media-summaries-trans/create/{media_summary_id}', [MediaSummaryTranslationController::class, 'create'])->name('admin.media-summaries-trans.create');
-            Route::post('/media-summaries-trans', [MediaSummaryTranslationController::class, 'store'])->name('admin.media-summaries-trans.store');
-            Route::get('/media-summaries-trans/{id}/edit', [MediaSummaryTranslationController::class, 'edit'])->name('admin.media-summaries-trans.edit');
-            Route::put('/media-summaries-trans/{id}', [MediaSummaryTranslationController::class, 'update'])->name('admin.media-summaries-trans.update');
-            Route::delete('/media-summaries-trans/{id}', [MediaSummaryTranslationController::class, 'destroy'])->name('admin.media-summaries-trans.destroy');
+            Route::get('/media-summaries-trans/create/{media_summary_id}', [AdminMediaSummaryTranslationController::class, 'create'])->name('admin.media-summaries-trans.create');
+            Route::post('/media-summaries-trans', [AdminMediaSummaryTranslationController::class, 'store'])->name('admin.media-summaries-trans.store');
+            Route::get('/media-summaries-trans/{id}/edit', [AdminMediaSummaryTranslationController::class, 'edit'])->name('admin.media-summaries-trans.edit');
+            Route::put('/media-summaries-trans/{id}', [AdminMediaSummaryTranslationController::class, 'update'])->name('admin.media-summaries-trans.update');
+            Route::delete('/media-summaries-trans/{id}', [AdminMediaSummaryTranslationController::class, 'destroy'])->name('admin.media-summaries-trans.destroy');
 
             // رفع صور المحتوى (TinyMCE)
             Route::post('/media-summaries/upload-content-img', [MediaSummaryController::class, 'uploadContentImg'])->name('admin.media-summaries.upload.content');
