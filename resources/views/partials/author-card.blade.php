@@ -10,8 +10,8 @@
             <!-- صورة البروفايل أو الشارة البديلة -->
             <a href="{{ route('authors.show', $uploader->id) }}" class="flex-shrink-0">
                 @if($uploader->hasMedia('avatar_imgs'))
-                    <img src="{{ $uploader->getFirstMediaUrl('avatar_imgs', 'thumb') }}" 
-                         alt="{{ $uploader->name }}" 
+                    <img src="{{ $uploader->getFirstMediaUrl('avatar_imgs', 'thumb') }}"
+                         alt="{{ $uploader->name }}"
                          class="w-11 h-11 rounded-full object-cover border border-red-600/40 shadow-sm" />
                 @else
                     <div class="w-11 h-11 rounded-full bg-red-950/80 border border-red-800/60 flex items-center justify-center text-red-400 font-bold text-sm shadow-sm">
@@ -31,23 +31,8 @@
 
         <!-- زر المتابعة الموحد -->
         @auth
-            @if(auth()->id() !== $uploader->id) 
-                @php
-                    $isFollowingAuthor = auth()->user()->followingAuthors->contains($uploader->id);
-                @endphp
-
-                <button type="button" 
-                        id="follow-author-btn-{{ $uploader->id }}"
-                        onclick="toggleFollowAuthor(event, {{ $uploader->id }})"
-                        class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl transition duration-200 border
-                        {{ $isFollowingAuthor 
-                            ? 'bg-rose-950/80 text-rose-400 border-rose-800/60' 
-                            : 'bg-slate-800 text-gray-300 border-slate-700 hover:text-white' 
-                        }}">
-                    <span id="follow-author-text-{{ $uploader->id }}">
-                        {{ $isFollowingAuthor ? __('Following') : __('Follow Author') }}
-                    </span>
-                </button>
+            @if(auth()->id() !== $uploader->id)
+                <x-follow-button type="author" :model="$uploader" />
             @endif
         @endauth
     </div>

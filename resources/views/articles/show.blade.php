@@ -73,7 +73,7 @@
                     <svg class="w-4 h-4 mr-1.5 text-red-600 rtl:ml-1.5 rtl:mr-0" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                     </svg>
-                    <a href="{{ route('authors.show', $article_trans->user_id) }}" class="hover:text-red-400 transition font-semibold">
+                    <a href="{{ route('authors.show', ['id' => $article_trans->user_id, 'tab' => 'articles']) }}" class="hover:text-red-400 transition font-semibold">
                         {{ $article_trans->author->name ?? 'Investigator Team' }}
                     </a>
                 </div>
@@ -100,23 +100,8 @@
                 @endif
 
                 @auth
-                    @if(auth()->id() !== $article_trans->user_id && $article_trans->user_id)
-                        @php
-                            $isFollowingAuthor = auth()->user()->followingAuthors->contains($article_trans->user_id);
-                        @endphp
-
-                        <button type="button"
-                                id="follow-author-btn-{{ $article_trans->user_id }}"
-                                onclick="toggleFollowAuthor(event, {{ $article_trans->user_id }})"
-                                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition duration-200 border
-                                {{ $isFollowingAuthor
-                                    ? 'bg-rose-950/80 text-rose-400 border-rose-800/60'
-                                    : 'bg-slate-800 text-gray-300 border-slate-700 hover:text-white'
-                                }}">
-                            <span id="follow-author-text-{{ $article_trans->user_id }}">
-                                {{ $isFollowingAuthor ? __('Following') : __('Follow Author') }}
-                            </span>
-                        </button>
+                    @if($article_trans->article && $article_trans->article->author && auth()->id() !== $article_trans->article->author->id)
+                        <x-follow-button type="author" :model="$article_trans->article->author" />
                     @endif
                 @endauth
             </div>
@@ -134,7 +119,7 @@
         <!-- ==================== -->
         <div class="mt-12 bg-[#0f1526] border border-slate-800 rounded-xl p-6 space-y-6">
 
-            <!-- السطر الأول: الإعجابات وتفضيل الفئة -->
+            <!-- السطر الأول: الإعجابات ومتابعة الفئة -->
             <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-800/60">
 
                 <!-- أزرار الـ Reactions (إبهام أعلى / إبهام أسفل) -->
@@ -158,8 +143,7 @@
                             {{ $hasLiked
                                 ? 'bg-emerald-950/80 text-emerald-400 border-emerald-800/60'
                                 : 'border-transparent text-gray-300 hover:text-emerald-400 hover:bg-slate-700/60'
-                            }}"
-                            >
+                            }}">
 
                         {{-- أيقونة الإعجاب: outline + solid --}}
                         <x-heroicon-o-hand-thumb-up id="article-like-icon-outline-{{$article_trans->article->id}}" class="w-5 h-5 {{ $hasLiked ? 'hidden' : '' }}" />
@@ -181,8 +165,7 @@
                             {{ $hasDisliked
                                 ? 'bg-rose-950/80 text-rose-400 border-rose-800/60'
                                 : 'border-transparent text-gray-300 hover:text-rose-400 hover:bg-slate-700/60'
-                            }}"
-                            >
+                            }}">
 
                         {{-- أيقونة عدم الإعجاب: outline + solid --}}
                         <x-heroicon-o-hand-thumb-down id="article-dislike-icon-outline-{{$article_trans->article->id}}" class="w-5 h-5 {{ $hasDisliked ? 'hidden' : '' }}" />
@@ -199,12 +182,13 @@
                     <span class="text-gray-500 text-xs font-medium">More in:</span>
                     @php
                         $current_locale = app()->getLocale();
-                        $category_translation = $article_trans->article->category->translations->where('locale', $current_locale)->first();
-                        $categoryName = $category_translation ? $category_translation->name : $article_trans->article->category->label;
-                        $categoryId = $article_trans->article->category->id;
+                        $category = $article_trans->article->category;
+                        $category_translation = $category?->translations->where('locale', $current_locale)->first();
+                        $categoryName = $category_translation ? $category_translation->name : ($category->label ?? '');
+                        $categoryId = $category?->id;
                     @endphp
 
-                    @if($category_translation)
+                    @if($category && $category_translation)
                         <div class="inline-flex items-center bg-slate-900/80 rounded-xl p-1 border border-slate-800 gap-1">
                             <a href="{{ route('article-categories.show', ['id' => $category_translation->id, 'slug' => $category_translation->slug]) }}"
                                 class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-red-400 hover:text-red-300 hover:bg-slate-700/60 rounded-lg transition duration-200 border border-transparent">
@@ -215,27 +199,30 @@
                                 <span class="text-slate-600 px-0.5">|</span>
 
                                 @php
-                                    $isCategoryFavorite = Auth::user()->favoriteCategories->contains($categoryId);
+                                    $isCategoryFollowed = auth()->user()->follows()
+                                        ->where('followable_type', 'article_category')
+                                        ->where('followable_id', $categoryId)
+                                        ->exists();
                                 @endphp
 
                                 <button type="button"
                                         id="fav-category-btn-{{ $categoryId }}"
-                                        onclick="toggleFavoriteCategory(event, {{ $categoryId }})"
-                                        data-saved="{{ $isCategoryFavorite ? 'true' : 'false' }}"
+                                        onclick="toggleFollowCategory(event, {{ $categoryId }})"
+                                        data-saved="{{ $isCategoryFollowed ? 'true' : 'false' }}"
                                         class="inline-flex items-center justify-center gap-2 px-3.5 py-2 w-[170px] text-xs font-semibold rounded-lg transition duration-200 border
-                                        {{ $isCategoryFavorite
+                                        {{ $isCategoryFollowed
                                             ? 'bg-red-950/80 text-red-400 border-red-800/60'
                                             : 'border-transparent text-gray-300 hover:text-red-400 hover:bg-slate-700/60'
                                         }}">
 
                                     <svg id="fav-category-icon-{{ $categoryId }}"
-                                        class="w-5 h-5 transition-colors duration-200 {{ $isCategoryFavorite ? 'fill-current text-red-500' : 'fill-none' }}"
+                                        class="w-5 h-5 transition-colors duration-200 {{ $isCategoryFollowed ? 'fill-current text-red-500' : 'fill-none' }}"
                                         stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"></path>
                                     </svg>
 
                                     <span id="fav-category-text-{{ $categoryId }}">
-                                        {{ $isCategoryFavorite ? __('Following') : __('Follow Category') }}
+                                        {{ $isCategoryFollowed ? __('Following') : __('Follow Category') }}
                                     </span>
                                 </button>
                             @endauth
@@ -284,24 +271,42 @@
                     <button onclick="copyLink()" class="px-2.5 py-1 text-xs rounded bg-slate-900 text-gray-400 hover:bg-slate-800 hover:text-white transition border border-slate-800">Copy Link</button>
                 </div>
 
-                <!-- أزرار التنقل -->
-                <div class="flex gap-4 text-xs font-semibold">
+                <!-- أزرار التنقل بين المقالات -->
+                <div class="flex items-center flex-wrap gap-2.5 text-xs font-semibold">
                     @if($previousArticle ?? false)
-                    <a href="{{ route('articles.show', $previousArticle->slug) }}" class="text-gray-400 hover:text-red-500 transition flex items-center gap-1">
-                        <svg class="w-4 h-4 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                        </svg>
-                        Previous Case
-                    </a>
+                        <a href="{{ route('articles.show', ['id' => $previousArticle->id, 'slug' => $previousArticle->slug]) }}"
+                           title="{{ $previousArticle->title }}"
+                           class="group inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-900/90 hover:bg-slate-800 text-gray-300 hover:text-white border border-slate-800 hover:border-red-600/50 transition max-w-[210px]">
+                            <svg class="w-4 h-4 shrink-0 text-red-500 rtl:rotate-180 transform group-hover:-translate-x-0.5 rtl:group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                            <span class="truncate">{{ __('Previous Case') }}</span>
+                        </a>
+                    @else
+                        <span class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-900/40 text-slate-600 border border-slate-800/60 cursor-not-allowed">
+                            <svg class="w-4 h-4 shrink-0 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                            <span>{{ __('Previous Case') }}</span>
+                        </span>
                     @endif
 
                     @if($nextArticle ?? false)
-                    <a href="{{ route('articles.show', $nextArticle->slug) }}" class="text-gray-400 hover:text-red-500 transition flex items-center gap-1">
-                        Next Case
-                        <svg class="w-4 h-4 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                        </svg>
-                    </a>
+                        <a href="{{ route('articles.show', ['id' => $nextArticle->id, 'slug' => $nextArticle->slug]) }}"
+                           title="{{ $nextArticle->title }}"
+                           class="group inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-900/90 hover:bg-slate-800 text-gray-300 hover:text-white border border-slate-800 hover:border-red-600/50 transition max-w-[210px]">
+                            <span class="truncate">{{ __('Next Case') }}</span>
+                            <svg class="w-4 h-4 shrink-0 text-red-500 rtl:rotate-180 transform group-hover:translate-x-0.5 rtl:group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </a>
+                    @else
+                        <span class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-900/40 text-slate-600 border border-slate-800/60 cursor-not-allowed">
+                            <span>{{ __('Next Case') }}</span>
+                            <svg class="w-4 h-4 shrink-0 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </span>
                     @endif
                 </div>
             </div>
@@ -412,10 +417,10 @@
         alert('Opening evidence image #' + (index + 1));
     }
 
-    // 4. تفضيل الفئات
-    async function toggleFavoriteCategory(event, categoryId) {
+    // 4. متابعة الفئات عبر النظام الموحد
+    async function toggleFollowCategory(event, categoryId) {
         event.preventDefault();
-        const baseUrl = "{{ route('article-categories.favorite', ':id') }}";
+        const baseUrl = "{{ route('follows.toggle', ['type' => 'article_category', 'id' => ':id']) }}";
         const url = baseUrl.replace(':id', categoryId);
 
         const btn = document.getElementById(`fav-category-btn-${categoryId}`);
@@ -434,25 +439,26 @@
 
             if (!response.ok) throw new Error('Network response was not ok');
             let data = await response.json();
+            const isFollowed = Boolean(data.is_following ?? data.following ?? data.attached);
 
-            if (data.is_favorite) {
+            if (isFollowed) {
                 btn.setAttribute('data-saved', 'true');
                 btn.className = "inline-flex items-center justify-center gap-2 px-3.5 py-2 w-[170px] text-xs font-semibold rounded-lg transition-all duration-200 border bg-red-950/80 text-red-400 border-red-800/60 hover:bg-red-900/40";
                 icon.classList.remove('fill-none');
                 icon.classList.add('fill-current', 'text-red-500');
                 textSpan.textContent = "{{ __('Following') }}";
-                showToast('success', "Successfully added to favorites!");
+                if (typeof showToast === 'function') showToast('success', "Successfully followed category!");
             } else {
                 btn.setAttribute('data-saved', 'false');
                 btn.className = "inline-flex items-center justify-center gap-2 px-3.5 py-2 w-[170px] text-xs font-semibold rounded-lg transition-all duration-200 border border-transparent text-gray-300 hover:text-red-400 hover:bg-slate-700/60";
                 icon.classList.remove('fill-current', 'text-red-500');
                 icon.classList.add('fill-none');
                 textSpan.textContent = "{{ __('Follow Category') }}";
-                showToast('success', "Successfully removed from favorites!");
+                if (typeof showToast === 'function') showToast('success', "Successfully unfollowed category!");
             }
         } catch (error) {
-            console.error('Error toggling category favorite status:', error);
-            showToast('error', "Error in the operation with favorite categories!");
+            console.error('Error toggling category follow status:', error);
+            if (typeof showToast === 'function') showToast('error', "Error toggling category follow status!");
         }
     }
 
@@ -571,41 +577,5 @@
             }, 400);
         }
     });
-
-    // 7. متابعة الكاتب
-    async function toggleFollowAuthor(event, authorId) {
-        event.preventDefault();
-        const baseUrl = "{{ route('authors.follow', ':id') }}";
-        const url = baseUrl.replace(':id', authorId);
-
-        const btn = document.getElementById(`follow-author-btn-${authorId}`);
-        const textSpan = document.getElementById(`follow-author-text-${authorId}`);
-
-        try {
-            let response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Accept': 'application/json'
-                }
-            });
-
-            if (!response.ok) throw new Error('Network response was not ok');
-            let data = await response.json();
-
-            if (data.is_following) {
-                btn.className = "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition duration-200 border bg-rose-950/80 text-rose-400 border-rose-800/60";
-                textSpan.textContent = "{{ __('Following') }}";
-                showToast('success', "Successfully followed the author!");
-            } else {
-                btn.className = "inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition duration-200 border bg-slate-800 text-gray-300 border-slate-700 hover:text-white";
-                textSpan.textContent = "{{ __('Follow Author') }}";
-                showToast('success', "Successfully unfollowed the author!");
-            }
-        } catch (error) {
-            console.error('Error toggling author follow status:', error);
-        }
-    }
 </script>
 @endpush

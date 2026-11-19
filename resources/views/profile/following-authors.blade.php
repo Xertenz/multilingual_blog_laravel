@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="py-8 bg-[#0a0f1f] min-h-screen text-slate-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            
+
             @include('profile.partials.profile-menu')
 
             <div class="bg-slate-900/90 backdrop-blur-md shadow-xl rounded-2xl border border-slate-800 overflow-hidden">
@@ -23,14 +23,14 @@
                         @if($loop->first)
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="authors-grid">
                         @endif
-                        
+
                         <div id="author-card-{{ $author->id }}" class="flex flex-col justify-between p-5 bg-slate-900/50 border border-slate-800 rounded-xl shadow-sm hover:border-slate-700 transition-all duration-200 group">
                             <div class="flex items-center gap-3">
-                                
+
                                 <!-- 🖼️ فحص وعرض صورة الـ Avatar الخاصة بالكاتب تماماً مثل صفحة البروفايل -->
                                 @php
-                                    $authorAvatar = $author->hasMedia('avatar_imgs') 
-                                        ? $author->getFirstMediaUrl('avatar_imgs', 'thumb') 
+                                    $authorAvatar = $author->hasMedia('avatar_imgs')
+                                        ? $author->getFirstMediaUrl('avatar_imgs', 'thumb')
                                         : null;
                                 @endphp
 
@@ -53,7 +53,7 @@
                             </div>
 
                             <div class="flex items-center justify-end border-t border-slate-800/80 pt-4 mt-4">
-                                <button 
+                                <button
                                     onclick="removeAuthorFromProfile(event, {{ $author->id }})"
                                     type="button"
                                     class="text-xs text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-900/40 border border-rose-900/50 font-semibold px-3 py-1.5 rounded-lg transition-colors duration-150">
@@ -82,13 +82,13 @@
     <script>
         async function removeAuthorFromProfile(event, authorId) {
             event.preventDefault();
-            
-            const baseUrl = "{{ route('authors.follow', ':id') }}";
+
+            const baseUrl = "{{ route('follows.toggle', ['type' => 'author', 'id' => ':id']) }}";
             const url = baseUrl.replace(':id', authorId);
             const card = document.getElementById(`author-card-${authorId}`);
-            
+
             try {
-                let response = await fetch(url, {
+                const response = await fetch(url, {
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json',
@@ -98,19 +98,20 @@
                 });
 
                 if (!response.ok) throw new Error('Network response was not ok');
-                
-                let data = await response.json();
-                
-                if (!data.is_following) {
+
+                const data = await response.json();
+                const isFollowing = Boolean(data.is_following ?? data.following ?? data.attached);
+
+                if (!isFollowing) {
                     if (card) {
                         card.style.opacity = '0';
                         card.style.transform = 'scale(0.95)';
                         card.style.transition = 'all 0.3s ease';
                     }
-                    
+
                     setTimeout(() => {
                         if (card) card.remove();
-                        
+
                         const grid = document.getElementById('authors-grid');
                         if (grid && grid.children.length === 0) {
                             grid.remove();
@@ -124,12 +125,12 @@
                     }, 300);
                 }
 
-                if(typeof window.showToast == 'function') {
+                if (typeof window.showToast === 'function') {
                     showToast('success', "{{ __('Successfully unfollowed the author!') }}");
                 }
             } catch (error) {
                 console.error('Error unfollowing author from profile:', error);
-                if(typeof window.showToast == 'function') {
+                if (typeof window.showToast === 'function') {
                     showToast('error', "{{ __('Error in unfollowing author!') }}");
                 }
             }

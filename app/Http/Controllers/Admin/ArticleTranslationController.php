@@ -213,8 +213,33 @@ class ArticleTranslationController extends Controller
             ->take(4)
             ->get();
 
+        // المقالة السابقة (الأقدم ضمن نفس اللغة والمنشورة)
+        $previousArticle = ArticleTranslation::where('locale', $currentLocale)
+            ->where('status', 'published')
+            ->where('id', '<', $article_trans->id)
+            ->whereHas('article', function ($query) {
+                $query->where('status', 'published');
+            })
+            ->orderBy('id', 'desc')
+            ->first();
 
-        return view('articles.show', compact('article_trans', 'relatedArticles'));
+        // المقالة التالية (الأحدث ضمن نفس اللغة والمنشورة)
+        $nextArticle = ArticleTranslation::where('locale', $currentLocale)
+            ->where('status', 'published')
+            ->where('id', '>', $article_trans->id)
+            ->whereHas('article', function ($query) {
+                $query->where('status', 'published');
+            })
+            ->orderBy('id', 'asc')
+            ->first();
+
+
+        return view('articles.show', compact(
+            'article_trans',
+            'relatedArticles',
+            'previousArticle',
+            'nextArticle'
+        ));
     }
 
     public function edit(Request $request, int $article_trans_id)

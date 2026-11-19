@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="py-8 bg-[#0a0f1f] min-h-screen text-slate-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            
+
             @include('profile.partials.profile-menu')
 
             <div class="bg-slate-900/90 backdrop-blur-md shadow-xl rounded-2xl border border-slate-800 overflow-hidden">
@@ -27,12 +27,12 @@
 
                         @php
                             // جلب الترجمة المطابقة للغة المستخدم أو أول ترجمة متاحة
-                            $translation = $article->translations->where('locale', $userLocale)->first() 
+                            $translation = $article->translations->where('locale', $userLocale)->first()
                                         ?? $article->translations->first();
 
                             // جلب صورة الغلاف البارزة للمقال عبر Spatie MediaLibrary
-                            $featuredImg = $article->hasMedia('featured_imgs') 
-                                ? $article->getFirstMedia('featured_imgs') 
+                            $featuredImg = $article->hasMedia('featured_imgs')
+                                ? $article->getFirstMedia('featured_imgs')
                                 : null;
 
                             // جلب الفئة وترجمتها حسب لغة المستخدم
@@ -45,29 +45,29 @@
                             $authorId = $translation?->user_id ?? $article->user_id;
 
                             // جلب رابط الصورة بنفس نمط صفحة الفئة
-                            $imageUrl = $featuredImg 
-                                ? $featuredImg->getUrl('medium') 
+                            $imageUrl = $featuredImg
+                                ? $featuredImg->getUrl('medium')
                                 : asset('images/default-article.jpg');
                         @endphp
 
                         @if($translation)
-                            <div id="article-card-{{ $article->id }}" 
+                            <div id="article-card-{{ $article->id }}"
                                  class="group relative bg-[#0f1526] border border-slate-800 hover:border-red-600/60 rounded-xl overflow-hidden shadow-lg transition-all duration-300 flex flex-col justify-between">
-                                
+
                                 <div>
                                     <!-- صورة المقالة بنفس تصميم صورة الفئة -->
                                     <div class="relative h-40 w-full overflow-hidden bg-slate-950">
                                         <a href="{{ route('articles.show', ['slug' => $translation->slug, 'id' => $translation->id]) }}" class="block w-full h-full">
-                                            <img src="{{ $imageUrl }}" 
-                                                 alt="{{ $translation->title }}" 
+                                            <img src="{{ $imageUrl }}"
+                                                 alt="{{ $translation->title }}"
                                                  class="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500 ease-in-out"
                                                  loading="lazy">
                                         </a>
                                         <div class="absolute inset-0 bg-gradient-to-t from-[#0f1526] via-transparent to-transparent pointer-events-none"></div>
-                                        
+
                                         <!-- 🏷️ شارة الفئة في أعلى اليسار -->
                                         @if($catTrans && $categoryName)
-                                            <a href="{{ route('article-categories.show', ['id' => $catTrans->id, 'slug' => $catTrans->slug ?? '']) }}" 
+                                            <a href="{{ route('article-categories.show', ['id' => $catTrans->id, 'slug' => $catTrans->slug ?? '']) }}"
                                                class="absolute top-3 left-3 z-10 bg-slate-950/80 backdrop-blur-md text-red-400 hover:text-white hover:bg-red-600 transition duration-200 text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-slate-800">
                                                 {{ $categoryName }}
                                             </a>
@@ -99,7 +99,7 @@
                                 <!-- شريط الكاتب وزر القراءة في الأسفل -->
                                 <div class="p-4 pt-3 border-t border-slate-850 flex items-center justify-between text-xs text-slate-400">
                                     <span class="font-mono truncate max-w-[120px]">
-                                        ✍️ 
+                                        ✍️
                                         @if($authorId)
                                             <a href="{{ route('authors.show', $authorId) }}" class="hover:text-red-400 transition-colors underline decoration-slate-700 hover:decoration-red-400">
                                                 {{ $authorName }}
@@ -123,7 +123,7 @@
                                         {{ $translation->created_at->format('M j, Y') }}
                                     </span>
 
-                                    <button 
+                                    <button
                                         onclick="removeArticleFromProfile(event, {{ $article->id }})"
                                         type="button"
                                         class="text-xs text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-900/40 border border-rose-900/50 font-semibold px-3 py-1.5 rounded-lg transition-colors duration-150">
@@ -153,13 +153,13 @@
     <script>
         async function removeArticleFromProfile(event, articleId) {
             event.preventDefault();
-            
-            const baseUrl = "{{ route('articles.saved', ':id') }}";
+
+            const baseUrl = "{{ route('saved.toggle', ['type' => 'article', 'id' => ':id']) }}";
             const url = baseUrl.replace(':id', articleId);
             const card = document.getElementById(`article-card-${articleId}`);
-            
+
             try {
-                let response = await fetch(url, {
+                const response = await fetch(url, {
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json',
@@ -169,19 +169,23 @@
                 });
 
                 if (!response.ok) throw new Error('Network response was not ok');
-                
-                let data = await response.json();
-                
-                if (!data.is_saved) {
-                    card.style.opacity = '0';
-                    card.style.transform = 'scale(0.95)';
-                    card.style.transition = 'all 0.3s ease';
-                    
+
+                const data = await response.json();
+                const isSaved = Boolean(data.is_saved ?? data.saved ?? data.attached);
+
+                if (!isSaved) {
+                    if (card) {
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.95)';
+                        card.style.transition = 'all 0.3s ease';
+                    }
+
                     setTimeout(() => {
-                        card.remove();
-                        
+                        if (card) card.remove();
+
                         const grid = document.getElementById('articles-grid');
                         if (grid && grid.children.length === 0) {
+                            grid.remove();
                             document.getElementById('saved-articles-grid-wrapper').innerHTML = `
                                 <div class="text-center py-12 bg-slate-900/40 rounded-xl border border-dashed border-slate-800">
                                     <span class="text-3xl mb-2 block">📚</span>
@@ -192,11 +196,11 @@
                     }, 300);
                 }
 
-                if(typeof window.showToast == 'function') {
+                if (typeof window.showToast === 'function') {
                     showToast('success', "{{ __('Successfully removed from saved!') }}");
                 }
             } catch (error) {
-                if(typeof window.showToast == 'function') {
+                if (typeof window.showToast === 'function') {
                     showToast('error', "{{ __('Error in removing from saved!') }}");
                 }
             }
