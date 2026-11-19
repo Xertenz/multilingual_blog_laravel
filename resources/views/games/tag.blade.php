@@ -20,6 +20,9 @@
         </div>
 
         <div class="flex items-center gap-2 shrink-0 self-start sm:self-center">
+            @if($tag_trans->tag)
+                <x-follow-button type="game_tag" :model="$tag_trans->tag" />
+            @endif
             <span class="inline-block px-2.5 py-1 bg-slate-900 text-gray-300 text-[11px] font-mono rounded-md border border-slate-800">
                 {{ $games->total() }} {{ __('Games') }}
             </span>

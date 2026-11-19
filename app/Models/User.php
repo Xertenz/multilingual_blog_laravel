@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\Followable;
 use Illuminate\Database\Eloquent\Model;
 
 // ⚠️ تأكد من هذه الـ imports
@@ -189,24 +190,112 @@ class User extends AuthenticatableUser implements Authenticatable, HasMedia
     /**
      * الكتاب الذين يتابعهم هذا المستخدم
      */
+    /*
     public function followingAuthors()
     {
         return $this->belongsToMany(User::class, 'author_followers', 'user_id', 'author_id');
     }
+    */
 
     /**
      * المتابعون الذين يتابعون هذا المستخدم (إذا كان كاتباً)
      */
+    /*
     public function authorFollowers()
     {
         return $this->belongsToMany(User::class, 'author_followers', 'author_id', 'user_id');
     }
+
+
+    public function followedAuthors()
+    {
+        return $this->morphedByMany(User::class, 'followable', 'follows');
+    }
+    public function followedArticleCategories()
+    {
+        return $this->morphedByMany(ArticleCategory::class, 'followable', 'follows');
+    }
+    public function followedArticleTags()
+    {
+        return $this->morphedByMany(ArticleTag::class, 'followable', 'follows');
+    }
+    */
+
+
+    /**
+     * الفئات التي يتابعها المستخدم
+     */
+    public function followedArticleCategories(): MorphToMany
+    {
+        return $this->morphedByMany(
+            ArticleCategory::class, // الموديل المستهدف
+            'followable',           // اسم العلاقة (نفس اسم morphs)
+            'follows',              // اسم جدول الربط
+            'user_id',              // مفتاح المستخدم في الجدول الوسيط
+            'followable_id',        // مفتاح الكيان المتابع
+            'id',                   // مفتاح المستخدم الأساسي
+            'id'                    // مفتاح الكيان الأساسي
+        )->withTimestamps();
+    }
+
+    /**
+     * الوسوم التي يتابعها المستخدم
+     */
+    public function followedArticleTags(): MorphToMany
+    {
+        return $this->morphedByMany(
+            ArticleTag::class,
+            'followable',
+            'follows',
+            'user_id',
+            'followable_id',
+            'id',
+            'id'
+        )->withTimestamps();
+    }
+
+    public function followedBookCategories(): MorphToMany
+    {
+        return $this->morphedByMany(
+            BookCategory::class,
+            'followable',
+            'follows',
+            'user_id',
+            'followable_id',
+            'id',
+            'id'
+        )->withTimestamps();
+    }
+
+    public function followedBookTags(): MorphToMany
+    {
+        return $this->morphedByMany(
+            BookTag::class,
+            'followable',
+            'follows',
+            'user_id',
+            'followable_id',
+            'id',
+            'id'
+        )->withTimestamps();
+    }
+
+    /**
+     * جميع المتابعات (اختياري) - إذا أردت جلب كل شيء
+     */
+    public function follows()
+    {
+        return $this->hasMany(Follow::class);
+    }
+
 
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('avatar_imgs')
             ->singleFile(); // لضمان احتفاظ المستخدم بصورة شخصية واحدة فقط
     }
+
+
     public function registerMediaConversions(?Media $media = null): void
     {
         // حجم مصغر ومربع للتعليقات والقوائم الصغيرة (مثلاً 150x150 بكسل)

@@ -18,15 +18,21 @@
             </p>
         </div>
 
-        <div class="flex items-center gap-2 shrink-0 self-start sm:self-center">
-            <span class="inline-block px-2.5 py-1 bg-slate-900 text-gray-300 text-[11px] font-mono rounded-md border border-slate-800">
+
+        <div class="flex flex-wrap items-center gap-2 shrink-0 self-start sm:self-center">
+            @if($tag_trans->tag)
+                <x-follow-button type="book_tag" :model="$tag_trans->tag" />
+            @endif
+
+            <span class="inline-flex items-center px-2.5 py-1 bg-slate-900 text-gray-300 text-[11px] font-mono rounded-md border border-slate-800">
                 {{ $translations->total() }} {{ __('Books') }}
             </span>
             <a href="{{ route('books.index') }}"
-               class="inline-block px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-gray-300 text-[11px] font-medium rounded-md border border-slate-800 transition-colors">
+               class="inline-flex items-center px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-gray-300 text-[11px] font-medium rounded-md border border-slate-800 transition-colors">
                 {{ __('All Books') }}
             </a>
         </div>
+
     </div>
 
     <!-- Books Grid -->

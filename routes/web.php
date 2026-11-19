@@ -56,6 +56,9 @@ use App\Http\Controllers\Front\BookTagTranslationController as FrontBookTagTrans
 
 use App\Http\Controllers\Front\ArticleCategoryTranslationController as FrontArticleCategoryTranslationController;
 
+use App\Http\Controllers\Front\FollowController as FrontFollowController;
+use App\Http\Controllers\Front\BookCategoryController as FrontBookCategoryController;
+
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),
     'middleware' => [
@@ -65,6 +68,21 @@ Route::group([
         \App\Http\Middleware\UpdateUserLocale::class
     ]
 ], function () {
+
+    Route::post('/follows/{type}/{id}/toggle', [FrontFollowController::class, 'toggle'])
+        ->whereIn('type', [
+            'author',
+            'article_category',
+            'article_tag',
+            'book_category',
+            'book_tag',
+            'game_category',
+            'game_tag',
+            'media_summary_category',
+            'media_summary_tag',
+        ])
+        ->where('id', '[0-9]+')
+        ->name('follows.toggle');
 
     Route::get('/articles/categories', [FrontCategoryController::class, 'index'])
         ->name('article-categories.index');
@@ -84,6 +102,7 @@ Route::group([
 
 
     // مسارات ملخصات ومراجعات الألعاب (Frontend)
+    /*
     Route::get('/games', [FrontGameController::class, 'index'])->name('games.index');
     Route::get('/games/{id}/{slug?}', [FrontGameController::class, 'show'])
         ->where('id', '[0-9]+')
@@ -95,8 +114,39 @@ Route::group([
         ->where('id', '[0-9]+')
         ->name('game-categories.show');
 
+    */
+
+
+    Route::get('/games', [FrontGameController::class, 'index'])->name('games.index');
+    Route::get('/games/categories', [\App\Http\Controllers\Front\GameCategoryController::class, 'index'])
+        ->name('game-categories.index');
+    Route::get('/games/category/{id}/{slug?}', [FrontGameCategoryTranslationController::class, 'show'])
+        ->where('id', '[0-9]+')
+        ->name('game-categories.show');
+    Route::get('/games/tag/{id}/{slug?}', [FrontGameTagTranslationController::class, 'show'])
+        ->where('id', '[0-9]+')
+        ->name('game-tags.show');
+    Route::get('/games/{id}/{slug?}', [FrontGameController::class, 'show'])
+        ->where('id', '[0-9]+')
+        ->name('games.show');
+
+
+    /*
+    Route::get('/media-summaries', [FrontMediaSummaryTranslationController::class, 'index'])->name('media-summaries.index');
+    Route::get('/media-summaries/category/{id}/{slug?}', [FrontMediaSummaryCategoryTranslationController::class, 'show'])
+        ->where('id', '[0-9]+')
+        ->name('media-summary-categories.show');
+    Route::get('/media-summaries/tag/{id}/{slug?}', [FrontMediaSummaryTagTranslationController::class, 'show'])
+        ->where('id', '[0-9]+')
+        ->name('media-summary-tags.show');
+    Route::get('/media-summaries/{id}/{slug?}', [FrontMediaSummaryTranslationController::class, 'show'])
+        ->where('id', '[0-9]+')
+        ->name('media-summaries.show');
+    */
 
     Route::get('/media-summaries', [FrontMediaSummaryTranslationController::class, 'index'])->name('media-summaries.index');
+    Route::get('/media-summaries/categories', [\App\Http\Controllers\Front\MediaSummaryCategoryController::class, 'index'])
+        ->name('media-summary-categories.index');
     Route::get('/media-summaries/category/{id}/{slug?}', [FrontMediaSummaryCategoryTranslationController::class, 'show'])
         ->where('id', '[0-9]+')
         ->name('media-summary-categories.show');
@@ -111,7 +161,12 @@ Route::group([
     Route::get('/community', CommunityBoard::class)->name('community.cases.index');
     Route::get('/community/cases/{slug}', CommunityCaseShow::class)->name('community.cases.show');
 
+
+
+    // مسارات الكتب (Frontend) — مطابقة لهيكلة المقالات
     Route::get('/books', [FrontBookController::class, 'index'])->name('books.index');
+    Route::get('/books/categories', [FrontBookCategoryController::class, 'index'])
+        ->name('book-categories.index');
     Route::get('/books/category/{id}/{slug?}', [FrontBookCategoryTranslationController::class, 'show'])
         ->where('id', '[0-9]+')
         ->name('book-categories.show');
@@ -121,6 +176,25 @@ Route::group([
     Route::get('/books/{id}/{slug?}', [FrontBookController::class, 'show'])
         ->where('id', '[0-9]+')
         ->name('books.show');
+
+
+    /*
+    Route::get('/books', [FrontBookController::class, 'index'])->name('books.index');
+    Route::get('/books/categories', [FrontBookCategoryTranslationController::class, 'index'])
+        ->name('book-categories.index');
+    Route::get('/books/tag/{id}/{slug?}', [FrontBookTagTranslationController::class, 'show'])
+        ->where('id', '[0-9]+')
+        ->name('book-tags.show');
+    Route::get('/books/{id}/{slug?}', [FrontBookController::class, 'show'])
+        ->where('id', '[0-9]+')
+        ->name('books.show');
+
+    Route::get('/books', [FrontBookController::class, 'index'])->name('books.index');
+    Route::get('/books/categories', [FrontBookCategoryController::class, 'index'])->name('book-categories.index');
+    Route::get('/books/category/{id}/{slug?}', [FrontBookCategoryTranslationController::class, 'show'])
+        ->where('id', '[0-9]+')
+        ->name('book-categories.show');
+    */
 
     Route::get('auth/{provider}', [SocialController::class, 'redirect'])->name('social.redirect');
     Route::get('auth/{provider}/callback', [SocialController::class, 'callback'])->name('social.callback');

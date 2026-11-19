@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class GameTag extends Model
 {
@@ -18,5 +19,18 @@ class GameTag extends Model
     public function games(): BelongsToMany
     {
         return $this->belongsToMany(Game::class, 'game_tag', 'game_tag_id', 'game_id');
+    }
+
+    public function followers(): MorphToMany
+    {
+        return $this->morphToMany(
+            User::class,
+            'followable',
+            'follows',
+            'followable_id',
+            'user_id',
+            'id',
+            'id'
+        )->withTimestamps();
     }
 }

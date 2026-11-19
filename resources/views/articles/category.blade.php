@@ -8,9 +8,9 @@
 @section('content')
 <div class="container mx-auto px-4 py-8">
 
-    <!-- رأس الصفحة — موحّد مع بقية الصفحات -->
-    <div class="bg-[#0f1526] border border-slate-800 rounded-xl px-5 py-4 mb-6 shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div class="space-y-1">
+<!-- رأس الصفحة — موحّد مع بقية الصفحات -->
+    <div class="bg-[#0f1526] border border-slate-800 rounded-xl px-5 py-4 mb-6 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="space-y-1.5">
             <div class="flex items-center gap-2">
                 <span class="w-2 h-2 bg-red-600 rounded-sm shrink-0"></span>
                 <h1 class="text-lg md:text-xl font-bold text-white tracking-wide">
@@ -25,16 +25,28 @@
             @endif
         </div>
 
-        <div class="flex items-center gap-2 shrink-0 self-start sm:self-center">
-            <span class="inline-block px-2.5 py-1 bg-slate-900 text-gray-300 text-[11px] font-mono rounded-md border border-slate-800">
+        <div class="flex flex-wrap items-center gap-2 shrink-0 self-start md:self-center">
+            @if($category_trans->category)
+                <x-follow-button type="article_category" :model="$category_trans->category" />
+            @endif
+
+            <span class="inline-flex items-center px-2.5 py-1.5 bg-slate-900 text-gray-300 text-[11px] font-mono rounded-lg border border-slate-800">
                 {{ $articles->total() }} {{ __('Articles') }}
             </span>
+
             <a href="{{ route('article-categories.index') }}"
-               class="inline-block px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-gray-300 text-[11px] font-medium rounded-md border border-slate-800 transition-colors">
+               class="inline-flex items-center px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-gray-300 text-[11px] font-medium rounded-lg border border-slate-800 transition-colors">
                 {{ __('All Categories') }}
             </a>
         </div>
     </div>
+
+
+
+
+
+
+
 
     <!-- شبكة المقالات التابعة للفئة -->
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

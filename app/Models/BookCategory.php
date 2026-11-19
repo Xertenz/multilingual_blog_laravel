@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -23,6 +24,19 @@ class BookCategory extends Model implements HasMedia
     public function books(): HasMany
     {
         return $this->hasMany(Book::class);
+    }
+
+    public function followers(): MorphToMany
+    {
+        return $this->morphToMany(
+            User::class,
+            'followable',
+            'follows',
+            'followable_id',
+            'user_id',
+            'id',
+            'id'
+        )->withTimestamps();
     }
 
     public function registerMediaConversions(?Media $media = null): void

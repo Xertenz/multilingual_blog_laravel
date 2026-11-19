@@ -11,6 +11,6 @@ class BookTagTranslation extends Model
 
     public function tag(): BelongsTo
     {
-        return $this->belongsTo(BookTag::class, 'book_tag');
+        return $this->belongsTo(BookTag::class, 'book_tag_id');
     }
 }

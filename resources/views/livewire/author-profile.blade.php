@@ -33,6 +33,11 @@
                         @php
                             $isFollowingAuthor = auth()->user()->followingAuthors->contains($author->id);
                         @endphp
+
+
+<x-follow-button type="author" :model="$author" />
+
+
                         <button type="button" 
                                 id="follow-author-btn-{{ $author->id }}"
                                 {{-- onclick="toggleFollowAuthor(event, {{ $author->id }})" --}}

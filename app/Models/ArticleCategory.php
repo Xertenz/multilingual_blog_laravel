@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\Followable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -13,7 +16,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class ArticleCategory extends Model implements HasMedia
 {
     //
-    use InteractsWithMedia;
+    use InteractsWithMedia, HasFactory;
     //protected $fillable = ['label', 'user_id'];
     protected $guarded = [];
 
@@ -34,10 +37,28 @@ class ArticleCategory extends Model implements HasMedia
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    /*
     public function followers(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'article_category_user')->withTimestamps();
     }
+    */
+
+
+
+    public function followers(): MorphToMany
+    {
+        return $this->morphToMany(
+            User::class,        // الموديل المتابِع
+            'followable',       // اسم العلاقة
+            'follows',          // جدول الربط
+            'followable_id',    // مفتاح الكيان الحالي في الجدول الوسيط
+            'user_id',          // مفتاح المستخدم
+            'id',               // مفتاح الكيان الأساسي
+            'id'                // مفتاح المستخدم الأساسي
+        )->withTimestamps();
+    }
+
 
     public function registerMediaConversions(?Media $media = null): void
     {

@@ -24,7 +24,6 @@ class BookCategoryTranslationController extends Controller
 
         $currentLocale = LaravelLocalization::getCurrentLocale();
 
-        // التحويل إلى ترجمة الفئة نفسها باللغة الحالية إن وُجدت
         if ($category_trans->locale !== $currentLocale) {
             $targetTrans = $category_trans->category->translations
                 ? $category_trans->category->translations->firstWhere('locale', $currentLocale)
@@ -38,7 +37,6 @@ class BookCategoryTranslationController extends Controller
             }
         }
 
-        // تصحيح الـ slug في الرابط لدعم SEO
         if (!empty($category_trans->slug) && $slug !== $category_trans->slug) {
             return redirect()->route('book-categories.show', [
                 'id'   => $category_trans->id,
