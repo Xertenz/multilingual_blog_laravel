@@ -19,7 +19,7 @@
     @if($media_trans->mediaSummary->translations ?? false)
         @foreach($media_trans->mediaSummary->translations as $translation)
             <link rel="alternate"
-                hreflang="{{ $translation->locale }}" 
+                hreflang="{{ $translation->locale }}"
                 href="{{ route('media-summaries.show', ['id' => $translation->id, 'slug' => $translation->slug]) }}">
         @endforeach
     @endif
@@ -36,22 +36,23 @@
 @endpush
 
 @section('content')
+@php
+    $mediaSummaryModel = $mediaSummary ?? ($media_summary ?? ($media_trans->mediaSummary ?? null));
+    $categoryObj = $media_trans->mediaSummary?->category;
+    $categoryTrans = $categoryObj?->translations
+        ->firstWhere('locale', app()->getLocale())
+        ?? $categoryObj?->translations->first();
+@endphp
+
     <div class="reading-progress" id="readingProgress"></div>
-    
+
     <div class="container mx-auto px-4 py-12 max-w-3xl">
         <header class="mb-8 pb-6 border-b border-slate-800">
-            <div class="flex items-center gap-2 mb-4">
-                @php
-                    $categoryObj = $media_trans->mediaSummary?->category;
-                    $categoryTrans = $categoryObj?->translations
-                        ->firstWhere('locale', app()->getLocale())
-                        ?? $categoryObj?->translations->first();
-                @endphp
-
+            <div class="flex items-center gap-2 mb-4 flex-wrap">
                 @if($categoryObj)
                     @if($categoryTrans)
                         <a href="{{ route('media-summary-categories.show', ['id' => $categoryTrans->id, 'slug' => $categoryTrans->slug]) }}"
-                        class="bg-indigo-950 hover:bg-indigo-900 text-indigo-400 border border-indigo-800 px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider transition-colors">
+                           class="bg-indigo-950 hover:bg-indigo-900 text-indigo-400 border border-indigo-800 px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider transition-colors">
                             {{ $categoryTrans->name ?? $categoryObj->label }}
                         </a>
                     @else
@@ -64,6 +65,7 @@
                 @if($media_trans->mediaSummary->release_year)
                     <span class="text-slate-400 text-xs font-mono">• {{ $media_trans->mediaSummary->release_year }}</span>
                 @endif
+
                 @if($media_trans->mediaSummary->imdb_rating)
                     <span class="text-amber-400 text-xs font-bold flex items-center gap-1">
                         ★ IMDb {{ $media_trans->mediaSummary->imdb_rating }}
@@ -81,10 +83,10 @@
                     $posterMedia = $media_trans->mediaSummary->getFirstMedia('featured_imgs');
                 @endphp
                 <div class="mb-6 rounded-2xl overflow-hidden border border-slate-800 shadow-xl max-h-[450px] flex justify-center bg-slate-900">
-                    <img src="{{ $posterMedia->getUrl() }}" 
+                    <img src="{{ $posterMedia->getUrl() }}"
                          srcset="{{ $posterMedia->getSrcset() }}"
                          sizes="(max-width: 768px) 100vw, 800px"
-                         alt="{{ $media_trans->title }}" 
+                         alt="{{ $media_trans->title }}"
                          class="w-full object-cover max-h-[450px]"
                          loading="lazy">
                 </div>
@@ -98,6 +100,7 @@
                         </svg>
                         <span>Added: {{ $media_trans->created_at->format('F j, Y') }}</span>
                     </div>
+
                     <div class="flex items-center">
                         <svg class="w-4 h-4 mr-1.5 text-red-600 rtl:ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -106,6 +109,10 @@
                         <span>{{ $media_trans->views }} views</span>
                     </div>
                 </div>
+
+                @if($mediaSummaryModel)
+                    <x-save-button type="media_summary" :model="$mediaSummaryModel" />
+                @endif
             </div>
         </header>
 
@@ -136,31 +143,31 @@
             </section>
         @endif
 
-@php
-    $mediaTags = $media_trans->mediaSummary?->tags ?? collect();
-@endphp
+        @php
+            $mediaTags = $media_trans->mediaSummary?->tags ?? collect();
+        @endphp
 
-@if($mediaTags->count() > 0)
-    <div class="flex items-center gap-2 flex-wrap mb-8">
-        <span class="text-xs font-bold text-slate-400 uppercase mr-2">{{ __('Tags:') }}</span>
-        @foreach($mediaTags as $tag)
-            @php
-                $tagTrans = $tag->translations->firstWhere('locale', app()->getLocale())
-                    ?? $tag->translations->first();
-            @endphp
-            @if($tagTrans)
-                <a href="{{ route('media-summary-tags.show', ['id' => $tagTrans->id, 'slug' => $tagTrans->slug]) }}"
-                   class="bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors">
-                    # {{ $tagTrans->name ?? $tag->label }}
-                </a>
-            @else
-                <span class="bg-slate-800 text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-xl">
-                    # {{ $tag->label }}
-                </span>
-            @endif
-        @endforeach
-    </div>
-@endif
+        @if($mediaTags->count() > 0)
+            <div class="flex items-center gap-2 flex-wrap mb-8">
+                <span class="text-xs font-bold text-slate-400 uppercase mr-2">{{ __('Tags:') }}</span>
+                @foreach($mediaTags as $tag)
+                    @php
+                        $tagTrans = $tag->translations->firstWhere('locale', app()->getLocale())
+                            ?? $tag->translations->first();
+                    @endphp
+                    @if($tagTrans)
+                        <a href="{{ route('media-summary-tags.show', ['id' => $tagTrans->id, 'slug' => $tagTrans->slug]) }}"
+                           class="bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors">
+                            # {{ $tagTrans->name ?? $tag->label }}
+                        </a>
+                    @else
+                        <span class="bg-slate-800 text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-xl">
+                            # {{ $tag->label }}
+                        </span>
+                    @endif
+                @endforeach
+            </div>
+        @endif
 
         <div class="mt-8 pt-6 border-t border-slate-800">
             <div class="flex flex-wrap items-center justify-between gap-6 bg-slate-900/20 p-4 rounded-xl">
@@ -188,18 +195,18 @@
         const scrolled = (winScroll / height) * 100;
         document.getElementById('readingProgress').style.width = scrolled + '%';
     });
-    
+
     function shareOnTwitter() {
         const url = encodeURIComponent(window.location.href);
         const text = encodeURIComponent('{{ $media_trans->title }}');
         window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, '_blank');
     }
-    
+
     function shareOnFacebook() {
         const url = encodeURIComponent(window.location.href);
         window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank');
     }
-    
+
     function copyLink() {
         navigator.clipboard.writeText(window.location.href).then(() => {
             alert('Link copied to clipboard!');
@@ -210,10 +217,10 @@
         event.preventDefault();
         const baseUrl = "{{ route('authors.follow', ':id') }}";
         const url = baseUrl.replace(':id', authorId);
-        
+
         const btn = document.getElementById(`follow-author-btn-${authorId}`);
         const textSpan = document.getElementById(`follow-author-text-${authorId}`);
-        
+
         try {
             let response = await fetch(url, {
                 method: "POST",
@@ -226,7 +233,7 @@
 
             if (!response.ok) throw new Error('Network response was not ok');
             let data = await response.json();
-            
+
             if (data.is_following) {
                 btn.className = "inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl transition duration-200 border bg-rose-950/80 text-rose-400 border-rose-800/60";
                 textSpan.textContent = "{{ __('Following') }}";

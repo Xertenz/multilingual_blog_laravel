@@ -3,7 +3,7 @@
 
 @section('content')
 <div class="container mx-auto py-12 px-4 max-w-4xl">
-    
+
     <!-- Back Link -->
     <div class="mb-6">
         <a href="{{ route('books.index') }}" class="text-xs font-semibold text-slate-400 hover:text-white flex items-center gap-1 transition">
@@ -14,7 +14,7 @@
     <!-- Main Card -->
     <div class="bg-slate-900 rounded-3xl border border-slate-800 shadow-xs overflow-hidden p-6 md:p-10 mb-8 text-slate-200">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            
+
             <!-- Cover Image & Buy Button Column with optimized srcset -->
             <div class="space-y-4">
                 <div class="relative h-80 md:h-96 bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 shadow-xs">
@@ -28,10 +28,10 @@
                     @endphp
 
                     @if($media)
-                        <img src="{{ $media->getUrl('large') }}" 
-                             srcset="{{ $media->getUrl('medium') }} 500w, {{ $media->getUrl('large') }} 1000w" 
+                        <img src="{{ $media->getUrl('large') }}"
+                             srcset="{{ $media->getUrl('medium') }} 500w, {{ $media->getUrl('large') }} 1000w"
                              sizes="(max-width: 768px) 100vw, 400px"
-                             alt="{{ $translation->title ?? 'Book Cover' }}" 
+                             alt="{{ $translation->title ?? 'Book Cover' }}"
                              fetchpriority="high"
                              loading="eager"
                              class="w-full h-full object-cover">
@@ -41,7 +41,7 @@
                 </div>
 
                 @if($translation->affiliate_url)
-                    <a href="{{ $translation->affiliate_url }}" target="_blank" rel="nofollow noopener" 
+                    <a href="{{ $translation->affiliate_url }}" target="_blank" rel="nofollow noopener"
                        class="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm py-3 px-4 rounded-xl shadow-md transition duration-200">
                         <span>Buy Book</span>
                         @if($translation->price)
@@ -56,22 +56,28 @@
 
             <!-- Book Content & Details Column -->
             <div class="md:col-span-2 space-y-6">
-                <div>
-                    <h1 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight mb-2">
+                <div class="space-y-3">
+                    <h1 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
                         {{ $translation->title ?? 'N/A' }}
                     </h1>
-                    {{-- <p class="text-sm text-slate-400">Author: <span class="font-bold text-slate-200">{{ $translation->author->name ?? 'N/A' }}</span></p> --}}
-                    <p class="text-sm text-slate-400">
-                        Author: 
-                        @if($translation->book->author)
-                            <a href="{{ route('authors.show', ['id' => $translation->book->author->id, 'tab' => 'books']) }}" 
-                            class="font-bold text-slate-200 hover:text-red-500 transition">
-                                {{ $translation->book->author->name }}
-                            </a>
-                        @else
-                            <span class="font-bold text-slate-200">N/A</span>
+
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <p class="text-sm text-slate-400">
+                            Author:
+                            @if($translation->book->author)
+                                <a href="{{ route('authors.show', ['id' => $translation->book->author->id, 'tab' => 'books']) }}"
+                                   class="font-bold text-slate-200 hover:text-red-500 transition">
+                                    {{ $translation->book->author->name }}
+                                </a>
+                            @else
+                                <span class="font-bold text-slate-200">N/A</span>
+                            @endif
+                        </p>
+
+                        @if(isset($book))
+                            <x-save-button type="book" :model="$book" />
                         @endif
-                    </p>
+                    </div>
                 </div>
 
                 <!-- Author card here -->
@@ -87,7 +93,7 @@
                         @endphp
                         @if($catTrans)
                             <a href="{{ route('book-categories.show', ['id' => $catTrans->id, 'slug' => $catTrans->slug]) }}"
-                            class="bg-slate-800 hover:bg-indigo-950 px-3 py-1.5 rounded-lg border border-slate-700 hover:border-indigo-700 transition-colors">
+                               class="bg-slate-800 hover:bg-indigo-950 px-3 py-1.5 rounded-lg border border-slate-700 hover:border-indigo-700 transition-colors">
                                 <span class="text-slate-400 block text-[10px]">Category</span>
                                 <span class="font-semibold text-indigo-400">{{ $catTrans->name ?? $book->category->label }}</span>
                             </a>
@@ -148,7 +154,7 @@
                                 @endphp
                                 @if($tagTrans)
                                     <a href="{{ route('book-tags.show', ['id' => $tagTrans->id, 'slug' => $tagTrans->slug]) }}"
-                                    class="bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white text-xs px-3 py-1 rounded-full transition font-medium border border-slate-700/60">
+                                       class="bg-slate-800 hover:bg-red-600 text-slate-300 hover:text-white text-xs px-3 py-1 rounded-full transition font-medium border border-slate-700/60">
                                         # {{ $tagName }}
                                     </a>
                                 @else
@@ -178,10 +184,10 @@
         event.preventDefault();
         const baseUrl = "{{ route('authors.follow', ':id') }}";
         const url = baseUrl.replace(':id', authorId);
-        
+
         const btn = document.getElementById(`follow-author-btn-${authorId}`);
         const textSpan = document.getElementById(`follow-author-text-${authorId}`);
-        
+
         try {
             let response = await fetch(url, {
                 method: "POST",
@@ -194,7 +200,7 @@
 
             if (!response.ok) throw new Error('Network response was not ok');
             let data = await response.json();
-            
+
             if (data.is_following) {
                 btn.className = "inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl transition duration-200 border bg-rose-950/80 text-rose-400 border-rose-800/60";
                 textSpan.textContent = "{{ __('Following') }}";

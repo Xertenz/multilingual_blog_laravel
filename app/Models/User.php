@@ -89,10 +89,12 @@ class User extends AuthenticatableUser implements Authenticatable, HasMedia
         return $this->belongsToMany(ArticleCategory::class, 'article_category_user')->withTimestamps();
     }
 
+    /*
     public function savedArticles(): BelongsToMany
     {
         return $this->belongsToMany(Article::class, 'article_user')->withTimestamps();
     }
+    */
 
     // To get the formatted role name of the user
     public function formattedRole(): Attribute
@@ -280,12 +282,65 @@ class User extends AuthenticatableUser implements Authenticatable, HasMedia
         )->withTimestamps();
     }
 
+
+
     /**
      * جميع المتابعات (اختياري) - إذا أردت جلب كل شيء
      */
     public function follows()
     {
         return $this->hasMany(Follow::class);
+    }
+
+    public function savedArticles(): MorphToMany
+    {
+        return $this->morphedByMany(Article::class, 'savable', 'saved_items', 'user_id', 'savable_id', 'id', 'id')
+            ->withTimestamps();
+    }
+
+    public function savedBooks(): MorphToMany
+    {
+        return $this->morphedByMany(Book::class, 'savable', 'saved_items', 'user_id', 'savable_id', 'id', 'id')
+            ->withTimestamps();
+    }
+
+    public function savedGames(): MorphToMany
+    {
+        return $this->morphedByMany(Game::class, 'savable', 'saved_items', 'user_id', 'savable_id', 'id', 'id')
+            ->withTimestamps();
+    }
+
+    public function savedMediaSummaries(): MorphToMany
+    {
+        return $this->morphedByMany(MediaSummary::class, 'savable', 'saved_items', 'user_id', 'savable_id', 'id', 'id')
+            ->withTimestamps();
+    }
+
+
+    public function authorFollowers(): MorphToMany
+    {
+        return $this->morphToMany(
+            User::class,
+            'followable',
+            'follows',
+            'followable_id',
+            'user_id',
+            'id',
+            'id'
+        )->withTimestamps();
+    }
+
+    public function followingAuthors(): MorphToMany
+    {
+        return $this->morphedByMany(
+            User::class,
+            'followable',
+            'follows',
+            'user_id',
+            'followable_id',
+            'id',
+            'id'
+        )->withTimestamps();
     }
 
 

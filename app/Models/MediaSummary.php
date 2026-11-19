@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -64,6 +65,19 @@ class MediaSummary extends Model implements HasMedia
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function savedBy(): MorphToMany
+    {
+        return $this->morphToMany(
+            User::class,
+            'savable',
+            'saved_items',
+            'savable_id',
+            'user_id',
+            'id',
+            'id'
+        )->withTimestamps();
     }
 
     public function registerMediaConversions(?Media $media = null): void

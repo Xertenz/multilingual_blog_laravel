@@ -5,6 +5,13 @@
 {{-- @section('meta_description', optional($game_trans)->meta_description) --}}
 
 @section('content')
+@php
+    $gameModel = $game ?? ($game_trans->game ?? null);
+    $cat = $game_trans->game?->category;
+    $catTrans = $cat?->translations->firstWhere('locale', app()->getLocale())
+        ?? $cat?->translations->first();
+@endphp
+
 <div class="container mx-auto px-4 py-8 max-w-4xl">
 
     <!-- Breadcrumb / Back Link -->
@@ -29,29 +36,22 @@
             <div class="absolute bottom-6 left-6 right-6 text-white">
                 <!-- Category & Year -->
                 <div class="flex items-center gap-3 mb-2 flex-wrap">
-
-
-@php
-    $cat = $game_trans->game?->category;
-    $catTrans = $cat?->translations->firstWhere('locale', app()->getLocale())
-        ?? $cat?->translations->first();
-@endphp
-
-@if($cat)
-    @if($catTrans)
-        <a href="{{ route('game-categories.show', ['id' => $catTrans->id, 'slug' => $catTrans->slug]) }}"
-           class="bg-indigo-600/90 hover:bg-indigo-600 backdrop-blur-md text-white text-xs font-semibold px-3 py-1 rounded-lg transition-colors">
-            {{ $catTrans->name ?? $cat->label }}
-        </a>
-    @else
-        <span class="bg-indigo-600/90 backdrop-blur-md text-white text-xs font-semibold px-3 py-1 rounded-lg">
-            {{ $cat->label }}
-        </span>
-    @endif
-@endif
+                    @if($cat)
+                        @if($catTrans)
+                            <a href="{{ route('game-categories.show', ['id' => $catTrans->id, 'slug' => $catTrans->slug]) }}"
+                               class="bg-indigo-600/90 hover:bg-indigo-600 backdrop-blur-md text-white text-xs font-semibold px-3 py-1 rounded-lg transition-colors">
+                                {{ $catTrans->name ?? $cat->label }}
+                            </a>
+                        @else
+                            <span class="bg-indigo-600/90 backdrop-blur-md text-white text-xs font-semibold px-3 py-1 rounded-lg">
+                                {{ $cat->label }}
+                            </span>
+                        @endif
+                    @endif
 
                     <span class="text-xs text-slate-300 font-medium">
-                        {{ $game_trans->game?->developer ?? 'Unknown Studio' }} @if($game_trans->game?->published_year) • {{ $game_trans->game->published_year }} @endif
+                        {{ $game_trans->game?->developer ?? 'Unknown Studio' }}
+                        @if($game_trans->game?->published_year) • {{ $game_trans->game->published_year }} @endif
                     </span>
                 </div>
 
@@ -62,7 +62,7 @@
             </div>
         </div>
 
-        <!-- Action Bar: Price, Affiliate Link & Views -->
+        <!-- Action Bar: Price, Views, Save Button & Affiliate Link -->
         <div class="px-6 py-4 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-4">
             <div class="flex items-center gap-4">
                 <div>
@@ -86,13 +86,19 @@
                 </div>
             </div>
 
-            <!-- Store / Affiliate Button -->
-            @if($game_trans->affiliate_url)
-                <a href="{{ $game_trans->affiliate_url }}" target="_blank" rel="nofollow noopener"
-                   class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-5 py-2.5 rounded-md shadow-sm transition-colors flex items-center gap-2">
-                    <span>🛒 {{ __('Get / Buy Game') }}</span>
-                </a>
-            @endif
+            <!-- Save & Store / Affiliate Actions -->
+            <div class="flex items-center flex-wrap gap-2.5">
+                @if($gameModel)
+                    <x-save-button type="game" :model="$gameModel" />
+                @endif
+
+                @if($game_trans->affiliate_url)
+                    <a href="{{ $game_trans->affiliate_url }}" target="_blank" rel="nofollow noopener"
+                       class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-5 py-2.5 rounded-md shadow-sm transition-colors flex items-center gap-2">
+                        <span>🛒 {{ __('Get / Buy Game') }}</span>
+                    </a>
+                @endif
+            </div>
         </div>
     </div>
 
@@ -117,7 +123,7 @@
                 @endphp
                 @if($tagTrans)
                     <a href="{{ route('game-tags.show', ['id' => $tagTrans->id, 'slug' => $tagTrans->slug]) }}"
-                    class="bg-slate-100 dark:bg-slate-700 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 text-slate-700 dark:text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors">
+                       class="bg-slate-100 dark:bg-slate-700 hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 text-slate-700 dark:text-slate-300 text-xs font-semibold px-3 py-1.5 rounded-xl transition-colors">
                         # {{ $tagTrans->name ?? $tag->label }}
                     </a>
                 @else

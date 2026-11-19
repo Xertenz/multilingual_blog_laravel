@@ -3,11 +3,14 @@
 @section('title', $article_trans->meta_title ?? $article_trans->title)
 
 @section('meta_tags')
+    @php
+        $metaDesc = $article_trans->meta_description ?? Str::limit(strip_tags($article_trans->description), 160);
+    @endphp
     <!-- Meta Tags للزوار ومحركات البحث -->
-    <meta name="description" content="{{ $article_trans->meta_description ?? Str::limit(strip_tags($article_trans->meta_description), 160) }}">
+    <meta name="description" content="{{ $metaDesc }}">
     <!-- Open Graph للشبكات الاجتماعية -->
     <meta property="og:title" content="{{ $article_trans->meta_title ?? $article_trans->title }}">
-    <meta property="og:description" content="{{ $article_trans->meta_description ?? Str::limit(strip_tags($article_trans->meta_description), 160) }}">
+    <meta property="og:description" content="{{ $metaDesc }}">
     <meta property="og:type" content="article">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:locale" content="{{ $article_trans->locale ?? 'en' }}">
@@ -16,7 +19,7 @@
     <!-- Twitter Cards -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ $article_trans->meta_title ?? $article_trans->title }}">
-    <meta name="twitter:description" content="{{ $article_trans->meta_description ?? Str::limit(strip_tags($article_trans->meta_description), 160) }}">
+    <meta name="twitter:description" content="{{ $metaDesc }}">
 
     <!-- Canonical URL -->
     <link rel="canonical" href="{{ url()->current() }}">
@@ -92,32 +95,9 @@
 
             <!-- أزرار الإجراءات (حفظ + متابعة الكاتب) -->
             <div class="flex items-center flex-wrap gap-2 pt-4">
-                @auth
-                    @php
-                        $isArticleSaved = auth()->user()->savedArticles->contains($article_trans->article_id);
-                    @endphp
-
-                    <button type="button"
-                            id="save-article-btn-{{ $article_trans->article_id }}"
-                            onclick="toggleSavedArticle(event, {{ $article_trans->article_id }})"
-                            data-saved="{{ $isArticleSaved ? 'true' : 'false' }}"
-                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 border
-                            {{ $isArticleSaved
-                                ? 'bg-indigo-600 text-white border-indigo-500 hover:bg-indigo-700 shadow-sm shadow-indigo-600/20'
-                                : 'bg-slate-800 text-gray-300 border-slate-700 hover:bg-slate-700 hover:text-white'
-                            }}">
-
-                        <svg id="save-icon-{{ $article_trans->article_id }}"
-                            class="w-4 h-4 transition-colors duration-200 {{ $isArticleSaved ? 'fill-current text-white' : 'fill-none' }}"
-                            stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z"></path>
-                        </svg>
-
-                        <span id="save-text-{{ $article_trans->article_id }}">
-                            {{ $isArticleSaved ? __('Saved') : __('Save Article') }}
-                        </span>
-                    </button>
-                @endauth
+                @if($article_trans->article)
+                    <x-save-button type="article" :model="$article_trans->article" />
+                @endif
 
                 @auth
                     @if(auth()->id() !== $article_trans->user_id && $article_trans->user_id)
@@ -228,11 +208,6 @@
                         <div class="inline-flex items-center bg-slate-900/80 rounded-xl p-1 border border-slate-800 gap-1">
                             <a href="{{ route('article-categories.show', ['id' => $category_translation->id, 'slug' => $category_translation->slug]) }}"
                                 class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-red-400 hover:text-red-300 hover:bg-slate-700/60 rounded-lg transition duration-200 border border-transparent">
-                                <!--
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.776..."></path>
-                                </svg>
-                                -->
                                 <span>{{ $categoryName }}</span>
                             </a>
 
@@ -437,50 +412,7 @@
         alert('Opening evidence image #' + (index + 1));
     }
 
-    // 4. حفظ المقالات وتفضيل الفئات
-    async function toggleSavedArticle(event, articleId) {
-        event.preventDefault();
-        const baseUrl = "{{ route('articles.saved', ':id') }}";
-        const url = baseUrl.replace(':id', articleId);
-
-        const btn = document.getElementById(`save-article-btn-${articleId}`);
-        const icon = document.getElementById(`save-icon-${articleId}`);
-        const textSpan = document.getElementById(`save-text-${articleId}`);
-
-        try {
-            let response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Accept': 'application/json'
-                }
-            });
-
-            if (!response.ok) throw new Error('Network response was not ok');
-            let data = await response.json();
-
-            if (data.is_saved) {
-                btn.setAttribute('data-saved', 'true');
-                btn.className = "inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 border bg-indigo-600 text-white border-indigo-500 hover:bg-indigo-700 shadow-sm shadow-indigo-600/20";
-                icon.classList.remove('fill-none');
-                icon.classList.add('fill-current', 'text-white');
-                textSpan.textContent = "{{ __('Saved') }}";
-                showToast('success', "Successfully added to saved!");
-            } else {
-                btn.setAttribute('data-saved', 'false');
-                btn.className = "inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 border bg-slate-800 text-gray-300 border-slate-700 hover:bg-slate-700 hover:text-white";
-                icon.classList.remove('fill-current', 'text-white');
-                icon.classList.add('fill-none');
-                textSpan.textContent = "{{ __('Save Article') }}";
-                showToast('success', "Successfully removed from saved!");
-            }
-        } catch (error) {
-            console.error('Error toggling saved status:', error);
-            showToast('error', "Error in the operation with saved articles!");
-        }
-    }
-
+    // 4. تفضيل الفئات
     async function toggleFavoriteCategory(event, categoryId) {
         event.preventDefault();
         const baseUrl = "{{ route('article-categories.favorite', ':id') }}";
@@ -550,21 +482,18 @@
             document.getElementById(`article-dislike-count-${id}`).textContent = `(${data.dislikes})`;
 
             if (likeBtn.getAttribute('data-active') === 'true') {
-                // إلغاء الإعجاب → outline + border transparent
                 likeBtn.setAttribute('data-active', 'false');
                 likeBtn.className = "flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-gray-300 hover:text-emerald-400 hover:bg-slate-700/60 rounded-lg border border-transparent transition duration-200";
 
                 likeOutline.classList.remove('hidden');
                 likeSolid.classList.add('hidden');
             } else {
-                // تفعيل الإعجاب → solid + border ملون
                 likeBtn.setAttribute('data-active', 'true');
                 likeBtn.className = "flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-lg transition duration-200 border bg-emerald-950/80 text-emerald-400 border-emerald-800/60";
 
                 likeOutline.classList.add('hidden');
                 likeSolid.classList.remove('hidden');
 
-                // إلغاء التفاعل المعاكس → outline + border transparent
                 dislikeBtn.setAttribute('data-active', 'false');
                 dislikeBtn.className = "flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-gray-300 hover:text-rose-400 hover:bg-slate-700/60 rounded-lg border border-transparent transition duration-200";
 
@@ -602,21 +531,18 @@
             document.getElementById(`article-dislike-count-${id}`).textContent = `(${data.dislikes})`;
 
             if (dislikeBtn.getAttribute('data-active') === 'true') {
-                // إلغاء عدم الإعجاب → outline + border transparent
                 dislikeBtn.setAttribute('data-active', 'false');
                 dislikeBtn.className = "flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-gray-300 hover:text-rose-400 hover:bg-slate-700/60 rounded-lg border border-transparent transition duration-200";
 
                 dislikeOutline.classList.remove('hidden');
                 dislikeSolid.classList.add('hidden');
             } else {
-                // تفعيل عدم الإعجاب → solid + border ملون
                 dislikeBtn.setAttribute('data-active', 'true');
                 dislikeBtn.className = "flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-lg transition duration-200 border bg-rose-950/80 text-rose-400 border-rose-800/60";
 
                 dislikeOutline.classList.add('hidden');
                 dislikeSolid.classList.remove('hidden');
 
-                // إلغاء التفاعل المعاكس → outline + border transparent
                 likeBtn.setAttribute('data-active', 'false');
                 likeBtn.className = "flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-gray-300 hover:text-emerald-400 hover:bg-slate-700/60 rounded-lg border border-transparent transition duration-200";
 

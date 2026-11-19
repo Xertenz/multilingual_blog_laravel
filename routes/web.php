@@ -59,6 +59,8 @@ use App\Http\Controllers\Front\ArticleCategoryTranslationController as FrontArti
 use App\Http\Controllers\Front\FollowController as FrontFollowController;
 use App\Http\Controllers\Front\BookCategoryController as FrontBookCategoryController;
 
+use App\Http\Controllers\Front\SavedItemController as FrontSavedItemController;
+
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),
     'middleware' => [
@@ -206,6 +208,22 @@ Route::group([
     // 1. حسابات الأعضاء والزوار المسجلين (Auth Users)
     // =========================================================================
     Route::middleware('auth')->group(function () {
+
+
+
+
+        Route::post('/saved/{type}/{id}/toggle', [FrontSavedItemController::class, 'toggle'])
+            ->whereIn('type', [
+                'article',
+                'book',
+                'game',
+                'media_summary'
+            ])
+            ->where('id', '[0-9]+')
+            ->name('saved.toggle');
+
+
+
 
         Route::post('/authors/{author}/follow', [AuthorController::class, 'toggleFollow'])->name('authors.follow');
 

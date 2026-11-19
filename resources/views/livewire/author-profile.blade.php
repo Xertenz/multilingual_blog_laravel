@@ -30,27 +30,7 @@
 
                 @auth
                     @if(auth()->id() !== $author->id)
-                        @php
-                            $isFollowingAuthor = auth()->user()->followingAuthors->contains($author->id);
-                        @endphp
-
-
-<x-follow-button type="author" :model="$author" />
-
-
-                        <button type="button" 
-                                id="follow-author-btn-{{ $author->id }}"
-                                {{-- onclick="toggleFollowAuthor(event, {{ $author->id }})" --}}
-                                wire:click="toggleFollowAuthor({{$author->id}})"
-                                class="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-xs font-bold rounded-xl transition duration-200 border shadow-md
-                                {{ $isFollowingAuthor 
-                                    ? 'bg-rose-950/80 text-rose-400 border-rose-800/60 hover:bg-rose-900/60' 
-                                    : 'bg-red-600 text-white border-red-500 hover:bg-red-700 shadow-red-600/20' 
-                                }}">
-                            <span id="follow-author-text-{{ $author->id }}">
-                                {{ $isFollowingAuthor ? __('Following') : __('Follow Author') }}
-                            </span>
-                        </button>
+                        <x-follow-button type="author" :model="$author" />
                     @endif
                 @endauth
             </div>

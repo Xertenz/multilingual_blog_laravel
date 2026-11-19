@@ -6,9 +6,7 @@ use App\Models\User;
 use App\Models\ArticleTranslation;
 use App\Models\BookTranslation;
 use App\Models\GameTranslation;
-use App\Models\MediaSummary;
 use App\Models\MediaSummaryTranslation;
-use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -30,13 +28,6 @@ class AuthorProfile extends Component
     public function mount(int $id)
     {
         $this->author = User::findOrFail($id);
-    }
-
-    public function toggleFollowAuthor()
-    {
-        if ($this->author) {
-            Auth::user()->followingAuthors()->toggle($this->author->id);
-        }
     }
 
     public function render()
@@ -79,10 +70,10 @@ class AuthorProfile extends Component
 
         // @intelephense-ignore-line
         return view('livewire.author-profile', [
-            'articles'   => $articles,
-            'books'      => $books,
-            'games'      => $games,
-            'mediaItems' => $mediaItems,
+            'articles'           => $articles,
+            'books'              => $books,
+            'games'              => $games,
+            'mediaItems'         => $mediaItems,
             'totalContributions' => $totalContributions,
         ]);
     }

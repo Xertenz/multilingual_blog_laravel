@@ -2,13 +2,17 @@
 
 namespace App\Providers;
 
+use App\Models\Article;
 use App\Models\ArticleCategory;
 use App\Models\ArticleTag;
+use App\Models\Book;
 use App\Models\BookCategory;
 use App\Models\BookTag;
 use App\Models\Category;
+use App\Models\Game;
 use App\Models\GameCategory;
 use App\Models\GameTag;
+use App\Models\MediaSummary;
 use App\Models\MediaSummaryCategory;
 use App\Models\MediaSummaryTag;
 use App\Models\User;
@@ -51,6 +55,11 @@ class AppServiceProvider extends ServiceProvider
             'game_tag'                => GameTag::class,
             'media_summary_category'  => MediaSummaryCategory::class,
             'media_summary_tag'       => MediaSummaryTag::class,
+
+            'article'                => Article::class,
+            'book'                   => Book::class,
+            'game'                   => Game::class,
+            'media_summary'          => MediaSummary::class,
         ]);
     }
 }
