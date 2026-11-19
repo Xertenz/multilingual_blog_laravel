@@ -175,6 +175,9 @@ Route::group([
         // العناصر المحفوظة الموحدة (Saved Items)
         Route::get('/profile/saved', [ProfileController::class, 'savedItems'])->name('profile.saved');
 
+        // المتابعات الموحدة (Following)
+        Route::get('/profile/following', [ProfileController::class, 'following'])->name('profile.following');
+
         // نظام الحفظ الموحد (Bookmarks / Saved Items)
         Route::post('/saved/{type}/{id}/toggle', [FrontSavedItemController::class, 'toggle'])
             ->whereIn('type', [

@@ -282,6 +282,58 @@ class User extends AuthenticatableUser implements Authenticatable, HasMedia
         )->withTimestamps();
     }
 
+    public function followedGameCategories(): MorphToMany
+    {
+        return $this->morphedByMany(
+            GameCategory::class,
+            'followable',
+            'follows',
+            'user_id',
+            'followable_id',
+            'id',
+            'id'
+        )->withTimestamps();
+    }
+
+    public function followedGameTags(): MorphToMany
+    {
+        return $this->morphedByMany(
+            GameTag::class,
+            'followable',
+            'follows',
+            'user_id',
+            'followable_id',
+            'id',
+            'id'
+        )->withTimestamps();
+    }
+
+    public function followedMediaSummaryCategories(): MorphToMany
+    {
+        return $this->morphedByMany(
+            MediaSummaryCategory::class,
+            'followable',
+            'follows',
+            'user_id',
+            'followable_id',
+            'id',
+            'id'
+        )->withTimestamps();
+    }
+
+    public function followedMediaSummaryTags(): MorphToMany
+    {
+        return $this->morphedByMany(
+            MediaSummaryTag::class,
+            'followable',
+            'follows',
+            'user_id',
+            'followable_id',
+            'id',
+            'id'
+        )->withTimestamps();
+    }
+
 
 
     /**
