@@ -7,25 +7,8 @@ use App\Models\Article;
 use App\Models\Location;
 use Illuminate\Http\Request;
 
-class ArticleLocationController extends Controller
+class LocationController extends Controller
 {
-    /*
-    public function index(Request $request)
-    {
-        // جلب المقالات مع مواقعه وترجماتها
-        $articles = Article::with(['translations', 'locations.translations'])->latest()->paginate(15);
-
-        // المقال المختار لتعيين الموقع (إن وجد)
-        $selectedArticle = $request->has('article_id')
-            ? Article::with('locations.translations')->find($request->article_id)
-            : null;
-
-        return view('admin.article_locations.index', compact('articles', 'selectedArticle'));
-    }
-        */
-
-
-
     public function index(Request $request)
     {
         // جلب المقالات مع مواقعه وترجماتها
@@ -46,44 +29,31 @@ class ArticleLocationController extends Controller
             $locales = ['ar' => 'العربية', 'en' => 'English'];
         }
 
-        // تمرير المتغير $locales إلى الصفحة
         return view('admin.article_locations.index', compact('articles', 'selectedArticle', 'locales'));
     }
 
     public function store(Request $request, Article $article)
     {
-        // 1. التحقق من صحة المدخلات دون فرض لغة إجبارية معينة
         $request->validate([
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-            'translations' => 'required|array',
-            'translations.*.title' => 'nullable|string|max:255',
+            'latitude'               => 'required|numeric|between:-90,90',
+            'longitude'              => 'required|numeric|between:-180,180',
+            'translations'           => 'required|array',
+            'translations.*.title'   => 'nullable|string|max:255',
             'translations.*.description' => 'nullable|string',
         ]);
 
-        /*
-        // التأكد من أن المستخدم أدخل على الأقل عنواناً واحداً بأي لغة كانت
-        $hasAtLeastOneTitle = collect($request->translations)->contains(function ($trans) {
-            return !empty(trim($trans['title'] ?? ''));
-        });
-
-        if (!$hasAtLeastOneTitle) {
-            return back()->withErrors(['translations' => 'يجب إدخال مسمى الموقع بلغة واحدة على الأقل.'])->withInput();
-        }
-        */
-
-        // 2. إنشاء الموقع الأساسي (الإحداثيات)
+        // إنشاء الموقع الأساسي (الإحداثيات) عبر العلاقة الـ polymorphic
         $location = $article->locations()->create([
-            'latitude' => $request->latitude,
+            'latitude'  => $request->latitude,
             'longitude' => $request->longitude,
         ]);
 
-        // 3. حفظ الترجمات للغات التي تم تعبئتها فقط
+        // حفظ الترجمات للغات التي تم تعبئتها فقط
         foreach ($request->translations as $locale => $transData) {
             if (!empty(trim($transData['title'] ?? ''))) {
                 $location->translations()->create([
-                    'locale' => $locale,
-                    'title' => trim($transData['title']),
+                    'locale'      => $locale,
+                    'title'       => trim($transData['title']),
                     'description' => !empty($transData['description']) ? trim($transData['description']) : null,
                 ]);
             }
@@ -95,16 +65,16 @@ class ArticleLocationController extends Controller
     public function update(Request $request, Location $location)
     {
         $request->validate([
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
-            'translations' => 'nullable|array',
-            'translations.*.title' => 'nullable|string|max:255',
+            'latitude'               => 'required|numeric|between:-90,90',
+            'longitude'              => 'required|numeric|between:-180,180',
+            'translations'           => 'nullable|array',
+            'translations.*.title'   => 'nullable|string|max:255',
             'translations.*.description' => 'nullable|string',
         ]);
 
         // 1. تحديث الإحداثيات
         $location->update([
-            'latitude' => $request->latitude,
+            'latitude'  => $request->latitude,
             'longitude' => $request->longitude,
         ]);
 
@@ -115,13 +85,11 @@ class ArticleLocationController extends Controller
                 $description = !empty($transData['description']) ? trim($transData['description']) : null;
 
                 if (!empty($title)) {
-                    // تحديث الترجمة إن وجدت أو إنشاؤها
                     $location->translations()->updateOrCreate(
                         ['locale' => $locale],
                         ['title' => $title, 'description' => $description]
                     );
                 } else {
-                    // إذا مسح المستخدم العنوان بالكامل لهذه اللغة، نُحذف السجل الخاص بها
                     $location->translations()->where('locale', $locale)->delete();
                 }
             }

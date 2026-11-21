@@ -55,7 +55,7 @@ use App\Livewire\Admin\CaseModeration;
 // Admin Controllers
 // =============================================================================
 use App\Http\Controllers\Admin\ArticleController;
-use App\Http\Controllers\Admin\ArticleLocationController;
+use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\ArticleTranslationController;
 use App\Http\Controllers\Admin\BookController;
 use App\Http\Controllers\Admin\GameController;
@@ -282,10 +282,10 @@ Route::group([
             Route::view('/categories', 'admin.article_categories.index')->name('admin.article-categories.index');
             Route::view('/tags', 'admin.article_tags.index')->name('admin.article-tags.index');
 
-            Route::get('/article-locations', [ArticleLocationController::class, 'index'])->name('admin.article-locations.index');
-            Route::post('/articles/{article}/locations', [ArticleLocationController::class, 'store'])->name('admin.article-locations.store');
-            Route::put('/article-locations/{location}', [ArticleLocationController::class, 'update'])->name('admin.article-locations.update');
-            Route::delete('/article-locations/{location}', [ArticleLocationController::class, 'destroy'])->name('admin.article-locations.destroy');
+            Route::get('/locations', [LocationController::class, 'index'])->name('admin.locations.index');
+            Route::post('/articles/{article}/locations', [LocationController::class, 'store'])->name('admin.locations.store');
+            Route::put('/locations/{location}', [LocationController::class, 'update'])->name('admin.locations.update');
+            Route::delete('/locations/{location}', [LocationController::class, 'destroy'])->name('admin.locations.destroy');
 
             // الكتب وفئاتها ووسومها
             Route::get('/books', [BookController::class, 'index'])->name('admin.books.index');

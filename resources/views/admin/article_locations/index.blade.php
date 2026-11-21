@@ -46,7 +46,7 @@
             
             <div class="space-y-2 max-h-[600px] overflow-y-auto pr-1">
                 @foreach($articles as $art)
-                    <a href="{{ route('admin.article-locations.index', ['article_id' => $art->id]) }}" 
+                    <a href="{{ route('admin.locations.index', ['article_id' => $art->id]) }}" 
                        class="block p-3 rounded-xl border transition-all {{ optional($selectedArticle)->id === $art->id ? 'bg-indigo-50 border-indigo-300 ring-1 ring-indigo-300' : 'bg-slate-50 border-slate-200 hover:bg-slate-100' }}">
                         <div class="flex items-center justify-between mb-1">
                             <span class="text-xs font-semibold text-slate-800 truncate">{{ $art->label }}</span>
@@ -98,7 +98,7 @@
                                             <span class="font-bold text-slate-700 block">{{ $loc->translation->title ?? 'موقع بدون عنوان' }}</span>
                                             <span class="text-[10px] font-mono text-slate-400">Lat: {{ $loc->latitude }}, Lng: {{ $loc->longitude }}</span>
                                         </div>
-                                        <form action="{{ route('admin.article-locations.destroy', $loc->id) }}" method="POST" onsubmit="return confirm('هل أنت تأكد من حذف هذا الموقع؟')">
+                                        <form action="{{ route('admin.locations.destroy', $loc->id) }}" method="POST" onsubmit="return confirm('هل أنت تأكد من حذف هذا الموقع؟')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-red-500 hover:text-red-700 text-xs font-bold px-2 py-1">حذف</button>
@@ -133,7 +133,7 @@
                                                 <button type="button" @click="editingLocation = {{ $loc->id }}" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-2 py-1 rounded text-xs font-semibold">
                                                     تعديل / إضافة لغات
                                                 </button>
-                                                <form action="{{ route('admin.article-locations.destroy', $loc->id) }}" method="POST" onsubmit="return confirm('هل أنت تأكد من حذف هذا الموقع؟')">
+                                                <form action="{{ route('admin.locations.destroy', $loc->id) }}" method="POST" onsubmit="return confirm('هل أنت تأكد من حذف هذا الموقع؟')">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="text-red-500 hover:text-red-700 text-xs font-bold px-1.5 py-1">&times;</button>
@@ -149,7 +149,7 @@
                                                     <button type="button" @click="editingLocation = null" class="text-slate-400 hover:text-slate-600 font-bold">&times;</button>
                                                 </div>
 
-                                                <form action="{{ route('admin.article-locations.update', $loc->id) }}" method="POST" class="space-y-4">
+                                                <form action="{{ route('admin.locations.update', $loc->id) }}" method="POST" class="space-y-4">
                                                     @csrf
                                                     @method('PUT')
 
@@ -202,7 +202,7 @@
                 <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
                     <h3 class="text-sm font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100">إضافة موقع جديد وترجماته</h3>
                     
-                    <form action="{{ route('admin.article-locations.store', $selectedArticle->id) }}" method="POST" class="space-y-4">
+                    <form action="{{ route('admin.locations.store', $selectedArticle->id) }}" method="POST" class="space-y-4">
                         @csrf
                         
                         <!-- الإحداثيات (تعبأ تلقائياً عند النقر على الخريطة أو يدوياً بالكتابة) -->
