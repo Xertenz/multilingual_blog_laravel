@@ -20,11 +20,8 @@ class CommunityCaseShow extends Component
     public string $edit_body = '';
     public string $edit_case_status = 'open';
 
-    // حقول تعديل الموقع
-    public $edit_location_title = '';
-    public $edit_location_description = '';
-    public $edit_location_latitude = '';
-    public $edit_location_longitude = '';
+    // مواقع القضية عند التعديل (متعدد)
+    public array $edit_locations = [];
 
     public function mount(string $slug)
     {
@@ -34,6 +31,25 @@ class CommunityCaseShow extends Component
             ->firstOrFail();
 
         $this->communityCase->increment('views_count');
+    }
+
+    public function addEditLocation(): void
+    {
+        $this->edit_locations[] = [
+            'id'          => null,
+            'title'       => '',
+            'latitude'    => '',
+            'longitude'   => '',
+            'description' => '',
+        ];
+    }
+
+    public function removeEditLocation(int $index): void
+    {
+        if (isset($this->edit_locations[$index])) {
+            unset($this->edit_locations[$index]);
+            $this->edit_locations = array_values($this->edit_locations);
+        }
     }
 
     public function openEditModal()
@@ -48,18 +64,22 @@ class CommunityCaseShow extends Component
         }
 
         $this->communityCase->loadMissing('locations.translations');
-        $firstLoc = $this->communityCase->locations->first();
-        $locTrans = $firstLoc?->translation;
 
-        $this->edit_location_latitude    = $firstLoc?->latitude ?? '';
-        $this->edit_location_longitude   = $firstLoc?->longitude ?? '';
-        $this->edit_location_title       = $locTrans?->title ?? '';
-        $this->edit_location_description = $locTrans?->description ?? '';
+        $this->edit_locations = $this->communityCase->locations->map(function ($loc) {
+            $t = $loc->translation;
+            return [
+                'id'          => $loc->id,
+                'title'       => $t?->title ?? '',
+                'latitude'    => $loc->latitude,
+                'longitude'   => $loc->longitude,
+                'description' => $t?->description ?? '',
+            ];
+        })->values()->all();
 
-        $this->edit_title                   = $this->communityCase->title;
+        $this->edit_title                      = $this->communityCase->title;
         $this->edit_community_case_category_id = (string) $this->communityCase->community_case_category_id;
-        $this->edit_body                    = $this->communityCase->body;
-        $this->edit_case_status             = $this->communityCase->case_status?->value ?? $this->communityCase->case_status ?? 'open';
+        $this->edit_body                       = $this->communityCase->body;
+        $this->edit_case_status                = $this->communityCase->case_status?->value ?? $this->communityCase->case_status ?? 'open';
 
         $this->showEditModal = true;
     }
@@ -77,15 +97,17 @@ class CommunityCaseShow extends Component
         }
 
         $this->validate([
-            'edit_title'                   => 'required|string|max:255',
+            'edit_title'                      => 'required|string|max:255',
             'edit_community_case_category_id' => 'required|exists:community_case_categories,id',
-            'edit_body'                    => 'required|string|min:50',
-            'edit_case_status'             => ['required', new Enum(CommunityCaseStatus::class)],
+            'edit_body'                       => 'required|string|min:50',
+            'edit_case_status'                => ['required', new Enum(CommunityCaseStatus::class)],
 
-            'edit_location_title'          => 'nullable|string|max:255',
-            'edit_location_description'    => 'nullable|string|max:2000',
-            'edit_location_latitude'       => 'nullable|numeric|between:-90,90',
-            'edit_location_longitude'      => 'nullable|numeric|between:-180,180',
+            'edit_locations'                  => 'nullable|array',
+            'edit_locations.*.id'             => 'nullable|integer',
+            'edit_locations.*.title'          => 'nullable|string|max:255',
+            'edit_locations.*.description'    => 'nullable|string|max:2000',
+            'edit_locations.*.latitude'       => 'nullable|numeric|between:-90,90|required_with:edit_locations.*.longitude',
+            'edit_locations.*.longitude'      => 'nullable|numeric|between:-180,180|required_with:edit_locations.*.latitude',
         ]);
 
         $newStatus = $this->communityCase->moderation_status;
@@ -101,78 +123,16 @@ class CommunityCaseShow extends Component
             'case_status'                  => $this->edit_case_status,
         ]);
 
-        $this->syncCaseLocation(
-            $this->communityCase,
-            $this->edit_location_title,
-            $this->edit_location_description,
-            $this->edit_location_latitude,
-            $this->edit_location_longitude
-        );
+        $this->syncCaseLocations($this->communityCase, $this->edit_locations);
 
         $this->communityCase->load('locations.translations');
-        //$this->formatCaseLocations();
         $this->dispatch('case-locations-updated', locations: $this->formatCaseLocations());
 
-        $this->reset([
-            'edit_location_title',
-            'edit_location_description',
-            'edit_location_latitude',
-            'edit_location_longitude',
-        ]);
+        $this->reset(['edit_locations']);
+        $this->edit_locations = [];
 
         $this->showEditModal = false;
         session()->flash('message', __('Your case has been updated successfully!'));
-    }
-
-    protected function syncCaseLocation(CommunityCase $case, ?string $title, ?string $description, $lat, $lng): void
-    {
-        $hasCoords = filled($lat) && filled($lng);
-        $hasTitle = filled(trim((string) $title));
-
-        if (!$hasCoords && !$hasTitle) {
-            return;
-        }
-
-        $location = $case->locations()->first();
-
-        if ($hasCoords) {
-            if ($location) {
-                $location->update([
-                    'latitude'  => (float) $lat,
-                    'longitude' => (float) $lng,
-                ]);
-            } else {
-                $location = $case->locations()->create([
-                    'latitude'  => (float) $lat,
-                    'longitude' => (float) $lng,
-                ]);
-            }
-
-            $locale = $case->locale ?: app()->getLocale();
-            $cleanTitle = $hasTitle ? trim((string) $title) : __('Case Location');
-            $cleanDesc = filled(trim((string) $description)) ? trim((string) $description) : null;
-
-            $location->translations()->updateOrCreate(
-                ['locale' => $locale],
-                [
-                    'title'       => $cleanTitle,
-                    'description' => $cleanDesc,
-                ]
-            );
-        }
-    }
-
-    protected function formatCaseLocations(): array
-    {
-        return $this->communityCase->locations->map(function ($loc) {
-            $t = $loc->translation;
-            return [
-                'latitude'    => (float) $loc->latitude,
-                'longitude'   => (float) $loc->longitude,
-                'title'       => $t?->title ?? __('Location'),
-                'description' => $t?->description ?? '',
-            ];
-        })->values()->all();
     }
 
     public function deleteCase()
@@ -197,6 +157,74 @@ class CommunityCaseShow extends Component
         session()->flash('message', __('Case has been deleted successfully!'));
 
         return redirect()->route('community.cases.index');
+    }
+
+    protected function syncCaseLocations(CommunityCase $case, array $items): void
+    {
+        $locale = $case->locale ?: app()->getLocale();
+        $keptIds = [];
+
+        foreach ($items as $item) {
+            $lat = $item['latitude'] ?? null;
+            $lng = $item['longitude'] ?? null;
+            $title = trim((string) ($item['title'] ?? ''));
+            $desc = trim((string) ($item['description'] ?? ''));
+
+            if (!filled($lat) || !filled($lng)) {
+                continue;
+            }
+
+            $locationId = $item['id'] ?? null;
+            $location = null;
+
+            if ($locationId) {
+                $location = $case->locations()->where('id', $locationId)->first();
+            }
+
+            if ($location) {
+                $location->update([
+                    'latitude'  => (float) $lat,
+                    'longitude' => (float) $lng,
+                ]);
+            } else {
+                $location = $case->locations()->create([
+                    'latitude'  => (float) $lat,
+                    'longitude' => (float) $lng,
+                ]);
+            }
+
+            $keptIds[] = $location->id;
+
+            $location->translations()->updateOrCreate(
+                ['locale' => $locale],
+                [
+                    'title'       => $title !== '' ? $title : __('Case Location'),
+                    'description' => $desc !== '' ? $desc : null,
+                ]
+            );
+        }
+
+        $locationsToDelete = empty($keptIds)
+            ? $case->locations()->with('translations')->get()
+            : $case->locations()->whereNotIn('id', $keptIds)->with('translations')->get();
+
+        foreach ($locationsToDelete as $oldLoc) {
+            $oldLoc->translations()->delete();
+            $oldLoc->delete();
+        }
+    }
+
+    protected function formatCaseLocations(): array
+    {
+        return $this->communityCase->locations->map(function ($loc) {
+            $t = $loc->translation;
+            return [
+                'latitude'    => (float) $loc->latitude,
+                'longitude'   => (float) $loc->longitude,
+                'title'       => $t?->title ?? __('Location'),
+                'description' => $t?->description ?? '',
+            ];
+        })->values()->all();
     }
 
     public function render()

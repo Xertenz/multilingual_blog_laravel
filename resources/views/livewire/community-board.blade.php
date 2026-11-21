@@ -105,6 +105,7 @@
                                         title="{{ __('Edit case') }}">
                                     ✏️
                                 </button>
+
                                 <button wire:click="deleteCase({{ $case->id }})"
                                         wire:confirm="{{ __('Are you sure you want to delete this case?') }}"
                                         class="text-gray-400 hover:text-rose-500 transition"
@@ -203,45 +204,61 @@
                             @error('body') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
 
-                        {{-- 5. الموقع الجغرافي (اختياري) --}}
+                        {{-- 5. المواقع الجغرافية (اختياري - متعدد) --}}
                         <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4 space-y-3">
-                            <div class="text-xs font-bold text-red-400 flex items-center gap-1.5">
-                                <span>📍 {{ __('Case Location (Optional)') }}</span>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-bold text-red-400">📍 {{ __('Case Locations (Optional)') }}</span>
+                                <button type="button" wire:click="addLocation"
+                                        class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-gray-200 px-3 py-1 rounded-lg border border-slate-700 transition">
+                                    + {{ __('Add Location') }}
+                                </button>
                             </div>
 
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-400 mb-1">{{ __('Location Title') }}</label>
-                                <input type="text" wire:model.defer="location_title"
-                                       placeholder="{{ __('e.g. Old Harbor District') }}"
-                                       class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-white text-sm focus:outline-none focus:border-red-600">
-                                @error('location_title') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                            </div>
+                            @foreach($locations as $index => $loc)
+                                <div wire:key="new-loc-{{ $index }}" class="bg-slate-950/70 border border-slate-800/90 rounded-xl p-3.5 space-y-2.5">
+                                    <div class="flex items-center justify-between text-xs text-gray-400">
+                                        <span class="font-semibold">{{ __('Location #:num', ['num' => $index + 1]) }}</span>
+                                        <button type="button" wire:click="removeLocation({{ $index }})"
+                                                class="text-rose-400 hover:text-rose-300 text-xs">
+                                            {{ __('Remove') }}
+                                        </button>
+                                    </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-xs font-semibold text-gray-400 mb-1">{{ __('Latitude') }}</label>
-                                    <input type="text" wire:model.defer="location_latitude"
-                                           placeholder="30.5085"
-                                           class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-white text-sm font-mono focus:outline-none focus:border-red-600">
-                                    @error('location_latitude') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                    <div>
+                                        <label class="block text-xs font-semibold text-gray-400 mb-1">{{ __('Location Title') }}</label>
+                                        <input type="text" wire:model.defer="locations.{{ $index }}.title"
+                                               placeholder="{{ __('e.g. Old Harbor District') }}"
+                                               class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-white text-sm focus:outline-none focus:border-red-600">
+                                        @error("locations.$index.title") <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                    </div>
+
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                            <label class="block text-xs font-semibold text-gray-400 mb-1">{{ __('Latitude') }}</label>
+                                            <input type="text" wire:model.defer="locations.{{ $index }}.latitude"
+                                                   placeholder="30.5085"
+                                                   class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-white text-sm font-mono focus:outline-none focus:border-red-600">
+                                            @error("locations.$index.latitude") <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                        </div>
+
+                                        <div>
+                                            <label class="block text-xs font-semibold text-gray-400 mb-1">{{ __('Longitude') }}</label>
+                                            <input type="text" wire:model.defer="locations.{{ $index }}.longitude"
+                                                   placeholder="47.7835"
+                                                   class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-white text-sm font-mono focus:outline-none focus:border-red-600">
+                                            @error("locations.$index.longitude") <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-xs font-semibold text-gray-400 mb-1">{{ __('Location Notes') }}</label>
+                                        <textarea wire:model.defer="locations.{{ $index }}.description" rows="2"
+                                                  placeholder="{{ __('Additional details about this spot...') }}"
+                                                  class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-white text-sm focus:outline-none focus:border-red-600"></textarea>
+                                        @error("locations.$index.description") <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                    </div>
                                 </div>
-
-                                <div>
-                                    <label class="block text-xs font-semibold text-gray-400 mb-1">{{ __('Longitude') }}</label>
-                                    <input type="text" wire:model.defer="location_longitude"
-                                           placeholder="47.7835"
-                                           class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-white text-sm font-mono focus:outline-none focus:border-red-600">
-                                    @error('location_longitude') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-400 mb-1">{{ __('Location Notes') }}</label>
-                                <textarea wire:model.defer="location_description" rows="2"
-                                          placeholder="{{ __('Additional details about this spot...') }}"
-                                          class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-white text-sm focus:outline-none focus:border-red-600"></textarea>
-                                @error('location_description') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                            </div>
+                            @endforeach
                         </div>
 
                         <div class="flex justify-end gap-3 pt-4 border-t border-slate-800">
@@ -316,41 +333,57 @@
                     @error('edit_body') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                 </div>
 
-                {{-- 5. الموقع الجغرافي (اختياري) --}}
+                {{-- 5. المواقع الجغرافية (اختياري - متعدد) --}}
                 <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-4 space-y-3">
-                    <div class="text-xs font-bold text-blue-400 flex items-center gap-1.5">
-                        <span>📍 {{ __('Case Location (Optional)') }}</span>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-blue-400">📍 {{ __('Case Locations (Optional)') }}</span>
+                        <button type="button" wire:click="addEditLocation"
+                                class="text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-gray-200 px-3 py-1 rounded-lg border border-slate-700 transition">
+                            + {{ __('Add Location') }}
+                        </button>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-400 mb-1">{{ __('Location Title') }}</label>
-                        <input type="text" wire:model.defer="edit_location_title"
-                               class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-white text-sm focus:outline-none focus:border-red-600">
-                        @error('edit_location_title') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                    </div>
+                    @foreach($edit_locations as $index => $loc)
+                        <div wire:key="edit-loc-{{ $index }}" class="bg-slate-950/70 border border-slate-800/90 rounded-xl p-3.5 space-y-2.5">
+                            <div class="flex items-center justify-between text-xs text-gray-400">
+                                <span class="font-semibold">{{ __('Location #:num', ['num' => $index + 1]) }}</span>
+                                <button type="button" wire:click="removeEditLocation({{ $index }})"
+                                        class="text-rose-400 hover:text-rose-300 text-xs">
+                                    {{ __('Remove') }}
+                                </button>
+                            </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-400 mb-1">{{ __('Latitude') }}</label>
-                            <input type="text" wire:model.defer="edit_location_latitude"
-                                   class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-white text-sm font-mono focus:outline-none focus:border-red-600">
-                            @error('edit_location_latitude') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-400 mb-1">{{ __('Location Title') }}</label>
+                                <input type="text" wire:model.defer="edit_locations.{{ $index }}.title"
+                                       class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-white text-sm focus:outline-none focus:border-red-600">
+                                @error("edit_locations.$index.title") <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-400 mb-1">{{ __('Latitude') }}</label>
+                                    <input type="text" wire:model.defer="edit_locations.{{ $index }}.latitude"
+                                           class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-white text-sm font-mono focus:outline-none focus:border-red-600">
+                                    @error("edit_locations.$index.latitude") <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                </div>
+
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-400 mb-1">{{ __('Longitude') }}</label>
+                                    <input type="text" wire:model.defer="edit_locations.{{ $index }}.longitude"
+                                           class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-white text-sm font-mono focus:outline-none focus:border-red-600">
+                                    @error("edit_locations.$index.longitude") <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-400 mb-1">{{ __('Location Notes') }}</label>
+                                <textarea wire:model.defer="edit_locations.{{ $index }}.description" rows="2"
+                                          class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2 text-white text-sm focus:outline-none focus:border-red-600"></textarea>
+                                @error("edit_locations.$index.description") <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                            </div>
                         </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-gray-400 mb-1">{{ __('Longitude') }}</label>
-                            <input type="text" wire:model.defer="edit_location_longitude"
-                                   class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-white text-sm font-mono focus:outline-none focus:border-red-600">
-                            @error('edit_location_longitude') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-gray-400 mb-1">{{ __('Location Notes') }}</label>
-                        <textarea wire:model.defer="edit_location_description" rows="2"
-                                  class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-white text-sm focus:outline-none focus:border-red-600"></textarea>
-                        @error('edit_location_description') <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                    </div>
+                    @endforeach
                 </div>
 
                 @if(!auth()->user()->hasAnyRole(['super-admin', 'editor']))
