@@ -8,9 +8,17 @@
 @php
     $user = auth()->user();
     $isFollowed = $user
-        ? $model->followers()->where('users.id', $user->id)->exists()
+        ? \App\Models\Follow::query()
+            ->where('user_id', $user->id)
+            ->where('followable_type', $model->getMorphClass())
+            ->where('followable_id', $model->getKey())
+            ->exists()
         : false;
-    $followersCount = $model->followers()->count();
+
+    $followersCount = \App\Models\Follow::query()
+        ->where('followable_type', $model->getMorphClass())
+        ->where('followable_id', $model->getKey())
+        ->count();
 @endphp
 
 <div x-data="{

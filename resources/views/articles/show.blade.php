@@ -189,42 +189,19 @@
                     @endphp
 
                     @if($category && $category_translation)
-                        <div class="inline-flex items-center bg-slate-900/80 rounded-xl p-1 border border-slate-800 gap-1">
+                        <div class="inline-flex items-center bg-slate-900/80 rounded-xl p-1.5 border border-slate-800 gap-2">
                             <a href="{{ route('article-categories.show', ['id' => $category_translation->id, 'slug' => $category_translation->slug]) }}"
-                                class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-red-400 hover:text-red-300 hover:bg-slate-700/60 rounded-lg transition duration-200 border border-transparent">
+                                class="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-red-400 hover:text-red-300 hover:bg-slate-800/80 rounded-lg transition duration-200">
                                 <span>{{ $categoryName }}</span>
                             </a>
 
                             @auth
-                                <span class="text-slate-600 px-0.5">|</span>
-
-                                @php
-                                    $isCategoryFollowed = auth()->user()->follows()
-                                        ->where('followable_type', 'article_category')
-                                        ->where('followable_id', $categoryId)
-                                        ->exists();
-                                @endphp
-
-                                <button type="button"
-                                        id="fav-category-btn-{{ $categoryId }}"
-                                        onclick="toggleFollowCategory(event, {{ $categoryId }})"
-                                        data-saved="{{ $isCategoryFollowed ? 'true' : 'false' }}"
-                                        class="inline-flex items-center justify-center gap-2 px-3.5 py-2 w-[170px] text-xs font-semibold rounded-lg transition duration-200 border
-                                        {{ $isCategoryFollowed
-                                            ? 'bg-red-950/80 text-red-400 border-red-800/60'
-                                            : 'border-transparent text-gray-300 hover:text-red-400 hover:bg-slate-700/60'
-                                        }}">
-
-                                    <svg id="fav-category-icon-{{ $categoryId }}"
-                                        class="w-5 h-5 transition-colors duration-200 {{ $isCategoryFollowed ? 'fill-current text-red-500' : 'fill-none' }}"
-                                        stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"></path>
-                                    </svg>
-
-                                    <span id="fav-category-text-{{ $categoryId }}">
-                                        {{ $isCategoryFollowed ? __('Following') : __('Follow Category') }}
-                                    </span>
-                                </button>
+                                <span class="text-slate-700">|</span>
+                                <x-follow-button
+                                    type="article_category"
+                                    :model="$category"
+                                    :follow-text="__('Follow Category')"
+                                    :following-text="__('Following')" />
                             @endauth
                         </div>
                     @endif
@@ -415,51 +392,6 @@
     function openLightbox(index) {
         const images = @json($article_trans->article->getMedia('content_imgs')->map(fn($img) => $img->getUrl()));
         alert('Opening evidence image #' + (index + 1));
-    }
-
-    // 4. متابعة الفئات عبر النظام الموحد
-    async function toggleFollowCategory(event, categoryId) {
-        event.preventDefault();
-        const baseUrl = "{{ route('follows.toggle', ['type' => 'article_category', 'id' => ':id']) }}";
-        const url = baseUrl.replace(':id', categoryId);
-
-        const btn = document.getElementById(`fav-category-btn-${categoryId}`);
-        const icon = document.getElementById(`fav-category-icon-${categoryId}`);
-        const textSpan = document.getElementById(`fav-category-text-${categoryId}`);
-
-        try {
-            let response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'Accept': 'application/json'
-                }
-            });
-
-            if (!response.ok) throw new Error('Network response was not ok');
-            let data = await response.json();
-            const isFollowed = Boolean(data.is_following ?? data.following ?? data.attached);
-
-            if (isFollowed) {
-                btn.setAttribute('data-saved', 'true');
-                btn.className = "inline-flex items-center justify-center gap-2 px-3.5 py-2 w-[170px] text-xs font-semibold rounded-lg transition-all duration-200 border bg-red-950/80 text-red-400 border-red-800/60 hover:bg-red-900/40";
-                icon.classList.remove('fill-none');
-                icon.classList.add('fill-current', 'text-red-500');
-                textSpan.textContent = "{{ __('Following') }}";
-                if (typeof showToast === 'function') showToast('success', "Successfully followed category!");
-            } else {
-                btn.setAttribute('data-saved', 'false');
-                btn.className = "inline-flex items-center justify-center gap-2 px-3.5 py-2 w-[170px] text-xs font-semibold rounded-lg transition-all duration-200 border border-transparent text-gray-300 hover:text-red-400 hover:bg-slate-700/60";
-                icon.classList.remove('fill-current', 'text-red-500');
-                icon.classList.add('fill-none');
-                textSpan.textContent = "{{ __('Follow Category') }}";
-                if (typeof showToast === 'function') showToast('success', "Successfully unfollowed category!");
-            }
-        } catch (error) {
-            console.error('Error toggling category follow status:', error);
-            if (typeof showToast === 'function') showToast('error', "Error toggling category follow status!");
-        }
     }
 
     async function articleLike(event, id) {

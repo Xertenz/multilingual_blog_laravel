@@ -395,13 +395,11 @@ class User extends AuthenticatableUser implements Authenticatable, HasMedia
         )->withTimestamps();
     }
 
-
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('avatar_imgs')
             ->singleFile(); // لضمان احتفاظ المستخدم بصورة شخصية واحدة فقط
     }
-
 
     public function registerMediaConversions(?Media $media = null): void
     {

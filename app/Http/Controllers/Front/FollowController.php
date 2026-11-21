@@ -65,11 +65,13 @@ class FollowController extends Controller
             $followed = true;
         }
 
-        //return response()->json();
+        $followersCount = $target instanceof User
+            ? $target->authorFollowers()->count()
+            : $target->followers()->count();
 
         return response()->json([
             'followed'        => $followed,
-            'followers_count' => $target->followers()->count(),
+            'followers_count' => $followersCount
         ]);
     }
 }
