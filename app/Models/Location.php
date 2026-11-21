@@ -4,33 +4,36 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\App;
 
-class ArticleLocation extends Model
+class Location extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'article_id',
+        'locatable_type',
+        'locatable_id',
         'latitude',
         'longitude',
     ];
 
-    public function article()
+    public function locatable(): MorphTo
     {
-        return $this->belongsTo(Article::class);
+        return $this->morphTo();
     }
 
     public function translations()
     {
-        return $this->hasMany(ArticleLocationTranslation::class);
+        return $this->hasMany(LocationTranslation::class);
     }
 
     // دالة مساعدة لجلب الترجمة حسب لغة التصفح الحالية
     public function getTranslationAttribute()
     {
         $locale = App::getLocale();
-        return $this->translations->where('locale', $locale)->first()
+
+        return $this->translations->firstWhere('locale', $locale)
             ?? $this->translations->first();
     }
 }

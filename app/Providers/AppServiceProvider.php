@@ -9,6 +9,7 @@ use App\Models\Book;
 use App\Models\BookCategory;
 use App\Models\BookTag;
 use App\Models\Category;
+use App\Models\CommunityCase;
 use App\Models\Game;
 use App\Models\GameCategory;
 use App\Models\GameTag;
@@ -60,6 +61,7 @@ class AppServiceProvider extends ServiceProvider
             'book'                   => Book::class,
             'game'                   => Game::class,
             'media_summary'          => MediaSummary::class,
+            'community_case'         => CommunityCase::class,
         ]);
     }
 }

@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ArticleLocationTranslation extends Model
+class LocationTranslation extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'article_location_id',
+        'location_id',
         'locale',
         'title',
         'description',
@@ -18,6 +18,6 @@ class ArticleLocationTranslation extends Model
 
     public function location()
     {
-        return $this->belongsTo(ArticleLocation::class, 'article_location_id');
+        return $this->belongsTo(Location::class, 'location_id');
     }
 }

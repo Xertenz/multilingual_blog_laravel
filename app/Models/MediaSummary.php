@@ -37,10 +37,17 @@ class MediaSummary extends Model implements HasMedia
         return $this->hasOne(MediaSummaryTranslation::class)->where('locale', app()->getLocale());
     }
 
-    // الربط مع الموقع الجغرافي
+    /*
     public function location()
     {
         return $this->belongsTo(ArticleLocation::class, 'article_location_id');
+    }
+    */
+
+    // الربط مع الموقع الجغرافي
+    public function locations(): MorphMany
+    {
+        return $this->morphMany(Location::class, 'locatable');
     }
 
     public function category(): BelongsTo

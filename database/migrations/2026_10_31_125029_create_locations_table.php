@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('article_location_translations', function (Blueprint $table) {
+        Schema::create('locations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('article_location_id')->constrained()->cascadeOnDelete();
-            $table->string('locale', 5)->index();
-            $table->string('title');
-            $table->text('description')->nullable();
+            $table->morphs('locatable');
+            $table->decimal('latitude', 10, 8);
+            $table->decimal('longitude', 11, 8);
 
             $table->timestamps();
         });
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('article_location_translations');
+        Schema::dropIfExists('locations');
     }
 };

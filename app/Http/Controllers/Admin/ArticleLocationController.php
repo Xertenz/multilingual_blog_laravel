@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Article;
-use App\Models\ArticleLocation;
+use App\Models\Location;
 use Illuminate\Http\Request;
 
 class ArticleLocationController extends Controller
@@ -92,7 +92,7 @@ class ArticleLocationController extends Controller
         return back()->with('success', 'تم حفظ الموقع وترجماته بنجاح.');
     }
 
-    public function update(Request $request, ArticleLocation $location)
+    public function update(Request $request, Location $location)
     {
         $request->validate([
             'latitude' => 'required|numeric',
@@ -130,7 +130,7 @@ class ArticleLocationController extends Controller
         return back()->with('success', 'تم تحديث بيانات الموقع والترجمات بنجاح.');
     }
 
-    public function destroy(ArticleLocation $location)
+    public function destroy(Location $location)
     {
         $location->translations()->delete();
         $location->delete();

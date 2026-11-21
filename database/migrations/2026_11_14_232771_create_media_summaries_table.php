@@ -12,7 +12,6 @@ return new class extends Migration
         Schema::create('media_summaries', function (Blueprint $table) {
             $table->id();
             $table->foreignId('media_summary_category_id')->nullable()->constrained('media_summary_categories')->nullOnDelete();
-            $table->foreignId('article_location_id')->nullable()->constrained('article_locations')->nullOnDelete();
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
 
             $table->string('label')->unique();

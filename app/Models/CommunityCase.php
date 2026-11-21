@@ -76,4 +76,9 @@ class CommunityCase extends Model
     {
         return $this->morphMany(Report::class, 'reportable');
     }
+
+    public function locations(): MorphMany
+    {
+        return $this->morphMany(Location::class, 'locatable');
+    }
 }
