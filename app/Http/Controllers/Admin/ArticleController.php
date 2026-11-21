@@ -212,7 +212,13 @@ class ArticleController extends Controller
         }
 
         try {
-            $article = Article::findOrFail($article_id);
+            $article = Article::with('locations.translations')->findOrFail($article_id);
+
+            foreach ($article->locations as $location) {
+                $location->translations()->delete();
+                $location->delete();
+            }
+
             $article->clearMediaCollection('featured_imgs');
             $article->clearMediaCollection('content_imgs');
             $article->delete();

@@ -2,7 +2,7 @@
 
     <!--1. العناصر المحفوظة -->
     <a href="{{ route('profile.saved') }}"
-       class="flex-1 text-center px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-150 whitespace-nowrap
+       class="text-center px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-150 whitespace-nowrap
        {{ request()->routeIs('profile.saved')
            ? 'bg-red-950/60 text-red-400 border border-red-900/50 shadow-sm'
            : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -12,7 +12,7 @@
 
     <!-- المتابعات -->
     <a href="{{ route('profile.following') }}"
-       class="flex-1 text-center px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-150 whitespace-nowrap
+       class="text-center px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-150 whitespace-nowrap
        {{ request()->routeIs('profile.following')
            ? 'bg-red-950/60 text-red-400 border border-red-900/50 shadow-sm'
            : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -20,9 +20,19 @@
         {{ __('Following') }}
     </a>
 
+    <!-- 3. قضاياي -->
+    <a href="{{ route('profile.cases') }}"
+       class="text-center px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-150 whitespace-nowrap
+       {{ request()->routeIs('profile.cases')
+           ? 'bg-red-950/60 text-red-400 border border-red-900/50 shadow-sm'
+           : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+       }}">
+        {{ __('My Cases') }}
+    </a>
+
     <!-- 2. إعدادات الحساب -->
     <a href="{{ route('profile.edit') }}"
-        class="flex-1 text-center px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-150 whitespace-nowrap
+        class="text-center px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-150 whitespace-nowrap
         {{ request()->routeIs('profile.edit')
             ? 'bg-red-950/60 text-red-400 border border-red-900/50 shadow-sm'
             : 'text-slate-400 hover:text-white hover:bg-slate-800/60'

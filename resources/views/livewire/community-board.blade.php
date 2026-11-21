@@ -71,63 +71,85 @@
                 $caseCatTrans = $case->category?->translations->where('locale', app()->getLocale())->first()
                              ?? $case->category?->translations->first();
             @endphp
-            <div class="bg-[#0f1526] border border-slate-800 hover:border-red-600/60 rounded-xl p-5 flex flex-col justify-between transition-all duration-300 shadow-lg">
+
+            <div wire:key="board-case-{{ $case->id }}" class="bg-[#0f1526] border border-slate-800 hover:border-slate-700 rounded-xl p-5 flex flex-col justify-between transition-all duration-300 shadow-lg">
                 <div>
-                    <!-- الفئة والتاريخ -->
-                    <div class="flex justify-between items-center mb-3">
+                    <!-- الفئة والوقت -->
+                    <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
                         <span class="text-[10px] font-semibold px-2.5 py-1 rounded-md bg-slate-900 text-red-400 border border-slate-800 font-mono">
                             {{ $caseCatTrans->name ?? __('General') }}
                         </span>
-                        <span class="text-[10px] text-gray-500 font-mono">{{ $case->created_at->diffForHumans() }}</span>
+
+                        <span class="text-[10px] text-gray-500 font-mono">
+                            {{ $case->created_at->diffForHumans() }}
+                        </span>
                     </div>
 
                     <!-- العنوان -->
-                    <h3 class="text-base font-bold text-gray-200 mb-2 line-clamp-2 group-hover:text-red-500 transition-colors">
-                        <a href="{{ route('community.cases.show', $case->slug) }}" class="hover:text-red-500 transition-colors">{{ $case->title }}</a>
+                    <h3 class="text-base font-bold text-gray-100 mb-2 line-clamp-2">
+                        <a href="{{ route('community.cases.show', $case->slug) }}" class="hover:text-red-500 transition-colors">
+                            {{ $case->title }}
+                        </a>
                     </h3>
 
-                    <!-- نبذة -->
+                    <!-- مقتطف المحتوى -->
                     <p class="text-gray-400 text-xs line-clamp-3 mb-4 leading-relaxed">
                         {{ Str::limit(strip_tags($case->body), 120) }}
                     </p>
                 </div>
 
-                <!-- الشريط السفلي: الكاتب + العدادات -->
-                <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-[11px] text-slate-400">
-                    <span class="font-mono truncate max-w-[120px]">
-                        ✍️ {{ $case->author->name ?? __('Anonymous Detective') }}
-                    </span>
-                    <div class="flex items-center gap-3 shrink-0">
-                        @auth
-                            @if($case->user_id === auth()->id() || auth()->user()->hasAnyRole(['super-admin', 'editor']))
-                                <button wire:click="openEditModal({{ $case->id }})"
-                                        class="text-gray-400 hover:text-blue-400 transition"
-                                        title="{{ __('Edit case') }}">
-                                    ✏️
-                                </button>
+                <!-- الشريط السفلي: الكاتب والإحصائيات + أزرار التحكم -->
+                <div class="pt-3 border-t border-slate-800 space-y-2.5 text-[11px] text-slate-400">
+                    <div class="flex items-center justify-between gap-2">
+                        @if($case->author)
+                            <a href="{{ route('authors.show', $case->author->id) }}"
+                            class="font-mono truncate max-w-[140px] hover:text-white transition-colors">
+                                ✍️ {{ $case->author->name }}
+                            </a>
+                        @else
+                            <span class="font-mono truncate max-w-[140px]">
+                                ✍️ {{ __('Anonymous Detective') }}
+                            </span>
+                        @endif
 
-                                <button wire:click="deleteCase({{ $case->id }})"
-                                        wire:confirm="{{ __('Are you sure you want to delete this case?') }}"
-                                        class="text-gray-400 hover:text-rose-500 transition"
-                                        title="{{ __('Delete case') }}">
-                                    🗑️
-                                </button>
+                        <div class="flex items-center gap-2.5 font-mono shrink-0">
+                            @if($case->relationLoaded('locations'))
+                                <span>📍 {{ $case->locations->count() }}</span>
                             @endif
-
-                            @if($case->user_id !== auth()->id())
-                                <button onclick="openReportModal('{{ App\Models\CommunityCase::class }}', {{ $case->id }})"
-                                        class="text-gray-400 hover:text-rose-400 transition" title="{{ __('Report case') }}">
-                                    🚨
-                                </button>
-                            @endif
-                        @endauth
-                        <span class="flex items-center gap-1">💬 {{ $case->comments_count }}</span>
-                        <span class="flex items-center gap-1">👁️ {{ $case->views_count }}</span>
+                            <span>💬 {{ $case->comments_count }}</span>
+                            <span>👁️ {{ $case->views_count }}</span>
+                        </div>
                     </div>
+
+                    @auth
+                        @if($case->user_id === auth()->id() || auth()->user()->hasAnyRole(['super-admin', 'editor']) || $case->user_id !== auth()->id())
+                            <div class="flex items-center justify-end gap-2 pt-1">
+                                @if($case->user_id === auth()->id() || auth()->user()->hasAnyRole(['super-admin', 'editor']))
+                                    <button wire:click="openEditModal({{ $case->id }})"
+                                            class="px-2.5 py-1 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 border border-blue-600/30 font-semibold transition">
+                                        ✏️ {{ __('Edit') }}
+                                    </button>
+
+                                    <button wire:click="deleteCase({{ $case->id }})"
+                                            wire:confirm="{{ __('Are you sure you want to delete this case?') }}"
+                                            class="px-2.5 py-1 rounded-lg bg-rose-600/20 text-rose-400 hover:bg-rose-600/30 border border-rose-600/30 font-semibold transition">
+                                        🗑️ {{ __('Delete') }}
+                                    </button>
+                                @endif
+
+                                @if($case->user_id !== auth()->id())
+                                    <button onclick="openReportModal('{{ App\Models\CommunityCase::class }}', {{ $case->id }})"
+                                            class="px-2.5 py-1 rounded-lg bg-amber-600/15 text-amber-300 hover:bg-amber-600/25 border border-amber-600/30 font-semibold transition">
+                                        🚨 {{ __('Report') }}
+                                    </button>
+                                @endif
+                            </div>
+                        @endif
+                    @endauth
                 </div>
             </div>
         @empty
-            <div class="col-span-full py-12 text-center bg-[#0f1526] border border-slate-800 rounded-xl">
+            <div class="col-span-full py-12 text-center bg-[#0f1526] border border-slate-800 rounded-xl space-y-3">
                 <p class="text-sm text-gray-400">{{ __('No cases published yet in this category. Be the first to submit one!') }}</p>
             </div>
         @endforelse

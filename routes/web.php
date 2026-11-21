@@ -68,6 +68,7 @@ use App\Http\Controllers\Admin\SuggestionController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\PenaltyController;
 use App\Http\Controllers\Admin\UserController;
+use App\Livewire\Profile\MyCommunityCases;
 
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),
@@ -171,6 +172,9 @@ Route::group([
     // 2. حسابات الأعضاء والزوار المسجلين (Authenticated Users)
     // =========================================================================
     Route::middleware('auth')->group(function () {
+
+        // قضايا المجتمع الخاصة بالعضو (My Cases)
+        Route::get('/profile/cases', MyCommunityCases::class)->name('profile.cases');
 
         // العناصر المحفوظة الموحدة (Saved Items)
         Route::get('/profile/saved', [ProfileController::class, 'savedItems'])->name('profile.saved');
