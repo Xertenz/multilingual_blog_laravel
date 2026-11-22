@@ -229,7 +229,7 @@
                                 @endphp
 
                                 <div class="flex items-center justify-between">
-                                    <a href="{{ route('community.cases.show', $case->slug) }}#comment-{{ $comment->id }}" 
+                                    <a href="{{ route('community.cases.show', ['id' => $case->id, 'slug' => $case->slug]) }}#comment-{{ $comment->id }}" 
                                        class="text-emerald-400 hover:text-emerald-300 font-semibold inline-flex items-center gap-1 transition">
                                         <span>🔍 On Detective Board Case: {{ $case->title }}</span>
                                         <svg class="w-3 h-3 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

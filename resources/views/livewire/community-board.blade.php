@@ -87,7 +87,7 @@
 
                     <!-- العنوان -->
                     <h3 class="text-base font-bold text-gray-100 mb-2 line-clamp-2">
-                        <a href="{{ route('community.cases.show', $case->slug) }}" class="hover:text-red-500 transition-colors">
+                        <a href="{{ route('community.cases.show', ['id' => $case->id, 'slug' => $case->slug]) }}" class="hover:text-red-500 transition-colors">
                             {{ $case->title }}
                         </a>
                     </h3>
@@ -147,29 +147,32 @@
                     </div>
 
                     @auth
-                        @if($case->user_id === auth()->id() || auth()->user()->hasAnyRole(['super-admin', 'editor']))
-                            <div class="flex items-center justify-end gap-2 pt-1">
-                                @if($case->user_id === auth()->id() || auth()->user()->hasAnyRole(['super-admin', 'editor']))
-                                    <button wire:click="openEditModal({{ $case->id }})"
-                                            class="px-2.5 py-1 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 border border-blue-600/30 font-semibold transition">
-                                        ✏️ {{ __('Edit') }}
-                                    </button>
+                        @php
+                            $canManageCase = $case->user_id === auth()->id()
+                                || auth()->user()->hasAnyRole(['super-admin', 'editor']);
+                        @endphp
 
-                                    <button wire:click="deleteCase({{ $case->id }})"
-                                            wire:confirm="{{ __('Are you sure you want to delete this case?') }}"
-                                            class="px-2.5 py-1 rounded-lg bg-rose-600/20 text-rose-400 hover:bg-rose-600/30 border border-rose-600/30 font-semibold transition">
-                                        🗑️ {{ __('Delete') }}
-                                    </button>
-                                @endif
+                        <div class="flex items-center justify-end gap-2 pt-1">
+                            @if($canManageCase)
+                                <button wire:click="openEditModal({{ $case->id }})"
+                                        class="px-2.5 py-1 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 border border-blue-600/30 font-semibold transition">
+                                    ✏️ {{ __('Edit') }}
+                                </button>
 
-                                @if($case->user_id !== auth()->id())
-                                    <button onclick="openReportModal('{{ App\Models\CommunityCase::class }}', {{ $case->id }})"
-                                            class="px-2.5 py-1 rounded-lg bg-amber-600/15 text-amber-300 hover:bg-amber-600/25 border border-amber-600/30 font-semibold transition">
-                                        🚨 {{ __('Report') }}
-                                    </button>
-                                @endif
-                            </div>
-                        @endif
+                                <button wire:click="deleteCase({{ $case->id }})"
+                                        wire:confirm="{{ __('Are you sure you want to delete this case?') }}"
+                                        class="px-2.5 py-1 rounded-lg bg-rose-600/20 text-rose-400 hover:bg-rose-600/30 border border-rose-600/30 font-semibold transition">
+                                    🗑️ {{ __('Delete') }}
+                                </button>
+                            @endif
+
+                            @if($case->user_id !== auth()->id())
+                                <button onclick="openReportModal('{{ App\Models\CommunityCase::class }}', {{ $case->id }})"
+                                        class="px-2.5 py-1 rounded-lg bg-amber-600/15 text-amber-300 hover:bg-amber-600/25 border border-amber-600/30 font-semibold transition">
+                                    🚨 {{ __('Report') }}
+                                </button>
+                            @endif
+                        </div>
                     @endauth
                 </div>
             </div>

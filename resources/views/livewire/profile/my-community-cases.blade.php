@@ -97,7 +97,7 @@
 
                     <h3 class="text-base font-bold text-gray-100 mb-2 line-clamp-2">
                         @if($modStatus === 'approved')
-                            <a href="{{ route('community.cases.show', $case->slug) }}" class="hover:text-red-500 transition-colors">
+                            <a href="{{ route('community.cases.show', ['id' => $case->id, 'slug' => $case->slug]) }}" class="hover:text-red-500 transition-colors">
                                 {{ $case->title }}
                             </a>
                         @else
@@ -121,7 +121,7 @@
 
                     <div class="flex items-center gap-2 shrink-0">
                         @if($modStatus === 'approved')
-                            <a href="{{ route('community.cases.show', $case->slug) }}"
+                            <a href="{{ route('community.cases.show', ['id' => $case->id, 'slug' => $case->slug]) }}"
                             class="px-2.5 py-1 rounded-lg bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 border border-emerald-600/30 font-semibold transition">
                                 🔗 {{ __('View') }}
                             </a>

@@ -72,7 +72,7 @@
                         <tr class="hover:bg-slate-50/70 transition-colors">
                             {{-- Title --}}
                             <td class="py-3 px-4 font-medium text-slate-800 max-w-xs">
-                                <a href="{{ route('community.cases.show', $case->slug) }}" target="_blank"
+                                <a href="{{ route('community.cases.show', ['id' => $case->id, 'slug' => $case->slug]) }}" target="_blank"
                                    class="hover:text-red-600 transition line-clamp-2">
                                     {{ $case->title }}
                                 </a>

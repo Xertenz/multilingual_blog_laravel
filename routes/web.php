@@ -151,7 +151,10 @@ Route::group([
 
     // المجتمع والكتّاب (Community & Authors)
     Route::get('/community', CommunityBoard::class)->name('community.cases.index');
-    Route::get('/community/cases/{slug}', CommunityCaseShow::class)->name('community.cases.show');
+    //Route::get('/community/cases/{slug}', CommunityCaseShow::class)->name('community.cases.show');
+    Route::get('/community/cases/{id}/{slug?}', CommunityCaseShow::class)
+        ->where('id', '[0-9]+')
+        ->name('community.cases.show');
     Route::get('/authors/{id}', AuthorProfile::class)
         ->where('id', '[0-9]+')
         ->name('authors.show');

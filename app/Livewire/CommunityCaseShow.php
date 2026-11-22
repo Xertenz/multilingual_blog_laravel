@@ -23,9 +23,9 @@ class CommunityCaseShow extends Component
     // مواقع القضية عند التعديل (متعدد)
     public array $edit_locations = [];
 
-    public function mount(string $slug)
+    public function mount(int $id, ?string $slug = null)
     {
-        $this->communityCase = CommunityCase::where('slug', $slug)
+        $this->communityCase = CommunityCase::where('id', $id)
             ->where('moderation_status', 'approved')
             ->with(['author', 'category.translations', 'locations.translations'])
             ->firstOrFail();

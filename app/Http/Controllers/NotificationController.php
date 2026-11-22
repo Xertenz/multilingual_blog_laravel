@@ -178,7 +178,7 @@ class NotificationController extends Controller
                     }
                     // 2. التوجيه الذكي إذا كان التفاعل على تعليق داخل قضية في لوحة المحققين (CommunityCase)
                     elseif ($commentable instanceof \App\Models\CommunityCase) {
-                        $targetUrl = route('community.cases.show', $commentable->slug) . '#comment-' . $comment->id;
+                        $targetUrl = route('community.cases.show', ['id' => $commentable->id, 'slug' => $commentable->slug]) . '#comment-' . $comment->id;
                     }
                 } else {
                     // Fallback احتياطي في حال الاعتماد على البيانات القديمة المخزنة في الـ JSON
@@ -225,7 +225,7 @@ class NotificationController extends Controller
                         }
                         // 2. إذا كان التعليق داخل قضية في لوحة المحققين (CommunityCase)
                         elseif ($commentable instanceof \App\Models\CommunityCase) {
-                            $targetUrl = route('community.cases.show', $commentable->slug) . $anchor;
+                            $targetUrl = route('community.cases.show', ['id' => $commentable->id, 'slug' => $commentable->slug]) . $anchor;
                         }
                     }
                 }
