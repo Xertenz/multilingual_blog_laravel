@@ -18,6 +18,7 @@ use App\Models\MediaSummaryCategory;
 use App\Models\MediaSummaryTag;
 use App\Models\User;
 use App\Support\PathGenerator\CustomPathGenerator;
+use App\Models\Comment;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -62,6 +63,9 @@ class AppServiceProvider extends ServiceProvider
             'game'                   => Game::class,
             'media_summary'          => MediaSummary::class,
             'community_case'         => CommunityCase::class,
+
+            'comment'                => Comment::class,
+
         ]);
     }
 }

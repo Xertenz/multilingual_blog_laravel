@@ -4,14 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
-class CommentVote extends Model
+class Vote extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'user_id',
-        'comment_id',
+        'votable_type',
+        'votable_id',
         'vote',
     ];
 
@@ -20,8 +22,15 @@ class CommentVote extends Model
         return $this->belongsTo(User::class);
     }
 
+    /*
     public function comment()
     {
         return $this->belongsTo(Comment::class);
+    }
+    */
+
+    public function votable(): MorphTo
+    {
+        return $this->morphTo();
     }
 }

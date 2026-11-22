@@ -204,16 +204,19 @@ class CommentsSection extends Component
             return redirect()->route('login');
         }
 
+        if (!in_array($requestedVote, [1, -1], true)) {
+            return;
+        }
+
         $comment = Comment::findOrFail($commentId);
         $userId = Auth::id();
 
-        // البحث عما إذا كان المستخدم قد تصويت مسبقاً لهذا التعليق
-        $existingVote = \App\Models\CommentVote::where('user_id', $userId)
-            ->where('comment_id', $comment->id)
+        $existingVote = $comment->votes()
+            ->where('user_id', $userId)
             ->first();
 
         if ($existingVote) {
-            if ($existingVote->vote === $requestedVote) {
+            if ((int) $existingVote->vote === $requestedVote) {
                 // إذا ضغط على نفس الزر مرتين، يتم إلغاء التصويت (Toggle off)
                 $existingVote->delete();
             } else {
@@ -221,15 +224,12 @@ class CommentsSection extends Component
                 $existingVote->update(['vote' => $requestedVote]);
             }
         } else {
-            // إضافة تصويت جديد
-            \App\Models\CommentVote::create([
-                'user_id'    => $userId,
-                'comment_id' => $comment->id,
-                'vote'       => $requestedVote,
+            // إضافة تصويت جديد عبر العلاقة البوليمورفية
+            $comment->votes()->create([
+                'user_id' => $userId,
+                'vote'    => $requestedVote,
             ]);
         }
-
-        // Livewire سيقوم بإعادة رسم المكون تلقائياً وتحديث الـ Score والأزرار
     }
 
     public function render()

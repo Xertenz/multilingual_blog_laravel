@@ -243,6 +243,6 @@ class MyCommunityCases extends Component
             'cases'      => $cases,
             'counts'     => $counts,
             'categories' => $categories,
-        ])->layout('layouts.main');
+        ]); //->layout('layouts.main');
     }
 }

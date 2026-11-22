@@ -88,13 +88,13 @@ class Comment extends Model
 
     public function votes()
     {
-        return $this->hasMany(CommentVote::class);
+        return $this->morphMany(Vote::class, 'votable');
     }
 
     // حساب مجموع النقاط الإجمالي للتعليق (Upvotes - Downvotes)
     public function getScoreAttribute()
     {
-        return $this->votes()->sum('vote');
+        return (int) $this->votes()->sum('vote');
     }
 
     // معرفة تصويت المستخدم الحالي (إن وجد)
@@ -106,6 +106,6 @@ class Comment extends Model
 
         // استخدام ذاكرة التخزين المؤقت أو البحث المباشر
         $vote = $this->votes()->where('user_id', Auth::id())->first();
-        return $vote ? $vote->vote : null;
+        return $vote ? (int) $vote->vote : null;
     }
 }
