@@ -1,5 +1,5 @@
 @extends('layouts.admin.master')
-@section('title', 'إدارة مواقع القضايا')
+@section('title', 'Article & Case Locations Management')
 
 @push('styles')
     <!-- Leaflet CSS -->
@@ -10,39 +10,37 @@
             width: 100%; 
             border-radius: 0.75rem; 
             z-index: 1 !important; 
-            background-color: #1e293b !important; /* لون خلفية داكن أثناء التحميل */
+            background-color: #1e293b !important; /* Dark background while loading */
         }
         .leaflet-pane { z-index: 1 !important; }
         .leaflet-top, .leaflet-bottom { z-index: 2 !important; }
 
-        /* فلتر الوضع الليلي المضمون والمجاني 100% بدون API Key */
+        /* Free 100% dark mode tile filter without API key */
         .leaflet-tile-pane {
             filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7);
         }
         
-        /* الحفاظ على ظهور المؤشرات والنوافذ بألوانها الطبيعية الواضحة */
+        /* Keep markers and popups in their natural colors */
         .leaflet-marker-icon, .leaflet-popup {
             filter: invert(1) hue-rotate(200deg) saturate(3);
         }
     </style>
 @endpush
 
-
-
 @section('content')
 <div class="container mx-auto pb-8 px-4">
     
     <!-- Header -->
     <div class="mb-6">
-        <h1 class="text-xl font-bold text-slate-800">إدارة مواقع المقالات والقضايا</h1>
-        <p class="text-xs text-slate-500">اختر المقال، انقر على الخريطة لتحديد الموقع تلقائياً، وأضف الترجمات لكل لغة.</p>
+        <h1 class="text-xl font-bold text-slate-800">Article & Case Locations Management</h1>
+        <p class="text-xs text-slate-500">Select an article, click on the map to automatically capture coordinates, and add translations for each language.</p>
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
-        <!-- العمود الأيسر: قائمة المقالات -->
+        <!-- Left Column: Articles List -->
         <div class="lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-            <h2 class="text-sm font-bold text-slate-700 mb-3 border-b border-slate-100 pb-2">اختر مقالاً لتحديد موقعه</h2>
+            <h2 class="text-sm font-bold text-slate-700 mb-3 border-b border-slate-100 pb-2">Select an Article to Assign Location</h2>
             
             <div class="space-y-2 max-h-[600px] overflow-y-auto pr-1">
                 @foreach($articles as $art)
@@ -51,10 +49,10 @@
                         <div class="flex items-center justify-between mb-1">
                             <span class="text-xs font-semibold text-slate-800 truncate">{{ $art->label }}</span>
                             <span class="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                                {{ $art->locations->count() }} موقع
+                                {{ $art->locations->count() }} {{ Str::plural('location', $art->locations->count()) }}
                             </span>
                         </div>
-                        <span class="text-[11px] text-slate-500 block">التصنيف: {{ $art->category->label ?? 'غير محدد' }}</span>
+                        <span class="text-[11px] text-slate-500 block">Category: {{ $art->category->label ?? 'Uncategorized' }}</span>
                     </a>
                 @endforeach
             </div>
@@ -64,76 +62,48 @@
             </div>
         </div>
 
-        <!-- العمود الأيمن: الخريطة وإضافة المواقع للمقال المختار -->
+        <!-- Right Column: Map & Locations for Selected Article -->
         <div class="lg:col-span-8 space-y-6">
             @if($selectedArticle)
                 
-                <!-- تفاصيل المقال المختار والمواقع الحالية -->
+                <!-- Selected Article Details & Existing Locations -->
                 <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
                     <div class="flex justify-between items-center border-b border-slate-100 pb-3">
                         <div>
-                            <h2 class="text-base font-bold text-slate-800">المقال المحدد: <span class="text-indigo-600">{{ $selectedArticle->label }}</span></h2>
-                            <p class="text-xs text-slate-500">انقر على الخريطة أدناه لاقتناص الإحداثيات مباشرة.</p>
+                            <h2 class="text-base font-bold text-slate-800">Selected Article: <span class="text-indigo-600">{{ $selectedArticle->label }}</span></h2>
+                            <p class="text-xs text-slate-500">Click anywhere on the map below to capture coordinates directly.</p>
                         </div>
                     </div>
 
-
-                    <!-- الخريطة التفاعلية -->
+                    <!-- Interactive Map -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-2">الخريطة (اضغط لتحديد النقطة)</label>
+                        <label class="block text-xs font-semibold text-slate-600 mb-2">Interactive Map (Click to pin a location)</label>
                         <div id="map"></div>
                     </div>
 
-
-
-                    {{--
-                    <!-- المواقع الحالية المسجلة لهذا المقال -->
-                    @if($selectedArticle->locations->count() > 0)
-                        <div class="pt-3 border-t border-slate-100">
-                            <h3 class="text-xs font-bold text-slate-700 mb-2">المواقع المسجلة حالياً لهذا المقال:</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                @foreach($selectedArticle->locations as $loc)
-                                    <div class="bg-slate-50 border border-slate-200 p-2.5 rounded-xl flex items-center justify-between text-xs">
-                                        <div>
-                                            <span class="font-bold text-slate-700 block">{{ $loc->translation->title ?? 'موقع بدون عنوان' }}</span>
-                                            <span class="text-[10px] font-mono text-slate-400">Lat: {{ $loc->latitude }}, Lng: {{ $loc->longitude }}</span>
-                                        </div>
-                                        <form action="{{ route('admin.locations.destroy', $loc->id) }}" method="POST" onsubmit="return confirm('هل أنت تأكد من حذف هذا الموقع؟')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-500 hover:text-red-700 text-xs font-bold px-2 py-1">حذف</button>
-                                        </form>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
-                    --}}
-
-
                     @if($selectedArticle->locations->count() > 0)
                         <div class="pt-3 border-t border-slate-100" x-data="{ editingLocation: null }">
-                            <h3 class="text-xs font-bold text-slate-700 mb-2">المواقع المسجلة حالياً لهذا المقال:</h3>
+                            <h3 class="text-xs font-bold text-slate-700 mb-2">Currently Recorded Locations for This Article:</h3>
                             
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 @foreach($selectedArticle->locations as $loc)
                                     @php
-                                        // تجميع الترجمات الحالية للموقع
+                                        // Group existing translations by locale
                                         $existingTrans = $loc->translations->keyBy('locale');
                                     @endphp
                                     <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl space-y-2 text-xs">
                                         <div class="flex items-center justify-between">
                                             <div>
                                                 <span class="font-bold text-slate-800 block">
-                                                    {{ $loc->translation->title ?? '📍 (موقع بدون عنوان)' }}
+                                                    {{ $loc->translation->title ?? '📍 (Untitled Location)' }}
                                                 </span>
                                                 <span class="text-[10px] font-mono text-slate-400">Lat: {{ $loc->latitude }}, Lng: {{ $loc->longitude }}</span>
                                             </div>
                                             <div class="flex items-center gap-1">
                                                 <button type="button" @click="editingLocation = {{ $loc->id }}" class="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-2 py-1 rounded text-xs font-semibold">
-                                                    تعديل / إضافة لغات
+                                                    Edit / Locales
                                                 </button>
-                                                <form action="{{ route('admin.locations.destroy', $loc->id) }}" method="POST" onsubmit="return confirm('هل أنت تأكد من حذف هذا الموقع؟')">
+                                                <form action="{{ route('admin.locations.destroy', $loc->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this location?')">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="text-red-500 hover:text-red-700 text-xs font-bold px-1.5 py-1">&times;</button>
@@ -141,11 +111,11 @@
                                             </div>
                                         </div>
 
-                                        <!-- نافذة أو نموذج تعديل الموقع المختار (Modal) -->
+                                        <!-- Edit Location Modal -->
                                         <div x-show="editingLocation === {{ $loc->id }}" x-cloak class="fixed inset-0 z-[99999] bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4 !m-0">
-                                            <div @click.away="editingLocation = null" class="bg-white  max-w-xl w-full p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
+                                            <div @click.away="editingLocation = null" class="bg-white rounded-2xl max-w-xl w-full p-5 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
                                                 <div class="flex justify-between items-center border-b border-slate-100 pb-2">
-                                                    <h4 class="font-bold text-slate-800 text-sm">تعديل بيانات الموقع (ID: {{ $loc->id }})</h4>
+                                                    <h4 class="font-bold text-slate-800 text-sm">Edit Location Details (ID: {{ $loc->id }})</h4>
                                                     <button type="button" @click="editingLocation = null" class="text-slate-400 hover:text-slate-600 font-bold">&times;</button>
                                                 </div>
 
@@ -155,36 +125,36 @@
 
                                                     <div class="grid grid-cols-2 gap-2">
                                                         <div>
-                                                            <label class="block text-[11px] text-slate-500 mb-1">Lat</label>
-                                                            <input type="text" name="latitude" value="{{ $loc->latitude }}" class="w-full rounded-lg border border-slate-300 text-xs py-1.5 px-2.5">
+                                                            <label class="block text-[11px] text-slate-500 mb-1">Latitude</label>
+                                                            <input type="text" name="latitude" value="{{ $loc->latitude }}" class="w-full rounded-lg border border-slate-300 text-xs py-1.5 px-2.5 font-mono">
                                                         </div>
                                                         <div>
-                                                            <label class="block text-[11px] text-slate-500 mb-1">Lng</label>
-                                                            <input type="text" name="longitude" value="{{ $loc->longitude }}" class="w-full rounded-lg border border-slate-300 text-xs py-1.5 px-2.5">
+                                                            <label class="block text-[11px] text-slate-500 mb-1">Longitude</label>
+                                                            <input type="text" name="longitude" value="{{ $loc->longitude }}" class="w-full rounded-lg border border-slate-300 text-xs py-1.5 px-2.5 font-mono">
                                                         </div>
                                                     </div>
 
                                                     <div class="space-y-3">
-                                                        <span class="text-xs font-bold text-slate-700 block">إدخال/تعديل اللغات:</span>
+                                                        <span class="text-xs font-bold text-slate-700 block">Add / Edit Translations:</span>
                                                         @foreach($locales as $code => $name)
                                                             <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200 space-y-1.5">
                                                                 <span class="text-[10px] font-bold text-indigo-700 uppercase block">{{ $name }} ({{ $code }})</span>
                                                                 <input type="text" 
                                                                     name="translations[{{ $code }}][title]" 
                                                                     value="{{ $existingTrans[$code]->title ?? '' }}" 
-                                                                    placeholder="مسمى الموقع بهذه اللغة..." 
+                                                                    placeholder="Location title in this language..." 
                                                                     class="w-full rounded-lg border border-slate-300 text-xs py-1 px-2">
                                                                 <textarea name="translations[{{ $code }}][description]" 
                                                                         rows="2" 
-                                                                        placeholder="وصف الموقع بهذه اللغة..." 
+                                                                        placeholder="Location description in this language..." 
                                                                         class="w-full rounded-lg border border-slate-300 text-xs py-1 px-2">{{ $existingTrans[$code]->description ?? '' }}</textarea>
                                                             </div>
                                                         @endforeach
                                                     </div>
 
                                                     <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
-                                                        <button type="button" @click="editingLocation = null" class="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg text-xs font-semibold">إلغاء</button>
-                                                        <button type="submit" class="bg-indigo-600 text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-indigo-700">حفظ التغييرات</button>
+                                                        <button type="button" @click="editingLocation = null" class="bg-slate-100 text-slate-600 px-3 py-1.5 rounded-lg text-xs font-semibold">Cancel</button>
+                                                        <button type="submit" class="bg-indigo-600 text-white px-4 py-1.5 rounded-lg text-xs font-semibold hover:bg-indigo-700">Save Changes</button>
                                                     </div>
                                                 </form>
                                             </div>
@@ -198,38 +168,38 @@
 
                 </div>
 
-                <!-- نموذج إضافة موقع جديد وترجماته -->
+                <!-- Add New Location & Translations Form -->
                 <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
-                    <h3 class="text-sm font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100">إضافة موقع جديد وترجماته</h3>
+                    <h3 class="text-sm font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100">Add New Location & Translations</h3>
                     
                     <form action="{{ route('admin.locations.store', $selectedArticle->id) }}" method="POST" class="space-y-4">
                         @csrf
                         
-                        <!-- الإحداثيات (تعبأ تلقائياً عند النقر على الخريطة أو يدوياً بالكتابة) -->
+                        <!-- Coordinates (Auto-filled on map click or entered manually) -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3 bg-indigo-50/50 p-3 rounded-xl border border-indigo-100">
                             <div>
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">خط العرض (Latitude) <span class="text-[10px] text-slate-400">(انقر الخريطة أو اكتب يدوياً)</span></label>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Latitude <span class="text-[10px] text-slate-400">(Click map or type manually)</span></label>
                                 <input type="text" name="latitude" id="lat_input" class="w-full bg-white rounded-lg border border-slate-300 text-xs py-2 px-3 outline-none focus:border-indigo-500 font-mono" placeholder="33.3152..." required>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">خط الطول (Longitude) <span class="text-[10px] text-slate-400">(انقر الخريطة أو اكتب يدوياً)</span></label>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Longitude <span class="text-[10px] text-slate-400">(Click map or type manually)</span></label>
                                 <input type="text" name="longitude" id="lng_input" class="w-full bg-white rounded-lg border border-slate-300 text-xs py-2 px-3 outline-none focus:border-indigo-500 font-mono" placeholder="44.3661..." required>
                             </div>
                         </div>
 
-                        <!-- التبويبات أو الأقسام المخصصة لكل لغة -->
+                        <!-- Per-Language Sections -->
                         <div class="space-y-3 pt-2">
-                            <span class="text-xs font-bold text-slate-700 block">العنوان والوصف لكل لغة:</span>
+                            <span class="text-xs font-bold text-slate-700 block">Title & Description per Language:</span>
                             
                             @php
-                                // جلب اللغات المدعومة ديناميكياً من حزمة mcamara
+                                // Fetch supported locales dynamically from mcamara package
                                 $locales = [];
                                 if (class_exists('Mcamara\LaravelLocalization\Facades\LaravelLocalization')) {
                                     foreach (\Mcamara\LaravelLocalization\Facades\LaravelLocalization::getSupportedLocales() as $localeCode => $properties) {
                                         $locales[$localeCode] = $properties['native'] ?? $properties['name'];
                                     }
                                 } else {
-                                    // قيمة احتياطية في حال لم يتم العثور على الحزمة
+                                    // Fallback values if package is not found
                                     $locales = ['ar' => 'العربية', 'en' => 'English'];
                                 }
                             @endphp
@@ -239,23 +209,23 @@
                                     <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
                                         <div class="flex items-center justify-between border-b border-slate-200 pb-1">
                                             <span class="text-xs font-bold text-indigo-700 uppercase">{{ $name }} ({{ $code }})</span>
-                                            <span class="text-[10px] bg-slate-200 text-slate-600 font-semibold px-2 py-0.5 rounded">اختياري</span>
+                                            <span class="text-[10px] bg-slate-200 text-slate-600 font-semibold px-2 py-0.5 rounded">Optional</span>
                                         </div>
                                         
                                         <div>
-                                            <label class="block text-[11px] text-slate-500 mb-1">مسمى الموقع</label>
+                                            <label class="block text-[11px] text-slate-500 mb-1">Location Title</label>
                                             <input type="text" 
                                                 name="translations[{{ $code }}][title]" 
                                                 class="w-full rounded-lg border border-slate-300 text-xs py-1.5 px-2.5 outline-none focus:border-indigo-500" 
-                                                placeholder="مثال: مسرح الجريمة الرئيسي">
+                                                placeholder="e.g., Primary Crime Scene">
                                         </div>
 
                                         <div>
-                                            <label class="block text-[11px] text-slate-500 mb-1">وصف الموقع (اختياري)</label>
+                                            <label class="block text-[11px] text-slate-500 mb-1">Location Description (Optional)</label>
                                             <textarea name="translations[{{ $code }}][description]" 
                                                     rows="2" 
                                                     class="w-full rounded-lg border border-slate-300 text-xs py-1.5 px-2.5 outline-none focus:border-indigo-500" 
-                                                    placeholder="تفاصيل إضافية حول هذا الموقع..."></textarea>
+                                                    placeholder="Additional details about this location..."></textarea>
                                         </div>
                                     </div>
                                 @endforeach
@@ -264,7 +234,7 @@
 
                         <div class="flex justify-end pt-3 border-t border-slate-100">
                             <button type="submit" class="bg-indigo-600 text-white font-semibold px-5 py-2 rounded-xl hover:bg-indigo-700 text-xs transition shadow-sm">
-                                حفظ الموقع والترجمات
+                                Save Location & Translations
                             </button>
                         </div>
                     </form>
@@ -275,7 +245,7 @@
                     <svg class="w-12 h-12 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                     </svg>
-                    <p class="text-sm font-semibold text-slate-600">يرجى اختيار مقال من القائمة الجانبية للبدء بتحديد موقعه الجغرافي وترجماته.</p>
+                    <p class="text-sm font-semibold text-slate-600">Please select an article from the sidebar to assign its geographic location and translations.</p>
                 </div>
             @endif
         </div>
@@ -303,23 +273,22 @@
             var latInput = document.getElementById('lat_input');
             var lngInput = document.getElementById('lng_input');
 
-            // دالة لتحديث أو إنشاء المؤشر على الخريطة
+            // Update or create marker on the map
             function updateMarker(lat, lng) {
                 if (!isNaN(lat) && !isNaN(lng) && lat !== '' && lng !== '') {
                     if (activeMarker) {
                         map.removeLayer(activeMarker);
                     }
                     activeMarker = L.marker([lat, lng]).addTo(map);
-                    //map.setView([lat, lng], 10); // تقريب الخريطة للموقع المدخل
                 }
             }
 
-            // عرض المواقع المسجلة مسبقاً لهذا المقال على الخريطة
+            // Display pre-existing locations for this article on the map
             var existingLocations = @json($selectedArticle->locations->map(function($l) {
                 return [
                     'lat' => $l->latitude,
                     'lng' => $l->longitude,
-                    'title' => $l->translation->title ?? 'موقع'
+                    'title' => $l->translation->title ?? 'Location'
                 ];
             }));
 
@@ -329,7 +298,7 @@
                     .bindPopup('<b>' + loc.title + '</b>');
             });
 
-            // 1. عند النقر على الخريطة لتحديد النقطة (تعبئة الحقول تلقائياً)
+            // 1. Capture coordinates automatically on map click
             map.on('click', function(e) {
                 var lat = e.latlng.lat.toFixed(8);
                 var lng = e.latlng.lng.toFixed(8);
@@ -339,11 +308,11 @@
 
                 updateMarker(lat, lng);
                 if (activeMarker) {
-                    activeMarker.bindPopup('النقطة المحددة حالياً').openPopup();
+                    activeMarker.bindPopup('Currently selected point').openPopup();
                 }
             });
 
-            // 2. عند الكتابة اليدوية للإحداثيات في الحقول (تحريك المؤشر على الخريطة تلقائياً)
+            // 2. Move marker automatically on manual coordinate input
             function handleManualInput() {
                 var lat = parseFloat(latInput.value);
                 var lng = parseFloat(lngInput.value);

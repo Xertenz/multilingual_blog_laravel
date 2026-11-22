@@ -9,6 +9,7 @@ use App\Models\ArticleTag;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -213,15 +214,25 @@ class ArticleController extends Controller
 
         try {
             $article = Article::with('locations.translations')->findOrFail($article_id);
+            $article->load('locations.translations', 'timelines.translations');
 
-            foreach ($article->locations as $location) {
-                $location->translations()->delete();
-                $location->delete();
-            }
+            DB::transaction(function () use ($article) {
 
-            $article->clearMediaCollection('featured_imgs');
-            $article->clearMediaCollection('content_imgs');
-            $article->delete();
+                foreach ($article->locations as $location) {
+                    $location->translations()->delete();
+                    $location->delete();
+                }
+
+                foreach ($article->timelines as $timeline) {
+                    $timeline->translations()->delete();
+                    $timeline->delete();
+                }
+
+                $article->tags()->detach();
+                $article->clearMediaCollection('featured_imgs');
+                $article->clearMediaCollection('content_imgs');
+                $article->delete();
+            });
 
             return to_route('admin.articles.index')->with('success', 'Article Deleted Successfully.');
         } catch (\Exception $e) {

@@ -67,6 +67,7 @@ use App\Http\Controllers\Admin\CommunityCaseController;
 use App\Http\Controllers\Admin\SuggestionController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\PenaltyController;
+use App\Http\Controllers\Admin\TimelineController;
 use App\Http\Controllers\Admin\UserController;
 use App\Livewire\Profile\MyCommunityCases;
 
@@ -274,6 +275,11 @@ Route::group([
         // ب. إدارة الهيكل العام والمراجعة (Super-Admin & Editor Only)
         // ---------------------------------------------------------------------
         Route::group(['middleware' => ['role:super-admin|editor']], function () {
+
+            Route::get('/timelines', [TimelineController::class, 'index'])->name('admin.timelines.index');
+            Route::post('/articles/{article}/timelines', [TimelineController::class, 'store'])->name('admin.timelines.store');
+            Route::put('/timelines/{timeline}', [TimelineController::class, 'update'])->name('admin.timelines.update');
+            Route::delete('/timelines/{timeline}', [TimelineController::class, 'destroy'])->name('admin.timelines.destroy');
 
             // المقالات الأساسية والمراجعة والمواقع الجغرافية
             Route::get('/articles/create', [ArticleController::class, 'create'])->name('admin.articles.create');

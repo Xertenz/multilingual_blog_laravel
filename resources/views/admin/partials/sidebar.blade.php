@@ -121,6 +121,25 @@
                     </a>
                 </li>
 
+                {{-- Article Timelines --}}
+                <li>
+                    <a href="{{ route('admin.timelines.index') }}"
+                       class="flex items-center px-3 py-2.5 rounded-lg transition-all duration-200
+                              {{ request()->routeIs('admin.timelines.*')
+                                 ? 'bg-gradient-to-r from-indigo-600/20 to-blue-600/20 text-white'
+                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white' }}">
+                        <div class="w-8 h-8 bg-slate-800 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <span class="flex-1 text-sm font-medium">Timeline</span>
+                        <span class="bg-slate-800 text-slate-300 text-xs px-2 py-1 rounded-full">
+                            {{ \App\Models\Timeline::count() }}
+                        </span>
+                    </a>
+                </li>
+
                 {{-- Pending Articles --}}
                 @hasanyrole('super-admin|editor')
                 <li>

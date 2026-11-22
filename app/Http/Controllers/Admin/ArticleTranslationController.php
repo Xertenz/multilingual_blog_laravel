@@ -135,7 +135,8 @@ class ArticleTranslationController extends Controller
             'article.translations',
             'article.category',
             'article.tags',
-            'article.media'
+            'article.media',
+            'article.timelines.translations',
         ])->find($article_trans_id);
 
         // 🔍 شرط العرض المزدوج: يجب أن يكون المقال الأساسي منشوراً، والترجمة الخاصة بهذه اللفة منشورة أيضاً

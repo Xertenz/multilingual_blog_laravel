@@ -155,15 +155,20 @@ class Article extends Model  implements HasMedia
             ->withTimestamps();
     }
 
-    /*
     public function suggestions(): MorphMany
     {
         return $this->morphMany(Suggestion::class, 'suggestable');
     }
-    */
 
     public function locations(): MorphMany
     {
         return $this->morphMany(Location::class, 'locatable');
+    }
+
+    public function timelines(): MorphMany
+    {
+        return $this->morphMany(Timeline::class, 'timelineable')
+            ->orderBy('sort_order')
+            ->orderBy('id');
     }
 }

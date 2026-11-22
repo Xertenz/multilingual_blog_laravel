@@ -19,6 +19,7 @@ use App\Models\MediaSummaryTag;
 use App\Models\User;
 use App\Support\PathGenerator\CustomPathGenerator;
 use App\Models\Comment;
+use App\Models\Timeline;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -65,6 +66,8 @@ class AppServiceProvider extends ServiceProvider
             'community_case'         => CommunityCase::class,
 
             'comment'                => Comment::class,
+
+            'timeline'               => Timeline::class
 
         ]);
     }

@@ -107,16 +107,113 @@
             </div>
         </header>
 
-        <!-- ==================== -->
+        <!-- ========================== -->
         <!-- نصوص ومحتوى المقال الرئيسي -->
-        <!-- ==================== -->
+        <!-- ========================== -->
         <article class="article-body first-letter:uppercase article-description text-gray-200 leading-relaxed mb-8">
             {!! $article_trans->description !!}
         </article>
 
-        <!-- ==================== -->
+        <!-- Timeline of Events -->
+        {{--
+        @if($article_trans->article && $article_trans->article->timelines->isNotEmpty())
+            <section class="mt-8 bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-5">
+                <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                    <span class="w-2 h-2 bg-red-600 rounded-sm"></span>
+                    <span>{{ __('Timeline') }}</span>
+                </h2>
+
+                <div class="relative border-s border-slate-700 ms-3 space-y-6">
+                    @foreach($article_trans->article->timelines as $event)
+                        @php
+                            $eventTrans = $event->getLocalizedTranslation($currentLocale ?? app()->getLocale());
+                            $timeDisplay = $event->displayTime($currentLocale ?? app()->getLocale());
+                        @endphp
+                        @if($eventTrans)
+                            <div class="ms-6 relative">
+                                <span class="absolute -start-[31px] top-1.5 w-3 h-3 rounded-full bg-red-600 ring-4 ring-slate-900"></span>
+                                @if($timeDisplay)
+                                    <div class="text-xs font-mono text-red-400 font-semibold mb-1">
+                                        {{ $timeDisplay }}
+                                    </div>
+                                @endif
+                                <h3 class="text-base font-bold text-white">
+                                    {{ $eventTrans->title }}
+                                </h3>
+                                @if(!empty($eventTrans->description))
+                                    <p class="text-sm text-gray-300 mt-1 leading-relaxed">
+                                        {{ $eventTrans->description }}
+                                    </p>
+                                @endif
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
+            </section>
+        @endif
+        --}}
+
+        <!-- Timeline of Events -->
+        @if($article_trans->article && $article_trans->article->timelines->isNotEmpty())
+            @php
+                $timelineLocale = $currentLocale ?? app()->getLocale();
+                $visibleEvents = $article_trans->article->timelines
+                    ->map(function ($event) use ($timelineLocale) {
+                        return [
+                            'event' => $event,
+                            'trans' => $event->getLocalizedTranslation($timelineLocale),
+                            'time'  => $event->displayTime($timelineLocale),
+                        ];
+                    })
+                    ->filter(fn ($item) => !is_null($item['trans']));
+            @endphp
+
+            @if($visibleEvents->isNotEmpty())
+                <section class="mt-8 bg-[#0f1526] border border-slate-800 rounded-xl p-6 space-y-6 shadow-md">
+                    <div class="flex items-center justify-between border-b border-slate-800/80 pb-3">
+                        <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2.5">
+                            <span class="w-2 h-2 bg-red-600 rounded-sm"></span>
+                            <span>{{ __('Timeline') }}</span>
+                        </h2>
+                        <span class="text-xs text-slate-400 font-mono">
+                            {{ $visibleEvents->count() }}
+                        </span>
+                    </div>
+
+                    <div class="relative border-s border-slate-700/80 ms-3 space-y-6">
+                        @foreach($visibleEvents as $item)
+                            @php
+                                $eventTrans = $item['trans'];
+                                $timeDisplay = $item['time'];
+                            @endphp
+                            <div class="ms-6 relative">
+                                <span class="absolute -start-[31px] top-1.5 w-3 h-3 rounded-full bg-red-600 ring-4 ring-[#0f1526]"></span>
+
+                                @if($timeDisplay)
+                                    <div class="inline-block text-xs font-mono text-red-400 bg-red-950/40 border border-red-900/40 px-2.5 py-0.5 rounded-md font-semibold mb-1.5">
+                                        {{ $timeDisplay }}
+                                    </div>
+                                @endif
+
+                                <h3 class="text-base font-bold text-white leading-snug">
+                                    {{ $eventTrans->title }}
+                                </h3>
+
+                                @if(!empty($eventTrans->description))
+                                    <p class="text-sm text-gray-300 mt-1.5 leading-relaxed">
+                                        {{ $eventTrans->description }}
+                                    </p>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                </section>
+            @endif
+        @endif
+
+        <!-- =============================== -->
         <!-- أدوات التفاعل والبيانات السفلية -->
-        <!-- ==================== -->
+        <!-- =============================== -->
         <div class="mt-12 bg-[#0f1526] border border-slate-800 rounded-xl p-6 space-y-6">
 
             <!-- السطر الأول: الإعجابات ومتابعة الفئة -->
