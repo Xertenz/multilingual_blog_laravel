@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CommunityCase;
 use App\Models\CommunityCaseCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 class CommunityCaseController extends Controller
@@ -74,8 +75,17 @@ class CommunityCaseController extends Controller
         }
         */
 
-        $case = CommunityCase::findOrFail($id);
-        $case->delete();
+        $case = CommunityCase::with('locations.translations')->findOrFail($id);
+
+        DB::transaction(function () use ($case) {
+            foreach ($case->locations as $location) {
+                $location->translations()->delete();
+                $location->delete();
+            }
+
+            $case->votes()->delete();
+            $case->delete();
+        });
 
         return back()->with('success', 'Case deleted successfully.');
     }

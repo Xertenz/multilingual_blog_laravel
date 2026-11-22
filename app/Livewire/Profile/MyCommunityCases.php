@@ -6,6 +6,7 @@ use App\Enums\CommunityCaseStatus;
 use App\Models\CommunityCase;
 use App\Models\CommunityCaseCategory;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rules\Enum;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -150,12 +151,15 @@ class MyCommunityCases extends Component
             ->with('locations.translations')
             ->findOrFail($caseId);
 
-        foreach ($case->locations as $location) {
-            $location->translations()->delete();
-            $location->delete();
-        }
-        $case->votes()->delete();
-        $case->delete();
+        DB::transaction(function () use ($case) {
+            foreach ($case->locations as $location) {
+                $location->translations()->delete();
+                $location->delete();
+            }
+
+            $case->votes()->delete();
+            $case->delete();
+        });
 
         session()->flash('message', __('Case has been deleted successfully!'));
     }
