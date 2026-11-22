@@ -154,7 +154,7 @@ class MyCommunityCases extends Component
             $location->translations()->delete();
             $location->delete();
         }
-
+        $case->votes()->delete();
         $case->delete();
 
         session()->flash('message', __('Case has been deleted successfully!'));

@@ -91,8 +91,12 @@
                     </div>
 
                     <!-- العنوان (رابط إذا كانت منشورة) -->
+                    @php
+                        $modStatus = $case->moderation_status?->value ?? $case->moderation_status;
+                    @endphp
+
                     <h3 class="text-base font-bold text-gray-100 mb-2 line-clamp-2">
-                        @if($case->moderation_status === 'approved')
+                        @if($modStatus === 'approved')
                             <a href="{{ route('community.cases.show', $case->slug) }}" class="hover:text-red-500 transition-colors">
                                 {{ $case->title }}
                             </a>
@@ -116,7 +120,13 @@
                     </div>
 
                     <div class="flex items-center gap-2 shrink-0">
-                        @if($case->moderation_status !== 'rejected')
+                        @if($modStatus === 'approved')
+                            <a href="{{ route('community.cases.show', $case->slug) }}"
+                            class="px-2.5 py-1 rounded-lg bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 border border-emerald-600/30 font-semibold transition">
+                                🔗 {{ __('View') }}
+                            </a>
+                        @endif
+                        @if($modStatus !== 'rejected')
                             <button wire:click="openEditModal({{ $case->id }})"
                                     class="px-2.5 py-1 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 border border-blue-600/30 font-semibold transition">
                                 ✏️ {{ __('Edit') }}
