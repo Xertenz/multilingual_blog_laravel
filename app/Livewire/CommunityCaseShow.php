@@ -152,6 +152,7 @@ class CommunityCaseShow extends Component
             $location->delete();
         }
 
+        $this->communityCase->votes()->delete();
         $this->communityCase->delete();
 
         session()->flash('message', __('Case has been deleted successfully!'));
@@ -225,6 +226,37 @@ class CommunityCaseShow extends Component
                 'description' => $t?->description ?? '',
             ];
         })->values()->all();
+    }
+
+    public function vote(int $requestedVote)
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        if (!in_array($requestedVote, [1, -1], true)) {
+            return;
+        }
+
+        $userId = Auth::id();
+        $existingVote = $this->communityCase->votes()
+            ->where('user_id', $userId)
+            ->first();
+
+        if ($existingVote) {
+            if ((int) $existingVote->vote === $requestedVote) {
+                $existingVote->delete();
+            } else {
+                $existingVote->update(['vote' => $requestedVote]);
+            }
+        } else {
+            $this->communityCase->votes()->create([
+                'user_id' => $userId,
+                'vote'    => $requestedVote,
+            ]);
+        }
+
+        $this->communityCase->load('votes');
     }
 
     public function render()

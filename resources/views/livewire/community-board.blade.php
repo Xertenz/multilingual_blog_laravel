@@ -112,6 +112,31 @@
                             </span>
                         @endif
 
+                        @php
+                            $score = $case->score;
+                            $userVote = $case->user_vote;
+                        @endphp
+
+                        <div class="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-md px-1.5 py-0.5 font-mono">
+                            <button type="button"
+                                    wire:click="vote({{ $case->id }}, 1)"
+                                    class="px-1 rounded transition {{ $userVote === 1 ? 'text-emerald-400 font-bold' : 'text-gray-400 hover:text-emerald-400' }}"
+                                    title="{{ __('Upvote') }}">
+                                ▲
+                            </button>
+
+                            <span class="{{ $score > 0 ? 'text-emerald-400 font-bold' : ($score < 0 ? 'text-rose-400 font-bold' : 'text-gray-300') }}">
+                                {{ $score }}
+                            </span>
+
+                            <button type="button"
+                                    wire:click="vote({{ $case->id }}, -1)"
+                                    class="px-1 rounded transition {{ $userVote === -1 ? 'text-rose-400 font-bold' : 'text-gray-400 hover:text-rose-400' }}"
+                                    title="{{ __('Downvote') }}">
+                                ▼
+                            </button>
+                        </div>
+
                         <div class="flex items-center gap-2.5 font-mono shrink-0">
                             @if($case->relationLoaded('locations'))
                                 <span>📍 {{ $case->locations->count() }}</span>
@@ -122,7 +147,7 @@
                     </div>
 
                     @auth
-                        @if($case->user_id === auth()->id() || auth()->user()->hasAnyRole(['super-admin', 'editor']) || $case->user_id !== auth()->id())
+                        @if($case->user_id === auth()->id() || auth()->user()->hasAnyRole(['super-admin', 'editor']))
                             <div class="flex items-center justify-end gap-2 pt-1">
                                 @if($case->user_id === auth()->id() || auth()->user()->hasAnyRole(['super-admin', 'editor']))
                                     <button wire:click="openEditModal({{ $case->id }})"

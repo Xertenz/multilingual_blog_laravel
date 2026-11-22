@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Facades\Auth;
 
 class CommunityCase extends Model
 {
@@ -80,5 +81,26 @@ class CommunityCase extends Model
     public function locations(): MorphMany
     {
         return $this->morphMany(Location::class, 'locatable');
+    }
+
+
+    // for votes (upvote/downvote)
+    public function votes(): MorphMany
+    {
+        return $this->morphMany(Vote::class, 'votable');
+    }
+    public function getScoreAttribute(): int
+    {
+        return (int) $this->votes()->sum('vote');
+    }
+    public function getUserVoteAttribute(): ?int
+    {
+        if (!Auth::check()) {
+            return null;
+        }
+
+        $vote = $this->votes()->where('user_id', Auth::id())->first();
+
+        return $vote ? (int) $vote->vote : null;
     }
 }

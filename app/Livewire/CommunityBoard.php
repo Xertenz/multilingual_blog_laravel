@@ -243,11 +243,14 @@ class CommunityBoard extends Component
             abort(403, 'غير مسموح لك بحذف هذه القضية.');
         }
 
+        // Deleting Case Locations
         foreach ($case->locations as $location) {
             $location->translations()->delete();
             $location->delete();
         }
-
+        // Deleting Case Votes
+        $case->votes()->delete();
+        // Deleting The Case
         $case->delete();
 
         session()->flash('message', __('Case has been deleted successfully!'));
@@ -309,12 +312,43 @@ class CommunityBoard extends Component
         }
     }
 
+    public function vote(int $caseId, int $requestedVote)
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        if (!in_array($requestedVote, [1, -1], true)) {
+            return;
+        }
+
+        $case = CommunityCase::findOrFail($caseId);
+        $userId = Auth::id();
+
+        $existingVote = $case->votes()
+            ->where('user_id', $userId)
+            ->first();
+
+        if ($existingVote) {
+            if ((int) $existingVote->vote === $requestedVote) {
+                $existingVote->delete();
+            } else {
+                $existingVote->update(['vote' => $requestedVote]);
+            }
+        } else {
+            $case->votes()->create([
+                'user_id' => $userId,
+                'vote'    => $requestedVote,
+            ]);
+        }
+    }
+
     public function render()
     {
         $query = CommunityCase::query()
             ->where('moderation_status', 'approved')
             ->where('locale', app()->getLocale())
-            ->with(['author', 'category.translations'])
+            ->with(['author', 'category.translations', 'votes'])
             ->latest();
 
         if ($this->selectedCategory) {

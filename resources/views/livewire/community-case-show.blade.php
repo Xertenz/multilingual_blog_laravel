@@ -98,6 +98,30 @@
             </div>
 
             <div class="flex items-center gap-3 text-xs text-gray-400">
+                @php
+                    $caseScore = $communityCase->score;
+                    $caseUserVote = $communityCase->user_vote;
+                @endphp
+
+                <div class="flex items-center gap-1.5 bg-slate-900 border border-slate-800 rounded-lg px-2 py-1 text-xs font-mono">
+                    <button type="button"
+                            wire:click="vote(1)"
+                            class="px-1.5 py-0.5 rounded transition {{ $caseUserVote === 1 ? 'bg-emerald-600/30 text-emerald-400 font-bold' : 'text-gray-400 hover:text-emerald-400' }}"
+                            title="{{ __('Upvote') }}">
+                        ▲
+                    </button>
+
+                    <span class="{{ $caseScore > 0 ? 'text-emerald-400 font-bold' : ($caseScore < 0 ? 'text-rose-400 font-bold' : 'text-gray-300') }}">
+                        {{ $caseScore }}
+                    </span>
+
+                    <button type="button"
+                            wire:click="vote(-1)"
+                            class="px-1.5 py-0.5 rounded transition {{ $caseUserVote === -1 ? 'bg-rose-600/30 text-rose-400 font-bold' : 'text-gray-400 hover:text-rose-400' }}"
+                            title="{{ __('Downvote') }}">
+                        ▼
+                    </button>
+                </div>
                 <span>By <strong class="text-gray-200">{{ $communityCase->author->name }}</strong></span>
                 <span>•</span>
                 <span>{{ $communityCase->created_at->format('F j, Y') }}</span>

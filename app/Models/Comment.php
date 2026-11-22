@@ -86,17 +86,17 @@ class Comment extends Model
         return $this->morphMany(Report::class, 'reportable');
     }
 
+
+    // for votes (upvote/downvote)
     public function votes()
     {
         return $this->morphMany(Vote::class, 'votable');
     }
-
     // حساب مجموع النقاط الإجمالي للتعليق (Upvotes - Downvotes)
     public function getScoreAttribute()
     {
         return (int) $this->votes()->sum('vote');
     }
-
     // معرفة تصويت المستخدم الحالي (إن وجد)
     public function getUserVoteAttribute()
     {
