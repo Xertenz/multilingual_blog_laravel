@@ -129,6 +129,8 @@ class CommentsSection extends Component
     {
         $comment = Comment::findOrFail($commentId);
         if (Auth::id() === $comment->user_id) {
+            // حذف الأصوات المرتبطة بالتعليق قبل حذفه
+            $comment->votes()->delete();
             $comment->delete();
         }
     }
