@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\ContentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\ArticleCategory;
@@ -130,7 +131,7 @@ class ArticleController extends Controller
 
         $article = Article::findOrFail($article_id);
 
-        $status = $request->input('status', $article->status);
+        $status = $request->input('status', $article->status?->value ?? $article->status);
 
         $request->validate([
             'category_id' => 'required|numeric|exists:article_categories,id',
@@ -303,7 +304,7 @@ class ArticleController extends Controller
         }
 
         $articles = Article::with(['translations', 'author'])
-            ->where('status', 'pending')
+            ->where('status', ContentStatus::PENDING->value)
             ->latest()
             ->paginate(10);
 
@@ -317,7 +318,7 @@ class ArticleController extends Controller
         }
 
         $article = Article::findOrFail($article_id);
-        $article->update(['status' => 'published']);
+        $article->update(['status' => ContentStatus::PUBLISHED->value]);
 
         return redirect()->route('admin.articles.pending')->with('success', 'Article approved and published successfully.');
     }
@@ -329,7 +330,7 @@ class ArticleController extends Controller
         }
 
         $article = Article::findOrFail($article_id);
-        $article->update(['status' => 'draft']);
+        $article->update(['status' => ContentStatus::DRAFT->value]);
 
         return redirect()->route('admin.articles.pending')->with('success', 'Article rejected and moved back to draft.');
     }

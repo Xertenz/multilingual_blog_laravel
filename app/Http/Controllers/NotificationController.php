@@ -40,13 +40,13 @@ class NotificationController extends Controller
         */
     }
 
-    public function read(string $notification_id)
+    public function read(Request $request, string $notification_id)
     {
         $user_id = Auth::id();
-        $notification = DatabaseNotification::where('id', $notification_id)
-            ->where('notifiable_type', User::class)
-            ->where('notifiable_id', $user_id)
-            ->first();
+        $user = $request->user();
+        $notification = $user
+            ? $user->notifications()->where('id', $notification_id)->first()
+            : null;
 
         // 1. حماية من الإشعارات غير الموجودة أو المفتوحة من قبل مستخدم آخر
         if (!$notification) {
@@ -60,6 +60,7 @@ class NotificationController extends Controller
 
         $data = $notification->data;
         $targetUrl = route('home.index'); // رابط افتراضي للـ Fallback
+
 
         // 3. التوجيه الديناميكي حسب نوع الإشعار
         switch ($notification->type) {
@@ -123,7 +124,6 @@ class NotificationController extends Controller
                     $targetUrl = route('home.index');
                 }
                 break;
-
 
 
             // 📰 حالة إشعار مقالة جديدة من الفئة المفضلة
@@ -262,6 +262,7 @@ class NotificationController extends Controller
                 break;
 
 
+            /*
             case \App\Notifications\AuthorNewContentNotification::class:
                 $contentType = $data['content_type'] ?? null;
                 $contentId = $data['content_id'] ?? null;
@@ -365,6 +366,8 @@ class NotificationController extends Controller
 
                 $targetUrl = $targetUrl ?? LaravelLocalization::getLocalizedURL($recipientLocale, route('home.index'));
                 break;
+                */
+
 
 
 
@@ -378,6 +381,73 @@ class NotificationController extends Controller
 
 
             // 🔮 لأي أنواع إشعارات مستقبلية
+
+
+
+
+
+
+            case \App\Notifications\AuthorNewContentNotification::class:
+            case \App\Notifications\CategoryNewContentNotification::class:
+                $contentType = $data['content_type'] ?? null;
+                $contentId = $data['content_id'] ?? null;
+                $recipientLocale = $notification->notifiable->locale ?? LaravelLocalization::getCurrentLocale();
+
+                if ($contentType && $contentId) {
+                    switch ($contentType) {
+                        case 'article':
+                            $articleTrans = \App\Models\ArticleTranslation::find($contentId);
+                            if ($articleTrans) {
+                                $targetUrl = LaravelLocalization::getLocalizedURL($recipientLocale, route('articles.show', [
+                                    'id'   => $articleTrans->id,
+                                    'slug' => $articleTrans->slug,
+                                ]));
+                            }
+                            break;
+
+                        case 'book':
+                            $bookTrans = \App\Models\BookTranslation::find($contentId);
+                            if ($bookTrans) {
+                                $targetUrl = LaravelLocalization::getLocalizedURL($recipientLocale, route('books.show', [
+                                    'id'   => $bookTrans->id,
+                                    'slug' => $bookTrans->slug,
+                                ]));
+                            }
+                            break;
+
+                        case 'game':
+                            $gameTrans = \App\Models\GameTranslation::find($contentId);
+                            if ($gameTrans) {
+                                $targetUrl = LaravelLocalization::getLocalizedURL($recipientLocale, route('games.show', $gameTrans->game_id ?? $gameTrans->id));
+                            } else {
+                                $game = \App\Models\Game::find($contentId);
+                                if ($game) {
+                                    $targetUrl = LaravelLocalization::getLocalizedURL($recipientLocale, route('games.show', $game->id));
+                                }
+                            }
+                            break;
+
+                        case 'media':
+                            $mediaTrans = \App\Models\MediaSummaryTranslation::find($contentId);
+                            if ($mediaTrans) {
+                                $targetUrl = LaravelLocalization::getLocalizedURL($recipientLocale, route('media-summaries.show', $mediaTrans->media_summary_id ?? $mediaTrans->id));
+                            } else {
+                                $mediaSummary = \App\Models\MediaSummary::find($contentId);
+                                if ($mediaSummary) {
+                                    $targetUrl = LaravelLocalization::getLocalizedURL($recipientLocale, route('media-summaries.show', $mediaSummary->id));
+                                }
+                            }
+                            break;
+                    }
+                }
+
+                $targetUrl = $targetUrl ?? LaravelLocalization::getLocalizedURL($recipientLocale, route('home.index'));
+                break;
+
+
+
+
+
             default:
                 $targetUrl = route('home.index');
                 break;
@@ -386,6 +456,7 @@ class NotificationController extends Controller
         return redirect($targetUrl);
     }
 
+    /*
     public function updateLastRead()
     {
         //$user = Auth::user();
@@ -393,6 +464,17 @@ class NotificationController extends Controller
         $user = User::where('id', $user_id);
         if ($user) {
             $user->update([
+                'notifications_last_read_at' => now(),
+            ]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+    */
+    public function updateLastRead(Request $request)
+    {
+        if ($request->user()) {
+            $request->user()->update([
                 'notifications_last_read_at' => now(),
             ]);
         }

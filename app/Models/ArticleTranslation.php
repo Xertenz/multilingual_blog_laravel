@@ -21,7 +21,12 @@ class ArticleTranslation extends Model implements HasMedia
         'description',
         'meta_title',
         'meta_description',
+        'notification_sent_at',
         'views'
+    ];
+
+    protected $casts = [
+        'status' => \App\Enums\ContentStatus::class,
     ];
 
     //

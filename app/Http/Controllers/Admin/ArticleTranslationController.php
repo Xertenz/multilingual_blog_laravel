@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\ContentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\ArticleTranslation;
+use App\Services\ContentNotificationDispatcher;
 use DOMDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
-use Illuminate\Support\Str;
 
 class ArticleTranslationController extends Controller
 {
@@ -38,7 +40,7 @@ class ArticleTranslationController extends Controller
         }
 
         // تحديد الحالة (status) بناءً على صلاحيات المستخدم
-        // الكاتب (writer) ترسل ترجمته تلقائياً كـ pending للمراجعة، بينما المححر/الأدمن يمكنهم نشرها أو حفظها كمسودة
+        // الكاتب (writer) ترسل ترجمته تلقائياً كـ pending للمراجعة، بينما المحرر/الأدمن يمكنهم نشرها أو حفظها كمسودة
         $status = 'pending';
         if ($request->user()->hasRole(['super-admin', 'editor']) || $request->user()->can('publish-articles')) {
             $status = $request->input('status', 'draft');
@@ -84,7 +86,7 @@ class ArticleTranslationController extends Controller
             // 4. إضافة الترجمة مع تسجيل user_id وحالة الـ status المستقلة لكل لغة
             $article_trans = ArticleTranslation::create([
                 'article_id'       => $request->article_id,
-                'user_id'          => $request->user()->id, // 👈 ربط الترجمة بالمستخدم الحالي (الكاتب أو المحرر)
+                'user_id'          => $request->user()->id,
                 'locale'           => $request->locale,
                 'slug'             => trim($request->slug),
                 'title'            => trim($request->title),
@@ -92,15 +94,18 @@ class ArticleTranslationController extends Controller
                 'meta_title'       => trim($request->meta_title),
                 'meta_description' => trim($request->meta_description),
                 'views'            => 0,
-                'status'           => $status,              // 👈 حالة الترجمة المستقلة
+                'status'           => $status,
             ]);
 
-            // 5. إرسال الإشعارات إذا كانت الترجمة والمقال منشرين بالفعل
-            $article = $article_trans->article;
-            if ($article && $article->status === 'published' && $article_trans->status === 'published' && $article->category) {
-                //\App\Jobs\SendNewArticleNotificationJob::dispatch($article_trans)->onQueue('default');
-                \App\Jobs\SendAuthorNewContentJob::dispatch($article_trans, 'article')->onQueue('default');
-            }
+            // 5. التحقق وحجز notification_sent_at وإرسال الإشعار إذا اكتملت شروط النشر
+            app(ContentNotificationDispatcher::class)->dispatchIfReady(
+                translation: $article_trans,
+                contentType: 'article',
+                translationTable: 'article_translations',
+                parentRelation: 'article',
+                parentTable: 'articles',
+                parentForeignKey: 'article_id',
+            );
 
             //Cache::forget("article_show_{$article_trans->id}_lang_{$article_trans->locale}");
             return to_route('admin.articles.index')->with('success', 'Article Translation Added Successfully.');
@@ -139,15 +144,17 @@ class ArticleTranslationController extends Controller
             'article.timelines.translations',
         ])->find($article_trans_id);
 
-        // 🔍 شرط العرض المزدوج: يجب أن يكون المقال الأساسي منشوراً، والترجمة الخاصة بهذه اللفة منشورة أيضاً
-        if (!$trans || $trans->article->status != "published" || $trans->status != "published") {
+        // 🔍 شرط العرض المزدوج: يجب أن يكون المقال الأساسي منشوراً، والترجمة الخاصة بهذه اللغة منشورة أيضاً
+        if (
+            !$trans
+            || $trans->article?->status !== ContentStatus::PUBLISHED
+            || $trans->status !== ContentStatus::PUBLISHED
+        ) {
             return to_route('home.index')->with('info', __('This article is not available at the moment.'));
         }
 
-
         $trans->increment('views');
         $trans->article->increment('views');
-
 
         $doc = new DOMDocument();
         @$doc->loadHTML(
@@ -166,7 +173,7 @@ class ArticleTranslationController extends Controller
         }
 
         $trans->description = $doc->saveHTML();
-        $article_trans =  $trans;
+        $article_trans = $trans;
         //});
 
         if (!$article_trans) {
@@ -176,7 +183,7 @@ class ArticleTranslationController extends Controller
         if ($article_trans->locale !== $currentLocale) {
             $target_translation = $article_trans->article->translations
                 ->where('locale', $currentLocale)
-                ->where('status', 'published') // التأكد من أن اللغة البديلة منشورة أيضاً
+                ->where('status', ContentStatus::PUBLISHED)
                 ->first();
 
             if ($target_translation) {
@@ -196,7 +203,6 @@ class ArticleTranslationController extends Controller
             ], 301);
         }
 
-
         // Getting related articles
         $relatedArticles = ArticleTranslation::with([
             'article.media',
@@ -204,10 +210,10 @@ class ArticleTranslationController extends Controller
             'author',
         ])
             ->where('locale', $currentLocale)
-            ->where('status', 'published')
+            ->where('status', ContentStatus::PUBLISHED->value)
             ->where('article_id', '!=', $article_trans->article_id)
             ->whereHas('article', function ($query) use ($article_trans) {
-                $query->where('status', 'published')
+                $query->where('status', ContentStatus::PUBLISHED->value)
                     ->where('article_category_id', $article_trans->article->article_category_id);
             })
             ->latest()
@@ -216,24 +222,23 @@ class ArticleTranslationController extends Controller
 
         // المقالة السابقة (الأقدم ضمن نفس اللغة والمنشورة)
         $previousArticle = ArticleTranslation::where('locale', $currentLocale)
-            ->where('status', 'published')
+            ->where('status', ContentStatus::PUBLISHED->value)
             ->where('id', '<', $article_trans->id)
             ->whereHas('article', function ($query) {
-                $query->where('status', 'published');
+                $query->where('status', ContentStatus::PUBLISHED->value);
             })
             ->orderBy('id', 'desc')
             ->first();
 
         // المقالة التالية (الأحدث ضمن نفس اللغة والمنشورة)
         $nextArticle = ArticleTranslation::where('locale', $currentLocale)
-            ->where('status', 'published')
+            ->where('status', ContentStatus::PUBLISHED->value)
             ->where('id', '>', $article_trans->id)
             ->whereHas('article', function ($query) {
-                $query->where('status', 'published');
+                $query->where('status', ContentStatus::PUBLISHED->value);
             })
             ->orderBy('id', 'asc')
             ->first();
-
 
         return view('articles.show', compact(
             'article_trans',
@@ -275,12 +280,15 @@ class ArticleTranslationController extends Controller
         }
 
         // تحديد الحالة عند التحديث
-        $status = $article_trans->status;
+        $status = $article_trans->status instanceof ContentStatus
+            ? $article_trans->status->value
+            : (string) $article_trans->status;
+
         if ($request->user()->hasRole(['super-admin', 'editor']) || $request->user()->can('publish-articles')) {
-            $status = $request->input('status', $article_trans->status);
+            $status = $request->input('status', $status);
         } else {
             // إذا عدل الكاتب ترجمته، تعود تلقائياً لـ pending لتدقيقها مجدداً
-            $status = 'pending';
+            $status = ContentStatus::PENDING->value;
         }
 
         // 1. استخراج الـ slug
@@ -324,14 +332,18 @@ class ArticleTranslationController extends Controller
                 'description'      => trim($request->description),
                 'meta_title'       => trim($request->meta_title),
                 'meta_description' => trim($request->meta_description),
-                // لا يجب تعديل كاتب المقال وتغييره عند تحديث المقال
-                //'user_id'          => $request->user()->id,
                 'status'           => $status,
             ]);
-            // التحقق مما إذا كانت الترجمة أصبحت منشورة حديثاً بعد التحديث
-            if ($article_trans->article && $article_trans->article->status === 'published' && $article_trans->status === 'published' && $article_trans->article->category) {
-                //\App\Jobs\SendNewArticleNotificationJob::dispatch($article_trans)->onQueue('default');
-            }
+
+            // التحقق وحجز notification_sent_at وإرسال الإشعار إذا أصبحت الترجمة منشورة لأول مرة
+            app(ContentNotificationDispatcher::class)->dispatchIfReady(
+                translation: $article_trans,
+                contentType: 'article',
+                translationTable: 'article_translations',
+                parentRelation: 'article',
+                parentTable: 'articles',
+                parentForeignKey: 'article_id',
+            );
 
             //Cache::forget("article_show_{$article_trans->id}_lang_{$article_trans->locale}");
             return to_route('admin.articles.index')->with('success', 'Article Translation Updated Successfully.');
@@ -346,7 +358,7 @@ class ArticleTranslationController extends Controller
     {
         $article_trans = ArticleTranslation::findOrFail($article_trans_id);
 
-        // 🔒 التحقق من صلاحية الحذف (الأدمن والمحرر فقط، أو صاحب الترجمة إذا أردت)
+        // 🔒 التحقق من صلاحية الحذف
         if (!$request->user() || !$request->user()->hasRole(['super-admin', 'editor', 'writer'])) {
             abort(403, 'غير مسموح لك بحذف الترجمات.');
         }

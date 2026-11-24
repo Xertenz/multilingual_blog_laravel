@@ -71,7 +71,7 @@
                 <div class="bg-white rounded-xl p-4 border border-slate-200">
                     <label class="block text-xs font-semibold text-slate-600 mb-1.5">Publication Status</label>
                     @can('publish-articles')
-                        @php $statusVal = old('status', $game->status); @endphp
+                        @php $statusVal = old('status', $game->status?->value); @endphp
                         <select name="status" class="w-full rounded-lg border border-slate-300 text-sm py-2 px-3 bg-white">
                             <option value="draft" {{ $statusVal === 'draft' ? 'selected' : '' }}>Draft</option>
                             <option value="pending" {{ $statusVal === 'pending' ? 'selected' : '' }}>Pending</option>

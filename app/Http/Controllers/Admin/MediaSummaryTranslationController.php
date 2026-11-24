@@ -6,14 +6,13 @@ use App\Enums\ContentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\MediaSummary;
 use App\Models\MediaSummaryTranslation;
-use DOMDocument;
+use App\Services\ContentNotificationDispatcher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class MediaSummaryTranslationController extends Controller
 {
@@ -41,9 +40,9 @@ class MediaSummaryTranslationController extends Controller
             abort(403, 'غير مسموح لك بإنشاء ترجمة جديدة.');
         }
 
-        $status = 'pending';
+        $status = ContentStatus::PENDING->value;
         if ($request->user()->hasRole(['super-admin', 'editor']) || $request->user()->can('publish-articles')) {
-            $status = $request->input('status', 'draft');
+            $status = $request->input('status', ContentStatus::DRAFT->value);
         }
 
         $slugSource = trim($request->input('slug')) !== '' ? $request->input('slug') : $request->input('title');
@@ -74,7 +73,7 @@ class MediaSummaryTranslationController extends Controller
             'review_analysis' => 'nullable|string',
             'meta_title' => 'required|string|min:3',
             'meta_description' => 'required|string|min:20',
-            'status' => 'sometimes|in:draft,pending,published',
+            'status' => ['sometimes', new Enum(ContentStatus::class)],
         ]);
 
         try {
@@ -92,10 +91,14 @@ class MediaSummaryTranslationController extends Controller
                 'views' => 0,
             ]);
 
-            $summary = $trans->mediaSummary;
-            if ($summary && $summary->status === 'published' && $trans->status === 'published' && $summary->category) {
-                \App\Jobs\SendAuthorNewContentJob::dispatch($trans, 'media_summary')->onQueue('default');
-            }
+            app(ContentNotificationDispatcher::class)->dispatchIfReady(
+                translation: $trans,
+                contentType: 'media',
+                translationTable: 'media_summary_translations',
+                parentRelation: 'mediaSummary',
+                parentTable: 'media_summaries',
+                parentForeignKey: 'media_summary_id',
+            );
 
             return to_route('admin.media-summaries.index')
                 ->with('success', 'Media Translation Added Successfully.');
@@ -133,13 +136,11 @@ class MediaSummaryTranslationController extends Controller
             abort(403);
         }
 
-        $previousStatus = $trans->status?->value ?? $trans->status;
-
-        $status = $trans->status?->value ?? $trans->status;
+        $status = $trans->status?->value ?? (string) $trans->status;
         if ($request->user()->hasRole(['super-admin', 'editor']) || $request->user()->can('publish-articles')) {
             $status = $request->input('status', $status);
         } else {
-            $status = 'pending';
+            $status = ContentStatus::PENDING->value;
         }
 
         $slugSource = trim($request->input('slug')) !== '' ? $request->input('slug') : $request->input('title');
@@ -169,7 +170,7 @@ class MediaSummaryTranslationController extends Controller
             'review_analysis' => 'nullable|string',
             'meta_title' => 'required|string|min:3',
             'meta_description' => 'required|string|min:20',
-            'status' => 'sometimes|in:draft,pending,published',
+            'status' => ['sometimes', new Enum(ContentStatus::class)],
         ]);
 
         try {
@@ -184,16 +185,14 @@ class MediaSummaryTranslationController extends Controller
                 'status' => $status,
             ]);
 
-            // ✅ إشعار المتابعين فقط عند التحول من غير منشور → منشور
-            $becamePublished = ($previousStatus !== 'published' && ($trans->status?->value ?? $trans->status) === 'published');
-            if (
-                $becamePublished
-                && $trans->mediaSummary
-                && ($trans->mediaSummary->status?->value ?? $trans->mediaSummary->status) === 'published'
-                && $trans->mediaSummary->category
-            ) {
-                // \App\Jobs\SendNewArticleNotificationJob::dispatch($trans)->onQueue('default');
-            }
+            app(ContentNotificationDispatcher::class)->dispatchIfReady(
+                translation: $trans,
+                contentType: 'media',
+                translationTable: 'media_summary_translations',
+                parentRelation: 'mediaSummary',
+                parentTable: 'media_summaries',
+                parentForeignKey: 'media_summary_id',
+            );
 
             return to_route('admin.media-summaries.index')
                 ->with('success', 'Media Translation Updated Successfully.');

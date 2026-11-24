@@ -39,6 +39,7 @@ return new class extends Migration
             // عدادات خفيفة الأداء للزيارات والتعليقات
             $table->unsignedInteger('views_count')->default(0);
             $table->unsignedInteger('comments_count')->default(0);
+            $table->timestamp('notification_sent_at')->nullable();
 
             $table->timestamps();
 

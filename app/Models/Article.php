@@ -22,6 +22,9 @@ class Article extends Model  implements HasMedia
     protected $guarded = [];
     //public $timestamps = false;
     //
+    protected $casts = [
+        'status' => \App\Enums\ContentStatus::class,
+    ];
     public function translations(): HasMany
     {
         return $this->hasMany(ArticleTranslation::class);

@@ -4,8 +4,8 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notification;
 
 class AuthorNewContentNotification extends Notification implements ShouldQueue
 {
@@ -13,14 +13,18 @@ class AuthorNewContentNotification extends Notification implements ShouldQueue
 
     public Model $content;
     public string $contentType;
-    public object $author;
+    public ?object $author;
 
-    public function __construct(Model $content, string $contentType)
+    public function __construct(Model $content, string $contentType, ?object $author = null)
     {
         $this->content = $content;
         $this->contentType = $contentType;
-        // method to connect to 'users' should be with the name 'author()'
-        $this->author = $content->author;
+        $this->author = $author
+            ?? $content->author
+            ?? ($content->article->author ?? null)
+            ?? ($content->book->author ?? null)
+            ?? ($content->game->author ?? null)
+            ?? ($content->mediaSummary->author ?? null);
     }
 
     public function via($notifiable): array
@@ -30,25 +34,23 @@ class AuthorNewContentNotification extends Notification implements ShouldQueue
 
     public function toArray($notifiable): array
     {
-        // استخراج العنوان بناءً على نموذج المحتوى
-        $title = $this->content->title
-            //?? optional($this->content->translations?->first())->title
-            ?? 'New Publication';
+        $title = $this->content->title ?? 'New Publication';
+        $authorName = $this->author?->name ?? 'Author';
+        $authorId = $this->author?->id;
 
-        // تخصيص رسالة الإشعار بناءً على النوع (Type)
         $message = match ($this->contentType) {
-            'article' => "The author {$this->author->name} published a new article: {$title}",
-            'book'    => "The author {$this->author->name} published a new book summary: {$title}",
-            'game'    => "The author {$this->author->name} published a new game summary: {$title}",
-            'media'   => "The author {$this->author->name} published a new media summary: {$title}",
-            default   => "The author {$this->author->name} published a new content: {$title}",
+            'article' => "The author {$authorName} published a new article: {$title}",
+            'book'    => "The author {$authorName} published a new book summary: {$title}",
+            'game'    => "The author {$authorName} published a new game summary: {$title}",
+            'media'   => "The author {$authorName} published a new media summary: {$title}",
+            default   => "The author {$authorName} published a new content: {$title}",
         };
 
         return [
-            'content_type' => $this->contentType, // نوع المحتوى مخزن بوضوح في الـ JSON
+            'content_type' => $this->contentType,
             'content_id'   => $this->content->id,
-            'author_id'    => $this->author->id,
-            'author_name'  => $this->author->name,
+            'author_id'    => $authorId,
+            'author_name'  => $authorName,
             'title'        => $title,
             'message'      => $message,
         ];

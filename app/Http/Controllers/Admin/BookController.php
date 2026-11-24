@@ -7,6 +7,7 @@ use App\Models\Book;
 use App\Models\BookCategory;
 use App\Models\BookTag;
 use App\Models\BookTranslation;
+use App\Services\ContentNotificationDispatcher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -44,13 +45,14 @@ class BookController extends Controller
 
         // 1. قواعد التحقق العامة والفرعية (جعل حقول الترجمة اختيارية nullable)
         $rules = [
-            'label'   => 'required|string|max:255|unique:books,label',
+            'label'            => 'required|string|max:255|unique:books,label',
             'book_category_id' => 'required|exists:book_categories,id',
             'tags'             => 'nullable|array',
             'tags.*'           => 'exists:book_tags,id',
             'published_year'   => 'nullable|integer|min:1500|max:' . (date('Y') + 1),
             'pages_count'      => 'nullable|integer|min:1',
             'cover_image'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'status'           => 'sometimes|in:draft,pending,published',
 
             'translations.*.title'         => 'nullable|string|max:255',
             'translations.*.author'        => 'nullable|string|max:255',
@@ -59,6 +61,7 @@ class BookController extends Controller
             'translations.*.price'         => 'nullable|numeric|min:0',
             'translations.*.currency'      => 'nullable|string|max:10',
             'translations.*.slug'          => 'nullable|string|max:255|unique:book_translations,slug',
+            'translations.*.status'        => 'sometimes|in:draft,pending,published'
         ];
 
         $request->validate($rules);
@@ -70,6 +73,7 @@ class BookController extends Controller
             'label'   => $request->label,
             'published_year'   => $request->published_year,
             'pages_count'      => (int) $request->pages_count,
+            'status'           => $request->input('status', \App\Enums\ContentStatus::DRAFT->value),
         ]);
 
         // ربط الوسوم (Many-to-Many)
@@ -103,6 +107,7 @@ class BookController extends Controller
                     'affiliate_url' => $transData['affiliate_url'] ?? null,
                     'price'         => $transData['price'] ?? null,
                     'currency'      => $transData['currency'] ?? 'USD',
+                    'status'        => $transData['status'] ?? \App\Enums\ContentStatus::DRAFT->value
                 ]);
 
                 // رفع غلاف خاص لهذه الترجمة
@@ -114,7 +119,15 @@ class BookController extends Controller
 
 
 
-                \App\Jobs\SendAuthorNewContentJob::dispatch($translation, 'book')->onQueue('default');
+                // \App\Jobs\SendAuthorNewContentJob::dispatch($translation, 'book')->onQueue('default');
+                app(ContentNotificationDispatcher::class)->dispatchIfReady(
+                    translation: $translation,
+                    contentType: 'book',
+                    translationTable: 'book_translations',
+                    parentRelation: 'book',
+                    parentTable: 'books',
+                    parentForeignKey: 'book_id',
+                );
             }
         }
 
@@ -152,6 +165,7 @@ class BookController extends Controller
             'published_year'   => 'nullable|integer|min:1500|max:' . (date('Y') + 1),
             'pages_count'      => 'nullable|integer|min:1',
             'cover_image'      => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'status'           => 'sometimes|in:draft,pending,published',
 
             'translations.*.title'         => 'nullable|string|max:255',
             'translations.*.author'        => 'nullable|string|max:255',
@@ -159,6 +173,7 @@ class BookController extends Controller
             'translations.*.affiliate_url' => 'nullable|url',
             'translations.*.price'         => 'nullable|numeric|min:0',
             'translations.*.currency'      => 'nullable|string|max:10',
+            'translations.*.status'        => 'sometimes|in:draft,pending,published'
         ];
 
         $request->validate($rules);
@@ -181,6 +196,7 @@ class BookController extends Controller
             'label'   => $request->label,
             'published_year'   => $request->published_year,
             'pages_count'      => (int) $request->pages_count,
+            'status'           => $request->input('status', $book->status?->value ?? \App\Enums\ContentStatus::DRAFT->value),
         ]);
         // تحديث الوسوم
         $book->tags()->sync($request->tags ?? []);
@@ -194,6 +210,10 @@ class BookController extends Controller
 
         // 3. تحديث أو إنشاء أو حذف الترجمات بناءً على إدخال المشرف
         if ($request->has('translations')) {
+            $existingStatuses = $book->translations()
+                ->pluck('status', 'locale')
+                ->map(fn($status) => $status instanceof \BackedEnum ? $status->value : $status);
+
             foreach ($request->translations as $localeCode => $transData) {
                 if (!in_array($localeCode, $validLocales)) {
                     continue;
@@ -219,6 +239,9 @@ class BookController extends Controller
                         'affiliate_url' => $transData['affiliate_url'] ?? null,
                         'price'         => $transData['price'] ?? null,
                         'currency'      => $transData['currency'] ?? 'USD',
+                        'status'        => $transData['status']
+                            ?? $existingStatuses[$localeCode]
+                            ?? \App\Enums\ContentStatus::DRAFT->value,
                     ]
                 );
 
@@ -228,6 +251,15 @@ class BookController extends Controller
                     $translation->addMediaFromRequest("translations.{$localeCode}.cover_image")
                         ->toMediaCollection('cover_imgs');
                 }
+
+                app(ContentNotificationDispatcher::class)->dispatchIfReady(
+                    translation: $translation,
+                    contentType: 'book',
+                    translationTable: 'book_translations',
+                    parentRelation: 'book',
+                    parentTable: 'books',
+                    parentForeignKey: 'book_id',
+                );
             }
         }
 

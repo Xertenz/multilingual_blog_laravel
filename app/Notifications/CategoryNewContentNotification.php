@@ -4,8 +4,8 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Notifications\Notification;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notification;
 
 class CategoryNewContentNotification extends Notification implements ShouldQueue
 {
@@ -30,9 +30,20 @@ class CategoryNewContentNotification extends Notification implements ShouldQueue
     public function toArray($notifiable): array
     {
         $title = $this->content->title ?? 'New Publication';
-        $categoryName = $this->category->label ??
-            /* optional($this->category?->translations?->first())->name ?? */
-            'Category';
+
+        $recipientLocale = $notifiable->locale ?? ($this->content->locale ?? app()->getLocale());
+        $categoryTrans = null;
+
+        if ($this->category && method_exists($this->category, 'translations')) {
+            $this->category->loadMissing('translations');
+            $categoryTrans = $this->category->translations->firstWhere('locale', $recipientLocale)
+                ?? $this->category->translations->firstWhere('locale', $this->content->locale ?? '')
+                ?? $this->category->translations->first();
+        }
+
+        $categoryName = $categoryTrans?->name
+            ?? $this->category?->label
+            ?? 'Category';
 
         $message = match ($this->contentType) {
             'article' => "A new article has been published in category [{$categoryName}]: {$title}",
@@ -43,12 +54,12 @@ class CategoryNewContentNotification extends Notification implements ShouldQueue
         };
 
         return [
-            'content_type' => $this->contentType,
-            'content_id'   => $this->content->id,
-            'category_id'  => $this->category?->id,
+            'content_type'  => $this->contentType,
+            'content_id'    => $this->content->id,
+            'category_id'   => $this->category?->id,
             'category_name' => $categoryName,
-            'title'        => $title,
-            'message'      => $message,
+            'title'         => $title,
+            'message'       => $message,
         ];
     }
 }

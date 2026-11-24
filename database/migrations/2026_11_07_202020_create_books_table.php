@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('label')->unique();
             $table->integer('published_year')->nullable(); // سنة النشر
             $table->integer('pages_count')->nullable(); // عدد الصفحات
+            $table->enum('status', ['draft', 'pending', 'published'])->index();
             $table->unsignedBigInteger('views')->default(0);
             $table->timestamps();
         });
@@ -34,12 +35,14 @@ return new class extends Migration
             $table->string('book_author'); // اسم المؤلف حسب اللغة
             $table->string('slug'); // الرابط الصديق
             $table->text('summary')->nullable(); // ملخص الكتاب
+            $table->enum('status', ['draft', 'pending', 'published'])->index();
             $table->unsignedBigInteger('views')->default(0);
 
             // البيانات المالية والتسويقية حسب اللغة
             $table->string('affiliate_url')->nullable(); // رابط الأفلييت المخصص لكل منطقة/لغة
             $table->decimal('price', 8, 2)->nullable(); // السعر
             $table->string('currency', 10)->default('USD'); // رمز العملة (USD, SAR, EUR, EGP...)
+            $table->timestamp('notification_sent_at')->nullable();
 
             $table->timestamps();
 

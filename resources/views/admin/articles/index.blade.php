@@ -77,11 +77,11 @@
                         {{-- Status Badge --}}
                         <td class="py-3.5 px-4">
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border
-                                {{ $article->status === 'published'
+                                {{ $article->status?->value === 'published'
                                     ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                                     : 'bg-amber-50 text-amber-700 border-amber-200' }}">
-                                <span class="w-1.5 h-1.5 rounded-full {{ $article->status === 'published' ? 'bg-emerald-500' : 'bg-amber-500' }}"></span>
-                                {{ ucfirst($article->status) }}
+                                <span class="w-1.5 h-1.5 rounded-full {{ $article->status?->value === 'published' ? 'bg-emerald-500' : 'bg-amber-500' }}"></span>
+                                {{ ucfirst($article->status instanceof \BackedEnum ? $article->status->value : (string) ($article->status ?? '')) }}
                             </span>
                         </td>
 
@@ -115,8 +115,8 @@
                                                 title="{{ __('Edit :lang translation', ['lang' => $localeProps['name']]) }}">
                                                     <span class="font-mono">{{ strtoupper($localeCode) }}</span>
                                                     <span class="text-[9px] px-1 py-0.5 rounded
-                                                        {{ $existingTrans->status === 'published' ? 'bg-emerald-100 text-emerald-700' : ($existingTrans->status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-slate-200 text-slate-600') }}">
-                                                        {{ $existingTrans->status }}
+                                                        {{ $existingTrans->status?->value === 'published' ? 'bg-emerald-100 text-emerald-700' : ($existingTrans->status?->value === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-slate-200 text-slate-600') }}">
+                                                        {{ $existingTrans->status?->value }}
                                                     </span>
                                                 </a>
                                             @else
@@ -124,7 +124,7 @@
                                                     title="{{ __('Read-only translation') }}">
                                                     <span class="font-mono">{{ strtoupper($localeCode) }}</span>
                                                     <span class="text-[9px] px-1 py-0.5 rounded bg-slate-200 text-slate-600">
-                                                        {{ $existingTrans->status }}
+                                                        {{ $existingTrans->status?->value }}
                                                     </span>
                                                 </span>
                                             @endif

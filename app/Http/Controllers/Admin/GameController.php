@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\ContentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Game;
 use App\Models\GameCategory;
 use App\Models\GameTag;
+use App\Services\ContentNotificationDispatcher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class GameController extends Controller
@@ -41,19 +44,19 @@ class GameController extends Controller
             'label'            => 'required|string|unique:games,label',
             'published_year'   => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
             'developer'        => 'nullable|string|max:255',
-            'status'           => 'sometimes|in:draft,pending,published',
+            'status'           => ['sometimes', new Enum(ContentStatus::class)],
             'featured_img'     => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
             'tags'             => 'nullable|array',
             'tags.*'           => 'exists:game_tags,id',
         ]);
 
-        $status = 'pending';
+        $status = ContentStatus::PENDING->value;
         if ($request->user()->hasRole(['super-admin', 'editor'])) {
-            $status = $request->input('status', 'draft');
+            $status = $request->input('status', ContentStatus::DRAFT->value);
         }
 
         $game = Game::create([
-            'game_category_id' => (int)$request->game_category_id,
+            'game_category_id' => (int) $request->game_category_id,
             'user_id'          => Auth::id(),
             'label'            => trim($request->label),
             'published_year'   => $request->published_year,
@@ -90,27 +93,26 @@ class GameController extends Controller
     {
         $game = Game::findOrFail($id);
 
-        $previousStatus = $game->status;
-
         $request->validate([
             'game_category_id' => 'required|numeric|exists:game_categories,id',
             'label'            => ['required', 'string', Rule::unique('games', 'label')->ignore($id)],
             'published_year'   => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
             'developer'        => 'nullable|string|max:255',
-            'status'           => 'sometimes|in:draft,pending,published',
+            'status'           => ['sometimes', new Enum(ContentStatus::class)],
             'featured_img'     => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:5120',
             'tags'             => 'nullable|array',
             'tags.*'           => 'exists:game_tags,id',
         ]);
-        $status = $game->status;
+
+        $status = $game->status?->value ?? (string) $game->status;
         if ($request->user()->hasRole(['super-admin', 'editor'])) {
-            $status = $request->input('status', $game->status);
+            $status = $request->input('status', $status);
         } else {
-            $status = 'pending';
+            $status = ContentStatus::PENDING->value;
         }
 
         $game->update([
-            'game_category_id' => (int)$request->game_category_id,
+            'game_category_id' => (int) $request->game_category_id,
             'label'            => trim($request->label),
             'published_year'   => $request->published_year,
             'developer'        => $request->developer,
@@ -132,9 +134,8 @@ class GameController extends Controller
 
         $game->tags()->sync($request->input('tags', []));
 
-        // ✅ إشعار المتابعين فقط عند التحول إلى published
-        if ($previousStatus !== 'published' && $game->status === 'published') {
-            // \App\Jobs\SendNewGameNotificationJob::dispatch($game)->onQueue('default');
+        if ($game->status === ContentStatus::PUBLISHED) {
+            $this->dispatchReadyTranslationsForGame($game);
         }
 
         return redirect()->route('admin.games.index')->with('success', 'Game Updated Successfully.');
@@ -142,7 +143,6 @@ class GameController extends Controller
 
     public function destroy(Request $request, int $id)
     {
-
         $game = Game::findOrFail($id);
         $game->clearMediaCollection('cover_imgs');
         $game->clearMediaCollection('content_imgs');
@@ -154,7 +154,6 @@ class GameController extends Controller
     // رفع وإدارة صور المحتوى داخل TinyMCE
     public function uploadContentImg(Request $request)
     {
-
         $request->validate([
             'game_id'     => 'required|numeric|exists:games,id',
             'content_img' => 'required|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048'
@@ -190,7 +189,6 @@ class GameController extends Controller
         return response()->json(['error' => 'error in delete media']);
     }
 
-
     public function pending(Request $request)
     {
         if (!$request->user()->hasRole(['super-admin', 'editor'])) {
@@ -198,7 +196,7 @@ class GameController extends Controller
         }
 
         $games = Game::with(['translations', 'author'])
-            ->where('status', 'pending')
+            ->where('status', ContentStatus::PENDING->value)
             ->latest()
             ->paginate(10);
 
@@ -212,7 +210,9 @@ class GameController extends Controller
         }
 
         $game = Game::findOrFail($id);
-        $game->update(['status' => 'published']);
+        $game->update(['status' => ContentStatus::PUBLISHED->value]);
+
+        $this->dispatchReadyTranslationsForGame($game);
 
         return redirect()->route('admin.games.pending')
             ->with('success', 'Game approved and published successfully.');
@@ -225,9 +225,27 @@ class GameController extends Controller
         }
 
         $game = Game::findOrFail($id);
-        $game->update(['status' => 'draft']);
+        $game->update(['status' => ContentStatus::DRAFT->value]);
 
         return redirect()->route('admin.games.pending')
             ->with('success', 'Game rejected and moved back to draft.');
+    }
+
+    private function dispatchReadyTranslationsForGame(Game $game): void
+    {
+        $game->loadMissing('translations');
+
+        foreach ($game->translations as $translation) {
+            if ($translation->status === ContentStatus::PUBLISHED && is_null($translation->notification_sent_at)) {
+                app(ContentNotificationDispatcher::class)->dispatchIfReady(
+                    translation: $translation,
+                    contentType: 'game',
+                    translationTable: 'game_translations',
+                    parentRelation: 'game',
+                    parentTable: 'games',
+                    parentForeignKey: 'game_id',
+                );
+            }
+        }
     }
 }

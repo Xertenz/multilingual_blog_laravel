@@ -2,9 +2,11 @@
 
 namespace App\Jobs;
 
+use App\Notifications\AuthorNewContentNotification;
+use App\Notifications\CategoryNewContentNotification;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Queue\Queueable;
 
 class SendAuthorNewContentJob implements ShouldQueue
 {
@@ -21,83 +23,70 @@ class SendAuthorNewContentJob implements ShouldQueue
 
     public function handle(): void
     {
-        // 1. تحديد الكاتب صاحب المحتوى
-        $author = $this->content->author;
-        if (!$author) return;
+        // 1. تحديد الكاتب (سواء كان $this->content نموذج ترجمة أو نموذجاً أساسياً)
+        $author = $this->content->author
+            ?? ($this->content->article->author ?? null)
+            ?? ($this->content->book->author ?? null)
+            ?? ($this->content->game->author ?? null)
+            ?? ($this->content->mediaSummary->author ?? null);
+
+        if (!$author) {
+            return;
+        }
 
         $authorId = $author->id;
 
-
-        // 2. تحديد الفئة المرتبطة بالمحتوى بناءً على نوعه
-        $category = null;
-        if ($this->contentType === 'article') {
-            // المقال مرتبط بـ article->category عبر الترجمة أو المقال الأساسي
-            $article = $this->content->article ?? null;
-            $category = $article ? $article->category : null;
-        } elseif ($this->contentType === 'book') {
-            // الكتاب مرتبط بـ category
-            $book = $this->content->book ?? null;
-            $category = $book ? $book->category : null;
-        } elseif ($this->contentType === 'game') {
-            // الألعاب مرتبطة بـ category (عدل اسم العلاقة حسب نموذجك إن لم تكن category)
-            $game = $this->content->game ?? null;
-            $category = $game ? $game->category : null;
-        } elseif ($this->contentType === 'media') {
-            // الميديا مرتبطة بـ category أو mediaCategory حسب هيكلك
-            $media = $this->content->mediaSummary ?? null;
-            $category = $media ? $media->type : null;
-        }
+        // 2. تحديد الفئة الخاصة بنوع المحتوى عبر علاقة category()
+        $category = match ($this->contentType) {
+            'article' => $this->content->article?->category ?? $this->content->category ?? null,
+            'book'    => $this->content->book?->category ?? $this->content->category ?? null,
+            'game'    => $this->content->game?->category ?? $this->content->category ?? null,
+            'media'   => $this->content->mediaSummary?->category ?? $this->content->category ?? null,
+            default   => $this->content->category ?? null,
+        };
 
         // 3. لغة المحتوى المنشور
         $contentLocale = $this->content->locale ?? config('app.fallback_locale', 'en');
         $fallbackLocale = config('app.fallback_locale', 'en');
 
-        // 4. جمع متابعي الكاتب (تصفية حسب اللغة واستثناء الكاتب نفسه)
+        // 4. متابعو الكاتب (بنفس لغة المحتوى وبدون الكاتب نفسه)
         $authorFollowers = collect();
-        if ($author && method_exists($author, 'authorFollowers')) {
-            $author->load('authorFollowers');
+        if (method_exists($author, 'authorFollowers')) {
+            $author->loadMissing('authorFollowers');
             $authorFollowers = $author->authorFollowers->filter(function ($user) use ($authorId, $contentLocale, $fallbackLocale) {
-                if ($user->id === $authorId) return false;
+                if ($user->id === $authorId) {
+                    return false;
+                }
                 $userLocale = $user->locale ?? $fallbackLocale;
                 return $userLocale === $contentLocale;
             });
         }
 
-        // 5. جمع متابعي الفئة (تصفية حسب اللغة واستثناء الكاتب نفسه)
+        // 5. متابعو الفئة من جدول follows عبر علاقة followers() (بنفس لغة المحتوى وبدون الكاتب نفسه)
         $categoryFollowers = collect();
         if ($category && method_exists($category, 'followers')) {
-            $category->load('followers');
+            $category->loadMissing('followers');
             $categoryFollowers = $category->followers->filter(function ($user) use ($authorId, $contentLocale, $fallbackLocale) {
-                if ($user->id === $authorId) return false;
+                if ($user->id === $authorId) {
+                    return false;
+                }
                 $userLocale = $user->locale ?? $fallbackLocale;
                 return $userLocale === $contentLocale;
             });
         }
 
-        // 6. 🛡️ الدمج الذكي ومنع التكرار (Unique): 
-        // إذا كان المستخدم يتابع الكاتب والفئة معاً، سيتم الاحتفاظ به مرة واحدة فقط
-        // سنعطي الأولوية لإشعار الكاتب، أو يمكننا إرسال إشعار موحد. بما أنك ترغب بإشعار الفئة السابق، 
-        // سنفصلهم أو نرسل إشعارين منفصلين لمن يستحق، مع استثناء من يستقبل إشعار الكاتب من استقبال إشعار الفئة في نفس اللحظة.
-
-        // أ. إرسال إشعار الكاتب للمتابعين المهتمين بالكاتب
-        if ($authorFollowers->isNotEmpty()) {
-            foreach ($authorFollowers as $user) {
-                $user->notify(new \App\Notifications\AuthorNewContentNotification($this->content, $this->contentType));
-            }
+        // 6. إرسال إشعار الكاتب
+        foreach ($authorFollowers as $user) {
+            $user->notify(new AuthorNewContentNotification($this->content, $this->contentType, $author));
         }
 
-        // ب. إرسال إشعار الفئة للمتابعين المهتمين بالفئة، بشرط ألا يكونوا قد استلموا للتو إشعار الكاتب (منع التكرار)
+        // 7. إرسال إشعار الفئة لمن لم يصله إشعار الكاتب في نفس الحدث (منع التكرار)
         if ($categoryFollowers->isNotEmpty()) {
-            // استثناء المستخدمين الذين وجدوا في قائمة متابعي الكاتب لكي لا يصلهم إشعاران لنفس العنصر
-            $authorFollowerIds = $authorFollowers->pluck('id')->toArray();
+            $authorFollowerIds = $authorFollowers->pluck('id')->all();
+            $pureCategoryFollowers = $categoryFollowers->reject(fn($user) => in_array($user->id, $authorFollowerIds, true));
 
-            $pureCategoryFollowers = $categoryFollowers->reject(fn($user) => in_array($user->id, $authorFollowerIds));
-
-            if ($pureCategoryFollowers->isNotEmpty()) {
-                foreach ($pureCategoryFollowers as $user) {
-                    // يمكنك استخدام إشعار الفئة المخصص الذي تريده، أو إشعار الفئة القديم
-                    $user->notify(new \App\Notifications\CategoryNewContentNotification($this->content, $this->contentType, $category));
-                }
+            foreach ($pureCategoryFollowers as $user) {
+                $user->notify(new CategoryNewContentNotification($this->content, $this->contentType, $category));
             }
         }
     }

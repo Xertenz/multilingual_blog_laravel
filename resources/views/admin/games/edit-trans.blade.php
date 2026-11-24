@@ -67,7 +67,7 @@
                 <div class="border border-slate-200 p-4 rounded-xl bg-white mb-4">
                     <label class="block text-xs font-semibold text-slate-600 mb-1.5">Translation Status</label>
                     @can('publish-articles')
-                        @php $currentStatus = old('status', $game_trans->status); @endphp
+                        @php $currentStatus = old('status', $game_trans->status?->value); @endphp
                         <select name="status" class="w-full rounded-lg border border-slate-300 text-sm p-2.5">
                             <option value="draft" {{ $currentStatus === 'draft' ? 'selected' : '' }}>Draft</option>
                             <option value="pending" {{ $currentStatus === 'pending' ? 'selected' : '' }}>Pending</option>
@@ -76,7 +76,7 @@
                     @else
                         <input type="hidden" name="status" value="pending">
                         <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800">
-                            Status: {{ ucfirst($game_trans->status) }} — updating will re-submit for review.
+                            Status: {{ ucfirst($game_trans->status?->value) }} — updating will re-submit for review.
                         </div>
                     @endcan
                 </div>

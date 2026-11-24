@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Front;
 
+use App\Enums\ContentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\GameTranslation;
 
@@ -18,9 +19,9 @@ class GameController extends Controller
             'game.translations',
         ])
             ->where('locale', $currentLocale)
-            ->where('status', 'published')
+            ->where('status', ContentStatus::PUBLISHED->value)
             ->whereHas('game', function ($query) {
-                $query->where('status', 'published');
+                $query->where('status', ContentStatus::PUBLISHED->value);
             })
             ->latest()
             ->paginate(12);
@@ -32,9 +33,9 @@ class GameController extends Controller
                 'game.media',
                 'game.translations',
             ])
-                ->where('status', 'published')
+                ->where('status', ContentStatus::PUBLISHED->value)
                 ->whereHas('game', function ($query) {
-                    $query->where('status', 'published');
+                    $query->where('status', ContentStatus::PUBLISHED->value);
                 })
                 ->latest()
                 ->paginate(12);
@@ -59,10 +60,10 @@ class GameController extends Controller
         }
 
         // منع عرض الترجمة أو اللعبة إذا لم يكن كلاهما published
-        $transStatus = $game_trans->status?->value ?? $game_trans->status;
-        $gameStatus  = $game_trans->game->status?->value ?? $game_trans->game->status;
-
-        if ($transStatus !== 'published' || $gameStatus !== 'published') {
+        if (
+            $game_trans->status !== ContentStatus::PUBLISHED
+            || $game_trans->game->status !== ContentStatus::PUBLISHED
+        ) {
             abort(404);
         }
 
@@ -70,10 +71,8 @@ class GameController extends Controller
         if ($game_trans->locale !== $currentLocale) {
             $localizedTrans = $game_trans->game->translations
                 ->where('locale', $currentLocale)
-                ->first(function ($item) {
-                    $status = $item->status?->value ?? $item->status;
-                    return $status === 'published';
-                });
+                ->where('status', ContentStatus::PUBLISHED)
+                ->first();
 
             if ($localizedTrans) {
                 return redirect()->route('games.show', [
@@ -87,7 +86,7 @@ class GameController extends Controller
             return redirect()->route('games.show', [
                 'id'   => $game_trans->id,
                 'slug' => $game_trans->slug,
-            ]);
+            ], 301);
         }
 
         $game_trans->increment('views');

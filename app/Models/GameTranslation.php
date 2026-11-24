@@ -13,6 +13,10 @@ class GameTranslation extends Model implements HasMedia
 
     protected $guarded = [];
 
+    protected $casts = [
+        'status' => \App\Enums\ContentStatus::class,
+    ];
+
     public function game(): BelongsTo
     {
         return $this->belongsTo(Game::class);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Front;
 
+use App\Enums\ContentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\MediaSummaryTranslation;
 use DOMDocument;
@@ -22,12 +23,12 @@ class MediaSummaryTranslationController extends Controller
             'mediaSummary.media',
             'mediaSummary.category.translations',
             'mediaSummary.tags.translations',
-            'mediaSummary.location.translations',
+            'mediaSummary.locations.translations',
         ])
             ->where('locale', $currentLocale)
-            ->where('status', 'published')
+            ->where('status', ContentStatus::PUBLISHED->value)
             ->whereHas('mediaSummary', function ($q) {
-                $q->where('status', 'published');
+                $q->where('status', ContentStatus::PUBLISHED->value);
             })
             ->latest()
             ->paginate(12);
@@ -47,18 +48,18 @@ class MediaSummaryTranslationController extends Controller
             'mediaSummary.translations',
             'mediaSummary.category.translations',
             'mediaSummary.tags.translations',
-            'mediaSummary.location.translations',
+            'mediaSummary.locations.translations',
         ])->find($id);
 
-        if (!$trans) {
+        if (!$trans || !$trans->mediaSummary) {
             return to_route('home.index')->with('error', __('Media summary not found.'));
         }
 
-        if (($trans->mediaSummary->status?->value ?? $trans->mediaSummary->status) !== 'published') {
+        if ($trans->mediaSummary->status !== ContentStatus::PUBLISHED) {
             return to_route('home.index')->with('info', __('This media summary is not published yet.'));
         }
 
-        if (($trans->status?->value ?? $trans->status) !== 'published') {
+        if ($trans->status !== ContentStatus::PUBLISHED) {
             return to_route('home.index')->with('info', __('This translation is not published yet.'));
         }
 
@@ -90,12 +91,12 @@ class MediaSummaryTranslationController extends Controller
         if ($media_trans->locale !== $currentLocale) {
             $target = $media_trans->mediaSummary->translations
                 ->where('locale', $currentLocale)
-                ->where('status', 'published')
+                ->where('status', ContentStatus::PUBLISHED)
                 ->first();
 
             if ($target) {
                 return redirect()->route('media-summaries.show', [
-                    'id' => $target->id,
+                    'id'   => $target->id,
                     'slug' => $target->slug,
                 ]);
             }
@@ -104,7 +105,7 @@ class MediaSummaryTranslationController extends Controller
 
         if (empty($slug) || $media_trans->slug !== $slug) {
             return redirect()->route('media-summaries.show', [
-                'id' => $media_trans->id,
+                'id'   => $media_trans->id,
                 'slug' => $media_trans->slug,
             ], 301);
         }

@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\ContentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Game;
 use App\Models\GameTranslation;
+use App\Services\ContentNotificationDispatcher;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 class GameTranslationController extends Controller
@@ -33,7 +36,6 @@ class GameTranslationController extends Controller
 
     public function store(Request $request)
     {
-
         $supportedLocales = implode(',', LaravelLocalization::getSupportedLanguagesKeys());
 
         $request->validate([
@@ -41,7 +43,7 @@ class GameTranslationController extends Controller
             'locale'           => [
                 'required',
                 'in:' . $supportedLocales,
-                Rule::unique('game_translations', 'locale')->where(fn($q) => $q->where('game_id', (int)$request->game_id))
+                Rule::unique('game_translations', 'locale')->where(fn($q) => $q->where('game_id', (int) $request->game_id))
             ],
             'slug'             => [
                 'required',
@@ -52,23 +54,23 @@ class GameTranslationController extends Controller
             'content'          => 'required|string|min:20',
             'meta_title'       => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
-            'status'           => 'sometimes|in:draft,pending,published',
+            'status'           => ['sometimes', new Enum(ContentStatus::class)],
             'affiliate_url'    => 'nullable|url',
             'price'            => 'nullable|numeric|min:0',
             'currency'         => 'nullable|string|max:10',
         ]);
 
         // ✅ الكاتب → pending، المحرر/المدير → حسب الاختيار
-        $status = 'pending';
+        $status = ContentStatus::PENDING->value;
         if ($request->user()->hasRole(['super-admin', 'editor']) || $request->user()->can('publish-articles')) {
-            $status = $request->input('status', 'draft');
+            $status = $request->input('status', ContentStatus::DRAFT->value);
         }
 
         $slugSource = trim($request->input('slug')) !== '' ? $request->input('slug') : $request->input('title');
         $finalSlug = (string) Str::of($slugSource)->slug('-');
         $request->merge(['slug' => $finalSlug]);
 
-        GameTranslation::create([
+        $game_trans = GameTranslation::create([
             'game_id'          => $request->game_id,
             'user_id'          => $request->user()->id,
             'locale'           => $request->locale,
@@ -82,6 +84,15 @@ class GameTranslationController extends Controller
             'price'            => $request->price,
             'currency'         => $request->currency ?? 'USD',
         ]);
+
+        app(ContentNotificationDispatcher::class)->dispatchIfReady(
+            translation: $game_trans,
+            contentType: 'game',
+            translationTable: 'game_translations',
+            parentRelation: 'game',
+            parentTable: 'games',
+            parentForeignKey: 'game_id',
+        );
 
         return redirect()->route('admin.games.index')->with('success', 'Game Translation Added Successfully.');
     }
@@ -107,10 +118,6 @@ class GameTranslationController extends Controller
             abort(403, 'غير مسموح لك بتحديث ترجمة لم تقم بإنشائها.');
         }
 
-        // ✅ حفظ الحالة السابقة
-        $previousStatus = $game_trans->status;
-
-
         $supportedLocales = implode(',', LaravelLocalization::getSupportedLanguagesKeys());
 
         $request->validate([
@@ -118,7 +125,7 @@ class GameTranslationController extends Controller
             'locale'           => [
                 'required',
                 'in:' . $supportedLocales,
-                Rule::unique('game_translations')->where(fn($q) => $q->where('game_id', (int)$request->game_id))->ignore($id)
+                Rule::unique('game_translations')->where(fn($q) => $q->where('game_id', (int) $request->game_id))->ignore($id)
             ],
             'slug'             => [
                 'required',
@@ -129,18 +136,18 @@ class GameTranslationController extends Controller
             'content'          => 'required|string|min:20',
             'meta_title'       => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
-            'status'           => 'sometimes|in:draft,pending,published',
+            'status'           => ['sometimes', new Enum(ContentStatus::class)],
             'affiliate_url'    => 'nullable|url',
             'price'            => 'nullable|numeric|min:0',
             'currency'         => 'nullable|string|max:10',
         ]);
 
         // ✅ الكاتب: التعديل يعيد الحالة إلى pending
-        $status = $game_trans->status;
+        $status = $game_trans->status?->value ?? (string) $game_trans->status;
         if ($request->user()->hasRole(['super-admin', 'editor']) || $request->user()->can('publish-articles')) {
-            $status = $request->input('status', $game_trans->status);
+            $status = $request->input('status', $status);
         } else {
-            $status = 'pending';
+            $status = ContentStatus::PENDING->value;
         }
 
         $slugSource = trim($request->input('slug')) !== '' ? $request->input('slug') : $request->input('title');
@@ -160,10 +167,14 @@ class GameTranslationController extends Controller
             'currency'         => $request->currency ?? 'USD',
         ]);
 
-        // ✅ إشعار المتابعين فقط عند التحول إلى published
-        if ($previousStatus !== 'published' && $game_trans->status === 'published') {
-            // \App\Jobs\SendNewGameTranslationNotificationJob::dispatch($game_trans)->onQueue('default');
-        }
+        app(ContentNotificationDispatcher::class)->dispatchIfReady(
+            translation: $game_trans,
+            contentType: 'game',
+            translationTable: 'game_translations',
+            parentRelation: 'game',
+            parentTable: 'games',
+            parentForeignKey: 'game_id',
+        );
 
         return redirect()->route('admin.games.index')->with('success', 'Game Translation Updated Successfully.');
     }

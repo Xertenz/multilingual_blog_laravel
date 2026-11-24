@@ -25,6 +25,7 @@ return new class extends Migration
             $table->longText('description');
             $table->string('meta_title');
             $table->text('meta_description');
+            $table->timestamp('notification_sent_at')->nullable();
             $table->timestamps();
         });
     }

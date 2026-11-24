@@ -2,27 +2,29 @@
 
 namespace App\Http\Controllers\Front;
 
+use App\Enums\ContentStatus;
 use App\Http\Controllers\Controller;
-use App\Models\Book;
 use App\Models\BookTranslation;
-use Illuminate\Http\Request;
 
 class BookController extends Controller
 {
     /**
-     * عرض قائمة الكتب وملخصاتها للزوار
+     * عرض قائمة الكتب وملخصاتها المنشورة للزوار
      */
     public function index()
     {
         $currentLocale = app()->getLocale();
 
-        // جلب الترجمات الخاصة باللغة الحالية مباشرة مع كافة العلاقات المرتبطة لتجنب N+1
         $translations = BookTranslation::where('locale', $currentLocale)
+            ->where('status', ContentStatus::PUBLISHED->value)
+            ->whereHas('book', function ($query) {
+                $query->where('status', ContentStatus::PUBLISHED->value);
+            })
             ->with([
                 'book.category.translations',
                 'book.tags.translations',
                 'book.media',
-                'media' // لضمان جلب غلاف الترجمة إن وجد
+                'media',
             ])
             ->latest()
             ->paginate(10);
@@ -31,24 +33,47 @@ class BookController extends Controller
     }
 
     /**
-     * عرض تفاصيل كتاب معين مع ملخصه ورابط الشراء
+     * عرض تفاصيل كتاب منشور مع ملخصه ورابط الشراء
      */
     public function show(int $id, $slug = null)
     {
         $currentLocale = app()->getLocale();
 
-        // جلب الكتاب مع الفئات، الوسوم، والوسائط
-        $trans = BookTranslation::with(['book.category.translations', 'book.tags.translations', 'book.media'])->findOrFail($id);
+        $trans = BookTranslation::with([
+            'book.category.translations',
+            'book.tags.translations',
+            'book.media',
+            'book.translations',
+        ])->findOrFail($id);
+
         $book = $trans->book;
 
-        // جلب الترجمة الخاصة باللغة الحالية فقط
-        $translation = $book->translations()->where('locale', $currentLocale)->first();
-
-        if (!$translation) {
-            return response()->redirectToRoute('books.index');
+        if (
+            !$book
+            || $book->status !== ContentStatus::PUBLISHED
+            || $trans->status !== ContentStatus::PUBLISHED
+        ) {
+            return redirect()->route('books.index')
+                ->with('info', __('This book is not available at the moment.'));
         }
 
-        // 📈 زيادة عدد المشاهدات لكل من الترجمة والكتاب الأساسي معاً
+        $translation = $book->translations
+            ->where('locale', $currentLocale)
+            ->where('status', ContentStatus::PUBLISHED)
+            ->first();
+
+        if (!$translation) {
+            return redirect()->route('books.index')
+                ->with('info', __('This book is not available in your language.'));
+        }
+
+        if (!empty($translation->slug) && $slug !== $translation->slug) {
+            return redirect()->route('books.show', [
+                'id'   => $translation->id,
+                'slug' => $translation->slug,
+            ], 301);
+        }
+
         $translation->increment('views');
         $book->increment('views');
 

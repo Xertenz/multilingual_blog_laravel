@@ -120,9 +120,9 @@
                         <div class="relative">
                             <select name="status" id="status" 
                                     class="w-full rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm py-2 px-3 pr-10 outline-none transition bg-white cursor-pointer">
-                                <option value="draft" {{ old('status', $article->status ?? 'draft') == 'draft' ? 'selected' : '' }}>Draft (مسودة)</option>
-                                <option value="pending" {{ old('status', $article->status ?? 'pending') == 'pending' ? 'selected' : '' }}>Pending (قيد Mراجعة)</option>
-                                <option value="published" {{ old('status', $article->status ?? '') == 'published' ? 'selected' : '' }}>Published (منشور)</option>
+                                <option value="draft" {{ old('status', $article->status?->value ?? 'draft') == 'draft' ? 'selected' : '' }}>Draft (مسودة)</option>
+                                <option value="pending" {{ old('status', $article->status?->value ?? 'pending') == 'pending' ? 'selected' : '' }}>Pending (قيد Mراجعة)</option>
+                                <option value="published" {{ old('status', $article->status?->value ?? '') == 'published' ? 'selected' : '' }}>Published (منشور)</option>
                             </select>
                         </div>
                     @else

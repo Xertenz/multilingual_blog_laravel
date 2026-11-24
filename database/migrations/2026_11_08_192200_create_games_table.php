@@ -38,6 +38,7 @@ return new class extends Migration {
             $table->string('affiliate_url')->nullable();
             $table->decimal('price', 8, 2)->nullable();
             $table->string('currency', 10)->default('USD');
+            $table->timestamp('notification_sent_at')->nullable();
             $table->timestamps();
 
             $table->unique(['game_id', 'locale']);

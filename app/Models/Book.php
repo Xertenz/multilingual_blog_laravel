@@ -19,6 +19,10 @@ class Book extends Model implements HasMedia
 
     protected $guarded = [];
 
+    protected $casts = [
+        'status' => \App\Enums\ContentStatus::class,
+    ];
+
     // علاقة مالك الكتاب
     public function author()
     {

@@ -38,6 +38,7 @@ return new class extends Migration
             $table->text('meta_description');
             $table->string('status')->default('draft'); // draft, pending, published
             $table->unsignedBigInteger('views')->default(0);
+            $table->timestamp('notification_sent_at')->nullable();
             $table->timestamps();
 
             $table->unique(['media_summary_id', 'locale']);

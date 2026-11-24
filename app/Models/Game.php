@@ -19,6 +19,10 @@ class Game extends Model implements HasMedia
 
     protected $guarded = [];
 
+    protected $casts = [
+        'status' => \App\Enums\ContentStatus::class,
+    ];
+
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
