@@ -70,6 +70,7 @@ new class extends Component {
         $this->cat_transes = $categories->map(fn($category) => $category->translations->first())->filter();
     }
 
+    /*
     public function loadNotificationsData()
     {
         if (!Auth::check()) {
@@ -98,6 +99,47 @@ new class extends Component {
         $user_id = Auth::id();
         $paginator = DatabaseNotification::where('notifiable_type', User::class)
             ->where('notifiable_id', $user_id)
+            ->latest()
+            ->paginate(5, ['*'], 'notif_page', $this->notificationsPage);
+
+        $this->notifications = array_merge($this->notifications, $paginator->items());
+        $this->hasMoreNotifications = $paginator->hasMorePages();
+    }
+    */
+
+    public function loadNotificationsData()
+    {
+        if (!Auth::check()) {
+            return;
+        }
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $this->unreadNotificationsCount = $user->notifications()
+            ->where('created_at', '>', $user->notifications_last_read_at ?? '2000-01-01')
+            ->count();
+
+        $paginator = $user->notifications()
+            ->latest()
+            ->paginate(5, ['*'], 'notif_page', $this->notificationsPage);
+
+        $this->notifications = $paginator->items();
+        $this->hasMoreNotifications = $paginator->hasMorePages();
+    }
+
+    public function loadMoreNotifications()
+    {
+        if (!Auth::check()) {
+            return;
+        }
+
+        $this->notificationsPage++;
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $paginator = $user->notifications()
             ->latest()
             ->paginate(5, ['*'], 'notif_page', $this->notificationsPage);
 

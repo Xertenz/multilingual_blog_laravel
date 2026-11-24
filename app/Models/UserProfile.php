@@ -11,8 +11,13 @@ class UserProfile extends Model
         'bio',
         'location',
         'website',
+        'social_links',
         'solved_cases_count',
-        'reputation_points',
+    ];
+
+    protected $casts = [
+        'social_links' => 'array',
+        'solved_cases_count' => 'integer',
     ];
 
     public function user()

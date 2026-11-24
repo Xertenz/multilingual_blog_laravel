@@ -18,6 +18,15 @@
                 </div>
             </div>
 
+
+{{-- بطاقة المعلومات الشخصية الإضافية --}}
+<div class="p-6 sm:p-8 bg-slate-900/90 backdrop-blur-md shadow-xl rounded-2xl border border-slate-800">
+    <div class="max-w-2xl">
+        @include('profile.partials.update-additional-profile-form')
+    </div>
+</div>
+
+
             {{-- 3. بطاقة حذف الحساب --}}
             <div class="p-6 sm:p-8 bg-slate-900/90 backdrop-blur-md shadow-xl rounded-2xl border border-slate-800">
                 <div class="max-w-xl">

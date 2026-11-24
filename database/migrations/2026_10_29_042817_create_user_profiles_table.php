@@ -15,10 +15,10 @@ return new class extends Migration
             $table->text('bio')->nullable();
             $table->string('location')->nullable();
             $table->string('website')->nullable();
+            $table->json('social_links')->nullable();
 
             // إحصائيات المحقق
             $table->unsignedInteger('solved_cases_count')->default(0);
-            $table->unsignedInteger('reputation_points')->default(0);
 
             $table->timestamps();
         });

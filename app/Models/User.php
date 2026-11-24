@@ -73,13 +73,15 @@ class User extends AuthenticatableUser implements Authenticatable, HasMedia
     {
         return $this->hasMany(Comment::class);
     }
+    /*
     public function commentVotes()
     {
         return $this->hasMany(CommentVote::class);
     }
+    */
 
 
-    public function reacitons(): HasMany
+    public function reactions(): HasMany
     {
         return $this->hasMany(Reaction::class);
     }
@@ -169,14 +171,37 @@ class User extends AuthenticatableUser implements Authenticatable, HasMedia
 
 
     // For Reputation points
-    public function addReputation(int $points)
+    public function addReputation(int $points): void
     {
+        if ($points <= 0) {
+            return;
+        }
         $this->increment('reputation', $points);
     }
-
-    public function deductReputation(int $points)
+    public function deductReputation(int $points): void
     {
-        $this->decrement('reputation', max(0, $this->reputation - $points));
+        if ($points <= 0) {
+            return;
+        }
+        $deductible = min($this->reputation, $points);
+        if ($deductible > 0) {
+            $this->decrement('reputation', $deductible);
+        }
+    }
+    public function rank(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                $points = (int) ($this->reputation ?? 0);
+
+                return match (true) {
+                    $points >= 1000 => 'Chief Investigator',
+                    $points >= 500  => 'Senior Detective',
+                    $points >= 150  => 'Investigator',
+                    default         => 'Rookie',
+                };
+            }
+        );
     }
 
     public function mediaSummeries(): HasMany

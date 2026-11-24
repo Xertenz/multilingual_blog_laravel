@@ -16,27 +16,24 @@ class UserProfile extends Component
     {
         $userId = (int) $id;
         $this->user = User::with([
+            'profile',
+            'media',
             'savedArticles.translations',
-            'favoriteCategories.translations',
-            // استخدام morphWith لجلب علاقات الـ Morph حسب نوع الكلاس
+            'followedArticleCategories.translations',
+            'followedArticleCategories.media',
             'comments.commentable' => function ($morphTo) {
                 $morphTo->morphWith([
                     \App\Models\Article::class => ['translations'],
-                    \App\Models\CommunityCase::class => [], // إذا كنت تريد جلب بيانات القضايا أيضاً إن وجدت
+                    \App\Models\CommunityCase::class => [],
                 ]);
             },
-            'votedSuggestions'
+            'votedSuggestions',
         ])->findOrFail($userId);
     }
 
     public function switchTab(string $tab)
     {
         $this->activeTab = $tab;
-    }
-
-    public function render()
-    {
-        return view('livewire.user-profile');
     }
 
     public function getCatTrans(object $category)
@@ -55,5 +52,10 @@ class UserProfile extends Component
             return $article_trans;
         else
             return $article->translations->first();
+    }
+
+    public function render()
+    {
+        return view('livewire.user-profile');
     }
 }

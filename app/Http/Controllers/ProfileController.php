@@ -270,6 +270,7 @@ class ProfileController extends Controller
 
 
 
+    /*
     public function favoriteCategories(Request $request)
     {
         $currentLocale = LaravelLocalization::getCurrentLocale();
@@ -315,11 +316,18 @@ class ProfileController extends Controller
             'followingAuthors' => $user->followingAuthors,
         ]);
     }
+    */
 
     public function edit(Request $request): View
     {
+        $user = $request->user();
+        $profile = $user->profile()->firstOrCreate([
+            'user_id' => $user->id,
+        ]);
+
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user' => $user,
+            'profile' => $profile,
         ]);
     }
 
@@ -328,19 +336,36 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $validated = $request->validated();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        $user = $request->user();
+        $user->fill($validated);
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
 
-        $request->user()->save();
+        $user->save();
 
-        // معالجة رفع الصورة الشخصية (Avatar) إن وجدت
         if ($request->hasFile('avatar')) {
-            $request->user()->clearMediaCollection('avatar_imgs');
-            $request->user()->addMediaFromRequest('avatar')->toMediaCollection('avatar_imgs');
+            $user->clearMediaCollection('avatar_imgs');
+            $user->addMediaFromRequest('avatar')->toMediaCollection('avatar_imgs');
         }
+
+        $socialLinks = collect($validated['social_links'] ?? [])
+            ->map(fn($url) => is_string($url) ? trim($url) : null)
+            ->filter(fn($url) => !empty($url))
+            ->all();
+
+        $user->profile()->updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'bio' => $validated['bio'] ?? null,
+                'location' => $validated['location'] ?? null,
+                'website' => $validated['website'] ?? null,
+                'social_links' => !empty($socialLinks) ? $socialLinks : null,
+            ]
+        );
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }

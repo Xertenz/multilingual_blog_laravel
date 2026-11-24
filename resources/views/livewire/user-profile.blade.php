@@ -1,37 +1,100 @@
 <div class="container mx-auto px-4 py-12 max-w-4xl text-white">
-    
+
+    @php
+        $profile = $user->profile;
+        $avatarUrl = $user->getFirstMediaUrl('avatar_imgs', 'medium');
+        $website = $profile?->website;
+        $hasValidWebsite = is_string($website) && preg_match('/^https?:\/\//i', $website);
+        $socialLinks = is_array($profile?->social_links) ? array_filter($profile->social_links) : [];
+    @endphp
+
     <!-- بطاقة المعلومات الشخصية الأساسية -->
     <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-8 shadow-xl flex flex-col md:flex-row items-center md:items-start justify-between gap-6 mb-8">
-        
+
         <div class="flex flex-col md:flex-row items-center md:items-start gap-6 text-center md:text-start flex-1">
-            <!-- الصورة الدائرية (الحرف الأول) -->
-            <div class="w-24 h-24 rounded-full bg-red-600/20 border-2 border-red-600 flex items-center justify-center text-3xl font-bold text-red-500 uppercase shrink-0">
-                {{ mb_substr($user->name, 0, 1) }}
-            </div>
+            <!-- الصورة الشخصية أو الحرف الأول -->
+            @if($avatarUrl)
+                <img src="{{ $avatarUrl }}"
+                     alt="{{ $user->name }}"
+                     class="w-24 h-24 rounded-full object-cover border-2 border-red-600 shrink-0">
+            @else
+                <div class="w-24 h-24 rounded-full bg-red-600/20 border-2 border-red-600 flex items-center justify-center text-3xl font-bold text-red-500 uppercase shrink-0">
+                    {{ mb_substr($user->name, 0, 1) }}
+                </div>
+            @endif
 
             <!-- معلومات العضو -->
-            <div class="space-y-1.5 flex-1">
-                <h1 class="text-2xl font-bold text-white capitalize">{{ $user->name }}</h1>
-                <span class="px-2.5 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold rounded flex items-center gap-1">
-                    ⭐ Reputation: {{ $user->profile->reputation_points ?? 0 }}
-                </span>
+            <div class="space-y-2.5 flex-1">
+                <div class="flex flex-wrap items-center justify-center md:justify-start gap-2.5">
+                    <h1 class="text-2xl font-bold text-white capitalize">{{ $user->name }}</h1>
+
+                    <span class="px-2.5 py-1 bg-red-950/60 border border-red-800/50 text-red-300 text-xs font-bold rounded">
+                        🏅 {{ $user->rank }}
+                    </span>
+
+                    <span class="px-2.5 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold rounded flex items-center gap-1">
+                        ⭐ {{ __('Reputation') }}: {{ $user->reputation ?? 0 }}
+                    </span>
+
+                    <span class="px-2.5 py-1 bg-slate-800/80 border border-slate-700/70 text-slate-300 text-xs font-semibold rounded">
+                        🕵️ {{ __('Solved Cases') }}: {{ $profile?->solved_cases_count ?? 0 }}
+                    </span>
+                </div>
+
                 <p class="text-gray-400 text-sm">{{ $user->email }}</p>
-                
-                <div class="flex flex-wrap justify-center md:justify-start gap-4 text-xs text-gray-500 pt-2">
-                    <span>Joined: {{ $user->created_at->format('F Y') }}</span>
+
+                @if($profile?->bio)
+                    <p class="text-slate-300 text-sm leading-relaxed whitespace-pre-line pt-1">
+                        {{ $profile->bio }}
+                    </p>
+                @endif
+
+                {{-- الموقع والموقع الإلكتروني وروابط التواصل --}}
+                @if($profile?->location || $hasValidWebsite || !empty($socialLinks))
+                    <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-1 text-xs text-slate-300">
+                        @if($profile?->location)
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800/70 border border-slate-700/60 text-slate-300">
+                                📍 {{ $profile->location }}
+                            </span>
+                        @endif
+
+                        @if($hasValidWebsite)
+                            <a href="{{ $website }}"
+                               target="_blank"
+                               rel="noopener noreferrer nofollow"
+                               class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 text-red-400 hover:text-red-300 transition">
+                                🌐 {{ __('Website') }}
+                            </a>
+                        @endif
+
+                        @foreach($socialLinks as $platform => $url)
+                            @if(is_string($url) && preg_match('/^https?:\/\//i', $url))
+                                <a href="{{ $url }}"
+                                   target="_blank"
+                                   rel="noopener noreferrer nofollow"
+                                   class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-800/70 hover:bg-slate-800 border border-slate-700/60 text-slate-300 hover:text-white capitalize transition">
+                                    🔗 {{ $platform }}
+                                </a>
+                            @endif
+                        @endforeach
+                    </div>
+                @endif
+
+                <div class="flex flex-wrap justify-center md:justify-start gap-4 text-xs text-gray-500 pt-1">
+                    <span>{{ __('Joined') }}: {{ $user->created_at->format('F Y') }}</span>
                     <span>•</span>
-                    <span>Saved Articles: {{ $user->savedArticles->count() }}</span>
+                    <span>{{ __('Saved Articles') }}: {{ $user->savedArticles->count() }}</span>
                     <span>•</span>
-                    <span>Case Suggestions: {{ $user->votedSuggestions->count() }}</span>
+                    <span>{{ __('Case Suggestions') }}: {{ $user->votedSuggestions->count() }}</span>
                 </div>
             </div>
         </div>
 
-        <!-- زر الانتقال لتعديل الحساب عبر Breeze -->
+        <!-- زر الانتقال لتعديل الحساب -->
         <div class="shrink-0">
             @if(auth()->check() && auth()->id() === $user->id)
                 <a href="{{ route('profile.edit') }}" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold rounded-lg text-gray-200 transition">
-                    Edit Profile (Breeze)
+                    {{ __('Edit Profile') }}
                 </a>
             @endif
         </div>
@@ -39,22 +102,22 @@
 
     <!-- شريط التبويبات (Tabs Navigation) -->
     <div class="flex border-b border-slate-800 mb-6 gap-6 text-sm font-semibold overflow-x-auto custom-scrollbar">
-        <button wire:click="switchTab('articles')" 
+        <button wire:click="switchTab('articles')"
                 class="pb-3 transition border-b-2 whitespace-nowrap {{ $activeTab === 'articles' ? 'border-red-600 text-red-500' : 'border-transparent text-gray-400 hover:text-white' }}">
             Saved Articles ({{ $user->savedArticles->count() }})
         </button>
-        
-        <button wire:click="switchTab('suggestions')" 
+
+        <button wire:click="switchTab('suggestions')"
                 class="pb-3 transition border-b-2 whitespace-nowrap {{ $activeTab === 'suggestions' ? 'border-red-600 text-red-500' : 'border-transparent text-gray-400 hover:text-white' }}">
             My Suggestions ({{ $user->votedSuggestions->count() }})
         </button>
 
-        <button wire:click="switchTab('categories')" 
+        <button wire:click="switchTab('categories')"
                 class="pb-3 transition border-b-2 whitespace-nowrap {{ $activeTab === 'categories' ? 'border-red-600 text-red-500' : 'border-transparent text-gray-400 hover:text-white' }}">
-            Followed Categories ({{ $user->favoriteCategories->count() }})
+            Followed Categories ({{ $user->followedArticleCategories->count() }})
         </button>
 
-        <button wire:click="switchTab('comments')" 
+        <button wire:click="switchTab('comments')"
                 class="pb-3 transition border-b-2 whitespace-nowrap {{ $activeTab === 'comments' ? 'border-red-600 text-red-500' : 'border-transparent text-gray-400 hover:text-white' }}">
             Activity & Comments ({{ $user->comments->count() }})
         </button>
@@ -62,36 +125,39 @@
 
     <!-- محتوى التبويبات -->
     <div class="bg-slate-900/40 border border-slate-800 rounded-2xl p-6 min-h-[300px]">
-        
+
         <!-- تبويب المقالات المحفوظة -->
         @if($activeTab === 'articles')
             <div class="grid grid-cols-1 gap-4">
                 @forelse($user->savedArticles as $article)
                     @php
+                        $articleTrans = $this->getArticleTrans($article);
                         $featuredImage = $article->getFirstMediaUrl('featured_imgs') ?: asset('images/default-article.jpg');
                     @endphp
                     <div class="p-4 bg-slate-800/40 hover:bg-slate-800/80 border border-slate-800 hover:border-slate-700 rounded-xl transition-all duration-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 group">
-                        
+
                         <div class="flex items-start gap-4 flex-1">
-                            <img src="{{ $featuredImage }}" alt="{{ $this->getArticleTrans($article)->title }}" class="w-16 h-16 rounded-lg object-cover border border-slate-700/60 shrink-0">
-                            
+                            <img src="{{ $featuredImage }}" alt="{{ $articleTrans?->title ?? $article->label }}" class="w-16 h-16 rounded-lg object-cover border border-slate-700/60 shrink-0">
+
                             <div class="space-y-1">
                                 <h4 class="text-sm font-bold text-white group-hover:text-red-400 transition">
-                                    {{ $this->getArticleTrans($article)->title ?? $article->label }}
+                                    {{ $articleTrans?->title ?? $article->label }}
                                 </h4>
                                 <p class="text-xs text-gray-400 line-clamp-1">
-                                    {{ Str::limit(strip_tags($this->getArticleTrans($article)->description ?? ''), 80) }}
+                                    {{ Str::limit(strip_tags($articleTrans?->description ?? ''), 80) }}
                                 </p>
                             </div>
                         </div>
 
-                        <a href="{{ route('articles.show', [$this->getArticleTrans($article)->id, $this->getArticleTrans($article)->slug ]) }}" 
-                           class="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-700/50 hover:bg-red-600 text-gray-200 hover:text-white text-xs font-semibold rounded-lg transition shrink-0">
-                            <span>Read Case</span>
-                            <svg class="w-3.5 h-3.5 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                        </a>
+                        @if($articleTrans)
+                            <a href="{{ route('articles.show', ['id' => $articleTrans->id, 'slug' => $articleTrans->slug]) }}"
+                               class="inline-flex items-center gap-1.5 px-3 py-2 bg-slate-700/50 hover:bg-red-600 text-gray-200 hover:text-white text-xs font-semibold rounded-lg transition shrink-0">
+                                <span>Read Case</span>
+                                <svg class="w-3.5 h-3.5 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </a>
+                        @endif
                     </div>
                 @empty
                     <div class="text-center py-12">
@@ -112,7 +178,7 @@
                         <div class="space-y-1 flex-1">
                             <div class="flex items-center gap-2 flex-wrap">
                                 <h4 class="text-sm font-bold text-white">{{ $suggestion->title }}</h4>
-                                
+
                                 <!-- بادج الحالة -->
                                 @if($suggestion->status === 'pending')
                                     <span class="px-2 py-0.5 text-[10px] font-semibold bg-amber-950/60 text-amber-400 border border-amber-800/40 rounded-md">Pending</span>
@@ -154,14 +220,15 @@
         <!-- تبويب الفئات المتابعة -->
         @if($activeTab === 'categories')
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                @forelse($user->favoriteCategories as $category)
+                @forelse($user->followedArticleCategories as $category)
                     @php
+                        $catTrans = $this->getCatTrans($category);
                         $categoryImage = $category->getFirstMediaUrl('featured_imgs') ?: null;
                     @endphp
                     <div class="p-4 bg-slate-800/40 hover:bg-slate-800/80 border border-slate-800 hover:border-slate-700 rounded-xl transition-all duration-200 flex items-center justify-between group">
                         <div class="flex items-center gap-3">
                             @if($categoryImage)
-                                <img src="{{ $categoryImage }}" alt="{{ $this->getCatTrans($category)->name }}" class="w-10 h-10 rounded-lg object-cover border border-slate-700/60 shrink-0">
+                                <img src="{{ $categoryImage }}" alt="{{ $catTrans?->name ?? $category->label }}" class="w-10 h-10 rounded-lg object-cover border border-slate-700/60 shrink-0">
                             @else
                                 <div class="w-10 h-10 rounded-lg bg-red-600/10 border border-red-600/20 flex items-center justify-center text-red-500 font-bold text-sm shrink-0">
                                     #
@@ -169,18 +236,20 @@
                             @endif
                             <div>
                                 <h4 class="text-xs font-bold text-white group-hover:text-red-400 transition uppercase tracking-wide">
-                                    {{ $this->getCatTrans($category)->name ?? $category->label }}
+                                    {{ $catTrans?->name ?? $category->label }}
                                 </h4>
                                 <span class="text-[10px] text-gray-500 font-mono">Following Category</span>
                             </div>
                         </div>
 
-                        <a href="{{ route('categories.show', ['id' => $this->getCatTrans($category)->id, 'slug' => $this->getCatTrans($category)->slug]) }}" 
-                           class="p-2 text-gray-400 hover:text-white bg-slate-800 hover:bg-red-600 rounded-lg transition">
-                            <svg class="w-4 h-4 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
-                            </svg>
-                        </a>
+                        @if($catTrans)
+                            <a href="{{ route('article-categories.show', ['id' => $catTrans->id, 'slug' => $catTrans->slug]) }}"
+                               class="p-2 text-gray-400 hover:text-white bg-slate-800 hover:bg-red-600 rounded-lg transition">
+                                <svg class="w-4 h-4 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </a>
+                        @endif
                     </div>
                 @empty
                     <div class="text-center py-12 col-span-2">
@@ -191,27 +260,25 @@
         @endif
 
         <!-- تبويب التعليقات والنشاطات -->
-        <!-- تبويب التعليقات والنشاطات -->
         @if($activeTab === 'comments')
             <div class="space-y-3">
                 @forelse($user->comments as $comment)
                     <div class="p-4 bg-slate-800/40 border border-slate-800 hover:border-slate-700 rounded-xl text-xs space-y-2 transition">
-                        
+
                         {{-- التحقق من العنصر الأب المرتبط بالتعليق عبر الـ Morph --}}
                         @if($comment->commentable)
-                            
+
                             {{-- الحالة الأولى: إذا كان التعليق على مقال (Article) --}}
                             @if($comment->commentable instanceof \App\Models\Article)
                                 @php
                                     $article = $comment->commentable;
-                                    // جلب الترجمة حسب لغة الموقع الحالية أو كملجأ أول ترجمة
-                                    $articleTrans = $article->translations->where('locale', app()->getLocale())->first() 
+                                    $articleTrans = $article->translations->where('locale', app()->getLocale())->first()
                                                  ?? $article->translations->first();
                                 @endphp
 
                                 @if($articleTrans)
                                     <div class="flex items-center justify-between">
-                                        <a href="{{ route('articles.show', ['id' => $articleTrans->id, 'slug' => $articleTrans->slug]) }}#comment-{{ $comment->id }}" 
+                                        <a href="{{ route('articles.show', ['id' => $articleTrans->id, 'slug' => $articleTrans->slug]) }}#comment-{{ $comment->id }}"
                                            class="text-red-400 hover:text-red-300 font-semibold inline-flex items-center gap-1 transition">
                                             <span>💬 On Article Case: {{ $articleTrans->title }}</span>
                                             <svg class="w-3 h-3 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -229,7 +296,7 @@
                                 @endphp
 
                                 <div class="flex items-center justify-between">
-                                    <a href="{{ route('community.cases.show', ['id' => $case->id, 'slug' => $case->slug]) }}#comment-{{ $comment->id }}" 
+                                    <a href="{{ route('community.cases.show', ['id' => $case->id, 'slug' => $case->slug]) }}#comment-{{ $comment->id }}"
                                        class="text-emerald-400 hover:text-emerald-300 font-semibold inline-flex items-center gap-1 transition">
                                         <span>🔍 On Detective Board Case: {{ $case->title }}</span>
                                         <svg class="w-3 h-3 rtl:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

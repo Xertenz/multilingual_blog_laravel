@@ -49,7 +49,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Relation::morphMap([
-            'author'                  => User::class,
+            'user'                    => User::class,
             'article_category'        => ArticleCategory::class,
             'article_tag'             => ArticleTag::class,
             'book_category'           => BookCategory::class,
