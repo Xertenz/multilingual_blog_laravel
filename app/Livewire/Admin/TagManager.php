@@ -150,11 +150,18 @@ class TagManager extends Component
         }
 
         // 4. إغلاق Modal + رسالة نجاح
+        $isUpdate = (bool) $this->editingId;
+
         $this->showModal = false;
         $this->reset(['label', 'is_active', 'translations', 'editingId']);
         $this->translations = $this->emptyTranslations();
 
-        $this->dispatch('toast', type: 'success', message: __('Saved successfully'));
+        //$this->dispatch('toast', type: 'success', message: __('Saved successfully'));
+        $this->dispatch('toast', [
+            'icon'  => 'success',
+            'title' => $isUpdate ? __('Updated!') : __('Saved!'),
+            'text'  => $isUpdate ? __('Updated successfully') : __('Saved successfully'),
+        ]);
     }
 
     // ✅ حذف
@@ -164,7 +171,12 @@ class TagManager extends Component
         $model->translations()->delete();
         $model->delete();
 
-        $this->dispatch('toast', type: 'success', message: __('Deleted successfully'));
+        //$this->dispatch('toast', type: 'success', message: __('Deleted successfully'));
+        $this->dispatch('toast', [
+            'icon'  => 'success',
+            'title' => __('Deleted!'),
+            'text'  => __('Deleted successfully'),
+        ]);
     }
 
     // ✅ تبديل حالة التفعيل بسرعة من الجدول
@@ -172,6 +184,12 @@ class TagManager extends Component
     {
         $model = $this->modelType::findOrFail($id);
         $model->update(['is_active' => !$model->is_active]);
+
+        $this->dispatch('toast', [
+            'icon'  => 'info',
+            'title' => __('Status Updated'),
+            'text'  => $model->is_active ? __('Tag activated') : __('Tag deactivated'),
+        ]);
     }
 
     // ✅ العرض

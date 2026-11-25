@@ -325,6 +325,30 @@
                 latInput.addEventListener('input', handleManualInput);
                 lngInput.addEventListener('input', handleManualInput);
             }
+
+
+            // Show Toast
+            if (typeof window.showToast === 'function') {
+                @if(session('success'))
+                    window.showToast({
+                        icon: 'success',
+                        title: @json(__('Success')),
+                        text: @json(session('success')),
+                    });
+                @elseif(session('error'))
+                    window.showToast({
+                        icon: 'error',
+                        title: @json(__('Error')),
+                        text: @json(session('error')),
+                    });
+                @elseif($errors->any())
+                    window.showToast({
+                        icon: 'error',
+                        title: @json(__('Validation Error')),
+                        text: @json($errors->first()),
+                    });
+                @endif
+            }
         });
     </script>
     @endif

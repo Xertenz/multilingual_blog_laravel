@@ -94,3 +94,38 @@
         {{ $articles->links() }}
     </div>
 @endsection
+
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof window.showToast === 'function') {
+            @if(session('success'))
+                window.showToast({
+                    icon: 'success',
+                    title: 'Success',
+                    text: @json(session('success')),
+                });
+            @elseif(session('error'))
+                window.showToast({
+                    icon: 'error',
+                    title: 'Error',
+                    text: @json(session('error')),
+                });
+            @elseif(session('warning'))
+                window.showToast({
+                    icon: 'warning',
+                    title: 'Warning',
+                    text: @json(session('warning')),
+                });
+            @elseif(session('info'))
+                window.showToast({
+                    icon: 'info',
+                    title: 'Info',
+                    text: @json(session('info')),
+                });
+            @endif
+        }
+    });
+</script>
+@endpush

@@ -59,7 +59,7 @@ class LocationController extends Controller
             }
         }
 
-        return back()->with('success', 'تم حفظ الموقع وترجماته بنجاح.');
+        return back()->with('success', 'Location and translations saved successfully.');
     }
 
     public function update(Request $request, Location $location)
@@ -95,7 +95,7 @@ class LocationController extends Controller
             }
         }
 
-        return back()->with('success', 'تم تحديث بيانات الموقع والترجمات بنجاح.');
+        return back()->with('success', 'Location and translations updated successfully.');
     }
 
     public function destroy(Location $location)
@@ -103,6 +103,6 @@ class LocationController extends Controller
         $location->translations()->delete();
         $location->delete();
 
-        return back()->with('success', 'تم حذف الموقع بنجاح.');
+        return back()->with('success', 'Location deleted successfully.');
     }
 }

@@ -220,11 +220,33 @@
 
     <script>
         window.addEventListener('DOMContentLoaded', function() {
-            @if(session('success'))
-                showToast('success', @json(session('success')));
-            @elseif(session('error'))
-                showToast('error', @json(session('error')));
-            @endif
+            if (typeof window.showToast === 'function') {
+                @if(session('success'))
+                    window.showToast({
+                        icon: 'success',
+                        title: @json(__('Success')),
+                        text: @json(session('success')),
+                    });
+                @elseif(session('error'))
+                    window.showToast({
+                        icon: 'error',
+                        title: @json(__('Error')),
+                        text: @json(session('error')),
+                    });
+                @elseif(session('warning'))
+                    window.showToast({
+                        icon: 'warning',
+                        title: @json(__('Warning')),
+                        text: @json(session('warning')),
+                    });
+                @elseif(session('info'))
+                    window.showToast({
+                        icon: 'info',
+                        title: @json(__('Info')),
+                        text: @json(session('info')),
+                    });
+                @endif
+            }
         });
     </script>
 @endpush

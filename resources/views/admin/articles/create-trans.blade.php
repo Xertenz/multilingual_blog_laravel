@@ -288,4 +288,31 @@
         const article_content_imgs_info = @json($article_content_imgs_info);
     </script>
     @vite(['resources/js/components/article-trans-add-edit.js'])
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Show Sweet Alert Toast
+            if (typeof window.showToast === 'function') {
+                @if(session('error'))
+                    window.showToast({
+                        icon: 'error',
+                        title: 'Error',
+                        text: @json(session('error')),
+                    });
+                @elseif(session('warning'))
+                    window.showToast({
+                        icon: 'warning',
+                        title: 'Warning',
+                        text: @json(session('warning')),
+                    });
+                @elseif($errors->any())
+                    window.showToast({
+                        icon: 'error',
+                        title: 'Validation Error',
+                        text: @json($errors->first()),
+                    });
+                @endif
+            }
+        });
+    </script>
 @endpush

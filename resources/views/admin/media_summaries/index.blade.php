@@ -181,13 +181,29 @@
 @endsection
 
 @push('scripts')
-    <script>
-        window.addEventListener('DOMContentLoaded', function() {
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof window.showToast === 'function') {
             @if(session('success'))
-                showToast('success', @json(session('success')));
+                window.showToast({
+                    icon: 'success',
+                    title: 'Success',
+                    text: @json(session('success')),
+                });
             @elseif(session('error'))
-                showToast('error', @json(session('error')));
+                window.showToast({
+                    icon: 'error',
+                    title: 'Error',
+                    text: @json(session('error')),
+                });
+            @elseif($errors->any())
+                window.showToast({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    text: @json($errors->first()),
+                });
             @endif
-        });
-    </script>
+        }
+    });
+</script>
 @endpush

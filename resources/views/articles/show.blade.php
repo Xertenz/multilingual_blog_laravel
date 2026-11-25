@@ -481,7 +481,13 @@
 
     function copyLink() {
         navigator.clipboard.writeText(window.location.href).then(() => {
-            alert('Link copied to clipboard!');
+            if (typeof window.showToast === 'function') {
+                window.showToast({
+                    icon: 'success',
+                    title: 'Copied',
+                    text: 'Link copied to clipboard!',
+                });
+            }
         });
     }
 

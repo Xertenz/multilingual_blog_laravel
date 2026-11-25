@@ -142,6 +142,24 @@
                 }
             });
         }
+
+        // Show Sweet Alert Toast
+        if (typeof window.showToast === 'function') {
+            @if(session('error'))
+                window.showToast({
+                    icon: 'error',
+                    title: 'Error',
+                    text: @json(session('error')),
+                });
+            @elseif($errors->any())
+                window.showToast({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    text: @json($errors->first()),
+                });
+            @endif
+        }
+
     });
 </script>
 @endpush

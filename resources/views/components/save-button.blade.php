@@ -16,55 +16,26 @@
 @endphp
 
 <div
-    x-data="{
-        saved: @js($initialSaved),
+    x-data="window.createSaveButtonState({
+        saved: @js((bool) $initialSaved),
         count: @js((int) $initialCount),
-        loading: false,
-        async toggleSave() {
-            @if(!$user)
-                window.location.href = @js($loginUrl);
-                return;
-            @endif
-
-            if (this.loading) return;
-            this.loading = true;
-
-            try {
-                const response = await fetch(@js($toggleUrl), {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name=\'csrf-token\']')?.getAttribute('content') || '',
-                    },
-                });
-
-                if (response.status === 401) {
-                    window.location.href = @js($loginUrl);
-                    return;
-                }
-
-                if (!response.ok) {
-                    throw new Error('Failed to toggle save status');
-                }
-
-                const data = await response.json();
-                this.saved = Boolean(data.saved ?? data.is_saved);
-                if (typeof data.saves_count !== 'undefined') {
-                    this.count = Number(data.saves_count);
-                }
-            } catch (error) {
-                console.error('Save toggle error:', error);
-            } finally {
-                this.loading = false;
-            }
-        }
-    }"
+        isAuth: @js((bool) $user),
+        toggleUrl: @js($toggleUrl),
+        loginUrl: @js($loginUrl),
+        savedLabel: @js(__('Saved')),
+        saveLabel: @js(__('Save')),
+        toastSavedTitle: @js(__('Saved')),
+        toastSavedText: @js(__('Article saved successfully.')),
+        toastRemovedTitle: @js(__('Removed')),
+        toastRemovedText: @js(__('Article removed from saved items.')),
+        toastErrorTitle: @js(__('Error')),
+        toastErrorText: @js(__('Failed to update saved status.')),
+    })"
     class="inline-flex items-center"
 >
     <button
         type="button"
-        @click="toggleSave()"
+        @click.prevent="toggleSave()"
         :disabled="loading"
         :class="saved
             ? 'bg-red-600/15 border-red-600/60 text-red-400 hover:bg-red-600/25'
@@ -85,7 +56,7 @@
             />
         </svg>
 
-        <span x-text="saved ? @js(__('Saved')) : @js(__('Save'))"></span>
+        <span x-text="saved ? savedLabel : saveLabel"></span>
 
         <span
             x-text="count"
@@ -93,3 +64,93 @@
         ></span>
     </button>
 </div>
+
+@once
+    @push('scripts')
+    <script>
+        window.createSaveButtonState = function (config) {
+            return {
+                saved: Boolean(config.saved),
+                count: Number(config.count || 0),
+                loading: false,
+                isAuth: Boolean(config.isAuth),
+                toggleUrl: config.toggleUrl,
+                loginUrl: config.loginUrl,
+                savedLabel: config.savedLabel,
+                saveLabel: config.saveLabel,
+                toastSavedTitle: config.toastSavedTitle,
+                toastSavedText: config.toastSavedText,
+                toastRemovedTitle: config.toastRemovedTitle,
+                toastRemovedText: config.toastRemovedText,
+                toastErrorTitle: config.toastErrorTitle,
+                toastErrorText: config.toastErrorText,
+
+                async toggleSave() {
+                    if (!this.isAuth) {
+                        window.location.href = this.loginUrl;
+                        return;
+                    }
+
+                    if (this.loading) return;
+                    this.loading = true;
+
+                    try {
+                        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                        const response = await fetch(this.toggleUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': token,
+                            },
+                        });
+
+                        if (response.status === 401) {
+                            window.location.href = this.loginUrl;
+                            return;
+                        }
+
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(data.message ?? 'Failed to toggle save status');
+                        }
+
+                        this.saved = Boolean(data.saved ?? data.is_saved);
+                        if (typeof data.saves_count !== 'undefined') {
+                            this.count = Number(data.saves_count);
+                        }
+
+                        if (typeof window.showToast === 'function') {
+                            if (this.saved) {
+                                window.showToast({
+                                    icon: 'success',
+                                    title: this.toastSavedTitle,
+                                    text: this.toastSavedText,
+                                });
+                            } else {
+                                window.showToast({
+                                    icon: 'info',
+                                    title: this.toastRemovedTitle,
+                                    text: this.toastRemovedText,
+                                });
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Save toggle error:', error);
+                        if (typeof window.showToast === 'function') {
+                            window.showToast({
+                                icon: 'error',
+                                title: this.toastErrorTitle,
+                                text: this.toastErrorText,
+                            });
+                        }
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+            };
+        };
+    </script>
+    @endpush
+@endonce

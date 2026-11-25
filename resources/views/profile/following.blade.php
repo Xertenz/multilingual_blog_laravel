@@ -215,12 +215,19 @@
                 }
 
                 if (typeof window.showToast === 'function') {
-                    showToast('success', "{{ __('Unfollowed successfully.') }}");
+                    window.showToast({
+                        icon: 'success',
+                        title: @json(__('Success')),
+                        text: @json(__('Unfollowed successfully.')),
+                    });
                 }
             } catch (error) {
-                console.error('Error unfollowing item:', error);
                 if (typeof window.showToast === 'function') {
-                    showToast('error', "{{ __('Failed to unfollow item.') }}");
+                    window.showToast({
+                        icon: 'error',
+                        title: @json(__('Error')),
+                        text: @json(__('Failed to unfollow item.')),
+                    });
                 }
             }
         }

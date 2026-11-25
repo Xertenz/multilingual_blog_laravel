@@ -126,12 +126,19 @@
                 }
 
                 if (typeof window.showToast === 'function') {
-                    showToast('success', "{{ __('Successfully unfollowed the author!') }}");
+                    window.showToast({
+                        icon: 'success',
+                        title: @json(__('Success')),
+                        text: @json(__('Successfully unfollowed the author!')),
+                    });
                 }
             } catch (error) {
-                console.error('Error unfollowing author from profile:', error);
                 if (typeof window.showToast === 'function') {
-                    showToast('error', "{{ __('Error in unfollowing author!') }}");
+                    window.showToast({
+                        icon: 'error',
+                        title: @json(__('Error')),
+                        text: @json(__('Error in unfollowing author!')),
+                    });
                 }
             }
         }

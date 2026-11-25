@@ -15,13 +15,6 @@
         </a>
     </div>
 
-    @if(session('success'))
-        <div class="mb-4 p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-xl flex items-center gap-2">
-            <svg class="w-4 h-4 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-            {{ session('success') }}
-        </div>
-    @endif
-
     <!-- Table Card -->
     <div class="bg-white shadow rounded-2xl border border-slate-200 overflow-hidden">
         <div class="overflow-x-auto">
@@ -96,3 +89,37 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof window.showToast === 'function') {
+            @if(session('success'))
+                window.showToast({
+                    icon: 'success',
+                    title: 'Success',
+                    text: @json(session('success')),
+                });
+            @elseif(session('error'))
+                window.showToast({
+                    icon: 'error',
+                    title: 'Error',
+                    text: @json(session('error')),
+                });
+            @elseif(session('warning'))
+                window.showToast({
+                    icon: 'warning',
+                    title: 'Warning',
+                    text: @json(session('warning')),
+                });
+            @elseif(session('info'))
+                window.showToast({
+                    icon: 'info',
+                    title: 'Info',
+                    text: @json(session('info')),
+                });
+            @endif
+        }
+    });
+</script>
+@endpush

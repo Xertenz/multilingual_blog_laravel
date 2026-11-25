@@ -49,7 +49,7 @@ class TimelineController extends Controller
         if (!$hasAnyTitle) {
             return back()
                 ->withInput()
-                ->with('error', 'يرجى إدخال عنوان الحدث بلغة واحدة على الأقل.');
+                ->with('error', 'Please enter an event title in at least one language.');
         }
 
         DB::transaction(function () use ($request, $article) {
@@ -76,7 +76,7 @@ class TimelineController extends Controller
             }
         });
 
-        return back()->with('success', 'تم إضافة عنصر الخط الزمني وترجماته بنجاح.');
+        return back()->with('success', 'Timeline event and translations added successfully.');
     }
 
     public function update(Request $request, Timeline $timeline)
@@ -122,7 +122,7 @@ class TimelineController extends Controller
             }
         });
 
-        return back()->with('success', 'تم تحديث عنصر الخط الزمني والترجمات بنجاح.');
+        return back()->with('success', 'Timeline event and translations updated successfully.');
     }
 
     public function destroy(Timeline $timeline)
@@ -132,6 +132,6 @@ class TimelineController extends Controller
             $timeline->delete();
         });
 
-        return back()->with('success', 'تم حذف عنصر الخط الزمني بنجاح.');
+        return back()->with('success', 'Timeline event deleted successfully.');
     }
 }

@@ -207,12 +207,19 @@
                 }
 
                 if (typeof window.showToast === 'function') {
-                    showToast('success', "{{ __('Removed from saved items.') }}");
+                    window.showToast({
+                        icon: 'success',
+                        title: @json(__('Success')),
+                        text: @json(__('Removed from saved items.')),
+                    });
                 }
             } catch (error) {
-                console.error('Error removing saved item:', error);
                 if (typeof window.showToast === 'function') {
-                    showToast('error', "{{ __('Failed to remove item.') }}");
+                    window.showToast({
+                        icon: 'error',
+                        title: @json(__('Error')),
+                        text: @json(__('Failed to remove item.')),
+                    });
                 }
             }
         }

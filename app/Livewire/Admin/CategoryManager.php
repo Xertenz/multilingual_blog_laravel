@@ -196,10 +196,14 @@ class CategoryManager extends Component
 
         // 5. إغلاق Modal + رسالة نجاح
         $this->showModal = false;
+        $isUpdate = (bool) $this->editingId;
+        $this->dispatch('toast', [
+            'icon'  => 'success',
+            'title' => $isUpdate ? __('Updated!') : __('Saved!'),
+            'text'  => $isUpdate ? __('Updated successfully') : __('Saved successfully'),
+        ]);
         $this->reset(['label', 'is_active', 'translations', 'editingId', 'featured_img', 'currentImageUrl', 'removeCurrentImage']);
         $this->translations = $this->emptyTranslations();
-
-        $this->dispatch('toast', type: 'success', message: __('Saved successfully'));
     }
 
     // ✅ حذف
@@ -209,8 +213,12 @@ class CategoryManager extends Component
         $model->clearMediaCollection('featured_imgs');  // ✅ حذف الصورة
         $model->translations()->delete();
         $model->delete();
-
-        $this->dispatch('toast', type: 'success', message: __('Deleted successfully'));
+        $this->dispatch('toast', [
+            'icon'  => 'success',
+            'title' => __('Deleted!'),
+            'text'  => __('Deleted successfully'),
+        ]);
+        //$this->dispatch('toast', type: 'success', message: __('Deleted successfully'));
     }
 
     // ✅ تبديل حالة التفعيل
@@ -218,6 +226,12 @@ class CategoryManager extends Component
     {
         $model = $this->modelType::findOrFail($id);
         $model->update(['is_active' => !$model->is_active]);
+
+        $this->dispatch('toast', [
+            'icon'  => 'info',
+            'title' => __('Status Updated'),
+            'text'  => $model->is_active ? __('Category activated') : __('Category deactivated'),
+        ]);
     }
 
     // ✅ العرض
