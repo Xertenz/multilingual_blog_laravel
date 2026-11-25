@@ -200,3 +200,30 @@
     @endif
 
 </div>
+
+
+@script
+<script>
+    window.addEventListener('swal', (event) => {
+        const payload = Array.isArray(event.detail) ? event.detail[0] : event.detail;
+        if (!payload || typeof Swal === 'undefined') return;
+
+        Swal.fire({
+            toast: true,
+            position: 'bottom-end',
+            icon: payload.icon || 'success',
+            title: payload.title || payload.text || '',
+            text: payload.title && payload.text ? payload.text : '',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            background: '#0f1526',
+            color: '#f1f5f9',
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            }
+        });
+    });
+</script>
+@endscript

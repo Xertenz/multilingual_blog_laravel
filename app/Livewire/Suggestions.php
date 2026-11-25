@@ -117,9 +117,16 @@ class Suggestions extends Component
                 'title'       => $formattedTitle,
                 'description' => $formattedDescription,
             ]);
-
             $this->closeModal();
-            session()->flash('message', __('Suggestion updated successfully.') ?? 'تم تحديث اقتراحك بنجاح.');
+
+            // Show Sweet Alert
+            $this->dispatch('swal', [
+                'icon'  => 'success',
+                'title' => __('Updated!') ?? 'تم التحديث',
+                'text'  => __('Suggestion updated successfully.') ?? 'تم تحديث اقتراحك بنجاح.',
+            ]);
+
+            //session()->flash('message', __('Suggestion updated successfully.') ?? 'تم تحديث اقتراحك بنجاح.');
             return;
         }
 
@@ -131,9 +138,16 @@ class Suggestions extends Component
             'description' => $formattedDescription,
             'status'      => SuggestionStatus::PENDING->value,
         ]);
-
         $this->closeModal();
-        session()->flash('message', __('nav.suggestion_submitted_success') ?? 'تم تقديم اقتراحك بنجاح وهو قيد المراجعة.');
+
+        // Show Sweet Alert
+        $this->dispatch('swal', [
+            'icon'  => 'success',
+            'title' => __('Submitted!') ?? 'تم الإرسال',
+            'text'  => __('nav.suggestion_submitted_success') ?? 'تم تقديم اقتراحك بنجاح وهو قيد المراجعة.',
+        ]);
+
+        //session()->flash('message', __('nav.suggestion_submitted_success') ?? 'تم تقديم اقتراحك بنجاح وهو قيد المراجعة.');
     }
 
     public function deleteSuggestion(int $suggestionId)
@@ -153,7 +167,12 @@ class Suggestions extends Component
         }
 
         $suggestion->delete();
-        session()->flash('message', __('Suggestion deleted successfully.') ?? 'تم حذف اقتراحك بنجاح.');
+        $this->dispatch('swal', [
+            'icon'  => 'success',
+            'title' => __('Deleted!') ?? 'تم الحذف',
+            'text'  => __('Suggestion deleted successfully.') ?? 'تم حذف اقتراحك بنجاح.',
+        ]);
+        //session()->flash('message', __('Suggestion deleted successfully.') ?? 'تم حذف اقتراحك بنجاح.');
     }
 
     public function render()
