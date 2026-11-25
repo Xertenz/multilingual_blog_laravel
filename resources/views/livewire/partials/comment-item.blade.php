@@ -60,7 +60,9 @@
                 <p class="text-slate-400 font-mono text-xs">{{ $comment->created_at->diffForHumans(['parts' => 1, 'short' => true]) }}</p>
                 @auth
                     @if($comment->user_id !== auth()->id())
-                        <button onclick="openReportModal('{{ App\Models\Comment::class }}', {{ $comment->id }})" class="text-xs text-gray-500 hover:text-rose-400 transition ml-2">
+                        <button type="button"
+                                onclick="openReportModal('comment', {{ $comment->id }})"
+                                class="text-xs text-gray-500 hover:text-rose-400 transition ml-2">
                             🚨
                         </button>
                     @endif

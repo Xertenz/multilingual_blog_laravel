@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\ReportStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Report;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ReportController extends Controller
 {
     /**
-     * عرض قائمة البلاغات الواردة في لوحة التحكم
+     * Display incoming reports in the admin dashboard.
      */
     public function index()
     {
-        // جلب البلاغات مع معلومات المُبلغ والعنصر المبلغ عنه
-        $reports = Report::with(['reporter', 'reportable.user'])
+        $reports = Report::with(['reporter', 'reportable'])
             ->latest()
             ->paginate(15);
 
@@ -22,32 +23,42 @@ class ReportController extends Controller
     }
 
     /**
-     * تحديث حالة البلاغ (محلول، مرفوض، قيد المراجعة)
+     * Update the status of a report (pending, resolved, dismissed).
      */
     public function updateStatus(Request $request, Report $report)
     {
-        $request->validate([
-            'status' => 'required|in:pending,resolved,dismissed',
+        $validated = $request->validate([
+            'status' => ['required', Rule::enum(ReportStatus::class)],
         ]);
 
         $report->update([
-            'status' => $request->status,
+            'status' => $validated['status'],
         ]);
 
         return back()->with('success', 'Report status updated successfully.');
     }
 
     /**
-     * حذف العنصر المخالف بناءً على البلاغ (مثل حذف التعليق أو القضية)
+     * Delete the reported content and mark the report(s) as resolved.
      */
     public function destroyContent(Report $report)
     {
-        // التحقق من وجود العنصر المبلغ عنه ثم حذفه
-        if ($report->reportable) {
-            $report->reportable->delete();
+        $target = $report->reportable;
+
+        if ($target) {
+            Report::where('reportable_type', $report->reportable_type)
+                ->where('reportable_id', $report->reportable_id)
+                ->where('status', ReportStatus::PENDING->value)
+                ->update([
+                    'status' => ReportStatus::RESOLVED->value,
+                ]);
+
+            $target->delete();
         }
 
-        $report->update(['status' => 'resolved']);
+        $report->update([
+            'status' => ReportStatus::RESOLVED->value,
+        ]);
 
         return back()->with('success', 'Reported content has been deleted and report resolved.');
     }

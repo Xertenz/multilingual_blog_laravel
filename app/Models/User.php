@@ -125,20 +125,10 @@ class User extends AuthenticatableUser implements Authenticatable, HasMedia
         return $this->hasMany(Suggestion::class, 'user_id');
     }
 
-    /*
-    public function votedSuggestions(): BelongsToMany
-    {
-        return $this->belongsToMany(Suggestion::class, 'suggestion_votes', 'user_id', 'suggestion_id')->withTimestamps();
-    }
-    */
-
     public function votedSuggestions()
     {
         return $this->belongsToMany(Suggestion::class, 'suggestion_votes', 'user_id', 'suggestion_id')->withTimestamps();
     }
-
-
-    // داخل موديل User
 
     public function penalties()
     {
@@ -419,6 +409,18 @@ class User extends AuthenticatableUser implements Authenticatable, HasMedia
             'id'
         )->withTimestamps();
     }
+
+
+    // Reports
+    public function submittedReports(): HasMany
+    {
+        return $this->hasMany(Report::class, 'reporter_id');
+    }
+    public function receivedReports()
+    {
+        return $this->morphMany(Report::class, 'reportable');
+    }
+
 
     public function registerMediaCollections(): void
     {

@@ -17,6 +17,7 @@ use App\Http\Controllers\Front\MapController;
 use App\Http\Controllers\Front\SeriesController as FrontSeriesController;
 use App\Http\Controllers\Front\FollowController as FrontFollowController;
 use App\Http\Controllers\Front\SavedItemController as FrontSavedItemController;
+use App\Http\Controllers\Front\ArticleController as FrontArticleController;
 
 // Articles (Front)
 use App\Http\Controllers\Front\ArticleCategoryController as FrontCategoryController;
@@ -101,7 +102,7 @@ Route::group([
     Route::get('/articles/tag/{id}/{slug?}', [FrontArticleTagTranslationController::class, 'show'])
         ->where('id', '[0-9]+')
         ->name('article-tags.show');
-    Route::get('/articles/{id}/{slug?}', [ArticleTranslationController::class, 'show'])
+    Route::get('/articles/{id}/{slug?}', [FrontArticleController::class, 'show'])
         ->where('id', '[0-9]+')
         ->name('articles.show');
     Route::post('/articles/content_img_info', [ArticleController::class, 'get_content_img_info'])
