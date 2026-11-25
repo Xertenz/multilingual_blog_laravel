@@ -96,11 +96,11 @@
                         <h2 class="text-sm md:text-base font-bold text-gray-200 break-words">{{ $suggestion->title }}</h2>
 
                         <!-- بادج الحالة -->
-                        @if($suggestion->status === 'pending')
+                        @if($suggestion->status === \App\Enums\SuggestionStatus::PENDING)
                             <span class="px-2 py-0.5 text-[10px] font-semibold bg-amber-950/60 text-amber-400 border border-amber-800/40 rounded-md whitespace-nowrap">{{ __('Pending') ?? 'قيد المراجعة' }}</span>
-                        @elseif($suggestion->status === 'approved')
+                        @elseif($suggestion->status === \App\Enums\SuggestionStatus::APPROVED)
                             <span class="px-2 py-0.5 text-[10px] font-semibold bg-blue-950/60 text-blue-400 border border-blue-800/40 rounded-md whitespace-nowrap">{{ __('In Research') ?? 'قيد البحث' }}</span>
-                        @elseif($suggestion->status === 'written')
+                        @elseif($suggestion->status === \App\Enums\SuggestionStatus::WRITTEN)
                             <span class="px-2 py-0.5 text-[10px] font-semibold bg-emerald-950/60 text-emerald-400 border border-emerald-800/40 rounded-md whitespace-nowrap">{{ __('Investigated') ?? 'تمت كتابتها' }}</span>
                         @endif
                     </div>
@@ -110,7 +110,18 @@
                     @endif
 
                     <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-gray-500">
-                        <span>{{ __('Suggested by') ?? 'مقترح بواسطة' }}: <strong class="text-gray-400"><a href="{{route('profile.show', ['id' => $suggestion->author->id])}}">{{ $suggestion->author->name }}</a></strong></span>
+                        <span>
+                            {{ __('Suggested by') }}:
+                            <strong class="text-gray-400">
+                                @if($suggestion->author)
+                                    <a href="{{ route('profile.show', ['id' => $suggestion->author->id]) }}" class="hover:text-white transition">
+                                        {{ $suggestion->author->name }}
+                                    </a>
+                                @else
+                                    <span>{{ __('Deleted User') }}</span>
+                                @endif
+                            </strong>
+                        </span>
                         <span class="hidden sm:inline">•</span>
                         <span>{{ $suggestion->created_at->diffForHumans() }}</span>
                     </div>

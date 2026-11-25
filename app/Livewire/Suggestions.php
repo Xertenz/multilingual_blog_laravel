@@ -2,18 +2,16 @@
 
 namespace App\Livewire;
 
-use App\Models\Article;
+use App\Enums\SuggestionStatus;
+use App\Models\Suggestion;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\Suggestion;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Auth;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 class Suggestions extends Component
 {
     use WithPagination;
-
 
     // حقول النموذج لإضافة اقتراح جديد
     public $title = '';
@@ -21,13 +19,12 @@ class Suggestions extends Component
 
     // الفرز والتصفية
     public $filter = 'popular'; // popular أو latest
-    #public $selectedLocale = 'all';
     public string $selectedLocale;
     public $mySuggestionsOnly = false; // فلتر مقترحات العضو الحالي
     public $showModal = false;
 
     protected $rules = [
-        'title' => 'required|string|min:5|max:150',
+        'title'       => 'required|string|min:5|max:150',
         'description' => 'nullable|string|max:1000',
     ];
 
@@ -47,7 +44,7 @@ class Suggestions extends Component
         $this->resetPage();
     }
 
-    public function toggleVote($suggestionId)
+    public function toggleVote(int $suggestionId)
     {
         if (!Auth::check()) {
             return redirect()->route('login');
@@ -67,13 +64,15 @@ class Suggestions extends Component
 
         $this->validate();
 
+        $cleanDescription = trim((string) $this->description);
+
         Suggestion::create([
-            'user_id' => Auth::id(),
-            'type' => 'article',
-            'locale' => app()->getLocale(),
-            'title' => $this->title,
-            'description' => $this->description ?? '',
-            'status' => 'pending',
+            'user_id'     => Auth::id(),
+            'type'        => 'article',
+            'locale'      => app()->getLocale(),
+            'title'       => trim($this->title),
+            'description' => $cleanDescription !== '' ? $cleanDescription : null,
+            'status'      => SuggestionStatus::PENDING->value,
         ]);
 
         $this->reset(['title', 'description', 'showModal']);
@@ -83,7 +82,7 @@ class Suggestions extends Component
     public function render()
     {
         $query = Suggestion::query()
-            ->with(['author', 'votes'])
+            ->with(['author'])
             ->withCount('votes');
 
         // 1. فلترة مقترحات العضو الحالي فقط إذا تم تفعيل الخيار
@@ -107,7 +106,7 @@ class Suggestions extends Component
 
         return view('livewire.suggestions', [
             'suggestions' => $suggestions,
-            'locales' => LaravelLocalization::getSupportedLocales()
+            'locales'     => LaravelLocalization::getSupportedLocales(),
         ]);
     }
 }

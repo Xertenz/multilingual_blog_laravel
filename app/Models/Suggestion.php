@@ -12,6 +12,10 @@ class Suggestion extends Model
 {
     protected $guarded = [];
 
+    protected $casts = [
+        'status' => \App\Enums\SuggestionStatus::class,
+    ];
+
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');

@@ -82,11 +82,12 @@
                                 </span>
                             </td>
                             <td class="py-3.5 px-6 text-center whitespace-nowrap">
+                                @php $statusValue = $suggestion->status?->value; @endphp
                                 <span class="px-2.5 py-1 rounded-md text-xs font-semibold border inline-block
-                                    {{ $suggestion->status === 'pending' ? 'bg-amber-50 text-amber-700 border-amber-200' : '' }}
-                                    {{ $suggestion->status === 'approved' ? 'bg-blue-50 text-blue-700 border-blue-200' : '' }}
-                                    {{ $suggestion->status === 'written' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : '' }}">
-                                    {{ ucfirst($suggestion->status) }}
+                                    {{ $statusValue === \App\Enums\SuggestionStatus::PENDING->value ? 'bg-amber-50 text-amber-700 border-amber-200' : '' }}
+                                    {{ $statusValue === \App\Enums\SuggestionStatus::APPROVED->value ? 'bg-blue-50 text-blue-700 border-blue-200' : '' }}
+                                    {{ $statusValue === \App\Enums\SuggestionStatus::WRITTEN->value ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : '' }}">
+                                    {{ $suggestion->status?->label() ?? ucfirst((string) $statusValue) }}
                                 </span>
                             </td>
                             <td class="py-3.5 px-6 text-right whitespace-nowrap">
@@ -96,9 +97,11 @@
                                         @csrf
                                         @method('PATCH')
                                         <select name="status" onchange="this.form.submit()" class="bg-slate-50 border border-slate-200 text-slate-700 text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-indigo-500 cursor-pointer">
-                                            <option value="pending" {{ $suggestion->status == 'pending' ? 'selected' : '' }}>Pending</option>
-                                            <option value="approved" {{ $suggestion->status == 'approved' ? 'selected' : '' }}>In Research</option>
-                                            <option value="written" {{ $suggestion->status == 'written' ? 'selected' : '' }}>Investigated</option>
+                                            @foreach(\App\Enums\SuggestionStatus::cases() as $statusCase)
+                                                <option value="{{ $statusCase->value }}" {{ $statusValue === $statusCase->value ? 'selected' : '' }}>
+                                                    {{ $statusCase->label() }}
+                                                </option>
+                                            @endforeach
                                         </select>
                                     </form>
 

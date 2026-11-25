@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\SuggestionStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Suggestion;
 use App\Notifications\SuggestionStatusUpdated;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules\Enum;
 
 class SuggestionController extends Controller
 {
@@ -22,10 +24,14 @@ class SuggestionController extends Controller
     public function updateStatus(Request $request, Suggestion $suggestion)
     {
         $request->validate([
-            'status' => 'required|in:pending,approved,written',
+            'status' => ['required', new Enum(SuggestionStatus::class)],
         ]);
 
         $author = $suggestion->author;
+
+        $suggestion->update([
+            'status' => $request->status
+        ]);
 
         if ($author) {
             $author->notify(new SuggestionStatusUpdated($suggestion));
