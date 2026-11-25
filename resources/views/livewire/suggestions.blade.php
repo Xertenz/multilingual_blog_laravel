@@ -21,7 +21,7 @@
             </span>
 
             @auth
-                <button @click="$wire.set('showModal', true)"
+                <button wire:click="openCreateModal"
                         class="bg-red-600 hover:bg-red-700 text-white font-bold text-xs uppercase px-4 py-2 rounded-lg shadow-lg shadow-red-900/30 transition flex items-center justify-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                     <span>{{ __('Suggest a Case') ?? 'اقترح قضية' }}</span>
@@ -78,7 +78,12 @@
     <!-- قائمة الاقتراحات -->
     <div class="space-y-4">
         @forelse($suggestions as $suggestion)
-            @php $isVoted = $suggestion->isVotedBy(auth()->user()); @endphp
+            @php
+                $isVoted = $suggestion->isVotedBy(auth()->user());
+                $canManage = auth()->check()
+                    && auth()->id() === $suggestion->user_id
+                    && $suggestion->status === \App\Enums\SuggestionStatus::PENDING;
+            @endphp
             <div class="bg-[#0f1526] border border-slate-800 hover:border-slate-700 rounded-xl p-4 transition flex items-start gap-3 sm:gap-4 shadow-lg">
 
                 <!-- زر التصويت -->
@@ -92,16 +97,34 @@
 
                 <!-- تفاصيل الاقتراح -->
                 <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2 flex-wrap mb-1">
-                        <h2 class="text-sm md:text-base font-bold text-gray-200 break-words">{{ $suggestion->title }}</h2>
+                    <div class="flex items-start justify-between gap-2 mb-1">
+                        <div class="flex items-center gap-2 flex-wrap min-w-0">
+                            <h2 class="text-sm md:text-base font-bold text-gray-200 break-words">{{ $suggestion->title }}</h2>
 
-                        <!-- بادج الحالة -->
-                        @if($suggestion->status === \App\Enums\SuggestionStatus::PENDING)
-                            <span class="px-2 py-0.5 text-[10px] font-semibold bg-amber-950/60 text-amber-400 border border-amber-800/40 rounded-md whitespace-nowrap">{{ __('Pending') ?? 'قيد المراجعة' }}</span>
-                        @elseif($suggestion->status === \App\Enums\SuggestionStatus::APPROVED)
-                            <span class="px-2 py-0.5 text-[10px] font-semibold bg-blue-950/60 text-blue-400 border border-blue-800/40 rounded-md whitespace-nowrap">{{ __('In Research') ?? 'قيد البحث' }}</span>
-                        @elseif($suggestion->status === \App\Enums\SuggestionStatus::WRITTEN)
-                            <span class="px-2 py-0.5 text-[10px] font-semibold bg-emerald-950/60 text-emerald-400 border border-emerald-800/40 rounded-md whitespace-nowrap">{{ __('Investigated') ?? 'تمت كتابتها' }}</span>
+                            <!-- بادج الحالة -->
+                            @if($suggestion->status === \App\Enums\SuggestionStatus::PENDING)
+                                <span class="px-2 py-0.5 text-[10px] font-semibold bg-amber-950/60 text-amber-400 border border-amber-800/40 rounded-md whitespace-nowrap">{{ __('Pending') ?? 'قيد المراجعة' }}</span>
+                            @elseif($suggestion->status === \App\Enums\SuggestionStatus::APPROVED)
+                                <span class="px-2 py-0.5 text-[10px] font-semibold bg-blue-950/60 text-blue-400 border border-blue-800/40 rounded-md whitespace-nowrap">{{ __('In Research') ?? 'قيد البحث' }}</span>
+                            @elseif($suggestion->status === \App\Enums\SuggestionStatus::WRITTEN)
+                                <span class="px-2 py-0.5 text-[10px] font-semibold bg-emerald-950/60 text-emerald-400 border border-emerald-800/40 rounded-md whitespace-nowrap">{{ __('Investigated') ?? 'تمت كتابتها' }}</span>
+                            @endif
+                        </div>
+
+                        @if($canManage)
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <button type="button"
+                                        wire:click="openEditModal({{ $suggestion->id }})"
+                                        class="px-2.5 py-1 text-[11px] font-semibold text-slate-300 hover:text-white bg-slate-900 hover:bg-slate-800 border border-slate-700/80 rounded-lg transition">
+                                    {{ __('Edit') ?? 'تعديل' }}
+                                </button>
+                                <button type="button"
+                                        wire:click="deleteSuggestion({{ $suggestion->id }})"
+                                        wire:confirm="{{ __('Are you sure you want to delete this suggestion?') ?? 'هل أنت متأكد من حذف هذا الاقتراح؟' }}"
+                                        class="px-2.5 py-1 text-[11px] font-semibold text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-950/70 border border-rose-800/50 rounded-lg transition">
+                                    {{ __('Delete') ?? 'حذف' }}
+                                </button>
+                            </div>
                         @endif
                     </div>
 
@@ -139,16 +162,18 @@
         {{ $suggestions->links() }}
     </div>
 
-    <!-- النافذة المنبثقة لإضافة اقتراح جديد Modal -->
+    <!-- النافذة المنبثقة لإضافة أو تعديل اقتراح Modal -->
     @if($showModal)
         <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-            <div class="bg-[#0f1526] border border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl relative" @click.outside="$wire.set('showModal', false)">
+            <div class="bg-[#0f1526] border border-slate-800 rounded-2xl w-full max-w-lg p-6 shadow-2xl relative" @click.outside="$wire.closeModal()">
                 <div class="flex justify-between items-center pb-4 border-b border-slate-800 mb-4">
-                    <h3 class="text-base font-bold text-gray-200">{{ __('Submit Case Suggestion') ?? 'تقديم اقتراح قضية' }}</h3>
-                    <button wire:click="$set('showModal', false)" class="text-gray-500 hover:text-white">&times;</button>
+                    <h3 class="text-base font-bold text-gray-200">
+                        {{ $editingSuggestionId ? (__('Edit Case Suggestion') ?? 'تعديل اقتراح قضية') : (__('Submit Case Suggestion') ?? 'تقديم اقتراح قضية') }}
+                    </h3>
+                    <button type="button" wire:click="closeModal" class="text-gray-500 hover:text-white">&times;</button>
                 </div>
 
-                <form wire:submit.prevent="createSuggestion" class="space-y-4">
+                <form wire:submit.prevent="saveSuggestion" class="space-y-4">
                     <div>
                         <label class="block text-xs font-semibold text-gray-400 mb-1">{{ __('Case Title / Topic') ?? 'عنوان القضية / الموضوع' }} *</label>
                         <input type="text" wire:model="title" class="w-full bg-slate-900 border border-slate-800 text-gray-200 text-xs rounded-xl p-3 focus:outline-none focus:border-red-600" placeholder="{{ __('e.g., Miyazawa Family Murder') }}" />
@@ -162,11 +187,11 @@
                     </div>
 
                     <div class="flex justify-end gap-2 pt-2">
-                        <button type="button" wire:click="$set('showModal', false)" class="px-4 py-2 text-xs font-semibold text-gray-400 hover:text-white bg-slate-900 rounded-xl border border-slate-800">
+                        <button type="button" wire:click="closeModal" class="px-4 py-2 text-xs font-semibold text-gray-400 hover:text-white bg-slate-900 rounded-xl border border-slate-800">
                             {{ __('Cancel') ?? 'إلغاء' }}
                         </button>
                         <button type="submit" class="px-4 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-lg shadow-red-900/30">
-                            {{ __('Submit Suggestion') ?? 'إرسال الاقتراح' }}
+                            {{ $editingSuggestionId ? (__('Save Changes') ?? 'حفظ التعديلات') : (__('Submit Suggestion') ?? 'إرسال الاقتراح') }}
                         </button>
                     </div>
                 </form>
